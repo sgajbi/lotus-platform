@@ -324,7 +324,7 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "contracts/domain-data-products" in scaffold_script
     assert "not_certified" in scaffold_script
     assert "scripts/data_mesh_contract_gate.py" in scaffold_script
-    assert "SOURCE_AUTHORITY = \"platform-domain-product-catalog\"" in scaffold_script
+    assert 'SOURCE_AUTHORITY = "platform-domain-product-catalog"' in scaffold_script
     assert "--platform-root" in scaffold_script
     assert "scripts/architecture_boundary_gate.py" in scaffold_script
     assert "scripts/generate_quality_baseline.py" in scaffold_script
@@ -420,10 +420,26 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "run: make test-unit" in feature_lane_template
     assert "run: ./.venv/bin/python -m pytest tests/unit" not in feature_lane_template
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
-    assert "--ref main" in merged_pr_dispatch_template
+    assert (
+        'dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"'
+        in merged_pr_dispatch_template
+    )
+    assert (
+        'existing_ref_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"'
+        in merged_pr_dispatch_template
+    )
+    assert "Dispatch ref $dispatch_ref points to $existing_ref_sha" in (
+        merged_pr_dispatch_template
+    )
+    assert 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"' in (
+        merged_pr_dispatch_template
+    )
+    assert 'gh api "repos/$GITHUB_REPOSITORY/git/refs"' in merged_pr_dispatch_template
+    assert '--ref "$dispatch_ref"' in merged_pr_dispatch_template
     assert "github.event.pull_request.merge_commit_sha" in merged_pr_dispatch_template
     assert "-f expected_sha=" in merged_pr_dispatch_template
     assert "expected_sha:" in main_releasability_template
+    assert "${{ inputs.expected_sha || github.sha }}" in main_releasability_template
     assert "git rev-parse HEAD" in main_releasability_template
     assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
     assert "timeout-minutes: 10" in merged_pr_dispatch_template
@@ -1054,7 +1070,22 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     assert "Merged PR Main Releasability Dispatch" in merged_pr_dispatch_workflow
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_workflow
-    assert "--ref main" in merged_pr_dispatch_workflow
+    assert (
+        'dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"'
+        in merged_pr_dispatch_workflow
+    )
+    assert (
+        'existing_ref_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"'
+        in merged_pr_dispatch_workflow
+    )
+    assert "Dispatch ref $dispatch_ref points to $existing_ref_sha" in (
+        merged_pr_dispatch_workflow
+    )
+    assert 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"' in (
+        merged_pr_dispatch_workflow
+    )
+    assert 'gh api "repos/$GITHUB_REPOSITORY/git/refs"' in merged_pr_dispatch_workflow
+    assert '--ref "$dispatch_ref"' in merged_pr_dispatch_workflow
     assert "github.event.pull_request.merge_commit_sha" in merged_pr_dispatch_workflow
     assert "-f expected_sha=" in merged_pr_dispatch_workflow
     assert "timeout-minutes: 10" in merged_pr_dispatch_workflow
@@ -1404,9 +1435,9 @@ def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
     mesh_gate = (mesh_repo / "scripts/data_mesh_contract_gate.py").read_text(
         encoding="utf-8"
     )
-    mesh_gate_test = (mesh_repo / "tests/unit/test_data_mesh_contract_gate.py").read_text(
-        encoding="utf-8"
-    )
+    mesh_gate_test = (
+        mesh_repo / "tests/unit/test_data_mesh_contract_gate.py"
+    ).read_text(encoding="utf-8")
     placeholder_paths = [
         mesh_repo / "contracts/domain-data-products/producer-consumer-placeholder.json",
         mesh_repo / "contracts/trust-telemetry/trust-telemetry-placeholder.json",
@@ -1429,9 +1460,17 @@ def test_scaffold_mesh_placeholders_are_opt_in(tmp_path: Path) -> None:
     assert "telemetry must not be unblocked pre-certification" in mesh_gate
     assert "missing from platform domain-product catalog" in mesh_gate
     assert "certification_status must remain not_certified" in mesh_gate
-    assert "test_data_mesh_contract_gate_accepts_scaffold_placeholders" in mesh_gate_test
-    assert "test_data_mesh_contract_gate_requires_consumer_source_authority" in mesh_gate_test
-    assert "test_data_mesh_contract_gate_requires_policy_product_declarations" in mesh_gate_test
+    assert (
+        "test_data_mesh_contract_gate_accepts_scaffold_placeholders" in mesh_gate_test
+    )
+    assert (
+        "test_data_mesh_contract_gate_requires_consumer_source_authority"
+        in mesh_gate_test
+    )
+    assert (
+        "test_data_mesh_contract_gate_requires_policy_product_declarations"
+        in mesh_gate_test
+    )
     assert "test_data_mesh_contract_gate_reconciles_optional_platform_catalog" in (
         mesh_gate_test
     )

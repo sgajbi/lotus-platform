@@ -1,7 +1,7 @@
 {
   "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
-  "generated_at_utc": "2026-08-20T10:03:36Z",
-  "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml on main after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
+  "generated_at_utc": "2026-08-20T11:58:45Z",
+  "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml through an immutable merge-SHA ref after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
   "exceptions": [
     {
       "repository": "lotus-archive",
@@ -68,11 +68,50 @@
       "owner": "platform-ci-governance",
       "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-workbench/issues/533",
-      "reason": "Repo-local PR required to remove the direct main-releasability push trigger and migrate the active merged-PR dispatcher to pass expected_sha from pull_request.merge_commit_sha. Workbench has an active feature branch owned outside this platform rollout.",
+      "reason": "Repo-local PR required to remove the direct main-releasability push trigger, migrate the active merged-PR dispatcher to immutable merge-SHA ref dispatch, and pass expected_sha from pull_request.merge_commit_sha. Workbench has an active feature branch owned outside this platform rollout.",
       "violations": [
         "main-releasability.duplicate-automatic-trigger",
         "main-releasability.missing-expected-sha-assertion",
-        "merged-pr-dispatch.missing-expected-sha-input"
+        "main-releasability.missing-revision-aware-concurrency",
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.wrong-main-releasability-target"
+      ]
+    },
+    {
+      "repository": "lotus-ai",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-ai/issues/133",
+      "reason": "RFC-0002 Slice 17 follow-up requires a repo-local PR to replace merged-PR branch-ref dispatch with immutable merge-SHA ref dispatch and revision-aware main releasability concurrency.",
+      "violations": [
+        "main-releasability.missing-revision-aware-concurrency",
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.wrong-main-releasability-target"
+      ]
+    },
+    {
+      "repository": "lotus-gateway",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-gateway/issues/555",
+      "reason": "RFC-0002 Slice 17 follow-up requires a repo-local PR to replace merged-PR branch-ref dispatch with immutable merge-SHA ref dispatch and revision-aware main releasability concurrency.",
+      "violations": [
+        "main-releasability.missing-revision-aware-concurrency",
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.wrong-main-releasability-target"
+      ]
+    },
+    {
+      "repository": "lotus-idea",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-idea/issues/1119",
+      "reason": "RFC-0002 Slice 17 follow-up requires a repo-local PR to replace merged-PR branch-ref dispatch with immutable merge-SHA ref dispatch and revision-aware main releasability concurrency.",
+      "violations": [
+        "main-releasability.missing-revision-aware-concurrency",
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.wrong-main-releasability-target"
       ]
     },
     {
