@@ -44,13 +44,17 @@ such as `--method POST`, `--method=POST`, `-X POST`, and `-XPOST` are acceptable
 preserve the required ref-creation method. The existing-ref lookup guard must be recognized only
 when it is on an executed path before creation; a canonical guard hidden in an uninvoked function or
 otherwise unreachable construct is not protection, while executed `if` bodies and shell command
-groups can remain valid when the validator can prove they run before creation. The
+groups can remain valid when the validator can prove they run before creation. The looked-up
+`existing_ref_sha` value must flow directly into the mismatch comparison without an intervening
+top-level reassignment, and the absent-ref branch must contain exactly one guarded immutable-ref
+creation invocation so redeliveries cannot skip collision detection or fail before dispatch. The
 `main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
 completed, so the dispatcher cannot race ahead on a missing tag. Contract-gate tests should include
 negative cases for split run steps, commented payload fields, separated payload-field echoes, masked
-creation failure, backgrounded creation, chained creation commands, non-POST creation overrides,
-input-body overrides, dispatch before absent-ref creation, and unreachable/function-scoped lookup
-guards before promoting the workflow as release-evidence ready.
+creation failure, backgrounded creation, chained creation commands, duplicate guarded creation
+commands, lookup-SHA mutation before mismatch comparison, non-POST creation overrides, input-body
+overrides, dispatch before absent-ref creation, and unreachable/function-scoped lookup guards before
+promoting the workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
