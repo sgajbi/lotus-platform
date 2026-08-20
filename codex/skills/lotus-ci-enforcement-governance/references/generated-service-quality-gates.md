@@ -34,33 +34,54 @@ red helper check; it should skip automatic rebase merge and require an authorize
 actor to merge.
 
 Merged-PR main releasability dispatchers must validate shell execution semantics, not only YAML
-substring presence. Immutable dispatch-ref creation must run synchronously in the foreground, must
-not be failure-masked with fallback operators such as `|| true`, must not append shell chaining or
-control flow such as `; exit 0` or `&& ...`, must reject non-POST `gh api` method overrides such as
-`--method GET` or `-XGET`, must reject input-body overrides such as `--input`, and must bind exact
-`ref` and `sha` payload fields to the same
-`gh api repos/$GITHUB_REPOSITORY/git/refs` command that creates the tag. Explicit POST overrides
-such as `--method POST`, `--method=POST`, `-X POST`, and `-XPOST` are acceptable because they
-preserve the required ref-creation method. The existing-ref lookup guard must be recognized only
-when it is on an executed path before creation; a canonical guard hidden in an uninvoked function or
-otherwise unreachable construct is not protection, while executed `if` bodies and shell command
-groups can remain valid when the validator can prove they run before creation. The looked-up
-`existing_ref_sha` value must flow directly into the mismatch comparison without an intervening
-top-level reassignment, and the absent-ref branch must contain exactly one guarded immutable-ref
-creation invocation so redeliveries cannot skip collision detection or fail before dispatch. The
-`main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
-completed, must be a real outer-shell-scope command rather than an unreachable or nested guard, must
-not be failure-masked, backgrounded, or chained, and must bind both `--ref "$dispatch_ref"` and exact
-`-f expected_sha="$MERGE_COMMIT_SHA"` arguments so downstream exact-main validation cannot be skipped,
-emptied, or redirected to another revision. The immutable `dispatch_ref` value must not be reassigned
-between its merge-SHA initialization and the dispatch command. Contract-gate tests should include
-negative cases for
-split run steps, commented payload fields, separated payload-field echoes, masked creation failure,
-backgrounded creation, chained creation commands, duplicate guarded creation commands, lookup-SHA
-mutation before mismatch comparison, non-POST creation overrides, input-body overrides, dispatch
-before absent-ref creation, masked dispatch failure, nested dispatch commands, wrong or empty
-`expected_sha` dispatch arguments, dispatch-ref reassignment before workflow dispatch, and
-unreachable/function-scoped lookup guards before promoting the workflow as release-evidence ready.
+substring presence. Immutable dispatch-ref creation must run synchronously in the foreground and
+must fail closed when creation fails. Reject fallback or control-flow patterns that can mask
+creation status or allow the later dispatch after a failed creation, such as `|| true`, `; exit 0`,
+backgrounded creation, swallowed subshell failures, or fallback branches that continue to dispatch.
+Do not blanket-reject checked chains that preserve failure semantics, for example a foreground
+`gh api ... && echo created` chain inside a step running under `bash -e`. The validator must prove
+the creation command's failure still terminates the step or prevents dispatch.
+
+The ref-creation command must reject non-POST `gh api` method overrides such as `--method GET` or
+`-XGET`, must reject input-body overrides such as `--input`, and must bind exactly one `ref` payload
+field and exactly one `sha` payload field on the same
+`gh api repos/$GITHUB_REPOSITORY/git/refs` command that creates the tag. Those payload values must
+resolve to `ref="refs/tags/$dispatch_ref"` and `sha="$MERGE_COMMIT_SHA"`; field-name presence alone
+is insufficient. Duplicate scalar `ref` or `sha` fields are invalid even when one copy has the
+correct value. Explicit POST overrides such as `--method POST`, `--method=POST`, `-X POST`, and
+`-XPOST` are acceptable because they preserve the required ref-creation method.
+
+The existing-ref lookup guard must be recognized only when it is on an executed path before
+creation; a canonical guard hidden in an uninvoked function or otherwise unreachable construct is
+not protection, while executed `if` bodies and shell command groups can remain valid when the
+validator can prove they run before creation. The looked-up `existing_ref_sha` value must flow
+directly into the mismatch comparison without an intervening top-level reassignment, and the
+absent-ref branch must contain exactly one guarded immutable-ref creation invocation so redeliveries
+cannot skip collision detection or fail before dispatch.
+
+The `main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
+completed, must be a real outer-shell-scope command rather than an unreachable or nested guard, and
+must not be failure-masked, backgrounded, or placed in control flow that permits dispatch after
+failed creation. Parse the workflow-dispatch invocation as CLI arguments and validate resolved
+values rather than relying on substring checks. Supported ref spellings include
+`--ref "$dispatch_ref"` and `-r "$dispatch_ref"`. Supported input spellings include
+`-f expected_sha="$MERGE_COMMIT_SHA"`, `--raw-field expected_sha="$MERGE_COMMIT_SHA"`,
+`-F expected_sha="$MERGE_COMMIT_SHA"`, and `--field expected_sha="$MERGE_COMMIT_SHA"`. Repository
+override flags such as `--repo`, `--repo=...`, and `-R` must be rejected so the release-evidence
+workflow cannot be dispatched against another repository. The immutable `MERGE_COMMIT_SHA` value
+must remain bound to `github.event.pull_request.merge_commit_sha` from initialization through
+dispatch-ref creation and workflow dispatch, and the immutable `dispatch_ref` value must not be
+reassigned between its merge-SHA initialization and the dispatch command.
+
+Contract-gate tests should include negative cases for split run steps, commented payload fields,
+separated payload-field echoes, masked creation failure, backgrounded creation, unsafe chained
+creation commands, duplicate guarded creation commands, duplicate `ref` or `sha` payload fields,
+wrong `ref` or `sha` payload values, lookup-SHA mutation before mismatch comparison, merge-SHA
+reassignment before ref creation or workflow dispatch, non-POST creation overrides, input-body
+overrides, dispatch before absent-ref creation, masked dispatch failure, nested dispatch commands,
+wrong or empty `expected_sha` dispatch arguments, repository override flags, dispatch-ref
+reassignment before workflow dispatch, and unreachable/function-scoped lookup guards before
+promoting the workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
