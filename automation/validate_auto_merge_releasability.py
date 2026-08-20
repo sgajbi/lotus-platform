@@ -88,6 +88,64 @@ def _write_permissions(payload: dict[str, Any]) -> dict[str, str]:
     }
 
 
+def _workflow_steps(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    jobs = payload.get("jobs")
+    if not isinstance(jobs, dict):
+        return []
+    steps: list[dict[str, Any]] = []
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        job_steps = job.get("steps")
+        if not isinstance(job_steps, list):
+            continue
+        steps.extend(step for step in job_steps if isinstance(step, dict))
+    return steps
+
+
+def _step_env_value(step: dict[str, Any], name: str) -> str:
+    env = step.get("env")
+    if not isinstance(env, dict):
+        return ""
+    return str(env.get(name) or "")
+
+
+def _step_run(step: dict[str, Any]) -> str:
+    run = step.get("run")
+    return run if isinstance(run, str) else ""
+
+
+def _merged_pr_dispatch_passes_merge_commit_sha(payload: dict[str, Any]) -> bool:
+    for step in _workflow_steps(payload):
+        merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
+        run = _step_run(step)
+        if (
+            "github.event.pull_request.merge_commit_sha" in merge_commit_sha
+            and re.search(r"-(?:f|F)\s+expected_sha=\"?\$MERGE_COMMIT_SHA\"?", run)
+        ):
+            return True
+    return False
+
+
+def _main_releasability_has_exact_sha_assertion(payload: dict[str, Any]) -> bool:
+    for step in _workflow_steps(payload):
+        expected_sha = _step_env_value(step, "EXPECTED_SHA")
+        run = _step_run(step)
+        mismatch_fails = re.search(
+            r'^\s*if\s+\[\s+"\$actual_sha"\s+!=\s+"\$EXPECTED_SHA"\s+\];\s*then'
+            r".*?^\s*exit\s+1\b",
+            run,
+            re.DOTALL | re.MULTILINE,
+        )
+        if (
+            "inputs.expected_sha" in expected_sha
+            and 'actual_sha="$(git rev-parse HEAD)"' in run
+            and mismatch_fails
+        ):
+            return True
+    return False
+
+
 def _policy_repositories(policy_path: Path) -> list[str]:
     payload = _load_json(policy_path)
     return [str(repo["name"]) for repo in payload.get("repos", [])]
@@ -174,11 +232,7 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         violations.append("merged-pr-dispatch.wrong-main-releasability-target")
     if "git/ref/tags/$dispatch_ref" in text and "|| true" in text:
         violations.append("merged-pr-dispatch.masked-immutable-ref-lookup")
-    if (
-        "github.event.pull_request.merge_commit_sha" not in text
-        or "expected_sha" not in text
-        or not re.search(r"-(?:f|F)\s+expected_sha=", text)
-    ):
+    if not _merged_pr_dispatch_passes_merge_commit_sha(payload):
         violations.append("merged-pr-dispatch.missing-expected-sha-input")
     return violations
 
@@ -198,11 +252,7 @@ def _main_releasability_violations(
     if merged_pr_dispatch_exists:
         inputs = _workflow_dispatch_inputs(payload)
         has_expected_sha_input = "expected_sha" in inputs
-        has_exact_sha_assertion = (
-            "git rev-parse HEAD" in text
-            and "EXPECTED_SHA" in text
-            and "inputs.expected_sha" in text
-        )
+        has_exact_sha_assertion = _main_releasability_has_exact_sha_assertion(payload)
         if not has_expected_sha_input or not has_exact_sha_assertion:
             violations.append("main-releasability.missing-expected-sha-assertion")
         if "${{ inputs.expected_sha || github.sha }}" not in text:

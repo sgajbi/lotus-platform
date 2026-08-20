@@ -587,6 +587,13 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "timeout-minutes: 45" in main_releasability
     assert "GH_TOKEN: ${{ github.token }}" in main_releasability
     assert 'LOTUS_BRANCH_SIGNATURES_REQUIRED: "false"' in main_releasability
+    assert 'LOTUS_MAINLINE_POLICY_BRANCH: "main"' in main_releasability
+    assert (
+        "git fetch --no-tags origin main:refs/remotes/origin/main" in main_releasability
+    )
+    assert 'git merge-base --is-ancestor "$EXPECTED_SHA" origin/main' in (
+        main_releasability
+    )
 
     assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
@@ -610,9 +617,10 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     )
     assert '$Lane -eq "main-releasability"' in repo_checks
     assert (
-        "Invoke-CheckedCommand $toolingPython automation/validate_mainline_commit_provenance.py"
+        "Invoke-CheckedCommand $toolingPython automation/validate_mainline_commit_provenance.py --branch $mainlinePolicyBranch"
         in repo_checks
     )
+    assert "LOTUS_MAINLINE_POLICY_BRANCH" in repo_checks
     assert "Validate-Backend-Standards.ps1" in repo_checks
 
 
