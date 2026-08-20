@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 356215
+    "total_source_lines": 356563
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -58,14 +58,6 @@
         "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
       },
       {
-        "complexity": 17,
-        "end_line": 183,
-        "line": 150,
-        "lines": 34,
-        "name": "_merged_pr_dispatch_violations",
-        "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
         "complexity": 15,
         "end_line": 125,
         "line": 52,
@@ -80,6 +72,14 @@
         "lines": 50,
         "name": "_validate_environments",
         "path": "automation/validate_deployment_promotion_manifest.py"
+      },
+      {
+        "complexity": 15,
+        "end_line": 237,
+        "line": 208,
+        "lines": 30,
+        "name": "_merged_pr_dispatch_violations",
+        "path": "automation/validate_auto_merge_releasability.py"
       },
       {
         "complexity": 14,
@@ -237,6 +237,14 @@
       },
       {
         "complexity": 2,
+        "end_line": 297,
+        "line": 9,
+        "lines": 289,
+        "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
+        "path": "tests/unit/test_ci_governance_documentation_contract.py"
+      },
+      {
+        "complexity": 2,
         "end_line": 450,
         "line": 176,
         "lines": 275,
@@ -276,14 +284,6 @@
         "path": "automation/core_seeded_analytics_maturity_validation.py"
       },
       {
-        "complexity": 2,
-        "end_line": 201,
-        "line": 9,
-        "lines": 193,
-        "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
-        "path": "tests/unit/test_ci_governance_documentation_contract.py"
-      },
-      {
         "complexity": 1,
         "end_line": 318,
         "line": 128,
@@ -298,6 +298,14 @@
         "lines": 173,
         "name": "test_domain_product_onboarding_scaffold_writes_complete_bundle",
         "path": "tests/unit/test_domain_product_onboarding_generator.py"
+      },
+      {
+        "complexity": 1,
+        "end_line": 466,
+        "line": 300,
+        "lines": 167,
+        "name": "test_platform_standards_and_runbook_point_to_rfc_0072_sources",
+        "path": "tests/unit/test_ci_governance_documentation_contract.py"
       },
       {
         "complexity": 1,
@@ -346,21 +354,13 @@
         "lines": 134,
         "name": "_run_validation",
         "path": "automation/core_performance_returns_series_validation.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 1230,
-        "line": 1098,
-        "lines": 133,
-        "name": "test_rfc_0084_validator_allows_approved_transition_for_version_drift",
-        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2784
+    "python_function_count": 2791
   },
-  "generated_at_utc": "2026-08-20T12:12:54Z",
+  "generated_at_utc": "2026-08-20T12:50:32Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 940,
+    "collected_tests": 942,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "940 tests collected in 0.91s"
+    "summary": "942 tests collected in 0.86s"
   }
 }

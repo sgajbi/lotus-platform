@@ -79,7 +79,12 @@ try {
     }
 
     if ($Lane -eq "main-releasability") {
-        Invoke-CheckedCommand $toolingPython automation/validate_mainline_commit_provenance.py
+        $mainlinePolicyBranch = if ([string]::IsNullOrWhiteSpace($env:LOTUS_MAINLINE_POLICY_BRANCH)) {
+            "main"
+        } else {
+            $env:LOTUS_MAINLINE_POLICY_BRANCH
+        }
+        Invoke-CheckedCommand $toolingPython automation/validate_mainline_commit_provenance.py --branch $mainlinePolicyBranch
     }
 }
 finally {

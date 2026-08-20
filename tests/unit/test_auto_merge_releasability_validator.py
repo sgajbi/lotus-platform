@@ -117,7 +117,10 @@ jobs:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
         run: |
           actual_sha="$(git rev-parse HEAD)"
-          if [ -n "$EXPECTED_SHA" ] && [ "$actual_sha" != "$EXPECTED_SHA" ]; then
+          if [ -z "$EXPECTED_SHA" ]; then
+            exit 0
+          fi
+          if [ "$actual_sha" != "$EXPECTED_SHA" ]; then
             exit 1
           fi
 """,
@@ -273,6 +276,38 @@ jobs:
     )
 
 
+def test_auto_merge_releasability_rejects_head_sha_dispatched_as_expected_sha(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            '-f expected_sha="$MERGE_COMMIT_SHA"',
+            '-f expected_sha="${{ github.event.pull_request.head.sha }}"',
+        ),
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == ("merged-pr-dispatch.missing-expected-sha-input",)
+
+
 def test_auto_merge_releasability_rejects_masked_immutable_ref_lookup(
     tmp_path: Path,
 ) -> None:
@@ -326,6 +361,38 @@ concurrency:
   group: ${{ github.workflow }}-${{ inputs.expected_sha || github.sha }}
   cancel-in-progress: true
 """,
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "main-releasability.missing-expected-sha-assertion",
+    )
+
+
+def test_auto_merge_releasability_rejects_assertion_without_mismatch_exit(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            'if [ "$actual_sha" != "$EXPECTED_SHA" ]; then\n            exit 1\n          fi',
+            'echo "if [ "$actual_sha" != "$EXPECTED_SHA" ]; then exit 1"',
+        ),
         encoding="utf-8",
     )
 
