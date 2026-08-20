@@ -52,13 +52,15 @@ creation invocation so redeliveries cannot skip collision detection or fail befo
 completed, must be a real outer-shell-scope command rather than an unreachable or nested guard, must
 not be failure-masked, backgrounded, or chained, and must bind both `--ref "$dispatch_ref"` and exact
 `-f expected_sha="$MERGE_COMMIT_SHA"` arguments so downstream exact-main validation cannot be skipped,
-emptied, or redirected to another revision. Contract-gate tests should include negative cases for
+emptied, or redirected to another revision. The immutable `dispatch_ref` value must not be reassigned
+between its merge-SHA initialization and the dispatch command. Contract-gate tests should include
+negative cases for
 split run steps, commented payload fields, separated payload-field echoes, masked creation failure,
 backgrounded creation, chained creation commands, duplicate guarded creation commands, lookup-SHA
 mutation before mismatch comparison, non-POST creation overrides, input-body overrides, dispatch
 before absent-ref creation, masked dispatch failure, nested dispatch commands, wrong or empty
-`expected_sha` dispatch arguments, and unreachable/function-scoped lookup guards before promoting the
-workflow as release-evidence ready.
+`expected_sha` dispatch arguments, dispatch-ref reassignment before workflow dispatch, and
+unreachable/function-scoped lookup guards before promoting the workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
