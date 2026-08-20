@@ -79,6 +79,30 @@
       ]
     },
     {
+      "repository": "lotus-advise",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-advise/issues/490",
+      "reason": "RFC-0002 Slice 17 repo-local PR is open but not yet merged to default branch; until it lands, fresh platform CI sibling checkout still reports the legacy branch-ref dispatch posture.",
+      "violations": [
+        "main-releasability.missing-expected-sha-assertion",
+        "main-releasability.missing-revision-aware-concurrency",
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.wrong-main-releasability-target"
+      ]
+    },
+    {
+      "repository": "lotus-manage",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-08-28T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-manage/issues/635",
+      "reason": "RFC-0002 Slice 17 repo-local PR is open but not yet merged to default branch; until it lands, fresh platform CI sibling checkout still reports the masked immutable-ref lookup defect.",
+      "violations": [
+        "merged-pr-dispatch.masked-immutable-ref-lookup"
+      ]
+    },
+    {
       "repository": "lotus-ai",
       "owner": "platform-ci-governance",
       "expires_on_utc": "2026-08-28T00:00:00Z",
