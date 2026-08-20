@@ -38,9 +38,12 @@ substring presence. Immutable dispatch-ref creation must run synchronously in th
 must fail closed when creation fails. Reject fallback or control-flow patterns that can mask
 creation status or allow the later dispatch after a failed creation, such as `|| true`, `; exit 0`,
 backgrounded creation, swallowed subshell failures, or fallback branches that continue to dispatch.
-Do not blanket-reject checked chains that preserve failure semantics, for example a foreground
-`gh api ... && echo created` chain inside a step running under `bash -e`. The validator must prove
-the creation command's failure still terminates the step or prevents dispatch.
+Do not treat a bare `gh api ... && echo created; gh workflow run ...` sequence as
+failure-preserving: Bash `-e` does not exit only because the left-hand command in an `&&` list
+failed, so the later dispatch command can still run. A checked chain is valid only when an explicit
+status check, `if` guard, or grouped/subshell command returns the creation failure to the outer step
+before dispatch can execute. The validator must prove the creation command's failure still
+terminates the step or prevents dispatch.
 
 The ref-creation command must resolve to POST. Reject non-POST `gh api` method overrides such as
 `--method GET` or `-XGET`. Field-flag payloads must bind exactly one `ref` field and exactly one
