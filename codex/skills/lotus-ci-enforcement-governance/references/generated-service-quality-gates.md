@@ -62,23 +62,28 @@ branch must contain exactly one guarded immutable-ref creation invocation so red
 skip collision detection or fail before dispatch.
 
 The `main-releasability.yml` dispatch command must run only after the absent-ref creation branch has
-completed, must be a real outer-shell-scope command rather than an unreachable or nested guard, and
-must not be failure-masked, backgrounded, or placed in control flow that permits dispatch after
-failed creation. Parse the workflow-dispatch invocation as CLI arguments and validate resolved
-values rather than relying on substring checks. Supported ref spellings include
-`--ref "$dispatch_ref"` and `-r "$dispatch_ref"`. Supported input spellings include
-`-f expected_sha="$MERGE_COMMIT_SHA"`, `--raw-field expected_sha="$MERGE_COMMIT_SHA"`,
-`-F expected_sha="$MERGE_COMMIT_SHA"`, and `--field expected_sha="$MERGE_COMMIT_SHA"`. The resolved
-dispatch target repository must equal `$GITHUB_REPOSITORY` in all cases. A repository selector may
-pin this explicitly through `--repo "$GITHUB_REPOSITORY"` or an equivalent immutable
-`$GITHUB_REPOSITORY` binding. If the selector is omitted, the validator must prove the ambient
-repository resolution cannot come from `GH_REPO`, an unrelated checkout, or another mutable source;
-otherwise omission is invalid. Reject other literals, caller-controlled values, mutable variables,
-missing values, and flags such as `--repo=wrong/other` or `-R wrong/other` so the release-evidence
-workflow cannot be dispatched against another repository. The immutable `MERGE_COMMIT_SHA` value
-must remain bound to `github.event.pull_request.merge_commit_sha` from initialization through
-dispatch-ref creation and workflow dispatch, and the immutable `dispatch_ref` value must not be
-reassigned between its merge-SHA initialization and the dispatch command.
+completed, and must not be failure-masked, backgrounded, unreachable, or placed in control flow that
+can bypass ordering or permit dispatch after failed creation. Dispatch may live inside an executed
+conditional, function, or command group when the validator can prove the scope runs after creation
+and preserves dispatch failure under the Actions shell. Parse the workflow-dispatch invocation as
+CLI arguments and validate resolved values rather than relying on substring checks. Supported ref
+spellings include `--ref "$dispatch_ref"` and `-r "$dispatch_ref"`. Supported scalar input
+spellings include `-f expected_sha="$MERGE_COMMIT_SHA"`,
+`--raw-field expected_sha="$MERGE_COMMIT_SHA"`, `-F expected_sha="$MERGE_COMMIT_SHA"`, and
+`--field expected_sha="$MERGE_COMMIT_SHA"`. JSON stdin input through `gh workflow run ... --json`
+is also valid only when the validator can prove the stdin body binds
+`expected_sha` exactly to `$MERGE_COMMIT_SHA` and the pipeline preserves generation and dispatch
+failure. The resolved dispatch target repository must equal `$GITHUB_REPOSITORY` in all cases. A
+repository selector may pin this explicitly through `--repo "$GITHUB_REPOSITORY"` or an equivalent
+immutable `$GITHUB_REPOSITORY` binding. If the selector is omitted, the validator must prove the
+ambient repository resolution cannot come from `GH_REPO`, an unrelated checkout, or another mutable
+source; otherwise omission is invalid. Reject other literals, caller-controlled values, mutable
+variables, missing values, and flags such as `--repo=wrong/other` or `-R wrong/other` so the
+release-evidence workflow cannot be dispatched against another repository. The immutable
+`MERGE_COMMIT_SHA` value must remain bound to `github.event.pull_request.merge_commit_sha` from
+initialization through dispatch-ref creation and workflow dispatch. The immutable `dispatch_ref`
+must initialize to `main-releasability-${MERGE_COMMIT_SHA}` and must not be reassigned between that
+initialization and the dispatch command.
 
 Contract-gate tests should include negative cases for split run steps, commented payload fields,
 separated payload-field echoes, masked creation failure, backgrounded creation, unsafe chained
@@ -86,10 +91,12 @@ creation commands, duplicate guarded creation commands, duplicate `ref` or `sha`
 wrong `ref` or `sha` payload values, lookup-SHA mutation in nested or top-level executed scopes
 before mismatch comparison, merge-SHA reassignment before ref creation or workflow dispatch,
 non-POST creation overrides, input-body overrides, dispatch before absent-ref creation, masked
-dispatch failure, nested dispatch commands, wrong or empty `expected_sha` dispatch arguments,
-omitted repository selectors without ambient-resolution proof, non-event repository selectors,
-dispatch-ref reassignment before workflow dispatch, and unreachable/function-scoped lookup guards
-before promoting the workflow as release-evidence ready.
+dispatch failure, unreachable dispatch scopes, nested dispatch scopes whose execution or failure
+semantics are unproven, wrong or empty scalar `expected_sha` dispatch arguments, malformed or
+failure-masked JSON stdin input, omitted repository selectors without ambient-resolution proof,
+non-event repository selectors, wrong `dispatch_ref` initialization, dispatch-ref reassignment
+before workflow dispatch, and unreachable/function-scoped lookup guards before promoting the
+workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
