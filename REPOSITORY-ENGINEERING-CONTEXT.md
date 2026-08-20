@@ -522,8 +522,11 @@ behavior.
 
 `automation/validate_auto_merge_releasability.py` validates the registered Lotus repositories'
 auto-merge and exact-main releasability workflow posture. It requires `LOTUS_AUTOMERGE_TOKEN`
-auto-merge, rebase merge intent, a merged-PR `main-releasability.yml` dispatcher, and
-`workflow_dispatch` on Main Releasability. Temporary rollout gaps must be explicit in
+auto-merge, rebase merge intent, a merged-PR `main-releasability.yml` dispatcher that passes
+`expected_sha` from `github.event.pull_request.merge_commit_sha`, and `workflow_dispatch` on Main
+Releasability with an exact-revision assertion when `expected_sha` is supplied. This preserves
+manual operator dispatch while failing closed if a merged-PR dispatcher would otherwise validate a
+later `main` head. Temporary rollout gaps must be explicit in
 `platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json` with owner, reason,
 issue URL, exact violations, and expiry.
 

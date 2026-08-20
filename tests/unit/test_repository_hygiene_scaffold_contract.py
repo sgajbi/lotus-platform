@@ -421,6 +421,10 @@ def test_repository_hygiene_standard_and_templates_exist() -> None:
     assert "run: ./.venv/bin/python -m pytest tests/unit" not in feature_lane_template
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_template
     assert "--ref main" in merged_pr_dispatch_template
+    assert "github.event.pull_request.merge_commit_sha" in merged_pr_dispatch_template
+    assert "-f expected_sha=" in merged_pr_dispatch_template
+    assert "expected_sha:" in main_releasability_template
+    assert "git rev-parse HEAD" in main_releasability_template
     assert "github.event.pull_request.merged == true" in merged_pr_dispatch_template
     assert "timeout-minutes: 10" in merged_pr_dispatch_template
     assert "suite: [unit, integration, e2e]" in pr_merge_template
@@ -988,6 +992,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     )
     assert "merged-pr-main-releasability.yml" in ci_contract_gate
     assert "gh workflow run main-releasability.yml" in ci_contract_gate
+    assert "github.event.pull_request.merge_commit_sha" in ci_contract_gate
+    assert "expected_sha:" in ci_contract_gate
     assert "workflow_dispatch:" in ci_contract_gate
     assert "_validate_job_timeouts" in ci_contract_gate
     assert "continue-on-error:" in ci_contract_gate
@@ -1049,6 +1055,8 @@ def test_scaffolded_repo_matches_repository_hygiene_baseline(tmp_path: Path) -> 
     assert "Merged PR Main Releasability Dispatch" in merged_pr_dispatch_workflow
     assert "gh workflow run main-releasability.yml" in merged_pr_dispatch_workflow
     assert "--ref main" in merged_pr_dispatch_workflow
+    assert "github.event.pull_request.merge_commit_sha" in merged_pr_dispatch_workflow
+    assert "-f expected_sha=" in merged_pr_dispatch_workflow
     assert "timeout-minutes: 10" in merged_pr_dispatch_workflow
     assert (
         "WARNING: quality/architecture_boundary_report.json is missing"
