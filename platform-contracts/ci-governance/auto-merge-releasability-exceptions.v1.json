@@ -1,6 +1,6 @@
 {
   "schema_version": "lotus.auto-merge-releasability-exceptions.v1",
-  "generated_at_utc": "2026-08-20T09:43:58Z",
+  "generated_at_utc": "2026-08-20T10:03:36Z",
   "policy": "Every registered Lotus repository must use LOTUS_AUTOMERGE_TOKEN for rebase auto-merge and must dispatch main-releasability.yml on main after merged PRs. Exceptions are temporary rollout records, not permanent approval.",
   "exceptions": [
     {
@@ -68,9 +68,11 @@
       "owner": "platform-ci-governance",
       "expires_on_utc": "2026-08-28T00:00:00Z",
       "issue_url": "https://github.com/sgajbi/lotus-workbench/issues/533",
-      "reason": "Repo-local PR required to remove the direct main-releasability push trigger now that the merged-PR dispatcher owns automatic post-merge dispatch.",
+      "reason": "Repo-local PR required to remove the direct main-releasability push trigger and migrate the active merged-PR dispatcher to pass expected_sha from pull_request.merge_commit_sha. Workbench has an active feature branch owned outside this platform rollout.",
       "violations": [
-        "main-releasability.duplicate-automatic-trigger"
+        "main-releasability.duplicate-automatic-trigger",
+        "main-releasability.missing-expected-sha-assertion",
+        "merged-pr-dispatch.missing-expected-sha-input"
       ]
     },
     {

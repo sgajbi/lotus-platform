@@ -2756,6 +2756,8 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
     ),
     "main-releasability.yml": (
         "workflow_dispatch:",
+        "expected_sha:",
+        "git rev-parse HEAD",
         "permissions:\n  contents: read",
         "actions/checkout@v7",
         "actions/setup-python@v6",
@@ -2793,9 +2795,11 @@ WORKFLOW_EXPECTATIONS: dict[str, tuple[str, ...]] = {
         "actions: write",
         "contents: read",
         "github.event.pull_request.merged == true",
+        "github.event.pull_request.merge_commit_sha",
         "github.event.pull_request.base.ref == 'main'",
         "gh workflow run main-releasability.yml",
         "--ref main",
+        "-f expected_sha=",
     ),
 }
 

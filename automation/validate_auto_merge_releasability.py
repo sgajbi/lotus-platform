@@ -60,6 +60,17 @@ def _has_trigger(payload: dict[str, Any], trigger: str) -> bool:
     return isinstance(triggers, dict) and trigger in triggers
 
 
+def _workflow_dispatch_inputs(payload: dict[str, Any]) -> dict[str, Any]:
+    triggers = _workflow_triggers(payload)
+    if not isinstance(triggers, dict):
+        return {}
+    workflow_dispatch = triggers.get("workflow_dispatch")
+    if not isinstance(workflow_dispatch, dict):
+        return {}
+    inputs = workflow_dispatch.get("inputs")
+    return inputs if isinstance(inputs, dict) else {}
+
+
 def _permissions(payload: dict[str, Any]) -> dict[str, str]:
     permissions = payload.get("permissions")
     if isinstance(permissions, str):
@@ -148,6 +159,12 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         violations.append("merged-pr-dispatch.missing-actions-write")
     if "gh workflow run main-releasability.yml" not in text or "--ref main" not in text:
         violations.append("merged-pr-dispatch.wrong-main-releasability-target")
+    if (
+        "github.event.pull_request.merge_commit_sha" not in text
+        or "expected_sha" not in text
+        or not re.search(r"-(?:f|F)\s+expected_sha=", text)
+    ):
+        violations.append("merged-pr-dispatch.missing-expected-sha-input")
     return violations
 
 
@@ -156,12 +173,23 @@ def _main_releasability_violations(
 ) -> list[str]:
     if not workflow_path.exists():
         return ["main-releasability.missing"]
+    text = workflow_path.read_text(encoding="utf-8")
     payload = _load_yaml(workflow_path)
     violations: list[str] = []
     if not _has_trigger(payload, "workflow_dispatch"):
         violations.append("main-releasability.missing-workflow-dispatch")
     if merged_pr_dispatch_exists and _has_trigger(payload, "push"):
         violations.append("main-releasability.duplicate-automatic-trigger")
+    if merged_pr_dispatch_exists:
+        inputs = _workflow_dispatch_inputs(payload)
+        has_expected_sha_input = "expected_sha" in inputs
+        has_exact_sha_assertion = (
+            "git rev-parse HEAD" in text
+            and "EXPECTED_SHA" in text
+            and "inputs.expected_sha" in text
+        )
+        if not has_expected_sha_input or not has_exact_sha_assertion:
+            violations.append("main-releasability.missing-expected-sha-assertion")
     return violations
 
 

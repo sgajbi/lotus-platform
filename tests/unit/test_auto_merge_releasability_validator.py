@@ -72,7 +72,13 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main
+      - env:
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          gh workflow run main-releasability.yml \\
+            --repo "$GITHUB_REPOSITORY" \\
+            --ref main \\
+            -f expected_sha="$MERGE_COMMIT_SHA"
 """,
         encoding="utf-8",
     )
@@ -81,8 +87,24 @@ jobs:
 name: Main Releasability Gate
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        required: false
+        type: string
 permissions:
   contents: read
+jobs:
+  exact-revision-assertion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          actual_sha="$(git rev-parse HEAD)"
+          if [ -n "$EXPECTED_SHA" ] && [ "$actual_sha" != "$EXPECTED_SHA" ]; then
+            exit 1
+          fi
 """,
         encoding="utf-8",
     )
@@ -141,6 +163,84 @@ permissions:
     assert results[0].status == "drift"
     assert results[0].violations == (
         "main-releasability.duplicate-automatic-trigger",
+        "main-releasability.missing-expected-sha-assertion",
+    )
+
+
+def test_auto_merge_releasability_rejects_legacy_unpinned_dispatch(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    ).write_text(
+        """
+name: Merged PR Main Releasability Dispatch
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main
+""",
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "merged-pr-dispatch.missing-expected-sha-input",
+    )
+
+
+def test_auto_merge_releasability_rejects_dispatch_without_main_assertion(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    (repo_root / ".github" / "workflows" / "main-releasability.yml").write_text(
+        """
+name: Main Releasability Gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+""",
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "main-releasability.missing-expected-sha-assertion",
     )
 
 
