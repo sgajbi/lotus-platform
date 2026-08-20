@@ -838,6 +838,18 @@ merged `main` commit. When that token is absent, the generated helper should war
 auto-merge so an authorized human or release actor can perform the rebase merge without leaving a
 permanent red helper check. Generated backend workflows must also declare bounded job-level
 `timeout-minutes` values and must not soft-fail critical lanes with `continue-on-error: true`.
+Merged-PR main-releasability dispatchers must be validated by executable shell semantics, not YAML
+substring presence. The immutable `dispatch_ref` must be derived from the event
+`merge_commit_sha`, lookup must target `repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref` using
+GET and extract `.object.sha`, absent-ref creation must synchronously create exactly one
+`refs/tags/$dispatch_ref` ref at `$MERGE_COMMIT_SHA`, and dispatch must run only after successful
+lookup/create ordering with `expected_sha="$MERGE_COMMIT_SHA"` and repository resolution pinned to
+`$GITHUB_REPOSITORY` or otherwise proven immutable. Validated JSON request bodies and ordered
+split-step implementations are acceptable only when payload binding, step-output trust, ordering,
+and failure propagation are proven. Non-executed payloads such as here-documents, uninvoked
+functions, comments, query-string field drift, mutable repository selectors, wrong lookup
+projections, reassigned merge/ref variables, backgrounded commands, and soft-failed dispatch steps
+must not satisfy release-evidence proof.
 Release evidence and deployment promotion proof are separate contracts. Service repositories own
 Dockerfile hygiene, SBOM, vulnerability scan, signing, provenance attestation, and digest-bearing
 `release-evidence.json`; `lotus-platform` owns the digest-based deployment promotion manifest under

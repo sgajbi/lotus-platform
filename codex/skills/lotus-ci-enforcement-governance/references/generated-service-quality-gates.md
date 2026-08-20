@@ -42,20 +42,28 @@ Do not blanket-reject checked chains that preserve failure semantics, for exampl
 `gh api ... && echo created` chain inside a step running under `bash -e`. The validator must prove
 the creation command's failure still terminates the step or prevents dispatch.
 
-The ref-creation command must reject non-POST `gh api` method overrides such as `--method GET` or
-`-XGET`, must reject input-body overrides such as `--input`, and must bind exactly one `ref` payload
-field and exactly one `sha` payload field on the same
-`gh api repos/$GITHUB_REPOSITORY/git/refs` command that creates the tag. Those payload values must
-resolve to `ref="refs/tags/$dispatch_ref"` and `sha="$MERGE_COMMIT_SHA"`; field-name presence alone
-is insufficient. Duplicate scalar `ref` or `sha` fields are invalid even when one copy has the
-correct value. Explicit POST overrides such as `--method POST`, `--method=POST`, `-X POST`, and
-`-XPOST` are acceptable because they preserve the required ref-creation method.
+The ref-creation command must resolve to POST. Reject non-POST `gh api` method overrides such as
+`--method GET` or `-XGET`. Field-flag payloads must bind exactly one `ref` field and exactly one
+`sha` field on the same `gh api repos/$GITHUB_REPOSITORY/git/refs` command that creates the tag.
+Validated request bodies through `--input -` or `--input <file>` are acceptable only when the
+validator proves the submitted JSON body binds exactly one `ref` value to
+`refs/tags/$dispatch_ref` and exactly one `sha` value to `$MERGE_COMMIT_SHA`, and the body-producing
+pipeline preserves generation and `gh api` failure. Reject unvalidated input bodies, combinations
+where `--input` moves `-f`/`-F`/`--field` arguments into the query string instead of the request
+body, duplicate scalar or JSON `ref`/`sha` fields, and any caller-controlled or constant payload.
+Payload-field name presence alone is insufficient. Explicit POST overrides such as
+`--method POST`, `--method=POST`, `-X POST`, and `-XPOST` are acceptable because they preserve the
+required ref-creation method.
 
 The existing-ref lookup guard must be recognized only when it is on an executed path before
 creation and the lookup endpoint resolves exactly to
-`repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref`. A canonical guard hidden in an uninvoked
-function or otherwise unreachable construct is not protection, while executed `if` bodies and shell
-command groups can remain valid when the validator can prove they run before creation. The looked-up
+`repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref`. The lookup invocation must resolve to GET and
+must not include request-body or query-field arguments that make `gh api` choose POST. The looked-up
+`existing_ref_sha` value must derive specifically from the response object's `.object.sha` field;
+projections such as `.ref`, constants, or whole-response passthroughs are not valid collision
+detection. A canonical guard hidden in an uninvoked function, here-document payload, or otherwise
+unreachable construct is not protection, while executed `if` bodies and shell command groups can
+remain valid when the validator can prove they run before creation. The looked-up
 `existing_ref_sha` value must flow directly into the mismatch comparison without reassignment in any
 executed scope or branch between lookup and comparison. A nested command group, conditional,
 function call, or loop body that can overwrite the looked-up value before comparison is not valid
@@ -66,10 +74,14 @@ The `main-releasability.yml` dispatch command must run only after the absent-ref
 completed, and must not be failure-masked, backgrounded, unreachable, or placed in control flow that
 can bypass ordering or permit dispatch after failed creation. Dispatch may live inside an executed
 conditional, function, or command group when the validator can prove the scope runs after creation
-and preserves dispatch failure under the Actions shell. Parse the workflow-dispatch invocation as
-CLI arguments and validate resolved values rather than relying on substring checks. Supported ref
-spellings include `--ref "$dispatch_ref"` and `-r "$dispatch_ref"`. Supported scalar input
-spellings include `-f expected_sha="$MERGE_COMMIT_SHA"`,
+and preserves dispatch failure under the Actions shell. Split-step workflows are valid only when the
+first step performs lookup and guarded ref creation, exports the verified immutable ref through a
+trusted step output, and the later dispatch step is ordered by GitHub Actions semantics so it cannot
+run after lookup or creation failure. Reject split steps when data binding, step ordering, or failure
+propagation cannot be proven. Parse the workflow-dispatch invocation as CLI arguments and validate
+resolved values rather than relying on substring checks. Supported ref spellings include
+`--ref "$dispatch_ref"` and `-r "$dispatch_ref"`. Supported scalar input spellings include
+`-f expected_sha="$MERGE_COMMIT_SHA"`,
 `--raw-field expected_sha="$MERGE_COMMIT_SHA"`, `-F expected_sha="$MERGE_COMMIT_SHA"`, and
 `--field expected_sha="$MERGE_COMMIT_SHA"`. JSON stdin input through `gh workflow run ... --json`
 is also valid only when the validator can prove the stdin body binds
@@ -86,18 +98,22 @@ initialization through dispatch-ref creation and workflow dispatch. The immutabl
 must initialize to `main-releasability-${MERGE_COMMIT_SHA}` and must not be reassigned between that
 initialization and the dispatch command.
 
-Contract-gate tests should include negative cases for split run steps, commented payload fields,
-separated payload-field echoes, masked creation failure, backgrounded creation, unsafe chained
-creation commands, duplicate guarded creation commands, duplicate `ref` or `sha` payload fields,
-wrong `ref` or `sha` payload values, wrong lookup tag, wrong lookup repository, lookup-SHA mutation
-in nested or top-level executed scopes before mismatch comparison, merge-SHA reassignment before
-ref creation or workflow dispatch, non-POST creation overrides, input-body overrides, dispatch
-before absent-ref creation, masked dispatch failure, unreachable dispatch scopes, nested dispatch
-scopes whose execution or failure semantics are unproven, wrong or empty scalar `expected_sha`
-dispatch arguments, malformed or failure-masked JSON stdin input, omitted repository selectors
-without ambient-resolution proof, non-event repository selectors, wrong `dispatch_ref`
-initialization, dispatch-ref reassignment before workflow dispatch, and
-unreachable/function-scoped lookup guards before promoting the workflow as release-evidence ready.
+Contract-gate tests should include negative cases for unsafe split run steps, commented payload
+fields, separated payload-field echoes, here-document-only command payloads, masked creation
+failure, backgrounded creation, unsafe chained creation commands, duplicate guarded creation
+commands, duplicate `ref` or `sha` payload fields, wrong `ref` or `sha` payload values, unvalidated
+or query-string `--input` payloads, wrong lookup tag, wrong lookup repository, lookup invocations
+that resolve to POST, lookup projections that do not read `.object.sha`, lookup-SHA mutation in
+nested or top-level executed scopes before mismatch comparison, merge-SHA reassignment before ref
+creation or workflow dispatch, non-POST creation overrides, dispatch before absent-ref creation,
+masked dispatch failure, unreachable dispatch scopes, nested dispatch scopes whose execution or
+failure semantics are unproven, wrong or empty scalar `expected_sha` dispatch arguments, malformed
+or failure-masked JSON stdin input, omitted repository selectors without ambient-resolution proof,
+non-event repository selectors, wrong `dispatch_ref` initialization, dispatch-ref reassignment
+before workflow dispatch, and unreachable/function-scoped lookup guards before promoting the
+workflow as release-evidence ready. Positive tests should cover explicit POST creation, validated
+JSON request-body creation, executed conditionals/groups, and ordered split-step dispatch when the
+step-output binding and failure propagation are proven.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
