@@ -38,11 +38,13 @@ substring presence. Immutable dispatch-ref creation must run synchronously in th
 not be failure-masked with fallback operators such as `|| true`, must reject `gh api` method/input
 overrides such as `--method GET`, `-X`, or `--input`, and must bind exact `ref` and `sha` payload
 fields to the same `gh api repos/$GITHUB_REPOSITORY/git/refs` command that creates the tag. The
-existing-ref lookup guard must be recognized only at executable outer shell scope; a canonical guard
-hidden in an uninvoked function or nested block is not protection. Contract-gate tests should
-include negative cases for split run steps, commented payload fields, separated payload-field
-echoes, masked creation failure, backgrounded creation, non-POST creation overrides, and
-function-scoped lookup guards before promoting the workflow as release-evidence ready.
+existing-ref lookup guard must be recognized only when it is on an executed path before creation;
+a canonical guard hidden in an uninvoked function or otherwise unreachable construct is not
+protection, while executed `if` bodies and shell command groups can remain valid when the validator
+can prove they run before creation. Contract-gate tests should include negative cases for split run
+steps, commented payload fields, separated payload-field echoes, masked creation failure,
+backgrounded creation, non-POST creation overrides, and unreachable/function-scoped lookup guards
+before promoting the workflow as release-evidence ready.
 
 GitHub workflows should call the repo-native targets that developers and agents run locally. For
 generated backend services, Feature Lane should use `make test-unit`, PR/Main suite matrices should
