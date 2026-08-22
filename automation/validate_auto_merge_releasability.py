@@ -71,6 +71,16 @@ def _workflow_dispatch_inputs(payload: dict[str, Any]) -> dict[str, Any]:
     return inputs if isinstance(inputs, dict) else {}
 
 
+def _workflow_concurrency_group(payload: dict[str, Any]) -> str:
+    concurrency = payload.get("concurrency")
+    if isinstance(concurrency, str):
+        return concurrency
+    if not isinstance(concurrency, dict):
+        return ""
+    group = concurrency.get("group")
+    return group if isinstance(group, str) else ""
+
+
 def _permissions(payload: dict[str, Any]) -> dict[str, str]:
     permissions = payload.get("permissions")
     if isinstance(permissions, str):
@@ -255,7 +265,8 @@ def _main_releasability_violations(
         has_exact_sha_assertion = _main_releasability_has_exact_sha_assertion(payload)
         if not has_expected_sha_input or not has_exact_sha_assertion:
             violations.append("main-releasability.missing-expected-sha-assertion")
-        if "${{ inputs.expected_sha || github.sha }}" not in text:
+        concurrency_group = _workflow_concurrency_group(payload)
+        if "github.sha" not in concurrency_group:
             violations.append("main-releasability.missing-revision-aware-concurrency")
     return violations
 

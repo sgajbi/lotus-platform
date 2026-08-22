@@ -106,7 +106,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.expected_sha || github.sha }}
+  group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   exact-revision-assertion:
@@ -136,6 +136,36 @@ def test_auto_merge_releasability_accepts_aligned_repository(tmp_path: Path) -> 
     _write_policy(policy, ["lotus-example"])
     _write_exceptions(exceptions, [])
     _write_aligned_workflows(repo_root)
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "aligned"
+    assert results[0].violations == ()
+
+
+def test_auto_merge_releasability_accepts_checked_out_revision_fallback(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "${{ github.sha }}",
+            "${{ inputs.expected_sha || github.sha }}",
+        ),
+        encoding="utf-8",
+    )
 
     results = validate_repositories(
         policy_path=policy,
@@ -358,7 +388,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.expected_sha || github.sha }}
+  group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
 """,
         encoding="utf-8",
@@ -422,7 +452,7 @@ def test_auto_merge_releasability_rejects_sha_insensitive_main_concurrency(
     workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
     workflow_path.write_text(
         workflow_path.read_text(encoding="utf-8").replace(
-            "${{ inputs.expected_sha || github.sha }}",
+            "${{ github.sha }}",
             "${{ github.ref }}",
         ),
         encoding="utf-8",
