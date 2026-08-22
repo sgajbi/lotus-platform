@@ -28,6 +28,9 @@ GITHUB_TOKEN_EXPRESSION = re.compile(
 LOTUS_AUTOMERGE_TOKEN_EXPRESSION = re.compile(
     r"\$\{\{\s*secrets\.LOTUS_AUTOMERGE_TOKEN\s*\}\}", re.IGNORECASE
 )
+GITHUB_SHA_EXPRESSION = re.compile(
+    r"\$\{\{[^{}]*\bgithub\.sha\b[^{}]*\}\}", re.IGNORECASE
+)
 
 
 @dataclass(frozen=True)
@@ -266,7 +269,7 @@ def _main_releasability_violations(
         if not has_expected_sha_input or not has_exact_sha_assertion:
             violations.append("main-releasability.missing-expected-sha-assertion")
         concurrency_group = _workflow_concurrency_group(payload)
-        if "github.sha" not in concurrency_group:
+        if not GITHUB_SHA_EXPRESSION.search(concurrency_group):
             violations.append("main-releasability.missing-revision-aware-concurrency")
     return violations
 
