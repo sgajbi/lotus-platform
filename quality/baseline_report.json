@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 356755
+    "total_source_lines": 356799
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -75,8 +75,8 @@
       },
       {
         "complexity": 15,
-        "end_line": 250,
-        "line": 221,
+        "end_line": 262,
+        "line": 233,
         "lines": 30,
         "name": "_merged_pr_dispatch_violations",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2794
+    "python_function_count": 2796
   },
-  "generated_at_utc": "2026-08-22T23:32:41Z",
+  "generated_at_utc": "2026-08-22T23:36:31Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 944,
+    "collected_tests": 945,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "944 tests collected in 1.04s"
+    "summary": "945 tests collected in 1.34s"
   }
 }
