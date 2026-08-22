@@ -17,7 +17,7 @@
       ".yaml": 27,
       ".yml": 12
     },
-    "total_source_lines": 356563
+    "total_source_lines": 356720
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -75,8 +75,8 @@
       },
       {
         "complexity": 15,
-        "end_line": 237,
-        "line": 208,
+        "end_line": 247,
+        "line": 218,
         "lines": 30,
         "name": "_merged_pr_dispatch_violations",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -260,20 +260,20 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       },
       {
+        "complexity": 2,
+        "end_line": 331,
+        "line": 67,
+        "lines": 265,
+        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
+        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
+      },
+      {
         "complexity": 7,
         "end_line": 368,
         "line": 106,
         "lines": 263,
         "name": "_seed_core_data",
         "path": "automation/core_performance_twr_benchmark_validation.py"
-      },
-      {
-        "complexity": 2,
-        "end_line": 320,
-        "line": 67,
-        "lines": 254,
-        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
-        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
         "complexity": 5,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2791
+    "python_function_count": 2793
   },
-  "generated_at_utc": "2026-08-20T12:50:32Z",
+  "generated_at_utc": "2026-08-22T23:20:33Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 942,
+    "collected_tests": 943,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "942 tests collected in 0.86s"
+    "summary": "943 tests collected in 1.11s"
   }
 }
