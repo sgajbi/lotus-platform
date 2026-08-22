@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-22T23:32:41Z`
+Generated: `2026-08-22T23:36:31Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `887`
-- Total source lines: `356755`
+- Total source lines: `356799`
 - Python files: `225`
 - PowerShell files: `68`
 - Markdown files: `410`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2794`
+- Python functions: `2796`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -50,7 +50,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
-| automation/validate_auto_merge_releasability.py | _merged_pr_dispatch_violations | 221 | 15 | 30 |
+| automation/validate_auto_merge_releasability.py | _merged_pr_dispatch_violations | 233 | 15 | 30 |
 | codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py | validate | 64 | 14 | 124 |
 | automation/background_task_cancellation.py | _projects_from_contract | 672 | 14 | 48 |
 | automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 174 | 14 | 47 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `944`
+- Unit tests collected: `945`
 - Collection command return code: `0`
-- Collection summary: `944 tests collected in 1.04s`
+- Collection summary: `945 tests collected in 1.34s`
 
 ## Security Baseline
 
