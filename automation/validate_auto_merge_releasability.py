@@ -28,8 +28,12 @@ GITHUB_TOKEN_EXPRESSION = re.compile(
 LOTUS_AUTOMERGE_TOKEN_EXPRESSION = re.compile(
     r"\$\{\{\s*secrets\.LOTUS_AUTOMERGE_TOKEN\s*\}\}", re.IGNORECASE
 )
-GITHUB_SHA_EXPRESSION = re.compile(
-    r"\$\{\{[^{}]*\bgithub\.sha\b[^{}]*\}\}", re.IGNORECASE
+GITHUB_EXPRESSION = re.compile(r"\$\{\{(?P<body>[^{}]*)\}\}")
+GITHUB_EXPRESSION_QUOTED_LITERAL = re.compile(
+    r"'(?:''|[^'])*'|\"(?:\\.|[^\"])*\""
+)
+GITHUB_SHA_REFERENCE = re.compile(
+    r"(?<![A-Za-z0-9_.])github\.sha(?![A-Za-z0-9_.])", re.IGNORECASE
 )
 
 
@@ -82,6 +86,14 @@ def _workflow_concurrency_group(payload: dict[str, Any]) -> str:
         return ""
     group = concurrency.get("group")
     return group if isinstance(group, str) else ""
+
+
+def _references_github_sha(group: str) -> bool:
+    for match in GITHUB_EXPRESSION.finditer(group):
+        executable_body = GITHUB_EXPRESSION_QUOTED_LITERAL.sub("", match.group("body"))
+        if GITHUB_SHA_REFERENCE.search(executable_body):
+            return True
+    return False
 
 
 def _permissions(payload: dict[str, Any]) -> dict[str, str]:
@@ -269,7 +281,7 @@ def _main_releasability_violations(
         if not has_expected_sha_input or not has_exact_sha_assertion:
             violations.append("main-releasability.missing-expected-sha-assertion")
         concurrency_group = _workflow_concurrency_group(payload)
-        if not GITHUB_SHA_EXPRESSION.search(concurrency_group):
+        if not _references_github_sha(concurrency_group):
             violations.append("main-releasability.missing-revision-aware-concurrency")
     return violations
 
