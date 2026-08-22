@@ -535,6 +535,45 @@ def test_auto_merge_releasability_rejects_quoted_sha_literal_expression(
     )
 
 
+def test_auto_merge_releasability_rejects_non_value_preserving_sha_expressions(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    aligned_workflow = workflow_path.read_text(encoding="utf-8")
+
+    for expression in (
+        "${{ 'release' || github.sha }}",
+        "${{ github.sha == 'never' }}",
+        "${{ format('{0}', github.sha) }}",
+    ):
+        workflow_path.write_text(
+            aligned_workflow.replace(
+                "${{ github.sha }}",
+                expression,
+            ),
+            encoding="utf-8",
+        )
+
+        results = validate_repositories(
+            policy_path=policy,
+            exception_path=exceptions,
+            repos_root=repos_root,
+            today=datetime(2026, 7, 14, tzinfo=UTC),
+        )
+
+        assert results[0].status == "drift", expression
+        assert results[0].violations == (
+            "main-releasability.missing-revision-aware-concurrency",
+        ), expression
+
+
 def test_auto_merge_releasability_fails_undeclared_drift(tmp_path: Path) -> None:
     policy = tmp_path / "policy.json"
     exceptions = tmp_path / "exceptions.json"
