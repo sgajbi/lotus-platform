@@ -156,6 +156,20 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert "does not satisfy canonical ready-state certification" in " ".join(
         performance_summary["validation_rules"]["partial"]
     )
+    performance_contribution = panel_by_id["performance.analysis.contribution"]
+    assert performance_contribution["required_support_state"] == "ready"
+    assert performance_contribution["allowed_states"] == [
+        "ready",
+        "partial",
+        "loading",
+        "error",
+    ]
+    assert "available contribution rows and source evidence remain visible" in (
+        performance_contribution["validation_rules"]["partial"]
+    )
+    assert "does not satisfy canonical ready-state certification" in " ".join(
+        performance_contribution["validation_rules"]["partial"]
+    )
     assert "supported_blank" not in panel_by_id["portfolio.summary"]["allowed_states"]
     assert panel_by_id["advisor.book_overview"]["owning_service"] == "lotus-gateway"
     assert panel_by_id["advisor.book_overview"]["required_support_state"] == "partial"
