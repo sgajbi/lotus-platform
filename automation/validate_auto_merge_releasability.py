@@ -28,12 +28,9 @@ GITHUB_TOKEN_EXPRESSION = re.compile(
 LOTUS_AUTOMERGE_TOKEN_EXPRESSION = re.compile(
     r"\$\{\{\s*secrets\.LOTUS_AUTOMERGE_TOKEN\s*\}\}", re.IGNORECASE
 )
-GITHUB_EXPRESSION = re.compile(r"\$\{\{(?P<body>[^{}]*)\}\}")
-GITHUB_EXPRESSION_QUOTED_LITERAL = re.compile(
-    r"'(?:''|[^'])*'|\"(?:\\.|[^\"])*\""
-)
-GITHUB_SHA_REFERENCE = re.compile(
-    r"(?<![A-Za-z0-9_.])github\.sha(?![A-Za-z0-9_.])", re.IGNORECASE
+GITHUB_SHA_VALUE_EXPRESSION = re.compile(
+    r"\$\{\{\s*(?:github\.sha|inputs\.expected_sha\s*\|\|\s*github\.sha)\s*\}\}",
+    re.IGNORECASE,
 )
 
 
@@ -89,11 +86,7 @@ def _workflow_concurrency_group(payload: dict[str, Any]) -> str:
 
 
 def _references_github_sha(group: str) -> bool:
-    for match in GITHUB_EXPRESSION.finditer(group):
-        executable_body = GITHUB_EXPRESSION_QUOTED_LITERAL.sub("", match.group("body"))
-        if GITHUB_SHA_REFERENCE.search(executable_body):
-            return True
-    return False
+    return GITHUB_SHA_VALUE_EXPRESSION.search(group) is not None
 
 
 def _permissions(payload: dict[str, Any]) -> dict[str, str]:
