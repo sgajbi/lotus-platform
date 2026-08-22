@@ -238,11 +238,16 @@
       "gateway_endpoint": "/api/v1/workbench/{portfolio_id}/performance/details",
       "canonical_data_contract": "canonical-front-office-demo-data-contract",
       "required_support_state": "ready",
-      "allowed_states": ["ready", "loading", "error"],
+      "allowed_states": ["ready", "partial", "loading", "error"],
       "validation_rules": {
         "ready": [
           "performance drivers table is populated",
           "contribution rows reconcile to net portfolio return"
+        ],
+        "partial": [
+          "available contribution rows and source evidence remain visible",
+          "missing component coverage and owner reason are explicit",
+          "partial does not satisfy canonical ready-state certification"
         ],
         "loading": ["analysis route hydration only"],
         "error": ["analysis load failure is explicit and user-visible"]
