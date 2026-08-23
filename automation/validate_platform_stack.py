@@ -1,0 +1,213 @@
+"""Validate the canonical local platform stack's security and operability contract."""
+
+from __future__ import annotations
+
+import argparse
+import re
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_STACK_ROOT = ROOT / "platform-stack"
+
+ONE_SHOT_SERVICES = frozenset(
+    {"lotus-core-kafka-topic-creator", "lotus-core-migration-runner"}
+)
+EXPECTED_OTEL_SERVICE_NAMES = {
+    "lotus-core-query": "lotus-core-query",
+    "lotus-core-control": "lotus-core-control",
+    "lotus-core-ingestion": "lotus-core-ingestion",
+    "lotus-manage": "lotus-manage",
+    "lotus-performance": "lotus-performance",
+    "lotus-report": "lotus-report",
+    "lotus-idea": "lotus-idea",
+    "lotus-gateway": "lotus-gateway",
+}
+EXPECTED_PROMETHEUS_JOBS = frozenset(
+    {
+        "lotus-ai",
+        "lotus-advise",
+        "lotus-archive",
+        "lotus-core-control",
+        "lotus-core-ingestion",
+        "lotus-core-query",
+        "lotus-gateway",
+        "lotus-idea",
+        "lotus-manage",
+        "lotus-performance",
+        "lotus-render",
+        "lotus-report",
+        "lotus-risk",
+        "lotus-workbench",
+    }
+)
+_REQUIRED_INTERPOLATION = re.compile(r"^\$\{[A-Z][A-Z0-9_]*:\?[^}]+\}$")
+_LOOPBACK_PORT = re.compile(r'^127\.0\.0\.1:\$\{[A-Z][A-Z0-9_]*(?::-\d+)?\}:\d+$')
+_LITERAL_DSN_CREDENTIAL = re.compile(r"://[^${:/\s]+:[^${@/\s]+@")
+
+
+def _read_yaml(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        value = yaml.safe_load(handle)
+    return value if isinstance(value, dict) else {}
+
+
+def _environment_map(service: dict[str, Any]) -> dict[str, Any]:
+    environment = service.get("environment", {})
+    return environment if isinstance(environment, dict) else {}
+
+
+def _has_resource_limit(service: dict[str, Any]) -> bool:
+    if service.get("cpus") and service.get("mem_limit"):
+        return True
+    deploy = service.get("deploy", {})
+    resources = deploy.get("resources", {}) if isinstance(deploy, dict) else {}
+    limits = resources.get("limits", {}) if isinstance(resources, dict) else {}
+    return bool(limits.get("cpus") and limits.get("memory"))
+
+
+def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None:
+    for service_name, service in services.items():
+        for key, value in _environment_map(service).items():
+            if any(marker in key.upper() for marker in ("PASSWORD", "SECRET", "TOKEN")):
+                if not isinstance(value, str) or not _REQUIRED_INTERPOLATION.fullmatch(value):
+                    issues.append(
+                        f"{service_name}.{key} must use required environment interpolation"
+                    )
+            if isinstance(value, str) and "://" in value:
+                if _LITERAL_DSN_CREDENTIAL.search(value):
+                    issues.append(f"{service_name}.{key} contains literal DSN credentials")
+                if "postgresql://" in value and "${" not in value:
+                    issues.append(f"{service_name}.{key} must compose its DSN from variables")
+
+
+def _validate_port_bindings(compose: dict[str, Any], issues: list[str]) -> None:
+    for service_name, service in compose.get("services", {}).items():
+        for port in service.get("ports", []):
+            if not isinstance(port, str) or not _LOOPBACK_PORT.fullmatch(port):
+                issues.append(f"{service_name} port must bind to 127.0.0.1: {port!r}")
+
+
+def _validate_service_controls(services: dict[str, Any], issues: list[str]) -> None:
+    for service_name, service in services.items():
+        if service_name in ONE_SHOT_SERVICES:
+            continue
+        if not isinstance(service.get("healthcheck"), dict):
+            issues.append(f"{service_name} must define a healthcheck")
+        if not _has_resource_limit(service):
+            issues.append(f"{service_name} must define CPU and memory limits")
+
+    ingress_dependencies = services.get("dev-ingress", {}).get("depends_on", {})
+    for dependency in ("prometheus", "grafana"):
+        condition = ingress_dependencies.get(dependency, {}).get("condition")
+        if condition != "service_healthy":
+            issues.append(f"dev-ingress must wait for healthy {dependency}")
+
+
+def _validate_observability(stack_root: Path, services: dict[str, Any], issues: list[str]) -> None:
+    for service_name, expected in EXPECTED_OTEL_SERVICE_NAMES.items():
+        actual = _environment_map(services.get(service_name, {})).get("OTEL_SERVICE_NAME")
+        if actual != expected:
+            issues.append(
+                f"{service_name}.OTEL_SERVICE_NAME must be {expected!r}, found {actual!r}"
+            )
+
+    collector = _read_yaml(stack_root / "otel-collector" / "config.yaml")
+    receiver_protocols = collector.get("receivers", {}).get("otlp", {}).get("protocols", {})
+    if receiver_protocols.get("grpc", {}).get("endpoint") != "0.0.0.0:4317":
+        issues.append("OTel gRPC receiver must listen on the container network at 0.0.0.0:4317")
+    if receiver_protocols.get("http", {}).get("endpoint") != "0.0.0.0:4318":
+        issues.append("OTel HTTP receiver must listen on the container network at 0.0.0.0:4318")
+    exporters = collector.get("exporters", {})
+    tempo_exporter = exporters.get("otlp/tempo", {}) if isinstance(exporters, dict) else {}
+    if tempo_exporter.get("endpoint") != "tempo:4317":
+        issues.append("OTel collector must export traces to tempo:4317")
+    trace_exporters = (
+        collector.get("service", {}).get("pipelines", {}).get("traces", {}).get("exporters", [])
+    )
+    if "otlp/tempo" not in trace_exporters:
+        issues.append("OTel traces pipeline must retain traces through otlp/tempo")
+
+    datasources = _read_yaml(
+        stack_root / "grafana" / "provisioning" / "datasources" / "datasource.yml"
+    ).get("datasources", [])
+    tempo_sources = [item for item in datasources if item.get("type") == "tempo"]
+    if len(tempo_sources) != 1 or tempo_sources[0].get("url") != "http://tempo:3200":
+        issues.append("Grafana must provision exactly one Tempo datasource at http://tempo:3200")
+
+    prometheus = _read_yaml(stack_root / "prometheus" / "prometheus.yml")
+    jobs = {item.get("job_name") for item in prometheus.get("scrape_configs", [])}
+    if jobs != EXPECTED_PROMETHEUS_JOBS:
+        missing = sorted(EXPECTED_PROMETHEUS_JOBS - jobs)
+        extra = sorted(jobs - EXPECTED_PROMETHEUS_JOBS)
+        issues.append(f"Prometheus job inventory drift: missing={missing} extra={extra}")
+
+
+def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[str]) -> None:
+    _validate_secret_values(services, issues)
+    grafana_environment = _environment_map(services.get("grafana", {}))
+    if grafana_environment.get("GF_AUTH_ANONYMOUS_ENABLED") != "false":
+        issues.append("Grafana anonymous authentication must be disabled")
+
+    env_example = (stack_root / ".env.example").read_text(encoding="utf-8")
+    if re.search(r"(?im)^[A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN)[A-Z0-9_]*=.+$", env_example):
+        issues.append(".env.example must not contain secret values")
+    if re.search(r"(?i)[a-z]:/users/|/home/[^/]+/", env_example):
+        issues.append(".env.example must not contain workstation-specific paths")
+    for bootstrap_name in ("bootstrap.ps1", "bootstrap.sh"):
+        if not (stack_root / bootstrap_name).is_file():
+            issues.append(f"platform stack is missing {bootstrap_name}")
+
+    tls_profile_path = stack_root / "docker-compose.tls.yml"
+    tls_caddyfile_path = stack_root / "dev-ingress" / "Caddyfile.tls"
+    if not tls_profile_path.is_file() or not tls_caddyfile_path.is_file():
+        issues.append("platform stack must provide the Caddy local-CA TLS profile")
+    else:
+        tls_profile = _read_yaml(tls_profile_path)
+        tls_ports = tls_profile.get("services", {}).get("dev-ingress", {}).get("ports", [])
+        tls_caddyfile = tls_caddyfile_path.read_text(encoding="utf-8")
+        if "127.0.0.1:${DEV_INGRESS_HTTPS_PORT:-443}:443" not in tls_ports:
+            issues.append("TLS profile HTTPS port must bind to 127.0.0.1")
+        if "local_certs" not in tls_caddyfile:
+            issues.append("TLS profile must use Caddy's local CA")
+
+
+def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:
+    issues: list[str] = []
+    compose = _read_yaml(stack_root / "docker-compose.yml")
+    services = compose.get("services", {})
+    if not isinstance(services, dict) or not services:
+        return ["docker-compose.yml must define services"]
+
+    if compose.get("name") != "lotus-platform":
+        issues.append("Compose project name must be lotus-platform")
+    if "bff" in services or "ui" in services:
+        issues.append("Legacy bff/ui service names are forbidden; use lotus-gateway/lotus-workbench")
+
+    _validate_security(stack_root, services, issues)
+    _validate_port_bindings(compose, issues)
+    _validate_port_bindings(_read_yaml(stack_root / "docker-compose.host-ports.yml"), issues)
+    _validate_service_controls(services, issues)
+    _validate_observability(stack_root, services, issues)
+    return issues
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stack-root", type=Path, default=DEFAULT_STACK_ROOT)
+    args = parser.parse_args()
+    issues = validate_stack(args.stack_root.resolve())
+    if issues:
+        print("platform stack validation failed:")
+        for issue in issues:
+            print(f"- {issue}")
+        return 1
+    print("platform stack validation passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

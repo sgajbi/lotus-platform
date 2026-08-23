@@ -57,6 +57,7 @@ try {
     Invoke-CheckedCommand $toolingPython automation/validate_auto_merge_releasability.py --require-local-repos
     Invoke-CheckedCommand $toolingPython automation/validate_workflow_action_runtime.py
     Invoke-CheckedCommand $toolingPython automation/validate_container_build_baseline.py
+    Invoke-CheckedCommand $toolingPython automation/validate_platform_stack.py
     Invoke-CheckedCommand $toolingPython automation/validate_vulnerability_exception_register.py
     Invoke-CheckedCommand $toolingPython automation/validate_technology_governance_policy.py
     Invoke-CheckedCommand $toolingPython automation/validate_deployment_promotion_manifest.py
