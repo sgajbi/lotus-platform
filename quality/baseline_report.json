@@ -5,19 +5,19 @@
   },
   "code_size": {
     "markdown_file_count": 410,
-    "powershell_file_count": 68,
-    "python_file_count": 225,
-    "source_file_count": 887,
+    "powershell_file_count": 69,
+    "python_file_count": 228,
+    "source_file_count": 893,
     "suffix_counts": {
       ".json": 138,
       ".md": 410,
-      ".ps1": 68,
-      ".py": 225,
+      ".ps1": 69,
+      ".py": 228,
       ".txt": 7,
-      ".yaml": 27,
-      ".yml": 12
+      ".yaml": 28,
+      ".yml": 13
     },
-    "total_source_lines": 356831
+    "total_source_lines": 357612
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -245,6 +245,14 @@
       },
       {
         "complexity": 2,
+        "end_line": 345,
+        "line": 67,
+        "lines": 279,
+        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
+        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
+      },
+      {
+        "complexity": 2,
         "end_line": 450,
         "line": 176,
         "lines": 275,
@@ -253,19 +261,11 @@
       },
       {
         "complexity": 3,
-        "end_line": 2283,
-        "line": 2014,
+        "end_line": 2292,
+        "line": 2023,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 2,
-        "end_line": 331,
-        "line": 67,
-        "lines": 265,
-        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
-        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
         "complexity": 7,
@@ -348,19 +348,19 @@
         "path": "automation/core_performance_mwr_validation.py"
       },
       {
-        "complexity": 5,
-        "end_line": 351,
-        "line": 218,
-        "lines": 134,
-        "name": "_run_validation",
-        "path": "automation/core_performance_returns_series_validation.py"
+        "complexity": 4,
+        "end_line": 2020,
+        "line": 1886,
+        "lines": 135,
+        "name": "test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations",
+        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2797
+    "python_function_count": 2828
   },
-  "generated_at_utc": "2026-08-22T23:47:40Z",
+  "generated_at_utc": "2026-08-23T22:21:13Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,7 +398,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 2387,
+      "lines": 2396,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 946,
+    "collected_tests": 959,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "946 tests collected in 1.01s"
+    "summary": "959 tests collected in 0.83s"
   }
 }

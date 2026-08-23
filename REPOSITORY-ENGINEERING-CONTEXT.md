@@ -34,9 +34,13 @@ Current repository posture:
 3. RFC-0074 is implemented and governs developer onboarding, agent ramp-up, and bootstrap synchronization.
 4. Platform validation, ingress, and local runtime automation are already in active use for canonical stack bring-up and proof.
 5. Front-office product-surface bring-up is governed through `lotus-workbench`; this repository owns the shared ingress and infrastructure support around that flow rather than replacing it.
-6. `platform-stack` includes production-like local persistence dependencies for orchestrated
-   services where readiness requires them, including `lotus-report-postgres` for `lotus-report`
-   report-job and batch ledger readiness.
+6. `platform-stack` is the canonical shared-infrastructure and local integration baseline, not the
+   populated front-office demo runtime. It containerises Core, Manage, Performance, Report, Idea,
+   Gateway, and Workbench plus their required local infrastructure; Risk, Advise, AI, Archive, and
+   Render remain explicit host-run bridges. Bootstrap-generated untracked secrets, loopback-only
+   published ports, authenticated Grafana, optional Caddy local-CA TLS, health/resource bounds,
+   complete shared Prometheus coverage, and 24-hour Tempo trace retention are enforced by
+   `automation/validate_platform_stack.py` in every repository check lane.
 7. The enterprise backend refactor baseline foundation is active. The report-only generator
    `automation/generate_enterprise_backend_quality_baseline.py` writes measured quality artifacts
    under `quality/`, including `baseline_report.md`, `baseline_report.json`,

@@ -72,6 +72,13 @@ Shared local ingress and infrastructure support stack. It includes service-owned
 needed for production-like local readiness, including `lotus-report-postgres` for the
 `lotus-report` report-job and batch ledger.
 
+The Compose project containerises Core, Manage, Performance, Report, Idea, Gateway, and Workbench.
+Risk, Advise, AI, Archive, and Render are explicit host-run bridges, not stack-owned containers.
+Tracked configuration contains no credential values: one-time bootstrap writes an ignored `.env`,
+published ports bind to loopback, Grafana requires authentication, and an optional Caddy local-CA
+profile supports local HTTPS. Prometheus owns the shared scrape inventory and Tempo retains local
+traces for 24 hours. Long-running containers have health and resource bounds.
+
 This supports the ecosystem runtime, but it is not the canonical populated front-office product
 proof path.
 

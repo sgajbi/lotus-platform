@@ -59,6 +59,8 @@ deployment, client demo readiness, or supported feature promotion.
 - dependency/container vulnerability exception register validation, report-only before lane
   promotion:
   `python automation\validate_vulnerability_exception_register.py --report-only`
+- platform-stack security, identity, retention, scrape, health, resource, and bootstrap contract:
+  `python automation\validate_platform_stack.py`
 
 ## What the gates protect
 
@@ -77,6 +79,9 @@ deployment, client demo readiness, or supported feature promotion.
   commits remain blocking. The mainline workflow declares `LOTUS_BRANCH_SIGNATURES_REQUIRED` for
   low-privilege CI tokens, while live GitHub branch-protection truth takes precedence when readable.
 - reusable platform validation entrypoints
+- deterministic platform-stack rejection of credential defaults, anonymous Grafana, public port
+  bindings, legacy service identities, dropped traces, incomplete scrape inventories, and missing
+  health/resource controls
 - RFC-0089 first-wave mesh certification posture for governed domain products
 - RFC-0090 GitHub blocking enforcement for the first-wave cross-repo mesh certification gate
 - RFC-0091 enterprise maturity controls: telemetry collection, SLO, access, lifecycle, evidence,
