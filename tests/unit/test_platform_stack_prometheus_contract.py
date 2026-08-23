@@ -19,8 +19,11 @@ def test_platform_stack_prometheus_scrapes_the_expected_orchestrated_services() 
     actual_jobs = {job["job_name"] for job in prometheus["scrape_configs"]}
 
     assert actual_jobs == {
-        "bff",
+        "lotus-gateway",
         "lotus-archive",
+        "lotus-advise",
+        "lotus-ai",
+        "lotus-core-control",
         "lotus-core-ingestion",
         "lotus-core-query",
         "lotus-idea",
@@ -28,6 +31,7 @@ def test_platform_stack_prometheus_scrapes_the_expected_orchestrated_services() 
         "lotus-performance",
         "lotus-render",
         "lotus-report",
+        "lotus-risk",
         "lotus-workbench",
     }
 

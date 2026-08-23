@@ -7,4 +7,5 @@ output/task-runs/
 output/
 .venv-platform-automation/
 __pycache__/
+platform-stack/.env
 

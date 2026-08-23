@@ -1,68 +1,68 @@
 {
-	auto_https off
+	local_certs
 	admin off
 }
 
-http://workbench.dev.lotus {
+https://workbench.dev.lotus {
 	reverse_proxy lotus-workbench:3000
 }
 
-http://gateway.dev.lotus {
+https://gateway.dev.lotus {
 	reverse_proxy lotus-gateway:8100
 }
 
-http://manage.dev.lotus {
+https://manage.dev.lotus {
 	reverse_proxy lotus-manage:8000
 }
 
-http://performance.dev.lotus {
+https://performance.dev.lotus {
 	reverse_proxy lotus-performance:8000
 }
 
-http://risk.dev.lotus {
+https://risk.dev.lotus {
 	reverse_proxy host.docker.internal:8130
 }
 
-http://advise.dev.lotus {
+https://advise.dev.lotus {
 	reverse_proxy host.docker.internal:8000
 }
 
-http://report.dev.lotus {
+https://report.dev.lotus {
 	reverse_proxy lotus-report:8300
 }
 
-http://archive.dev.lotus {
+https://archive.dev.lotus {
 	reverse_proxy host.docker.internal:8150
 }
 
-http://render.dev.lotus {
+https://render.dev.lotus {
 	reverse_proxy host.docker.internal:8310
 }
 
-http://idea.dev.lotus {
+https://idea.dev.lotus {
 	reverse_proxy lotus-idea:8330
 }
 
-http://core-query.dev.lotus {
+https://core-query.dev.lotus {
 	reverse_proxy lotus-core-query:8001
 }
 
-http://core-control.dev.lotus {
+https://core-control.dev.lotus {
 	reverse_proxy lotus-core-control:8002
 }
 
-http://core-ingestion.dev.lotus {
+https://core-ingestion.dev.lotus {
 	reverse_proxy lotus-core-ingestion:8000
 }
 
-http://ai.dev.lotus {
+https://ai.dev.lotus {
 	reverse_proxy host.docker.internal:8140
 }
 
-http://prometheus.dev.lotus {
+https://prometheus.dev.lotus {
 	reverse_proxy prometheus:9090
 }
 
-http://grafana.dev.lotus {
+https://grafana.dev.lotus {
 	reverse_proxy grafana:3000
 }
