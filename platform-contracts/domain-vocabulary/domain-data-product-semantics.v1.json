@@ -13,6 +13,55 @@
       "description": "Canonical portfolio identifier used across source-data, performance, and risk products."
     },
     {
+      "key": "proposal_id",
+      "semantic_id": "lotus.proposal_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical advisory proposal identifier used for proposal lifecycle, decision, and evidence products."
+    },
+    {
+      "key": "proposal_version_id",
+      "semantic_id": "lotus.proposal_version_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical advisory proposal-version identifier used when a workflow product addresses a version aggregate directly."
+    },
+    {
+      "key": "version_no",
+      "semantic_id": "lotus.version_no",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical version number within an advisory proposal lifecycle product."
+    },
+    {
+      "key": "version_id",
+      "semantic_id": "lotus.version_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical identifier for a versioned advisory workflow resource when the serving route uses an opaque version key."
+    },
+    {
+      "key": "memo_id",
+      "semantic_id": "lotus.memo_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical advisor-use proposal memo identifier for memo evidence and review workflows."
+    },
+    {
+      "key": "evaluation_id",
+      "semantic_id": "lotus.evaluation_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical policy evaluation identifier for advisory policy workflow and evidence products."
+    },
+    {
+      "key": "action_item_id",
+      "semantic_id": "lotus.action_item_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical advisor cockpit action-item identifier for acknowledgement and operational workflow products."
+    },
+    {
       "key": "composite_id",
       "semantic_id": "lotus.composite_id",
       "stability": "stable",
