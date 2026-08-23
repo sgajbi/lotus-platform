@@ -1,4 +1,4 @@
-name: pbwm-platform
+name: lotus-platform
 
 x-default-logging: &default-logging
   driver: json-file
@@ -6,13 +6,26 @@ x-default-logging: &default-logging
     max-size: "10m"
     max-file: "5"
 
+x-small-service: &small-service
+  cpus: "0.50"
+  mem_limit: 256m
+
+x-medium-service: &medium-service
+  cpus: "1.00"
+  mem_limit: 512m
+
+x-large-service: &large-service
+  cpus: "2.00"
+  mem_limit: 1g
+
 services:
   dev-ingress:
+    <<: *small-service
     image: caddy:2.8.4
     depends_on:
-      ui:
+      lotus-workbench:
         condition: service_healthy
-      bff:
+      lotus-gateway:
         condition: service_healthy
       lotus-manage:
         condition: service_healthy
@@ -29,16 +42,23 @@ services:
       lotus-idea:
         condition: service_healthy
       prometheus:
-        condition: service_started
+        condition: service_healthy
       grafana:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - "${DEV_INGRESS_HTTP_PORT:-80}:80"
+      - "127.0.0.1:${DEV_INGRESS_HTTP_PORT:-80}:80"
     volumes:
       - ./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
     logging: *default-logging
 
   zookeeper:
+    <<: *medium-service
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -54,6 +74,7 @@ services:
     logging: *default-logging
 
   kafka:
+    <<: *large-service
     image: confluentinc/cp-kafka:7.5.0
     depends_on:
       zookeeper:
@@ -76,11 +97,12 @@ services:
     logging: *default-logging
 
   lotus-core-postgres:
+    <<: *medium-service
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: ${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
       POSTGRES_USER: ${LOTUS_CORE_POSTGRES_USER:-user}
-      POSTGRES_PASSWORD: ${LOTUS_CORE_POSTGRES_PASSWORD:-password}
+      POSTGRES_PASSWORD: ${LOTUS_CORE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}
     volumes:
       - lotus-core-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -92,15 +114,16 @@ services:
     logging: *default-logging
 
   lotus-manage-postgres:
+    <<: *medium-service
     image: postgres:17.6
     environment:
-      POSTGRES_DB: dpm_supportability
-      POSTGRES_USER: dpm
-      POSTGRES_PASSWORD: dpm
+      POSTGRES_DB: ${LOTUS_MANAGE_POSTGRES_DB:-lotus_manage}
+      POSTGRES_USER: ${LOTUS_MANAGE_POSTGRES_USER:-lotus_manage}
+      POSTGRES_PASSWORD: ${LOTUS_MANAGE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}
     volumes:
       - lotus-manage-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dpm -d dpm_supportability"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 8
@@ -108,11 +131,12 @@ services:
     logging: *default-logging
 
   lotus-report-postgres:
+    <<: *medium-service
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: ${LOTUS_REPORT_POSTGRES_DB:-lotus_report}
       POSTGRES_USER: ${LOTUS_REPORT_POSTGRES_USER:-lotus_report}
-      POSTGRES_PASSWORD: ${LOTUS_REPORT_POSTGRES_PASSWORD:-lotus_report}
+      POSTGRES_PASSWORD: ${LOTUS_REPORT_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}
     volumes:
       - lotus-report-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -144,12 +168,13 @@ services:
       lotus-core-postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:-password}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
+      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
     command: ["alembic", "upgrade", "head"]
     restart: "no"
     logging: *default-logging
 
   lotus-core-query:
+    <<: *medium-service
     build:
       context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/query_service/Dockerfile
@@ -157,7 +182,7 @@ services:
       lotus-core-migration-runner:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:-password}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
+      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
       OTEL_SERVICE_NAME: lotus-core-query
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
@@ -170,6 +195,7 @@ services:
     logging: *default-logging
 
   lotus-core-control:
+    <<: *medium-service
     build:
       context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/query_control_plane_service/Dockerfile
@@ -177,7 +203,7 @@ services:
       lotus-core-migration-runner:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:-password}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
+      DATABASE_URL: postgresql://${LOTUS_CORE_POSTGRES_USER:-user}:${LOTUS_CORE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-core-postgres:5432/${LOTUS_CORE_POSTGRES_DB:-portfolio_db}
       OTEL_SERVICE_NAME: lotus-core-control
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
@@ -190,6 +216,7 @@ services:
     logging: *default-logging
 
   lotus-core-ingestion:
+    <<: *medium-service
     build:
       context: ${LOTUS_CORE_REPO_PATH}
       dockerfile: ./src/services/ingestion_service/Dockerfile
@@ -212,6 +239,7 @@ services:
     logging: *default-logging
 
   lotus-manage:
+    <<: *medium-service
     build:
       context: ${LOTUS_MANAGE_REPO_PATH}
       dockerfile: Dockerfile
@@ -222,12 +250,12 @@ services:
       ENVIRONMENT: production
       APP_PERSISTENCE_PROFILE: PRODUCTION
       DPM_SUPPORTABILITY_STORE_BACKEND: POSTGRES
-      DPM_SUPPORTABILITY_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
+      DPM_SUPPORTABILITY_POSTGRES_DSN: postgresql://${LOTUS_MANAGE_POSTGRES_USER:-lotus_manage}:${LOTUS_MANAGE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-manage-postgres:5432/${LOTUS_MANAGE_POSTGRES_DB:-lotus_manage}
       PROPOSAL_STORE_BACKEND: POSTGRES
-      PROPOSAL_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
+      PROPOSAL_POSTGRES_DSN: postgresql://${LOTUS_MANAGE_POSTGRES_USER:-lotus_manage}:${LOTUS_MANAGE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-manage-postgres:5432/${LOTUS_MANAGE_POSTGRES_DB:-lotus_manage}
       DPM_POLICY_PACK_CATALOG_BACKEND: POSTGRES
-      DPM_POLICY_PACK_POSTGRES_DSN: postgresql://dpm:dpm@lotus-manage-postgres:5432/dpm_supportability
-      OTEL_SERVICE_NAME: lotus-advise
+      DPM_POLICY_PACK_POSTGRES_DSN: postgresql://${LOTUS_MANAGE_POSTGRES_USER:-lotus_manage}:${LOTUS_MANAGE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-manage-postgres:5432/${LOTUS_MANAGE_POSTGRES_DB:-lotus_manage}
+      OTEL_SERVICE_NAME: lotus-manage
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
@@ -238,11 +266,12 @@ services:
     logging: *default-logging
 
   lotus-performance:
+    <<: *medium-service
     build:
       context: ${LOTUS_PERFORMANCE_REPO_PATH}
       dockerfile: Dockerfile
     environment:
-      OTEL_SERVICE_NAME: performance-analytics
+      OTEL_SERVICE_NAME: lotus-performance
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)"]
@@ -253,6 +282,7 @@ services:
     logging: *default-logging
 
   lotus-report:
+    <<: *medium-service
     build:
       context: ${LOTUS_REPORT_REPO_PATH}
       dockerfile: Dockerfile
@@ -266,7 +296,7 @@ services:
     environment:
       LOTUS_CORE_QUERY_BASE_URL: http://lotus-core-query:8001
       LOTUS_PERFORMANCE_BASE_URL: http://lotus-performance:8000
-      REPORT_JOB_LEDGER_DATABASE_URL: postgresql://${LOTUS_REPORT_POSTGRES_USER:-lotus_report}:${LOTUS_REPORT_POSTGRES_PASSWORD:-lotus_report}@lotus-report-postgres:5432/${LOTUS_REPORT_POSTGRES_DB:-lotus_report}
+      REPORT_JOB_LEDGER_DATABASE_URL: postgresql://${LOTUS_REPORT_POSTGRES_USER:-lotus_report}:${LOTUS_REPORT_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}@lotus-report-postgres:5432/${LOTUS_REPORT_POSTGRES_DB:-lotus_report}
       CONTRACT_VERSION: v1
       OTEL_SERVICE_NAME: lotus-report
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
@@ -279,6 +309,7 @@ services:
     logging: *default-logging
 
   lotus-idea:
+    <<: *medium-service
     build:
       context: ${LOTUS_IDEA_REPO_PATH}
       dockerfile: Dockerfile
@@ -301,9 +332,10 @@ services:
       start_period: 20s
     logging: *default-logging
 
-  bff:
+  lotus-gateway:
+    <<: *medium-service
     build:
-      context: ${BFF_REPO_PATH}
+      context: ${LOTUS_GATEWAY_REPO_PATH}
       dockerfile: Dockerfile
     depends_on:
       lotus-manage:
@@ -337,15 +369,16 @@ services:
       start_period: 20s
     logging: *default-logging
 
-  ui:
+  lotus-workbench:
+    <<: *medium-service
     build:
-      context: ${UI_REPO_PATH}
+      context: ${LOTUS_WORKBENCH_REPO_PATH}
       dockerfile: Dockerfile
     depends_on:
-      bff:
+      lotus-gateway:
         condition: service_healthy
     environment:
-      BFF_BASE_URL: http://bff:8100
+      BFF_BASE_URL: http://lotus-gateway:8100
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3000"]
       interval: 20s
@@ -355,38 +388,80 @@ services:
     logging: *default-logging
 
   prometheus:
+    <<: *medium-service
     image: prom/prometheus:v2.47.2
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro
     command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:9090/-/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
     logging: *default-logging
 
   grafana:
+    <<: *medium-service
     image: grafana/grafana:10.1.5
     depends_on:
       prometheus:
-        condition: service_started
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-lotus_operator}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards/platform:ro
       - ${LOTUS_CORE_REPO_PATH}/grafana/dashboards:/var/lib/grafana/dashboards/lotus-core:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     logging: *default-logging
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.111.0
+    <<: *medium-service
+    build:
+      context: ./otel-collector
+      dockerfile: Dockerfile
+    depends_on:
+      tempo:
+        condition: service_healthy
     command: ["--config=/etc/otelcol/config.yaml"]
     volumes:
       - ./otel-collector/config.yaml:/etc/otelcol/config.yaml:ro
     ports:
-      - "${OTEL_GRPC_PORT:-4317}:4317"
-      - "${OTEL_HTTP_PORT:-4318}:4318"
+      - "127.0.0.1:${OTEL_GRPC_PORT:-4317}:4317"
+      - "127.0.0.1:${OTEL_HTTP_PORT:-4318}:4318"
+    healthcheck:
+      test: ["CMD", "/bin/busybox", "wget", "-q", "-O", "-", "http://127.0.0.1:13133/"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 10s
+    logging: *default-logging
+
+  tempo:
+    <<: *medium-service
+    image: grafana/tempo:2.6.1
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    volumes:
+      - ./tempo/config.yaml:/etc/tempo/config.yaml:ro
+      - tempo-data:/var/tempo
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3200/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
     logging: *default-logging
 
 volumes:
@@ -394,4 +469,5 @@ volumes:
   lotus-manage-postgres-data:
   lotus-report-postgres-data:
   grafana-data:
+  tempo-data:
 

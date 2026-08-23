@@ -143,11 +143,11 @@ def test_explain_dev_ingress_status_cli_writes_affected_services_for_http_failur
 
     assert payload["status"] == "services_unreachable"
     assert payload["evidence"]["affected_services"] == ["core-query", "gateway"]
-    assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "bff"]
+    assert payload["evidence"]["affected_compose_services"] == ["lotus-core-query", "lotus-gateway"]
     assert payload["evidence"]["failing_http_postures"] == ["http_error", "http_error"]
-    assert "docker compose logs --tail=200 lotus-core-query bff" in markdown
-    assert "docker compose up -d lotus-core-query bff" in markdown
-    assert "Affected compose services: lotus-core-query, bff" in markdown
+    assert "docker compose logs --tail=200 lotus-core-query lotus-gateway" in markdown
+    assert "docker compose up -d lotus-core-query lotus-gateway" in markdown
+    assert "Affected compose services: lotus-core-query, lotus-gateway" in markdown
     assert "Failing http postures: http_error, http_error" in markdown
 
 

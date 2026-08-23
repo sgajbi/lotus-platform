@@ -60,7 +60,23 @@ def test_platform_stack_prometheus_scrapes_reporting_observability_targets() -> 
     assert jobs["lotus-render"]["static_configs"][0]["targets"] == ["host.docker.internal:8310"]
     assert jobs["lotus-archive"]["static_configs"][0]["targets"] == ["host.docker.internal:8150"]
     assert jobs["lotus-workbench"]["metrics_path"] == "/api/metrics"
-    assert jobs["lotus-workbench"]["static_configs"][0]["targets"] == ["ui:3000"]
+    assert jobs["lotus-workbench"]["static_configs"][0]["targets"] == ["lotus-workbench:3000"]
+
+
+def test_platform_stack_retains_traces_in_tempo() -> None:
+    compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
+    collector = _read_yaml(PLATFORM_STACK_DIR / "otel-collector" / "config.yaml")
+    datasources = _read_yaml(
+        PLATFORM_STACK_DIR / "grafana" / "provisioning" / "datasources" / "datasource.yml"
+    )
+
+    assert compose["services"]["otel-collector"]["depends_on"]["tempo"]["condition"] == "service_healthy"
+    assert collector["receivers"]["otlp"]["protocols"]["grpc"]["endpoint"] == "0.0.0.0:4317"
+    assert collector["receivers"]["otlp"]["protocols"]["http"]["endpoint"] == "0.0.0.0:4318"
+    assert collector["exporters"]["otlp/tempo"]["endpoint"] == "tempo:4317"
+    assert collector["service"]["pipelines"]["traces"]["exporters"] == ["otlp/tempo"]
+    tempo = next(item for item in datasources["datasources"] if item["name"] == "Tempo")
+    assert tempo["url"] == "http://tempo:3200"
 
 
 def test_platform_stack_prometheus_mounts_reporting_rules() -> None:

@@ -1,0 +1,12 @@
+services:
+  dev-ingress:
+    ports:
+      - "127.0.0.1:${DEV_INGRESS_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./dev-ingress/Caddyfile.tls:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:

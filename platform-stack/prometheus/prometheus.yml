@@ -11,18 +11,22 @@ rule_files:
 # are allowed when platform-owned dashboards and alert contracts need to observe
 # reporting services that currently run from their repo-local stacks.
 scrape_configs:
-  - job_name: "bff"
+  - job_name: "lotus-gateway"
     static_configs:
-      - targets: ["bff:8100"]
+      - targets: ["lotus-gateway:8100"]
 
   - job_name: "lotus-workbench"
     metrics_path: "/api/metrics"
     static_configs:
-      - targets: ["ui:3000"]
+      - targets: ["lotus-workbench:3000"]
 
   - job_name: "lotus-core-query"
     static_configs:
       - targets: ["lotus-core-query:8001"]
+
+  - job_name: "lotus-core-control"
+    static_configs:
+      - targets: ["lotus-core-control:8002"]
 
   - job_name: "lotus-core-ingestion"
     static_configs:
@@ -51,3 +55,15 @@ scrape_configs:
   - job_name: "lotus-archive"
     static_configs:
       - targets: ["host.docker.internal:8150"]
+
+  - job_name: "lotus-risk"
+    static_configs:
+      - targets: ["host.docker.internal:8130"]
+
+  - job_name: "lotus-advise"
+    static_configs:
+      - targets: ["host.docker.internal:8000"]
+
+  - job_name: "lotus-ai"
+    static_configs:
+      - targets: ["host.docker.internal:8140"]

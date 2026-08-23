@@ -15,8 +15,8 @@ DEFAULT_OUTPUT_MD = ROOT / "output" / "dev-ingress-status.md"
 BLOCK_START = "# >>> lotus-platform dev ingress >>>"
 BLOCK_END = "# <<< lotus-platform dev ingress <<<"
 COMPOSE_SERVICE_BY_IDENTITY = {
-    "workbench": "ui",
-    "gateway": "bff",
+    "workbench": "lotus-workbench",
+    "gateway": "lotus-gateway",
     "manage": "lotus-manage",
     "performance": "lotus-performance",
     "report": "lotus-report",

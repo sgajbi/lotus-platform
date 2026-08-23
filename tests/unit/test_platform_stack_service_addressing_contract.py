@@ -20,7 +20,14 @@ def test_platform_stack_includes_central_dev_ingress_service() -> None:
 
     assert ingress["image"] == "caddy:2.8.4"
     assert "./dev-ingress/Caddyfile:/etc/caddy/Caddyfile:ro" in ingress["volumes"]
-    assert "${DEV_INGRESS_HTTP_PORT:-80}:80" in ingress["ports"]
+    assert "127.0.0.1:${DEV_INGRESS_HTTP_PORT:-80}:80" in ingress["ports"]
+    assert ingress["healthcheck"]["test"] == [
+        "CMD",
+        "caddy",
+        "validate",
+        "--config",
+        "/etc/caddy/Caddyfile",
+    ]
 
 
 def test_platform_stack_base_compose_does_not_publish_legacy_http_service_ports() -> None:
@@ -34,8 +41,8 @@ def test_platform_stack_base_compose_does_not_publish_legacy_http_service_ports(
         "lotus-performance",
         "lotus-report",
         "lotus-idea",
-        "bff",
-        "ui",
+        "lotus-gateway",
+        "lotus-workbench",
         "prometheus",
         "grafana",
     ):
@@ -45,7 +52,7 @@ def test_platform_stack_base_compose_does_not_publish_legacy_http_service_ports(
 def test_platform_stack_wires_dedicated_core_control_plane_service() -> None:
     compose = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.yml")
     control_plane = compose["services"]["lotus-core-control"]
-    gateway = compose["services"]["bff"]
+    gateway = compose["services"]["lotus-gateway"]
 
     assert (
         control_plane["build"]["dockerfile"]
@@ -104,15 +111,15 @@ def test_platform_stack_debug_override_preserves_optional_direct_host_ports() ->
     override = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.host-ports.yml")
     services = override["services"]
 
-    assert "${LOTUS_CORE_QUERY_PORT:-8201}:8001" in services["lotus-core-query"]["ports"]
-    assert "${LOTUS_CORE_INGESTION_PORT:-8200}:8000" in services["lotus-core-ingestion"]["ports"]
-    assert "${LOTUS_MANAGE_PORT:-8000}:8000" in services["lotus-manage"]["ports"]
-    assert "${LOTUS_PERFORMANCE_PORT:-8002}:8000" in services["lotus-performance"]["ports"]
-    assert "${LOTUS_REPORT_PORT:-8300}:8300" in services["lotus-report"]["ports"]
-    assert "${BFF_PORT:-8100}:8100" in services["bff"]["ports"]
-    assert "${UI_PORT:-3000}:3000" in services["ui"]["ports"]
-    assert "${PROMETHEUS_PORT:-9190}:9090" in services["prometheus"]["ports"]
-    assert "${GRAFANA_PORT:-3300}:3000" in services["grafana"]["ports"]
+    assert "127.0.0.1:${LOTUS_CORE_QUERY_PORT:-8201}:8001" in services["lotus-core-query"]["ports"]
+    assert "127.0.0.1:${LOTUS_CORE_INGESTION_PORT:-8200}:8000" in services["lotus-core-ingestion"]["ports"]
+    assert "127.0.0.1:${LOTUS_MANAGE_PORT:-8000}:8000" in services["lotus-manage"]["ports"]
+    assert "127.0.0.1:${LOTUS_PERFORMANCE_PORT:-8002}:8000" in services["lotus-performance"]["ports"]
+    assert "127.0.0.1:${LOTUS_REPORT_PORT:-8300}:8300" in services["lotus-report"]["ports"]
+    assert "127.0.0.1:${LOTUS_GATEWAY_PORT:-8100}:8100" in services["lotus-gateway"]["ports"]
+    assert "127.0.0.1:${LOTUS_WORKBENCH_PORT:-3000}:3000" in services["lotus-workbench"]["ports"]
+    assert "127.0.0.1:${PROMETHEUS_PORT:-9190}:9090" in services["prometheus"]["ports"]
+    assert "127.0.0.1:${GRAFANA_PORT:-3300}:3000" in services["grafana"]["ports"]
 
 
 def test_platform_stack_dev_ingress_routes_expected_hostnames() -> None:
@@ -146,3 +153,17 @@ def test_platform_stack_hosts_example_lists_required_entries() -> None:
     assert "127.0.0.1 core-control.dev.lotus" in hosts_example
     assert "127.0.0.1 core-ingestion.dev.lotus" in hosts_example
     assert "127.0.0.1 idea.dev.lotus" in hosts_example
+
+
+def test_platform_stack_tls_profile_uses_local_ca_and_loopback_https() -> None:
+    profile = _read_yaml(PLATFORM_STACK_DIR / "docker-compose.tls.yml")
+    caddyfile = (PLATFORM_STACK_DIR / "dev-ingress" / "Caddyfile.tls").read_text(
+        encoding="utf-8"
+    )
+
+    assert "127.0.0.1:${DEV_INGRESS_HTTPS_PORT:-443}:443" in profile["services"][
+        "dev-ingress"
+    ]["ports"]
+    assert "local_certs" in caddyfile
+    assert "https://gateway.dev.lotus" in caddyfile
+    assert "https://workbench.dev.lotus" in caddyfile

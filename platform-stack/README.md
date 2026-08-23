@@ -1,198 +1,158 @@
-# Platform Stack (Centralized Compose)
+# Platform Stack
 
-This folder provides a centralized Docker Compose orchestration for the full PBWM platform:
+`platform-stack` is the canonical shared-infrastructure and local integration baseline for Lotus.
+It is not the canonical populated front-office demo runtime; that flow is owned by
+`lotus-workbench`.
 
-- lotus-core (`lotus-core-ingestion`, `lotus-core-query`, `lotus-core-control`) + lotus-core dependencies (`zookeeper`, `kafka`, `lotus-core-kafka-topic-creator`, `lotus-core-postgres`, `lotus-core-migration-runner`)
-- lotus-manage (`lotus-manage`, `lotus-manage-postgres`)
-- lotus-performance (`lotus-performance`)
-- lotus-report (`lotus-report`, `lotus-report-postgres`)
-- lotus-gateway (`bff`)
-- UI (`ui`)
-- Observability baseline (`prometheus`, `grafana`, `otel-collector`)
+The stack containerises:
 
-This stack is the canonical shared-infrastructure baseline for local platform bring-up.
+- `lotus-core` ingestion, query, and control-plane services, with Kafka and PostgreSQL
+- `lotus-manage`, `lotus-performance`, `lotus-report`, `lotus-idea`, `lotus-gateway`, and
+  `lotus-workbench`
+- Prometheus, authenticated Grafana, the OpenTelemetry Collector, and Tempo
+- Caddy-based local ingress
 
-It now includes a central local ingress that exposes stable environment-scoped hostnames for the
-developer-facing surfaces and directly used API products.
+The ingress and Prometheus configuration bridge to host-run `lotus-risk`, `lotus-advise`,
+`lotus-ai`, `lotus-archive`, and `lotus-render` through `host.docker.internal`. Those applications
+are observed and routed here but are not started by this Compose project.
 
-Important ownership rule:
+## Ownership boundaries
 
-1. `lotus-platform` owns the shared infrastructure products and their baseline configuration.
-2. Application repositories may still provide app-owned images and bootstrap jobs consumed by this stack.
-3. Using an app-owned migration runner or topic bootstrap job inside this compose file does not make that app the owner of shared infrastructure.
-4. Grafana provisioning is platform-owned here, while app-specific dashboard JSON may still be mounted from the owning application repository.
+`lotus-platform` owns the shared infrastructure definitions and baseline configuration in this
+directory. Application repositories own their images, migrations, bootstrap jobs, instrumentation,
+and application-specific dashboard content. Grafana provisioning and the shared Prometheus scrape
+inventory are platform-owned; application-local observability stacks remain valid for isolated
+development but are not this shared baseline.
 
-Grafana dashboard boundary:
+Cross-cutting rules are defined by
+[`Platform Observability Standards`](../docs/standards/Platform%20Observability%20Standards.md) and
+[`cross-cutting-platform-contract.yaml`](../platform-contracts/cross-cutting-platform-contract.yaml).
 
-1. shared Grafana provisioning lives in `lotus-platform/platform-stack/grafana/provisioning`
-2. platform-shared dashboard content may live in `lotus-platform/platform-stack/grafana/dashboards`
-3. app-specific dashboard JSON can still be mounted from the owning repository, for example `lotus-core/grafana/dashboards`
+## Bootstrap
 
-Prometheus scrape boundary:
+Generate `platform-stack/.env` once. The bootstrap derives repository paths from the workspace and
+generates independent 256-bit secrets. It fills missing or empty values and never overwrites a
+non-empty operator value. `.env` is ignored by Git; do not copy credentials back into
+`.env.example` or Compose.
 
-1. the canonical shared scrape config lives in `lotus-platform/platform-stack/prometheus/prometheus.yml`
-2. it should only scrape services actually orchestrated by `platform-stack`
-3. app-local Prometheus configs may still exist in application repositories for isolated development, but they are not the shared platform baseline
-
-Cross-cutting governance for this stack is defined in:
-- `docs/standards/Platform Observability Standards.md`
-- `platform-contracts/cross-cutting-platform-contract.yaml`
-
-## 1) Setup
-
-Copy `.env.example` to `.env` and adjust repository paths if needed.
+Windows:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
-Copy-Item .env.example .env
+cd lotus-platform
+./platform-stack/bootstrap.ps1 -WorkspaceRoot ..
 ```
 
-Add the local hostname mappings from:
+macOS or Linux:
 
-- `platform-stack/dev-ingress/hosts.example`
-
-to your hosts file before first use.
-
-Setup rule:
-
-- canonical `*.dev.lotus` names are local-only and must resolve through the Windows hosts file
-- `platform-stack/dev-ingress/hosts.example` is the platform-owned DNS mapping source of truth
-- `platform-stack/.env` is the platform-owned source of truth for which local repositories the stack mounts and builds
-
-Platform-owned helper:
-
-```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
-powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+```sh
+cd lotus-platform
+./platform-stack/bootstrap.sh ..
 ```
 
-Apply the managed block to the Windows hosts file:
+Run either bootstrap again after pulling new variables. It safely adds only missing values. The
+tracked `.env.example` contains non-secret defaults and blank path/secret placeholders only.
+
+Add the entries from `dev-ingress/hosts.example` to the local hosts file. On Windows, the governed
+helper can stage or apply the managed block:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
-powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
+./automation/Sync-Dev-Ingress-Hosts.ps1
+./automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
 
-If the hosts apply is run without elevation, use the staged file at:
+If applying without elevation fails, use `output/hosts-preview/hosts.merged`.
 
-- `output/hosts-preview/hosts.merged`
+## Start and validate
 
-### Required .env variables
-
-At minimum, set these paths in `platform-stack/.env`:
-
-- `LOTUS_CORE_REPO_PATH`
-- `LOTUS_PERFORMANCE_REPO_PATH`
-- `LOTUS_REPORT_REPO_PATH`
-- `LOTUS_IDEA_REPO_PATH`
-- `LOTUS_MANAGE_REPO_PATH`
-- `BFF_REPO_PATH`
-- `UI_REPO_PATH`
-
-Without those values, the compose stack can start `dev-ingress` but the mounted application
-services will not build or run correctly.
-
-## 2) Start Full Platform
+From `platform-stack`:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
+docker compose config --quiet
 docker compose up -d --build
 ```
 
-Optional direct host-port publishing for debugging only:
+The base profile exposes only Caddy and OTLP receiver ports, all bound to `127.0.0.1`. For
+debug-only direct service ports, add the host-port profile:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
 docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
 ```
 
-Ingress-first smoke validation:
+Port conflicts are resolved with the corresponding `.env` value, for example
+`DEV_INGRESS_HTTP_PORT`, `OTEL_HTTP_PORT`, or `LOTUS_GATEWAY_PORT`.
+
+Run the ingress checks from the repository root:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
-powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
+./automation/Validate-Dev-Ingress-Smoke.ps1
+./automation/Explain-Dev-Ingress-Status.ps1
 ```
 
-Classify the current ingress rollout state and the exact next action:
+The explainer distinguishes DNS, HTTP, connection-refused, timeout, and transport failures and
+names the exact Compose services to inspect or refresh.
+
+## Optional local TLS profile
+
+The default HTTP profile is loopback-only. To exercise HTTPS, add the Caddy local-CA profile:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
-powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
+docker compose -f docker-compose.yml -f docker-compose.tls.yml up -d --build
 ```
 
-If only some routed services are unhealthy, the explainer now recommends the exact `docker compose up -d ...` refresh command for those affected services.
-If the edge itself is the likely fault, it recommends `docker compose up -d dev-ingress` first.
-The smoke artifact distinguishes `dns_resolution_failed`, `http_error`, `connection_refused`, `timeout`, and `transport_error` so the explainer can classify the failure path deterministically.
-For `http_error` and `timeout`, the first suggested operator action is now `docker compose logs --tail=200 ...` on the affected services before refresh.
+This publishes `DEV_INGRESS_HTTPS_PORT` on `127.0.0.1`, persists Caddy's local CA in the
+`caddy-data` volume, and serves the same `*.dev.lotus` routes over HTTPS. The local Caddy root must
+be trusted explicitly on each workstation before browsers and SDKs accept it; never distribute its
+private key or treat this development CA as a production PKI. The HTTP listener remains available
+for compatibility and redirects are managed by Caddy in this profile.
 
-Recommended bring-up order:
+## Service entry points
 
-1. apply the managed hosts block
-2. populate `platform-stack/.env`
-3. run `docker compose up -d --build`
-4. run `Validate-Dev-Ingress-Smoke.ps1`
-5. run `Explain-Dev-Ingress-Status.ps1`
-6. only then begin app-level debugging through `*.dev.lotus`
-
-## 3) Smoke Endpoints
-
-Canonical service identities:
+Use these stable local identities instead of container ports:
 
 - Workbench: `http://workbench.dev.lotus`
-- Gateway readiness: `http://gateway.dev.lotus/health/ready`
-- Manage readiness: `http://manage.dev.lotus/health/ready`
-- Core query readiness: `http://core-query.dev.lotus/health/ready`
-- Core control-plane readiness: `http://core-control.dev.lotus/health/ready`
-- Core ingestion readiness: `http://core-ingestion.dev.lotus/health/ready`
-- Performance readiness: `http://performance.dev.lotus/health/ready`
-- Report readiness: `http://report.dev.lotus/health/ready`
-- Archive readiness: `http://archive.dev.lotus/health/ready`
-- Render readiness: `http://render.dev.lotus/health/ready`
-- Idea readiness: `http://idea.dev.lotus/health/ready`
-
-Report readiness is PostgreSQL-backed in the centralized stack. The `lotus-report` service uses
-the dedicated `lotus-report-postgres` service through `REPORT_JOB_LEDGER_DATABASE_URL`; do not
-validate batch/report-job ledger behavior against an in-container localhost or file database.
+- Gateway: `http://gateway.dev.lotus/health/ready`
+- Core query: `http://core-query.dev.lotus/health/ready`
+- Core control: `http://core-control.dev.lotus/health/ready`
+- Core ingestion: `http://core-ingestion.dev.lotus/health/ready`
+- Manage: `http://manage.dev.lotus/health/ready`
+- Performance: `http://performance.dev.lotus/health/ready`
+- Report: `http://report.dev.lotus/health/ready`
+- Idea: `http://idea.dev.lotus/health/ready`
 - Prometheus: `http://prometheus.dev.lotus`
-- Grafana: `http://grafana.dev.lotus` (admin/admin)
+- Grafana: `http://grafana.dev.lotus`
 
-The underlying container port mappings are implementation detail. Operators and application repos
-should use the environment-scoped service hostnames above as the stable contract.
+The same hostnames use `https://` with the TLS profile. Grafana anonymous access is disabled; use
+`GRAFANA_ADMIN_USER` and the generated `GRAFANA_ADMIN_PASSWORD` from the untracked `.env`.
 
-If you need legacy direct host ports for debugging, use `docker-compose.host-ports.yml`. The base
-stack is ingress-first by design.
+## Observability and recovery
 
-## 3.1 Direct-host fallback
+Services send OTLP to `otel-collector`. Traces are exported to Tempo and retained locally for 24
+hours; metrics and logs currently remain diagnostic collector output. Grafana provisions both
+Prometheus and Tempo datasources. Telemetry is fail-open for applications: a collector or Tempo
+failure must not change financial processing, but it can cause telemetry loss and must be visible in
+container health and collector exporter metrics.
 
-If you are not using full `platform-stack` but still need canonical local URLs, use:
-
-- `platform-stack/dev-ingress/Caddyfile.direct-host`
-
-This fallback proxies canonical hostnames to direct local service ports such as `3000`, `8100`,
-`8201`, `8002`, `8150`, and `8310`. It is intended for mixed standalone bring-up and should not run alongside the
-full ingress-first stack on the same host port.
-
-## 4) Logs
+To prove a known trace is queryable, submit it through OTLP and query Tempo from inside the project:
 
 ```powershell
-docker compose logs -f --tail=200
+docker compose exec tempo wget -q -O - http://127.0.0.1:3200/api/traces/<32-hex-trace-id>
 ```
 
-Service-level logs:
+A successful response must contain the expected service and span names. A `404` means the trace is
+not retained and is a failed observability proof, even if the collector container is healthy.
+
+Every long-running service has a healthcheck and an explicit local resource ceiling. Small
+infrastructure uses `0.5 CPU / 256 MiB`, ordinary services use `1 CPU / 512 MiB`, and Kafka plus
+other large services use `2 CPU / 1 GiB`. These are deterministic local safety bounds, not
+production sizing guidance.
+
+## Operations
 
 ```powershell
-docker compose logs -f --tail=200 bff lotus-core-query lotus-core-control lotus-core-ingestion lotus-performance lotus-manage lotus-report
-```
-
-## 5) Stop
-
-```powershell
+docker compose ps
+docker compose logs --tail=200 lotus-gateway lotus-core-query lotus-core-control
 docker compose down
 ```
 
-Destructive cleanup (containers + volumes):
-
-```powershell
-docker compose down -v --remove-orphans
-```
-
+`docker compose down --volumes --remove-orphans` also deletes local database, Grafana, Caddy, and
+Tempo state. Use it only when intentional recovery requires a clean local data plane.

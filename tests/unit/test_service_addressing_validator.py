@@ -38,19 +38,19 @@ def test_validate_service_addressing_accepts_canonical_hostnames(tmp_path: Path)
         "  lotus-core-control:\n"
         "    build:\n"
         "      dockerfile: ./src/services/query_control_plane_service/Dockerfile\n"
-        "  bff:\n"
+        "  lotus-gateway:\n"
         "    environment:\n"
         "      PORTFOLIO_DATA_QUERY_BASE_URL: http://lotus-core-query:8001\n"
         "      PORTFOLIO_DATA_CONTROL_PLANE_BASE_URL: http://lotus-core-control:8002\n",
     )
     _write_text(
         platform / "platform-stack" / "docker-compose.host-ports.yml",
-        '${LOTUS_MANAGE_PORT:-8000}:8000\n${LOTUS_CORE_INGESTION_PORT:-8200}:8000\n${LOTUS_CORE_QUERY_PORT:-8201}:8001\n${LOTUS_PERFORMANCE_PORT:-8002}:8000\n${LOTUS_REPORT_PORT:-8300}:8300\n${BFF_PORT:-8100}:8100\n${UI_PORT:-3000}:3000\n${PROMETHEUS_PORT:-9190}:9090\n${GRAFANA_PORT:-3300}:3000\n',
+        '127.0.0.1:${LOTUS_MANAGE_PORT:-8000}:8000\n127.0.0.1:${LOTUS_CORE_INGESTION_PORT:-8200}:8000\n127.0.0.1:${LOTUS_CORE_QUERY_PORT:-8201}:8001\n127.0.0.1:${LOTUS_PERFORMANCE_PORT:-8002}:8000\n127.0.0.1:${LOTUS_REPORT_PORT:-8300}:8300\n127.0.0.1:${LOTUS_GATEWAY_PORT:-8100}:8100\n127.0.0.1:${LOTUS_WORKBENCH_PORT:-3000}:3000\n127.0.0.1:${PROMETHEUS_PORT:-9190}:9090\n127.0.0.1:${GRAFANA_PORT:-3300}:3000\n',
     )
     _write_text(
         platform / "platform-stack" / "dev-ingress" / "Caddyfile",
-        "http://workbench.dev.lotus {\n reverse_proxy ui:3000\n}\n"
-        "http://gateway.dev.lotus {\n reverse_proxy bff:8100\n}\n"
+        "http://workbench.dev.lotus {\n reverse_proxy lotus-workbench:3000\n}\n"
+        "http://gateway.dev.lotus {\n reverse_proxy lotus-gateway:8100\n}\n"
         "http://manage.dev.lotus {\n reverse_proxy lotus-manage:8000\n}\n"
         "http://performance.dev.lotus {\n reverse_proxy lotus-performance:8000\n}\n"
         "http://report.dev.lotus {\n reverse_proxy lotus-report:8300\n}\n"
