@@ -90,6 +90,8 @@ Run the ingress checks from the repository root:
 
 The explainer distinguishes DNS, HTTP, connection-refused, timeout, and transport failures and
 names the exact Compose services to inspect or refresh.
+Its stable evidence values are `dns_resolution_failed`, `http_error`, `connection_refused`,
+`timeout`, and `transport_error`; retain those identifiers in support evidence and automation.
 
 When every routed service fails at the edge while DNS is healthy, inspect Caddy and refresh only
 the ingress service:
