@@ -91,6 +91,14 @@ Run the ingress checks from the repository root:
 The explainer distinguishes DNS, HTTP, connection-refused, timeout, and transport failures and
 names the exact Compose services to inspect or refresh.
 
+When every routed service fails at the edge while DNS is healthy, inspect Caddy and refresh only
+the ingress service:
+
+```powershell
+docker compose logs --tail=200 dev-ingress
+docker compose up -d dev-ingress
+```
+
 ## Optional local TLS profile
 
 The default HTTP profile is loopback-only. To exercise HTTPS, add the Caddy local-CA profile:
