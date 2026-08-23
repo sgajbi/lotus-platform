@@ -1910,6 +1910,15 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
         entry["key"]: entry for entry in semantics_registry["identifiers"]
     }
     identifier_keys = set(identifiers_by_key)
+    assert {
+        "action_item_id",
+        "evaluation_id",
+        "memo_id",
+        "proposal_id",
+        "proposal_version_id",
+        "version_id",
+        "version_no",
+    }.issubset(identifier_keys)
     temporal_keys = {entry["key"] for entry in semantics_registry["temporal_semantics"]}
     freshness_classes = {
         entry["key"]

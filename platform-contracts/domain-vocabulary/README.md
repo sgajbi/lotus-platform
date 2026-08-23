@@ -36,3 +36,12 @@ standard temporal identity fields instead of local aliases:
 
 Consumers must not substitute request dates, caller clocks, or self-asserted tenant context for
 missing producer temporal identity.
+
+## Advisory Proposal Identity
+
+The domain-data-product semantics registry includes `proposal_id`, `proposal_version_id`,
+`version_no`, `version_id`, `memo_id`, `evaluation_id`, and `action_item_id` as stable identifiers
+for advisory proposal lifecycle, evidence, policy, memo, and cockpit products. Producer
+declarations should list these identifiers whenever their governed routes expose the corresponding
+identity; consumers should use the source-owned identifiers rather than inferring them from opaque
+payloads.
