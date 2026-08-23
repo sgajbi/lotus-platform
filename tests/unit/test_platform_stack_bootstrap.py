@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
 import shutil
 import subprocess
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,6 +45,16 @@ def _run_bootstrap(stack: Path, workspace: Path) -> subprocess.CompletedProcess[
         text=True,
         check=False,
     )
+
+
+def _run_posix_bootstrap(stack: Path, workspace: Path) -> subprocess.CompletedProcess[str]:
+    if os.name == "nt":
+        shell = shutil.which("sh")
+        assert shell is not None, "A POSIX shell is required to verify bootstrap.sh"
+        command = [shell, str(stack / "bootstrap.sh"), str(workspace)]
+    else:
+        command = [str(stack / "bootstrap.sh"), str(workspace)]
+    return subprocess.run(command, cwd=stack, capture_output=True, text=True, check=False)
 
 
 def test_windows_bootstrap_generates_once_and_preserves_operator_values(tmp_path: Path) -> None:
@@ -89,3 +102,20 @@ def test_bootstrap_scripts_never_embed_tracked_secret_defaults() -> None:
     assert "RandomNumberGenerator" in powershell
     assert "openssl rand -hex 32" in posix
     assert "chmod 600" in posix
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX path semantics are verified on Linux CI")
+def test_posix_bootstrap_resolves_relative_workspace_before_writing_paths(tmp_path: Path) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    relative_workspace = Path(os.path.relpath(workspace, start=stack))
+
+    completed = _run_posix_bootstrap(stack, relative_workspace)
+
+    assert completed.returncode == 0, completed.stderr
+    generated = _read_env(stack / ".env")
+    normalized_workspace = workspace.resolve().as_posix()
+    assert generated["LOTUS_WORKSPACE_ROOT"] == normalized_workspace
+    assert generated["LOTUS_MANAGE_REPO_PATH"] == f"{normalized_workspace}/lotus-manage"

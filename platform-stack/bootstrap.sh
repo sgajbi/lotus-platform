@@ -4,7 +4,11 @@ set -eu
 stack_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 env_path="$stack_root/.env"
 template_path="$stack_root/.env.example"
-workspace_root=${1:-$(CDPATH= cd -- "$stack_root/../.." && pwd)}
+if [ "$#" -gt 0 ]; then
+  workspace_root=$(CDPATH= cd -- "$1" && pwd)
+else
+  workspace_root=$(CDPATH= cd -- "$stack_root/../.." && pwd)
+fi
 
 if [ ! -f "$env_path" ]; then
   cp "$template_path" "$env_path"
