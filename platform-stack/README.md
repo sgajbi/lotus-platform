@@ -52,6 +52,24 @@ cd lotus-platform
 Run either bootstrap again after pulling new variables. It safely adds only missing values. The
 tracked `.env.example` contains non-secret defaults and blank path/secret placeholders only.
 
+### Upgrade from the pre-hardening stack
+
+PostgreSQL applies database, role, and password initialization only when a volume is empty. Do not
+attach a volume created by the earlier stack identities to this profile and assume bootstrap has
+migrated it. The renamed Compose project creates fresh `lotus-platform_*` volumes and deliberately
+leaves legacy `pbwm-platform_*` volumes untouched.
+
+Before retiring a legacy volume, choose one explicit recovery path:
+
+1. If its local data matters, start the old project with its old configuration, create a `pg_dump`,
+   bootstrap this stack, then restore into the new database and verify the application contract.
+2. If the data is disposable, confirm the exact previous Compose project and remove only that
+   project's volumes with `docker compose -p pbwm-platform down --volumes`. This is destructive and
+   cannot be recovered without a backup.
+
+Never rename or mount the legacy volume into the new project without a tested database migration.
+Bootstrap migrates environment variables only; it never rewrites database users or stored data.
+
 Add the entries from `dev-ingress/hosts.example` to the local hosts file. On Windows, the governed
 helper can stage or apply the managed block:
 
