@@ -72,35 +72,35 @@ If the apply step is not run from an elevated shell, the tool writes a staged fi
 
 Use that staged file only as an admin handoff artifact. Do not copy partial entries manually.
 
-### 1.1.1 platform-stack .env setup
+### 1.1.1 Bootstrap the platform-stack environment
 
-Before first bring-up, copy `.env.example` and set the repo paths to the local Lotus clones that
-this machine should orchestrate:
+Before first bring-up, run the governed bootstrap from the repository root. It resolves the
+workspace root, writes canonical repository paths, and generates independent local secrets in the
+ignored `platform-stack/.env` file. Existing non-empty values are preserved on later runs.
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
-Copy-Item .env.example .env
+cd C:\Users\Sandeep\projects\lotus-platform
+.\platform-stack\bootstrap.ps1 -WorkspaceRoot ..
 ```
 
-Minimum required path variables:
+On macOS or Linux:
 
+```bash
+cd /path/to/projects/lotus-platform
+./platform-stack/bootstrap.sh ..
+```
+
+Do not copy `.env.example` manually: its required secrets are intentionally empty and Compose
+fails closed until the bootstrap generates them. The generated canonical path variables are:
+
+- `LOTUS_WORKSPACE_ROOT`
 - `LOTUS_CORE_REPO_PATH`
 - `LOTUS_PERFORMANCE_REPO_PATH`
 - `LOTUS_REPORT_REPO_PATH`
 - `LOTUS_IDEA_REPO_PATH`
 - `LOTUS_MANAGE_REPO_PATH`
-- `BFF_REPO_PATH`
-- `UI_REPO_PATH`
-
-Example local values:
-
-- `LOTUS_CORE_REPO_PATH=C:\Users\Sandeep\projects\lotus-core`
-- `LOTUS_PERFORMANCE_REPO_PATH=C:\Users\Sandeep\projects\lotus-performance`
-- `LOTUS_REPORT_REPO_PATH=C:\Users\Sandeep\projects\lotus-report`
-- `LOTUS_IDEA_REPO_PATH=C:\Users\Sandeep\projects\lotus-idea`
-- `LOTUS_MANAGE_REPO_PATH=C:\Users\Sandeep\projects\lotus-manage`
-- `BFF_REPO_PATH=C:\Users\Sandeep\projects\lotus-gateway`
-- `UI_REPO_PATH=C:\Users\Sandeep\projects\lotus-workbench`
+- `LOTUS_GATEWAY_REPO_PATH`
+- `LOTUS_WORKBENCH_REPO_PATH`
 
 ### 1.1.2 Bring up ingress-first platform-stack
 

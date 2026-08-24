@@ -117,6 +117,20 @@ def test_bootstrap_scripts_never_embed_tracked_secret_defaults() -> None:
     assert posix.index("umask 077") < posix.index('cp "$template_path" "$env_path"')
 
 
+def test_local_development_runbook_uses_governed_bootstrap_and_canonical_paths() -> None:
+    runbook = (ROOT / "docs" / "operations" / "Local Development Runbook.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert ".\\platform-stack\\bootstrap.ps1 -WorkspaceRoot .." in runbook
+    assert "./platform-stack/bootstrap.sh .." in runbook
+    assert "LOTUS_GATEWAY_REPO_PATH" in runbook
+    assert "LOTUS_WORKBENCH_REPO_PATH" in runbook
+    assert "Copy-Item .env.example .env" not in runbook
+    assert "BFF_REPO_PATH" not in runbook
+    assert "UI_REPO_PATH" not in runbook
+
+
 @pytest.mark.skipif(os.name == "nt", reason="POSIX path semantics are verified on Linux CI")
 def test_posix_bootstrap_resolves_relative_workspace_before_writing_paths(tmp_path: Path) -> None:
     stack = tmp_path / "platform-stack"
