@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 13
     },
-    "total_source_lines": 357899
+    "total_source_lines": 358024
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2836
+    "python_function_count": 2837
   },
-  "generated_at_utc": "2026-08-24T15:30:23Z",
+  "generated_at_utc": "2026-08-24T15:58:30Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -383,7 +383,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 5923,
+      "lines": 5931,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },
@@ -672,47 +672,47 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1791,
+        "line": 1799,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1792,
+        "line": 1800,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2854,
+        "line": 2862,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2855,
+        "line": 2863,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3114,
+        "line": 3122,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3666,
+        "line": 3674,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3667,
+        "line": 3675,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3680,
+        "line": 3688,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3681,
+        "line": 3689,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 965,
+    "collected_tests": 966,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "965 tests collected in 0.88s"
+    "summary": "966 tests collected in 1.00s"
   }
 }

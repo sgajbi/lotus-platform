@@ -4,8 +4,10 @@ from pathlib import Path
 import os
 import shutil
 import subprocess
+import sys
 
 import pytest
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,7 +36,9 @@ def _run_bootstrap(
     shell: str | None = None,
 ) -> subprocess.CompletedProcess[str]:
     resolved_shell = shell or shutil.which("pwsh") or shutil.which("powershell")
-    assert resolved_shell is not None, "PowerShell is required to verify the Windows bootstrap"
+    assert resolved_shell is not None, (
+        "PowerShell is required to verify the Windows bootstrap"
+    )
     return subprocess.run(
         [
             resolved_shell,
@@ -74,7 +78,9 @@ def _run_posix_bootstrap(
     )
 
 
-def test_windows_bootstrap_generates_once_and_preserves_operator_values(tmp_path: Path) -> None:
+def test_windows_bootstrap_generates_once_and_preserves_operator_values(
+    tmp_path: Path,
+) -> None:
     stack = tmp_path / "platform-stack"
     workspace = tmp_path / "workspace"
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
@@ -111,9 +117,13 @@ def test_windows_bootstrap_generates_once_and_preserves_operator_values(tmp_path
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows PowerShell 5.1 is Windows-only")
-def test_windows_powershell_bootstrap_generates_required_secrets(tmp_path: Path) -> None:
+def test_windows_powershell_bootstrap_generates_required_secrets(
+    tmp_path: Path,
+) -> None:
     windows_powershell = shutil.which("powershell")
-    assert windows_powershell is not None, "Windows PowerShell is required for compatibility proof"
+    assert windows_powershell is not None, (
+        "Windows PowerShell is required for compatibility proof"
+    )
     stack = tmp_path / "platform-stack"
     workspace = tmp_path / "workspace"
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
@@ -143,7 +153,9 @@ def test_bootstrap_scripts_never_embed_tracked_secret_defaults() -> None:
     assert posix.index("umask 077") < posix.index('cp "$template_path" "$env_path"')
 
 
-def test_local_development_runbook_uses_governed_bootstrap_and_canonical_paths() -> None:
+def test_local_development_runbook_uses_governed_bootstrap_and_canonical_paths() -> (
+    None
+):
     runbook = (ROOT / "docs" / "operations" / "Local Development Runbook.md").read_text(
         encoding="utf-8"
     )
@@ -158,10 +170,15 @@ def test_local_development_runbook_uses_governed_bootstrap_and_canonical_paths()
 
 
 def test_service_scaffold_uses_canonical_stack_and_bootstrap_anchors() -> None:
-    scaffold = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    scaffold = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(
+        encoding="utf-8"
+    )
 
-    assert '"  lotus-gateway:`r`n"' in scaffold
-    assert 'condition: service_healthy' in scaffold
+    assert "gatewayServiceAnchor" in scaffold
+    assert "<<: \\*medium-service" in scaffold
+    assert "condition: service_healthy" in scaffold
+    assert "<<: *small-service" in scaffold
+    assert "dev-ingress/Caddyfile.tls" in scaffold
     assert '$envLine = "$repoPathVariable="' in scaffold
     assert "platform-stack/bootstrap.ps1" in scaffold
     assert "platform-stack/bootstrap.sh" in scaffold
@@ -170,8 +187,108 @@ def test_service_scaffold_uses_canonical_stack_and_bootstrap_anchors() -> None:
     assert "c:/Users/Sandeep/projects/$RepoName" not in scaffold
 
 
-@pytest.mark.skipif(os.name == "nt", reason="POSIX path semantics are verified on Linux CI")
-def test_posix_bootstrap_resolves_relative_workspace_before_writing_paths(tmp_path: Path) -> None:
+def test_service_scaffold_registration_preserves_valid_platform_stack(
+    tmp_path: Path,
+) -> None:
+    platform_root = tmp_path / "lotus-platform"
+    workspace_root = tmp_path / "workspace"
+    shutil.copytree(
+        ROOT,
+        platform_root,
+        ignore=shutil.ignore_patterns(
+            ".git",
+            ".venv",
+            "__pycache__",
+            ".pytest_cache",
+            ".ruff_cache",
+            "output",
+        ),
+    )
+    workspace_root.mkdir()
+    service_name = "lotus-scaffold-contract"
+    completed = subprocess.run(
+        [
+            shutil.which("powershell") or shutil.which("pwsh") or "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(platform_root / "automation" / "New-Lotus-Service.ps1"),
+            "-ServiceName",
+            service_name,
+            "-DestinationRoot",
+            str(workspace_root),
+            "-DevHostName",
+            "scaffold-contract",
+            "-Port",
+            "8999",
+            "-Force",
+        ],
+        cwd=platform_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    compose_path = platform_root / "platform-stack" / "docker-compose.yml"
+    compose = compose_path.read_text(encoding="utf-8-sig")
+    compose_model = yaml.safe_load(compose)
+    services = compose_model["services"]
+    assert list(services).count(service_name) == 1
+    assert f"  {service_name}:\n    <<: *small-service\n" in compose
+    assert services["dev-ingress"]["depends_on"][service_name] == {
+        "condition": "service_healthy"
+    }
+    assert service_name not in services["grafana"]["depends_on"]
+
+    env_lines = (
+        (platform_root / "platform-stack" / ".env.example")
+        .read_text(encoding="utf-8-sig")
+        .splitlines()
+    )
+    assert "LOTUS_SCAFFOLD_CONTRACT_REPO_PATH=" in env_lines
+    powershell_bootstrap = (
+        platform_root / "platform-stack" / "bootstrap.ps1"
+    ).read_text(encoding="utf-8-sig")
+    posix_bootstrap = (platform_root / "platform-stack" / "bootstrap.sh").read_text(
+        encoding="utf-8-sig"
+    )
+    assert (
+        'LOTUS_SCAFFOLD_CONTRACT_REPO_PATH = "lotus-scaffold-contract"'
+        in powershell_bootstrap
+    )
+    assert (
+        'set_if_empty LOTUS_SCAFFOLD_CONTRACT_REPO_PATH "$workspace_root/lotus-scaffold-contract"'
+        in posix_bootstrap
+    )
+    tls_caddyfile = (
+        platform_root / "platform-stack" / "dev-ingress" / "Caddyfile.tls"
+    ).read_text(encoding="utf-8-sig")
+    assert "https://scaffold-contract.dev.lotus" in tls_caddyfile
+    assert "reverse_proxy lotus-scaffold-contract:8999" in tls_caddyfile
+
+    validator = subprocess.run(
+        [
+            sys.executable,
+            str(platform_root / "automation" / "validate_platform_stack.py"),
+            "--stack-root",
+            str(platform_root / "platform-stack"),
+        ],
+        cwd=platform_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert validator.returncode == 0, validator.stdout + validator.stderr
+
+
+@pytest.mark.skipif(
+    os.name == "nt", reason="POSIX path semantics are verified on Linux CI"
+)
+def test_posix_bootstrap_resolves_relative_workspace_before_writing_paths(
+    tmp_path: Path,
+) -> None:
     stack = tmp_path / "platform-stack"
     workspace = tmp_path / "workspace"
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
