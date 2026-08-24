@@ -601,15 +601,33 @@ function Register-PlatformDevIngress {
     logging: *default-logging
 
 "@
-      if ($composeText.Contains("  bff:`r`n")) {
-        $composeText = $composeText.Replace("  bff:`r`n", "$serviceBlock  bff:`r`n")
+      if ($composeText.Contains("  lotus-gateway:`r`n")) {
+        $composeText = $composeText.Replace(
+          "  lotus-gateway:`r`n",
+          "$serviceBlock  lotus-gateway:`r`n"
+        )
       }
-      elseif ($composeText.Contains("  bff:`n")) {
-        $composeText = $composeText.Replace("  bff:`n", "$serviceBlock  bff:`n")
+      elseif ($composeText.Contains("  lotus-gateway:`n")) {
+        $composeText = $composeText.Replace(
+          "  lotus-gateway:`n",
+          "$serviceBlock  lotus-gateway:`n"
+        )
+      }
+      else {
+        throw "platform-stack/docker-compose.yml is missing the lotus-gateway service anchor"
       }
       if ($composeText -notmatch [regex]::Escape("      ${RepoName}:`n        condition: service_healthy")) {
         $dependsBlock = "      ${RepoName}:`n        condition: service_healthy`n"
-        $composeText = $composeText -replace "      prometheus:\r?\n        condition: service_started", "$dependsBlock      prometheus:`n        condition: service_started"
+        $prometheusDependency = "      prometheus:\r?\n        condition: service_healthy"
+        if ($composeText -notmatch $prometheusDependency) {
+          throw "platform-stack/docker-compose.yml is missing the healthy Prometheus dependency anchor"
+        }
+        $composeText = [regex]::Replace(
+          $composeText,
+          $prometheusDependency,
+          "$dependsBlock      prometheus:`n        condition: service_healthy",
+          1
+        )
       }
       Set-Content -Path $composePath -Value $composeText
       Write-Host "Updated platform-stack/docker-compose.yml with $RepoName"
@@ -621,10 +639,59 @@ function Register-PlatformDevIngress {
     $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
     $envText = Get-Content -Raw $envExamplePath
     if ($envText -notmatch [regex]::Escape($repoPathVariable)) {
-      $envLine = "$repoPathVariable=c:/Users/Sandeep/projects/$RepoName"
-      $envText = $envText.TrimEnd("`r", "`n") + "`n$envLine`n"
+      $envLine = "$repoPathVariable="
+      if ($envText.Contains("LOTUS_WORKBENCH_REPO_PATH=`r`n")) {
+        $envText = $envText.Replace(
+          "LOTUS_WORKBENCH_REPO_PATH=`r`n",
+          "LOTUS_WORKBENCH_REPO_PATH=`r`n$envLine`r`n"
+        )
+      }
+      elseif ($envText.Contains("LOTUS_WORKBENCH_REPO_PATH=`n")) {
+        $envText = $envText.Replace(
+          "LOTUS_WORKBENCH_REPO_PATH=`n",
+          "LOTUS_WORKBENCH_REPO_PATH=`n$envLine`n"
+        )
+      }
+      else {
+        throw "platform-stack/.env.example is missing the Workbench repository-path anchor"
+      }
       Set-Content -Path $envExamplePath -Value $envText
       Write-Host "Updated platform-stack/.env.example with $repoPathVariable"
+    }
+  }
+
+  $bootstrapPs1Path = Join-Path $platformStackRoot "bootstrap.ps1"
+  if (Test-Path $bootstrapPs1Path) {
+    $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
+    $bootstrapPs1Text = Get-Content -Raw $bootstrapPs1Path
+    if ($bootstrapPs1Text -notmatch [regex]::Escape("    $repoPathVariable = `"$RepoName`"")) {
+      $workbenchMapEntry = '    LOTUS_WORKBENCH_REPO_PATH = "lotus-workbench"'
+      if (-not $bootstrapPs1Text.Contains($workbenchMapEntry)) {
+        throw "platform-stack/bootstrap.ps1 is missing the Workbench repository-path anchor"
+      }
+      $bootstrapPs1Text = $bootstrapPs1Text.Replace(
+        $workbenchMapEntry,
+        "$workbenchMapEntry`n    $repoPathVariable = `"$RepoName`""
+      )
+      Set-Content -Path $bootstrapPs1Path -Value $bootstrapPs1Text
+    }
+  }
+
+  $bootstrapShPath = Join-Path $platformStackRoot "bootstrap.sh"
+  if (Test-Path $bootstrapShPath) {
+    $repoPathVariable = Convert-ServiceNameToRepoPathVariable -RepoName $RepoName
+    $bootstrapShText = Get-Content -Raw $bootstrapShPath
+    $newRepositoryPath = "set_if_empty $repoPathVariable `"`$workspace_root/$RepoName`""
+    if (-not $bootstrapShText.Contains($newRepositoryPath)) {
+      $workbenchRepositoryPath = 'set_if_empty LOTUS_WORKBENCH_REPO_PATH "$workspace_root/lotus-workbench"'
+      if (-not $bootstrapShText.Contains($workbenchRepositoryPath)) {
+        throw "platform-stack/bootstrap.sh is missing the Workbench repository-path anchor"
+      }
+      $bootstrapShText = $bootstrapShText.Replace(
+        $workbenchRepositoryPath,
+        "$workbenchRepositoryPath`n$newRepositoryPath"
+      )
+      Set-Content -Path $bootstrapShPath -Value $bootstrapShText
     }
   }
 }

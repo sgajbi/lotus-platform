@@ -22,8 +22,13 @@ if (-not (Test-Path -LiteralPath $envPath)) {
 
 function New-RandomSecret {
     $bytes = [byte[]]::new(32)
-    [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
-    return [Convert]::ToHexString($bytes).ToLowerInvariant()
+    $generator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try {
+        $generator.GetBytes($bytes)
+    } finally {
+        $generator.Dispose()
+    }
+    return -join ($bytes | ForEach-Object { $_.ToString("x2") })
 }
 
 function Set-EnvironmentValueIfEmpty {
