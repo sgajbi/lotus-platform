@@ -1,5 +1,13 @@
 # Architecture
 
+This page maps the current, implementation-backed ownership boundaries of `lotus-platform`.
+Use it to locate the authoritative automation, contracts, shared local infrastructure, and agent
+governance surfaces; product behavior remains owned by the corresponding Lotus application.
+
+Evidence comes from the linked repository paths, machine-readable contracts, validators, and
+repo-native CI commands. Target-state capabilities belong in [Roadmap](Roadmap), not in this
+current-state map.
+
 ## Major platform surfaces
 
 ### `automation/`
@@ -75,9 +83,11 @@ needed for production-like local readiness, including `lotus-report-postgres` fo
 The Compose project containerises Core, Manage, Performance, Report, Idea, Gateway, and Workbench.
 Risk, Advise, AI, Archive, and Render are explicit host-run bridges, not stack-owned containers.
 Tracked configuration contains no credential values: one-time bootstrap writes an ignored `.env`,
-published ports bind to loopback, Grafana requires authentication, and an optional Caddy local-CA
-profile supports local HTTPS. Prometheus owns the shared scrape inventory and Tempo retains local
-traces for 24 hours. Long-running containers have health and resource bounds.
+rejects the former tracked Core database password before mutation, and preserves genuine
+operator-managed values. Published ports bind to loopback, Grafana requires authentication, and an
+optional Caddy local-CA profile supports local HTTPS. Prometheus owns the shared scrape inventory
+and Tempo retains local traces for 24 hours. Long-running containers have health and resource
+bounds.
 
 This supports the ecosystem runtime, but it is not the canonical populated front-office product
 proof path.
