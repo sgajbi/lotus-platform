@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 13
     },
-    "total_source_lines": 358491
+    "total_source_lines": 358547
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,8 +51,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 264,
-        "line": 202,
+        "end_line": 270,
+        "line": 208,
         "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
@@ -147,9 +147,9 @@
       },
       {
         "complexity": 12,
-        "end_line": 199,
+        "end_line": 205,
         "line": 134,
-        "lines": 66,
+        "lines": 72,
         "name": "_validate_observability",
         "path": "automation/validate_platform_stack.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2853
+    "python_function_count": 2854
   },
-  "generated_at_utc": "2026-08-24T19:40:07Z",
+  "generated_at_utc": "2026-08-24T19:48:44Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -383,7 +383,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 5931,
+      "lines": 5950,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },
@@ -672,47 +672,47 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1799,
+        "line": 1818,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1800,
+        "line": 1819,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2862,
+        "line": 2881,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 2863,
+        "line": 2882,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3122,
+        "line": 3141,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3674,
+        "line": 3693,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3675,
+        "line": 3694,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3688,
+        "line": 3707,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 3689,
+        "line": 3708,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 998,
+    "collected_tests": 999,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "998 tests collected in 1.11s"
+    "summary": "999 tests collected in 0.88s"
   }
 }
