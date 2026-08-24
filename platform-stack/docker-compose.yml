@@ -121,7 +121,7 @@ services:
       POSTGRES_USER: ${LOTUS_MANAGE_POSTGRES_USER:-lotus_manage}
       POSTGRES_PASSWORD: ${LOTUS_MANAGE_POSTGRES_PASSWORD:?run platform-stack/bootstrap.ps1 or bootstrap.sh}
     volumes:
-      - lotus-manage-postgres-data:/var/lib/postgresql/data
+      - lotus-manage-postgres-identity-v2-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
@@ -466,7 +466,7 @@ services:
 
 volumes:
   lotus-core-postgres-data:
-  lotus-manage-postgres-data:
+  lotus-manage-postgres-identity-v2-data:
   lotus-report-postgres-data:
   grafana-data:
   tempo-data:

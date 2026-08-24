@@ -143,6 +143,31 @@ def test_validator_rejects_missing_bootstrap_and_tls_profile(tmp_path: Path) -> 
     assert "platform stack must provide the Caddy local-CA TLS profile" in issues
 
 
+def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -> None:
+    stack = _copy_stack(tmp_path)
+    bootstrap_path = stack / "bootstrap.sh"
+    bootstrap_path.write_text(
+        bootstrap_path.read_text(encoding="utf-8").replace("umask 077\n", ""),
+        encoding="utf-8",
+    )
+
+    def reuse_legacy_manage_volume(compose: dict) -> None:
+        compose["services"]["lotus-manage-postgres"]["volumes"] = [
+            "lotus-manage-postgres-data:/var/lib/postgresql/data"
+        ]
+        compose["volumes"].pop("lotus-manage-postgres-identity-v2-data")
+        compose["volumes"]["lotus-manage-postgres-data"] = None
+
+    _mutate_compose(stack, reuse_legacy_manage_volume)
+
+    issues = validate_stack(stack)
+
+    assert "POSIX bootstrap must set umask 077 before creating .env" in issues
+    assert "Manage PostgreSQL must use the identity-v2 data volume" in issues
+    assert "Compose must declare the Manage identity-v2 data volume" in issues
+    assert "Compose must not attach the legacy Manage PostgreSQL data volume" in issues
+
+
 def test_platform_repo_lanes_enforce_stack_validation() -> None:
     repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(
         encoding="utf-8"
