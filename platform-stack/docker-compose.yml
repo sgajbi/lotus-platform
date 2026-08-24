@@ -390,6 +390,8 @@ services:
   prometheus:
     <<: *medium-service
     image: prom/prometheus:v2.47.2
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro

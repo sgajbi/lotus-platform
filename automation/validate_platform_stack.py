@@ -144,6 +144,9 @@ def _validate_observability(stack_root: Path, services: dict[str, Any], issues: 
         missing = sorted(EXPECTED_PROMETHEUS_JOBS - jobs)
         extra = sorted(jobs - EXPECTED_PROMETHEUS_JOBS)
         issues.append(f"Prometheus job inventory drift: missing={missing} extra={extra}")
+    prometheus_extra_hosts = services.get("prometheus", {}).get("extra_hosts", [])
+    if "host.docker.internal:host-gateway" not in prometheus_extra_hosts:
+        issues.append("Prometheus must map host.docker.internal through host-gateway")
 
 
 def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[str]) -> None:
@@ -172,6 +175,12 @@ def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[
             or restrictive_umask > first_environment_write
         ):
             issues.append("POSIX bootstrap must set umask 077 before creating .env")
+        if (
+            "set_secret_if_empty" not in posix_bootstrap
+            or "if ! value=$(new_secret); then" not in posix_bootstrap
+            or 'if [ -z "$value" ]; then' not in posix_bootstrap
+        ):
+            issues.append("POSIX bootstrap must fail closed when secret generation fails")
 
     manage_postgres_volumes = services.get("lotus-manage-postgres", {}).get("volumes", [])
     expected_manage_volume = "lotus-manage-postgres-identity-v2-data:/var/lib/postgresql/data"
