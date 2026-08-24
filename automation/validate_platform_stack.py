@@ -47,6 +47,11 @@ EXPECTED_PROMETHEUS_JOBS = frozenset(
 _REQUIRED_INTERPOLATION = re.compile(r"^\$\{[A-Z][A-Z0-9_]*:\?[^}]+\}$")
 _LOOPBACK_PORT = re.compile(r"^127\.0\.0\.1:\$\{[A-Z][A-Z0-9_]*(?::-\d+)?\}:\d+$")
 _LITERAL_DSN_CREDENTIAL = re.compile(r"://[^${:/\s]+:[^${@/\s]+@")
+_INTERPOLATED_POSTGRESQL_CREDENTIALS = re.compile(
+    r"^postgresql://"
+    r"\$\{[A-Z][A-Z0-9_]*(?::[-?][^}]*)?\}:"
+    r"\$\{[A-Z][A-Z0-9_]*(?::[-?][^}]*)?\}@"
+)
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
@@ -87,13 +92,16 @@ def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None
                         f"{service_name}.{key} must use required environment interpolation"
                     )
             if isinstance(value, str) and "://" in value:
-                if _LITERAL_DSN_CREDENTIAL.search(value):
+                contains_literal_credentials = bool(
+                    _LITERAL_DSN_CREDENTIAL.search(value)
+                )
+                if value.startswith("postgresql://"):
+                    contains_literal_credentials = not bool(
+                        _INTERPOLATED_POSTGRESQL_CREDENTIALS.match(value)
+                    )
+                if contains_literal_credentials:
                     issues.append(
                         f"{service_name}.{key} contains literal DSN credentials"
-                    )
-                if "postgresql://" in value and "${" not in value:
-                    issues.append(
-                        f"{service_name}.{key} must compose its DSN from variables"
                     )
 
 
