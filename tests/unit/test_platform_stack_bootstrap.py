@@ -27,12 +27,17 @@ def _read_env(path: Path) -> dict[str, str]:
     }
 
 
-def _run_bootstrap(stack: Path, workspace: Path) -> subprocess.CompletedProcess[str]:
-    shell = shutil.which("pwsh") or shutil.which("powershell")
-    assert shell is not None, "PowerShell is required to verify the Windows bootstrap"
+def _run_bootstrap(
+    stack: Path,
+    workspace: Path,
+    *,
+    shell: str | None = None,
+) -> subprocess.CompletedProcess[str]:
+    resolved_shell = shell or shutil.which("pwsh") or shutil.which("powershell")
+    assert resolved_shell is not None, "PowerShell is required to verify the Windows bootstrap"
     return subprocess.run(
         [
-            shell,
+            resolved_shell,
             "-NoProfile",
             "-ExecutionPolicy",
             "Bypass",
@@ -105,13 +110,34 @@ def test_windows_bootstrap_generates_once_and_preserves_operator_values(tmp_path
     assert custom_secret not in second.stdout
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows PowerShell 5.1 is Windows-only")
+def test_windows_powershell_bootstrap_generates_required_secrets(tmp_path: Path) -> None:
+    windows_powershell = shutil.which("powershell")
+    assert windows_powershell is not None, "Windows PowerShell is required for compatibility proof"
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+
+    completed = _run_bootstrap(stack, workspace, shell=windows_powershell)
+
+    assert completed.returncode == 0, completed.stderr
+    generated = _read_env(stack / ".env")
+    assert all(len(generated[name]) == 64 for name in SECRET_NAMES)
+    assert len({generated[name] for name in SECRET_NAMES}) == len(SECRET_NAMES)
+
+
 def test_bootstrap_scripts_never_embed_tracked_secret_defaults() -> None:
     template = _read_env(SOURCE_STACK / ".env.example")
     powershell = (SOURCE_STACK / "bootstrap.ps1").read_text(encoding="utf-8")
     posix = (SOURCE_STACK / "bootstrap.sh").read_text(encoding="utf-8")
 
     assert all(template[name] == "" for name in SECRET_NAMES)
-    assert "RandomNumberGenerator" in powershell
+    assert "RandomNumberGenerator]::Create()" in powershell
+    assert ".GetBytes($bytes)" in powershell
+    assert '.ToString("x2")' in powershell
+    assert "RandomNumberGenerator]::Fill" not in powershell
+    assert "Convert]::ToHexString" not in powershell
     assert "openssl rand -hex 32" in posix
     assert "chmod 600" in posix
     assert posix.index("umask 077") < posix.index('cp "$template_path" "$env_path"')
@@ -129,6 +155,19 @@ def test_local_development_runbook_uses_governed_bootstrap_and_canonical_paths()
     assert "Copy-Item .env.example .env" not in runbook
     assert "BFF_REPO_PATH" not in runbook
     assert "UI_REPO_PATH" not in runbook
+
+
+def test_service_scaffold_uses_canonical_stack_and_bootstrap_anchors() -> None:
+    scaffold = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+
+    assert '"  lotus-gateway:`r`n"' in scaffold
+    assert 'condition: service_healthy' in scaffold
+    assert '$envLine = "$repoPathVariable="' in scaffold
+    assert "platform-stack/bootstrap.ps1" in scaffold
+    assert "platform-stack/bootstrap.sh" in scaffold
+    assert '"  bff:`r`n"' not in scaffold
+    assert "condition: service_started" not in scaffold
+    assert "c:/Users/Sandeep/projects/$RepoName" not in scaffold
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX path semantics are verified on Linux CI")
