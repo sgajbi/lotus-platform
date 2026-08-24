@@ -586,6 +586,7 @@ function Register-PlatformDevIngress {
       $repoPathExpression = '${' + $repoPathVariable + '}'
       $serviceBlock = @"
   ${RepoName}:
+    <<: *small-service
     build:
       context: $repoPathExpression
       dockerfile: Dockerfile
@@ -601,30 +602,26 @@ function Register-PlatformDevIngress {
     logging: *default-logging
 
 "@
-      if ($composeText.Contains("  lotus-gateway:`r`n")) {
-        $composeText = $composeText.Replace(
-          "  lotus-gateway:`r`n",
-          "$serviceBlock  lotus-gateway:`r`n"
-        )
+      $gatewayServiceAnchor = "(?m)^  lotus-gateway:\r?\n    <<: \*medium-service\r?$"
+      $gatewayServiceMatches = [regex]::Matches($composeText, $gatewayServiceAnchor)
+      if ($gatewayServiceMatches.Count -ne 1) {
+        throw "platform-stack/docker-compose.yml must contain exactly one canonical lotus-gateway service anchor"
       }
-      elseif ($composeText.Contains("  lotus-gateway:`n")) {
-        $composeText = $composeText.Replace(
-          "  lotus-gateway:`n",
-          "$serviceBlock  lotus-gateway:`n"
-        )
-      }
-      else {
-        throw "platform-stack/docker-compose.yml is missing the lotus-gateway service anchor"
-      }
+      $gatewayServicePattern = [regex]::new($gatewayServiceAnchor)
+      $composeText = $gatewayServicePattern.Replace(
+        $composeText,
+        "$serviceBlock  lotus-gateway:`n    <<: *medium-service",
+        1
+      )
       if ($composeText -notmatch [regex]::Escape("      ${RepoName}:`n        condition: service_healthy")) {
         $dependsBlock = "      ${RepoName}:`n        condition: service_healthy`n"
         $prometheusDependency = "      prometheus:\r?\n        condition: service_healthy"
         if ($composeText -notmatch $prometheusDependency) {
           throw "platform-stack/docker-compose.yml is missing the healthy Prometheus dependency anchor"
         }
-        $composeText = [regex]::Replace(
+        $prometheusDependencyPattern = [regex]::new($prometheusDependency)
+        $composeText = $prometheusDependencyPattern.Replace(
           $composeText,
-          $prometheusDependency,
           "$dependsBlock      prometheus:`n        condition: service_healthy",
           1
         )
@@ -657,6 +654,17 @@ function Register-PlatformDevIngress {
       }
       Set-Content -Path $envExamplePath -Value $envText
       Write-Host "Updated platform-stack/.env.example with $repoPathVariable"
+    }
+  }
+
+  $tlsCaddyPath = Join-Path $platformStackRoot "dev-ingress/Caddyfile.tls"
+  if (Test-Path $tlsCaddyPath) {
+    $tlsCaddyText = Get-Content -Raw $tlsCaddyPath
+    if ($tlsCaddyText -notmatch [regex]::Escape("https://$hostname")) {
+      $tlsRoute = "https://$hostname {`n`t reverse_proxy ${RepoName}:$RepoPort`n}`n"
+      $tlsCaddyText = $tlsCaddyText.TrimEnd("`r", "`n") + "`n`n$tlsRoute"
+      Set-Content -Path $tlsCaddyPath -Value $tlsCaddyText
+      Write-Host "Updated platform-stack/dev-ingress/Caddyfile.tls with $hostname"
     }
   }
 
