@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 13
     },
-    "total_source_lines": 358024
+    "total_source_lines": 358206
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,9 +51,9 @@
       },
       {
         "complexity": 18,
-        "end_line": 201,
-        "line": 152,
-        "lines": 50,
+        "end_line": 252,
+        "line": 190,
+        "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
       },
@@ -163,14 +163,6 @@
       },
       {
         "complexity": 12,
-        "end_line": 149,
-        "line": 110,
-        "lines": 40,
-        "name": "_validate_observability",
-        "path": "automation/validate_platform_stack.py"
-      },
-      {
-        "complexity": 12,
         "end_line": 556,
         "line": 520,
         "lines": 37,
@@ -192,6 +184,14 @@
         "lines": 77,
         "name": "_compare",
         "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
+      },
+      {
+        "complexity": 11,
+        "end_line": 319,
+        "line": 253,
+        "lines": 67,
+        "name": "terminate_tree",
+        "path": "automation/background_task_cancellation.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2837
+    "python_function_count": 2844
   },
-  "generated_at_utc": "2026-08-24T15:58:30Z",
+  "generated_at_utc": "2026-08-24T16:20:48Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 966,
+    "collected_tests": 972,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "966 tests collected in 1.00s"
+    "summary": "972 tests collected in 7.55s"
   }
 }

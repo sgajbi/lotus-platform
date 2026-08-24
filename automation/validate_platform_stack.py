@@ -45,7 +45,7 @@ EXPECTED_PROMETHEUS_JOBS = frozenset(
     }
 )
 _REQUIRED_INTERPOLATION = re.compile(r"^\$\{[A-Z][A-Z0-9_]*:\?[^}]+\}$")
-_LOOPBACK_PORT = re.compile(r'^127\.0\.0\.1:\$\{[A-Z][A-Z0-9_]*(?::-\d+)?\}:\d+$')
+_LOOPBACK_PORT = re.compile(r"^127\.0\.0\.1:\$\{[A-Z][A-Z0-9_]*(?::-\d+)?\}:\d+$")
 _LITERAL_DSN_CREDENTIAL = re.compile(r"://[^${:/\s]+:[^${@/\s]+@")
 
 
@@ -55,17 +55,24 @@ def _read_yaml(path: Path) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def _as_map(value: Any) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _as_list(value: Any) -> list[Any]:
+    return value if isinstance(value, list) else []
+
+
 def _environment_map(service: dict[str, Any]) -> dict[str, Any]:
-    environment = service.get("environment", {})
-    return environment if isinstance(environment, dict) else {}
+    return _as_map(service.get("environment"))
 
 
 def _has_resource_limit(service: dict[str, Any]) -> bool:
     if service.get("cpus") and service.get("mem_limit"):
         return True
-    deploy = service.get("deploy", {})
-    resources = deploy.get("resources", {}) if isinstance(deploy, dict) else {}
-    limits = resources.get("limits", {}) if isinstance(resources, dict) else {}
+    deploy = _as_map(service.get("deploy"))
+    resources = _as_map(deploy.get("resources"))
+    limits = _as_map(resources.get("limits"))
     return bool(limits.get("cpus") and limits.get("memory"))
 
 
@@ -73,26 +80,34 @@ def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None
     for service_name, service in services.items():
         for key, value in _environment_map(service).items():
             if any(marker in key.upper() for marker in ("PASSWORD", "SECRET", "TOKEN")):
-                if not isinstance(value, str) or not _REQUIRED_INTERPOLATION.fullmatch(value):
+                if not isinstance(value, str) or not _REQUIRED_INTERPOLATION.fullmatch(
+                    value
+                ):
                     issues.append(
                         f"{service_name}.{key} must use required environment interpolation"
                     )
             if isinstance(value, str) and "://" in value:
                 if _LITERAL_DSN_CREDENTIAL.search(value):
-                    issues.append(f"{service_name}.{key} contains literal DSN credentials")
+                    issues.append(
+                        f"{service_name}.{key} contains literal DSN credentials"
+                    )
                 if "postgresql://" in value and "${" not in value:
-                    issues.append(f"{service_name}.{key} must compose its DSN from variables")
+                    issues.append(
+                        f"{service_name}.{key} must compose its DSN from variables"
+                    )
 
 
 def _validate_port_bindings(compose: dict[str, Any], issues: list[str]) -> None:
-    for service_name, service in compose.get("services", {}).items():
-        for port in service.get("ports", []):
+    for service_name, raw_service in _as_map(compose.get("services")).items():
+        service = _as_map(raw_service)
+        for port in _as_list(service.get("ports")):
             if not isinstance(port, str) or not _LOOPBACK_PORT.fullmatch(port):
                 issues.append(f"{service_name} port must bind to 127.0.0.1: {port!r}")
 
 
 def _validate_service_controls(services: dict[str, Any], issues: list[str]) -> None:
-    for service_name, service in services.items():
+    for service_name, raw_service in services.items():
+        service = _as_map(raw_service)
         if service_name in ONE_SHOT_SERVICES:
             continue
         if not isinstance(service.get("healthcheck"), dict):
@@ -100,63 +115,90 @@ def _validate_service_controls(services: dict[str, Any], issues: list[str]) -> N
         if not _has_resource_limit(service):
             issues.append(f"{service_name} must define CPU and memory limits")
 
-    ingress_dependencies = services.get("dev-ingress", {}).get("depends_on", {})
+    ingress = _as_map(services.get("dev-ingress"))
+    ingress_dependencies = _as_map(ingress.get("depends_on"))
     for dependency in ("prometheus", "grafana"):
-        condition = ingress_dependencies.get(dependency, {}).get("condition")
+        condition = _as_map(ingress_dependencies.get(dependency)).get("condition")
         if condition != "service_healthy":
             issues.append(f"dev-ingress must wait for healthy {dependency}")
 
 
-def _validate_observability(stack_root: Path, services: dict[str, Any], issues: list[str]) -> None:
+def _validate_observability(
+    stack_root: Path, services: dict[str, Any], issues: list[str]
+) -> None:
     for service_name, expected in EXPECTED_OTEL_SERVICE_NAMES.items():
-        actual = _environment_map(services.get(service_name, {})).get("OTEL_SERVICE_NAME")
+        actual = _environment_map(_as_map(services.get(service_name))).get(
+            "OTEL_SERVICE_NAME"
+        )
         if actual != expected:
             issues.append(
                 f"{service_name}.OTEL_SERVICE_NAME must be {expected!r}, found {actual!r}"
             )
 
     collector = _read_yaml(stack_root / "otel-collector" / "config.yaml")
-    receiver_protocols = collector.get("receivers", {}).get("otlp", {}).get("protocols", {})
-    if receiver_protocols.get("grpc", {}).get("endpoint") != "0.0.0.0:4317":
-        issues.append("OTel gRPC receiver must listen on the container network at 0.0.0.0:4317")
-    if receiver_protocols.get("http", {}).get("endpoint") != "0.0.0.0:4318":
-        issues.append("OTel HTTP receiver must listen on the container network at 0.0.0.0:4318")
-    exporters = collector.get("exporters", {})
-    tempo_exporter = exporters.get("otlp/tempo", {}) if isinstance(exporters, dict) else {}
+    receivers = _as_map(collector.get("receivers"))
+    otlp_receiver = _as_map(receivers.get("otlp"))
+    receiver_protocols = _as_map(otlp_receiver.get("protocols"))
+    if _as_map(receiver_protocols.get("grpc")).get("endpoint") != "0.0.0.0:4317":
+        issues.append(
+            "OTel gRPC receiver must listen on the container network at 0.0.0.0:4317"
+        )
+    if _as_map(receiver_protocols.get("http")).get("endpoint") != "0.0.0.0:4318":
+        issues.append(
+            "OTel HTTP receiver must listen on the container network at 0.0.0.0:4318"
+        )
+    exporters = _as_map(collector.get("exporters"))
+    tempo_exporter = _as_map(exporters.get("otlp/tempo"))
     if tempo_exporter.get("endpoint") != "tempo:4317":
         issues.append("OTel collector must export traces to tempo:4317")
-    trace_exporters = (
-        collector.get("service", {}).get("pipelines", {}).get("traces", {}).get("exporters", [])
-    )
+    collector_service = _as_map(collector.get("service"))
+    pipelines = _as_map(collector_service.get("pipelines"))
+    traces_pipeline = _as_map(pipelines.get("traces"))
+    trace_exporters = _as_list(traces_pipeline.get("exporters"))
     if "otlp/tempo" not in trace_exporters:
         issues.append("OTel traces pipeline must retain traces through otlp/tempo")
 
-    datasources = _read_yaml(
+    datasource_config = _read_yaml(
         stack_root / "grafana" / "provisioning" / "datasources" / "datasource.yml"
-    ).get("datasources", [])
-    tempo_sources = [item for item in datasources if item.get("type") == "tempo"]
+    )
+    datasources = _as_list(datasource_config.get("datasources"))
+    tempo_sources = [
+        _as_map(item) for item in datasources if _as_map(item).get("type") == "tempo"
+    ]
     if len(tempo_sources) != 1 or tempo_sources[0].get("url") != "http://tempo:3200":
-        issues.append("Grafana must provision exactly one Tempo datasource at http://tempo:3200")
+        issues.append(
+            "Grafana must provision exactly one Tempo datasource at http://tempo:3200"
+        )
 
     prometheus = _read_yaml(stack_root / "prometheus" / "prometheus.yml")
-    jobs = {item.get("job_name") for item in prometheus.get("scrape_configs", [])}
+    jobs = {
+        _as_map(item).get("job_name")
+        for item in _as_list(prometheus.get("scrape_configs"))
+    }
     if jobs != EXPECTED_PROMETHEUS_JOBS:
         missing = sorted(EXPECTED_PROMETHEUS_JOBS - jobs)
         extra = sorted(jobs - EXPECTED_PROMETHEUS_JOBS)
-        issues.append(f"Prometheus job inventory drift: missing={missing} extra={extra}")
-    prometheus_extra_hosts = services.get("prometheus", {}).get("extra_hosts", [])
+        issues.append(
+            f"Prometheus job inventory drift: missing={missing} extra={extra}"
+        )
+    prometheus_service = _as_map(services.get("prometheus"))
+    prometheus_extra_hosts = _as_list(prometheus_service.get("extra_hosts"))
     if "host.docker.internal:host-gateway" not in prometheus_extra_hosts:
         issues.append("Prometheus must map host.docker.internal through host-gateway")
 
 
-def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[str]) -> None:
+def _validate_security(
+    stack_root: Path, services: dict[str, Any], issues: list[str]
+) -> None:
     _validate_secret_values(services, issues)
-    grafana_environment = _environment_map(services.get("grafana", {}))
+    grafana_environment = _environment_map(_as_map(services.get("grafana")))
     if grafana_environment.get("GF_AUTH_ANONYMOUS_ENABLED") != "false":
         issues.append("Grafana anonymous authentication must be disabled")
 
     env_example = (stack_root / ".env.example").read_text(encoding="utf-8")
-    if re.search(r"(?im)^[A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN)[A-Z0-9_]*=.+$", env_example):
+    if re.search(
+        r"(?im)^[A-Z0-9_]*(?:PASSWORD|SECRET|TOKEN)[A-Z0-9_]*=.+$", env_example
+    ):
         issues.append(".env.example must not contain secret values")
     if re.search(r"(?i)[a-z]:/users/|/home/[^/]+/", env_example):
         issues.append(".env.example must not contain workstation-specific paths")
@@ -168,7 +210,9 @@ def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[
     if posix_bootstrap_path.is_file():
         posix_bootstrap = posix_bootstrap_path.read_text(encoding="utf-8")
         restrictive_umask = posix_bootstrap.find("umask 077")
-        first_environment_write = posix_bootstrap.find('cp "$template_path" "$env_path"')
+        first_environment_write = posix_bootstrap.find(
+            'cp "$template_path" "$env_path"'
+        )
         if (
             restrictive_umask < 0
             or first_environment_write < 0
@@ -180,10 +224,15 @@ def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[
             or "if ! value=$(new_secret); then" not in posix_bootstrap
             or 'if [ -z "$value" ]; then' not in posix_bootstrap
         ):
-            issues.append("POSIX bootstrap must fail closed when secret generation fails")
+            issues.append(
+                "POSIX bootstrap must fail closed when secret generation fails"
+            )
 
-    manage_postgres_volumes = services.get("lotus-manage-postgres", {}).get("volumes", [])
-    expected_manage_volume = "lotus-manage-postgres-identity-v2-data:/var/lib/postgresql/data"
+    manage_postgres = _as_map(services.get("lotus-manage-postgres"))
+    manage_postgres_volumes = _as_list(manage_postgres.get("volumes"))
+    expected_manage_volume = (
+        "lotus-manage-postgres-identity-v2-data:/var/lib/postgresql/data"
+    )
     if expected_manage_volume not in manage_postgres_volumes:
         issues.append("Manage PostgreSQL must use the identity-v2 data volume")
 
@@ -193,7 +242,9 @@ def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[
         issues.append("platform stack must provide the Caddy local-CA TLS profile")
     else:
         tls_profile = _read_yaml(tls_profile_path)
-        tls_ports = tls_profile.get("services", {}).get("dev-ingress", {}).get("ports", [])
+        tls_services = _as_map(tls_profile.get("services"))
+        tls_ingress = _as_map(tls_services.get("dev-ingress"))
+        tls_ports = _as_list(tls_ingress.get("ports"))
         tls_caddyfile = tls_caddyfile_path.read_text(encoding="utf-8")
         if "127.0.0.1:${DEV_INGRESS_HTTPS_PORT:-443}:443" not in tls_ports:
             issues.append("TLS profile HTTPS port must bind to 127.0.0.1")
@@ -204,23 +255,29 @@ def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[
 def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:
     issues: list[str] = []
     compose = _read_yaml(stack_root / "docker-compose.yml")
-    services = compose.get("services", {})
-    if not isinstance(services, dict) or not services:
+    services = _as_map(compose.get("services"))
+    if not services:
         return ["docker-compose.yml must define services"]
 
     if compose.get("name") != "lotus-platform":
         issues.append("Compose project name must be lotus-platform")
-    declared_volumes = compose.get("volumes", {})
+    declared_volumes = _as_map(compose.get("volumes"))
     if "lotus-manage-postgres-identity-v2-data" not in declared_volumes:
         issues.append("Compose must declare the Manage identity-v2 data volume")
     if "lotus-manage-postgres-data" in declared_volumes:
-        issues.append("Compose must not attach the legacy Manage PostgreSQL data volume")
+        issues.append(
+            "Compose must not attach the legacy Manage PostgreSQL data volume"
+        )
     if "bff" in services or "ui" in services:
-        issues.append("Legacy bff/ui service names are forbidden; use lotus-gateway/lotus-workbench")
+        issues.append(
+            "Legacy bff/ui service names are forbidden; use lotus-gateway/lotus-workbench"
+        )
 
     _validate_security(stack_root, services, issues)
     _validate_port_bindings(compose, issues)
-    _validate_port_bindings(_read_yaml(stack_root / "docker-compose.host-ports.yml"), issues)
+    _validate_port_bindings(
+        _read_yaml(stack_root / "docker-compose.host-ports.yml"), issues
+    )
     _validate_service_controls(services, issues)
     _validate_observability(stack_root, services, issues)
     return issues
