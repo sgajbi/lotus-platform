@@ -29,6 +29,25 @@ def _read_env(path: Path) -> dict[str, str]:
     }
 
 
+def _copy_tracked_repository(destination: Path) -> None:
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    ).stdout
+    for encoded_path in tracked.split(b"\0"):
+        if not encoded_path:
+            continue
+        relative_path = Path(os.fsdecode(encoded_path))
+        source = ROOT / relative_path
+        if not source.is_file():
+            continue
+        target = destination / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+
 def _run_bootstrap(
     stack: Path,
     workspace: Path,
@@ -185,6 +204,9 @@ def test_service_scaffold_uses_canonical_stack_and_bootstrap_anchors() -> None:
     assert '"  bff:`r`n"' not in scaffold
     assert "condition: service_started" not in scaffold
     assert "c:/Users/Sandeep/projects/$RepoName" not in scaffold
+    assert (
+        "powershell -ExecutionPolicy Bypass -File $validateAutomation" not in scaffold
+    )
 
 
 def test_service_scaffold_registration_preserves_valid_platform_stack(
@@ -192,18 +214,7 @@ def test_service_scaffold_registration_preserves_valid_platform_stack(
 ) -> None:
     platform_root = tmp_path / "lotus-platform"
     workspace_root = tmp_path / "workspace"
-    shutil.copytree(
-        ROOT,
-        platform_root,
-        ignore=shutil.ignore_patterns(
-            ".git",
-            ".venv",
-            "__pycache__",
-            ".pytest_cache",
-            ".ruff_cache",
-            "output",
-        ),
-    )
+    _copy_tracked_repository(platform_root)
     workspace_root.mkdir()
     service_name = "lotus-scaffold-contract"
     completed = subprocess.run(

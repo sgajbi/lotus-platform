@@ -887,7 +887,7 @@ function Register-PlatformContextAndAutomation {
 
   $validateAutomation = Join-Path $PlatformRoot "automation/Validate-Automation-Config.ps1"
   if (Test-Path $validateAutomation) {
-    powershell -ExecutionPolicy Bypass -File $validateAutomation | Out-Null
+    & $validateAutomation | Out-Null
   }
 }
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import shutil
 
+import pytest
 import yaml
 
 from automation.validate_platform_stack import validate_stack
@@ -33,6 +34,13 @@ def _mutate_compose(stack: Path, mutation) -> None:
     _write_yaml(path, compose)
 
 
+def _set_nested_value(root: dict, path: tuple[str, ...], value: object) -> None:
+    current = root
+    for key in path[:-1]:
+        current = current[key]
+    current[path[-1]] = value
+
+
 def test_repository_platform_stack_satisfies_the_contract() -> None:
     assert validate_stack() == []
 
@@ -46,7 +54,9 @@ def test_validator_rejects_a_secret_default(tmp_path: Path) -> None:
         ),
     )
 
-    assert any("required environment interpolation" in issue for issue in validate_stack(stack))
+    assert any(
+        "required environment interpolation" in issue for issue in validate_stack(stack)
+    )
 
 
 def test_validator_rejects_literal_dsn_credentials(tmp_path: Path) -> None:
@@ -61,12 +71,18 @@ def test_validator_rejects_literal_dsn_credentials(tmp_path: Path) -> None:
     assert any("literal DSN credentials" in issue for issue in validate_stack(stack))
 
 
-def test_validator_rejects_anonymous_grafana_and_public_port_binding(tmp_path: Path) -> None:
+def test_validator_rejects_anonymous_grafana_and_public_port_binding(
+    tmp_path: Path,
+) -> None:
     stack = _copy_stack(tmp_path)
 
     def mutate(compose: dict) -> None:
-        compose["services"]["grafana"]["environment"]["GF_AUTH_ANONYMOUS_ENABLED"] = "true"
-        compose["services"]["dev-ingress"]["ports"] = ["${DEV_INGRESS_HTTP_PORT:-80}:80"]
+        compose["services"]["grafana"]["environment"]["GF_AUTH_ANONYMOUS_ENABLED"] = (
+            "true"
+        )
+        compose["services"]["dev-ingress"]["ports"] = [
+            "${DEV_INGRESS_HTTP_PORT:-80}:80"
+        ]
 
     _mutate_compose(stack, mutate)
     issues = validate_stack(stack)
@@ -75,7 +91,9 @@ def test_validator_rejects_anonymous_grafana_and_public_port_binding(tmp_path: P
     assert any("dev-ingress port must bind to 127.0.0.1" in issue for issue in issues)
 
 
-def test_validator_rejects_telemetry_identity_and_retention_drift(tmp_path: Path) -> None:
+def test_validator_rejects_telemetry_identity_and_retention_drift(
+    tmp_path: Path,
+) -> None:
     stack = _copy_stack(tmp_path)
     _mutate_compose(
         stack,
@@ -92,11 +110,16 @@ def test_validator_rejects_telemetry_identity_and_retention_drift(tmp_path: Path
     issues = validate_stack(stack)
 
     assert any("lotus-manage.OTEL_SERVICE_NAME" in issue for issue in issues)
-    assert "OTel HTTP receiver must listen on the container network at 0.0.0.0:4318" in issues
+    assert (
+        "OTel HTTP receiver must listen on the container network at 0.0.0.0:4318"
+        in issues
+    )
     assert "OTel traces pipeline must retain traces through otlp/tempo" in issues
 
 
-def test_validator_rejects_missing_scrape_health_and_resource_controls(tmp_path: Path) -> None:
+def test_validator_rejects_missing_scrape_health_and_resource_controls(
+    tmp_path: Path,
+) -> None:
     stack = _copy_stack(tmp_path)
     prometheus_path = stack / "prometheus" / "prometheus.yml"
     prometheus = _read_yaml(prometheus_path)
@@ -119,7 +142,9 @@ def test_validator_rejects_missing_scrape_health_and_resource_controls(tmp_path:
     assert "Prometheus must map host.docker.internal through host-gateway" in issues
 
 
-def test_validator_rejects_workstation_paths_and_secret_template_values(tmp_path: Path) -> None:
+def test_validator_rejects_workstation_paths_and_secret_template_values(
+    tmp_path: Path,
+) -> None:
     stack = _copy_stack(tmp_path)
     env_path = stack / ".env.example"
     env_path.write_text(
@@ -173,9 +198,98 @@ def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -
     assert "Compose must not attach the legacy Manage PostgreSQL data volume" in issues
 
 
+@pytest.mark.parametrize(
+    ("path", "expected_issues"),
+    [
+        (("services", "dev-ingress", "ports"), ()),
+        (
+            ("services", "lotus-manage-postgres", "volumes"),
+            ("Manage PostgreSQL must use the identity-v2 data volume",),
+        ),
+        (
+            ("services", "grafana", "environment"),
+            ("Grafana anonymous authentication must be disabled",),
+        ),
+        (
+            ("services", "prometheus", "extra_hosts"),
+            ("Prometheus must map host.docker.internal through host-gateway",),
+        ),
+        (
+            ("services", "dev-ingress", "depends_on"),
+            (
+                "dev-ingress must wait for healthy prometheus",
+                "dev-ingress must wait for healthy grafana",
+            ),
+        ),
+    ],
+)
+def test_validator_reports_policy_issues_for_present_empty_compose_collections(
+    tmp_path: Path,
+    path: tuple[str, ...],
+    expected_issues: tuple[str, ...],
+) -> None:
+    stack = _copy_stack(tmp_path)
+
+    def mutate(compose: dict) -> None:
+        compose["name"] = "invalid-project-name"
+        _set_nested_value(compose, path, None)
+
+    _mutate_compose(stack, mutate)
+    issues = validate_stack(stack)
+
+    assert "Compose project name must be lotus-platform" in issues
+    for expected_issue in expected_issues:
+        assert expected_issue in issues
+
+
+def test_validator_aggregates_observability_issues_for_empty_yaml_sections(
+    tmp_path: Path,
+) -> None:
+    stack = _copy_stack(tmp_path)
+    collector_path = stack / "otel-collector" / "config.yaml"
+    collector = _read_yaml(collector_path)
+    collector["receivers"] = None
+    collector["exporters"] = None
+    collector["service"] = None
+    _write_yaml(collector_path, collector)
+
+    datasource_path = (
+        stack / "grafana" / "provisioning" / "datasources" / "datasource.yml"
+    )
+    datasource = _read_yaml(datasource_path)
+    datasource["datasources"] = None
+    _write_yaml(datasource_path, datasource)
+
+    prometheus_path = stack / "prometheus" / "prometheus.yml"
+    prometheus = _read_yaml(prometheus_path)
+    prometheus["scrape_configs"] = None
+    _write_yaml(prometheus_path, prometheus)
+
+    issues = validate_stack(stack)
+
+    assert (
+        "OTel gRPC receiver must listen on the container network at 0.0.0.0:4317"
+        in issues
+    )
+    assert (
+        "OTel HTTP receiver must listen on the container network at 0.0.0.0:4318"
+        in issues
+    )
+    assert "OTel collector must export traces to tempo:4317" in issues
+    assert "OTel traces pipeline must retain traces through otlp/tempo" in issues
+    assert (
+        "Grafana must provision exactly one Tempo datasource at http://tempo:3200"
+        in issues
+    )
+    assert any("Prometheus job inventory drift" in issue for issue in issues)
+
+
 def test_platform_repo_lanes_enforce_stack_validation() -> None:
     repo_checks = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(
         encoding="utf-8"
     )
 
-    assert "Invoke-CheckedCommand $toolingPython automation/validate_platform_stack.py" in repo_checks
+    assert (
+        "Invoke-CheckedCommand $toolingPython automation/validate_platform_stack.py"
+        in repo_checks
+    )
