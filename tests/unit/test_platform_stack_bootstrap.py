@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import os
 import shutil
@@ -18,6 +19,13 @@ SECRET_NAMES = {
     "LOTUS_REPORT_POSTGRES_PASSWORD",
     "GRAFANA_ADMIN_PASSWORD",
 }
+REGISTRY_COMMAND_FILES = (
+    "requirements.txt",
+    "requirements-dev.txt",
+    "requirements-audit.txt",
+    "scripts/dependency_health_check.py",
+    "Dockerfile.ci-local",
+)
 
 
 def _read_env(path: Path) -> dict[str, str]:
@@ -46,6 +54,29 @@ def _copy_tracked_repository(destination: Path) -> None:
         target = destination / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+
+
+def _make_copied_registry_paths_portable(
+    platform_root: Path, fixture_root: Path
+) -> None:
+    repos_path = platform_root / "automation" / "repos.json"
+    repos = json.loads(repos_path.read_text(encoding="utf-8"))
+    registry_root = fixture_root / "registry-repositories"
+    for repo in repos:
+        repo_root = registry_root / repo["name"]
+        repo_root.mkdir(parents=True)
+        repo["path"] = repo_root.as_posix()
+        commands = " ".join(
+            str(repo.get(key, ""))
+            for key in ("preflight_fast_command", "preflight_full_command")
+        )
+        for relative_file in REGISTRY_COMMAND_FILES:
+            if relative_file not in commands:
+                continue
+            command_file = repo_root / relative_file
+            command_file.parent.mkdir(parents=True, exist_ok=True)
+            command_file.touch()
+    repos_path.write_text(json.dumps(repos, indent=2) + "\n", encoding="utf-8")
 
 
 def _run_bootstrap(
@@ -215,6 +246,7 @@ def test_service_scaffold_registration_preserves_valid_platform_stack(
     platform_root = tmp_path / "lotus-platform"
     workspace_root = tmp_path / "workspace"
     _copy_tracked_repository(platform_root)
+    _make_copied_registry_paths_portable(platform_root, tmp_path)
     workspace_root.mkdir()
     service_name = "lotus-scaffold-contract"
     completed = subprocess.run(
