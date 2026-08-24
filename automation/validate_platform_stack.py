@@ -50,7 +50,7 @@ _LITERAL_DSN_CREDENTIAL = re.compile(r"://[^${:/\s]+:[^${@/\s]+@")
 _INTERPOLATED_POSTGRESQL_CREDENTIALS = re.compile(
     r"^postgresql://"
     r"\$\{[A-Z][A-Z0-9_]*(?::[-?][^}]*)?\}:"
-    r"\$\{[A-Z][A-Z0-9_]*(?::[-?][^}]*)?\}@"
+    r"\$\{[A-Z][A-Z0-9_]*:\?[^}]+\}@"
 )
 
 
@@ -183,9 +183,15 @@ def _validate_observability(
         _as_map(item).get("job_name")
         for item in _as_list(prometheus.get("scrape_configs"))
     }
-    if jobs != EXPECTED_PROMETHEUS_JOBS:
-        missing = sorted(EXPECTED_PROMETHEUS_JOBS - jobs)
-        extra = sorted(jobs - EXPECTED_PROMETHEUS_JOBS)
+    composed_otel_services = {
+        service_name
+        for service_name, service in services.items()
+        if _environment_map(_as_map(service)).get("OTEL_SERVICE_NAME")
+    }
+    expected_jobs = EXPECTED_PROMETHEUS_JOBS | composed_otel_services
+    if jobs != expected_jobs:
+        missing = sorted(expected_jobs - jobs)
+        extra = sorted(jobs - expected_jobs)
         issues.append(
             f"Prometheus job inventory drift: missing={missing} extra={extra}"
         )

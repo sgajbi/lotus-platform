@@ -95,6 +95,24 @@ def test_validator_rejects_mixed_literal_and_interpolated_dsn_credentials(
     assert sum("literal DSN credentials" in issue for issue in issues) == 1
 
 
+def test_validator_rejects_default_database_password_in_dsn(tmp_path: Path) -> None:
+    stack = _copy_stack(tmp_path)
+    _mutate_compose(
+        stack,
+        lambda compose: compose["services"]["lotus-manage"]["environment"].update(
+            {
+                "DPM_SUPPORTABILITY_POSTGRES_DSN": (
+                    "postgresql://${DB_USER:-operator}:${DB_PASSWORD:-password}@db/app"
+                )
+            }
+        ),
+    )
+
+    issues = validate_stack(stack)
+
+    assert sum("literal DSN credentials" in issue for issue in issues) == 1
+
+
 def test_validator_rejects_anonymous_grafana_and_public_port_binding(
     tmp_path: Path,
 ) -> None:
