@@ -71,9 +71,12 @@ Before retiring a legacy volume, choose one explicit recovery path:
 
 1. If its local data matters, start the old project with its old configuration, create a `pg_dump`,
    bootstrap this stack, then restore into the new database and verify the application contract.
-2. If the data is disposable, confirm the exact previous Compose project and remove only that
-   project's volumes with `docker compose -p pbwm-platform down --volumes`. This is destructive and
-   cannot be recovered without a backup.
+2. If the Manage data is disposable, first confirm the exact legacy target with
+   `docker volume inspect pbwm-platform_lotus-manage-postgres-data`, then remove only that volume
+   with `docker volume rm pbwm-platform_lotus-manage-postgres-data`. This is destructive and cannot
+   be recovered without a backup. Do not use a current Compose model with `down --volumes` to retire
+   the legacy volume: it can delete declared sibling data while leaving the undeclared legacy
+   Manage volume untouched.
 
 Never rename or mount the legacy volume into the new project without a tested database migration.
 Bootstrap migrates environment variables only; it never rewrites database users or stored data.
