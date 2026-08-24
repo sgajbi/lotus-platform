@@ -19,7 +19,11 @@ SECRET_NAMES = {
     "LOTUS_REPORT_POSTGRES_PASSWORD",
     "GRAFANA_ADMIN_PASSWORD",
 }
-DATABASE_SECRET_NAMES = SECRET_NAMES - {"GRAFANA_ADMIN_PASSWORD"}
+DATABASE_URI_COMPONENT_NAMES = {
+    f"LOTUS_{service}_POSTGRES_{component}"
+    for service in ("CORE", "MANAGE", "REPORT")
+    for component in ("USER", "PASSWORD", "DB")
+}
 REGISTRY_COMMAND_FILES = (
     "requirements.txt",
     "requirements-dev.txt",
@@ -191,9 +195,7 @@ def test_windows_bootstrap_rejects_legacy_core_password_before_mutation(
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     env_path = stack / ".env"
-    original = _seed_environment(
-        stack, {"LOTUS_CORE_POSTGRES_PASSWORD": "password"}
-    )
+    original = _seed_environment(stack, {"LOTUS_CORE_POSTGRES_PASSWORD": "password"})
 
     completed = _run_bootstrap(stack, workspace)
 
@@ -212,9 +214,7 @@ def test_posix_bootstrap_rejects_legacy_core_password_before_mutation(
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     env_path = stack / ".env"
-    original = _seed_environment(
-        stack, {"LOTUS_CORE_POSTGRES_PASSWORD": "password"}
-    )
+    original = _seed_environment(stack, {"LOTUS_CORE_POSTGRES_PASSWORD": "password"})
 
     completed = _run_posix_bootstrap(stack, workspace)
 
@@ -261,25 +261,45 @@ def test_posix_bootstrap_fills_empty_crlf_secret_values(tmp_path: Path) -> None:
     assert all(len(generated[name]) == 64 for name in SECRET_NAMES)
 
 
-@pytest.mark.parametrize("runner", [_run_bootstrap, _run_posix_bootstrap])
-@pytest.mark.parametrize("secret_name", sorted(DATABASE_SECRET_NAMES))
-def test_bootstrap_rejects_uri_unsafe_database_password_before_mutation(
+def test_posix_bootstrap_rejects_embedded_carriage_return_without_mutation(
     tmp_path: Path,
-    runner,
-    secret_name: str,
 ) -> None:
     stack = tmp_path / "platform-stack"
     workspace = tmp_path / "workspace"
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     original = _seed_environment(
-        stack, {secret_name: "operator/secret"}
+        stack,
+        {"LOTUS_CORE_POSTGRES_PASSWORD": "operator\rsecret"},
+        crlf=True,
     )
+
+    completed = _run_posix_bootstrap(stack, workspace)
+
+    assert completed.returncode != 0
+    assert "LOTUS_CORE_POSTGRES_PASSWORD contains characters that are unsafe" in (
+        completed.stderr
+    )
+    assert (stack / ".env").read_bytes() == original
+
+
+@pytest.mark.parametrize("runner", [_run_bootstrap, _run_posix_bootstrap])
+@pytest.mark.parametrize("component_name", sorted(DATABASE_URI_COMPONENT_NAMES))
+def test_bootstrap_rejects_uri_unsafe_database_component_before_mutation(
+    tmp_path: Path,
+    runner,
+    component_name: str,
+) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    original = _seed_environment(stack, {component_name: "operator/unsafe"})
 
     completed = runner(stack, workspace)
 
     assert completed.returncode != 0
-    assert f"{secret_name} contains characters that are unsafe" in completed.stderr
+    assert f"{component_name} contains characters that are unsafe" in completed.stderr
     assert (stack / ".env").read_bytes() == original
 
 

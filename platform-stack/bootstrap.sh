@@ -17,7 +17,12 @@ fi
 
 read_current_value() {
   key=$1
-  sed -n "s/^${key}=//p" "$env_path" | tail -n 1 | tr -d '\r'
+  current=$(sed -n "s/^${key}=//p" "$env_path" | tail -n 1)
+  terminal_carriage_return=$(printf '\r')
+  case "$current" in
+    *"$terminal_carriage_return") current=${current%"$terminal_carriage_return"} ;;
+  esac
+  printf '%s' "$current"
 }
 
 set_if_empty() {
@@ -56,7 +61,7 @@ reject_legacy_secret_default() {
   fi
 }
 
-reject_unsafe_database_secret() {
+reject_unsafe_database_uri_component() {
   key=$1
   current=$(read_current_value "$key")
   case "$current" in
@@ -86,9 +91,13 @@ set_secret_if_empty() {
 }
 
 reject_legacy_secret_default LOTUS_CORE_POSTGRES_PASSWORD password
-reject_unsafe_database_secret LOTUS_CORE_POSTGRES_PASSWORD
-reject_unsafe_database_secret LOTUS_MANAGE_POSTGRES_PASSWORD
-reject_unsafe_database_secret LOTUS_REPORT_POSTGRES_PASSWORD
+for database_uri_component in \
+  LOTUS_CORE_POSTGRES_USER LOTUS_CORE_POSTGRES_PASSWORD LOTUS_CORE_POSTGRES_DB \
+  LOTUS_MANAGE_POSTGRES_USER LOTUS_MANAGE_POSTGRES_PASSWORD LOTUS_MANAGE_POSTGRES_DB \
+  LOTUS_REPORT_POSTGRES_USER LOTUS_REPORT_POSTGRES_PASSWORD LOTUS_REPORT_POSTGRES_DB
+do
+  reject_unsafe_database_uri_component "$database_uri_component"
+done
 set_if_empty LOTUS_WORKSPACE_ROOT "$workspace_root"
 set_if_empty LOTUS_MANAGE_REPO_PATH "$workspace_root/lotus-manage"
 set_if_empty LOTUS_CORE_REPO_PATH "$workspace_root/lotus-core"

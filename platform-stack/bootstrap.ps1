@@ -47,7 +47,7 @@ function Assert-NoLegacySecretDefault {
     }
 }
 
-function Assert-UriSafeDatabaseSecret {
+function Assert-UriSafeDatabaseComponent {
     param(
         [Parameter(Mandatory = $true)][string]$Name
     )
@@ -93,12 +93,18 @@ function Set-EnvironmentValueIfEmpty {
 }
 
 Assert-NoLegacySecretDefault -Name "LOTUS_CORE_POSTGRES_PASSWORD" -LegacyValue "password"
-foreach ($databaseSecretName in @(
+foreach ($databaseComponentName in @(
+    "LOTUS_CORE_POSTGRES_USER",
     "LOTUS_CORE_POSTGRES_PASSWORD",
+    "LOTUS_CORE_POSTGRES_DB",
+    "LOTUS_MANAGE_POSTGRES_USER",
     "LOTUS_MANAGE_POSTGRES_PASSWORD",
-    "LOTUS_REPORT_POSTGRES_PASSWORD"
+    "LOTUS_MANAGE_POSTGRES_DB",
+    "LOTUS_REPORT_POSTGRES_USER",
+    "LOTUS_REPORT_POSTGRES_PASSWORD",
+    "LOTUS_REPORT_POSTGRES_DB"
 )) {
-    Assert-UriSafeDatabaseSecret -Name $databaseSecretName
+    Assert-UriSafeDatabaseComponent -Name $databaseComponentName
 }
 Set-EnvironmentValueIfEmpty -Name "LOTUS_WORKSPACE_ROOT" -Value $resolvedWorkspaceRoot
 $repositoryPaths = [ordered]@{
