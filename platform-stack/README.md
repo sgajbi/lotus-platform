@@ -51,6 +51,9 @@ cd lotus-platform
 
 Run either bootstrap again after pulling new variables. It safely adds only missing values. The
 tracked `.env.example` contains non-secret defaults and blank path/secret placeholders only.
+Bootstrap rejects the former tracked Core database password before changing the environment file.
+Clear that value only when initializing a fresh database; when legacy data matters, follow the
+dump/restore migration path below and set an operator-managed secret explicitly.
 
 ### Upgrade from the pre-hardening stack
 

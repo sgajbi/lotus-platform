@@ -166,6 +166,52 @@ def test_windows_bootstrap_generates_once_and_preserves_operator_values(
     assert custom_secret not in second.stdout
 
 
+def test_windows_bootstrap_rejects_legacy_core_password_before_mutation(
+    tmp_path: Path,
+) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    env_path = stack / ".env"
+    original = (stack / ".env.example").read_text(encoding="utf-8").replace(
+        "LOTUS_CORE_POSTGRES_PASSWORD=",
+        "LOTUS_CORE_POSTGRES_PASSWORD=password",
+    )
+    env_path.write_text(original, encoding="utf-8")
+
+    completed = _run_bootstrap(stack, workspace)
+
+    assert completed.returncode != 0
+    assert "Refusing the legacy tracked default for LOTUS_CORE_POSTGRES_PASSWORD" in (
+        completed.stderr
+    )
+    assert env_path.read_text(encoding="utf-8") == original
+
+
+def test_posix_bootstrap_rejects_legacy_core_password_before_mutation(
+    tmp_path: Path,
+) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    env_path = stack / ".env"
+    original = (stack / ".env.example").read_text(encoding="utf-8").replace(
+        "LOTUS_CORE_POSTGRES_PASSWORD=",
+        "LOTUS_CORE_POSTGRES_PASSWORD=password",
+    )
+    env_path.write_text(original, encoding="utf-8")
+
+    completed = _run_posix_bootstrap(stack, workspace)
+
+    assert completed.returncode != 0
+    assert "Refusing the legacy tracked default for LOTUS_CORE_POSTGRES_PASSWORD" in (
+        completed.stderr
+    )
+    assert env_path.read_text(encoding="utf-8") == original
+
+
 @pytest.mark.skipif(os.name != "nt", reason="Windows PowerShell 5.1 is Windows-only")
 def test_windows_powershell_bootstrap_generates_required_secrets(
     tmp_path: Path,
@@ -214,6 +260,7 @@ def test_local_development_runbook_uses_governed_bootstrap_and_canonical_paths()
     assert "./platform-stack/bootstrap.sh .." in runbook
     assert "LOTUS_GATEWAY_REPO_PATH" in runbook
     assert "LOTUS_WORKBENCH_REPO_PATH" in runbook
+    assert "former tracked Core database password" in runbook
     assert "Copy-Item .env.example .env" not in runbook
     assert "BFF_REPO_PATH" not in runbook
     assert "UI_REPO_PATH" not in runbook

@@ -31,6 +31,22 @@ function New-RandomSecret {
     return -join ($bytes | ForEach-Object { $_.ToString("x2") })
 }
 
+function Assert-NoLegacySecretDefault {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$LegacyValue
+    )
+
+    $prefix = "$Name="
+    $configuredValue = Get-Content -LiteralPath $envPath |
+        Where-Object { $_.StartsWith($prefix, [System.StringComparison]::Ordinal) } |
+        Select-Object -Last 1 |
+        ForEach-Object { $_.Substring($prefix.Length) }
+    if ($configuredValue -ceq $LegacyValue) {
+        throw "Refusing the legacy tracked default for $Name. Clear it only when initializing a fresh database, or replace it with an operator-managed secret after following the documented database migration path."
+    }
+}
+
 function Set-EnvironmentValueIfEmpty {
     param(
         [Parameter(Mandatory = $true)][string]$Name,
@@ -58,6 +74,7 @@ function Set-EnvironmentValueIfEmpty {
     [System.IO.File]::WriteAllLines($envPath, $lines, [System.Text.UTF8Encoding]::new($false))
 }
 
+Assert-NoLegacySecretDefault -Name "LOTUS_CORE_POSTGRES_PASSWORD" -LegacyValue "password"
 Set-EnvironmentValueIfEmpty -Name "LOTUS_WORKSPACE_ROOT" -Value $resolvedWorkspaceRoot
 $repositoryPaths = [ordered]@{
     LOTUS_MANAGE_REPO_PATH = "lotus-manage"

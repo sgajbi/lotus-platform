@@ -41,6 +41,16 @@ new_secret() {
   openssl rand -hex 32
 }
 
+reject_legacy_secret_default() {
+  key=$1
+  legacy_value=$2
+  current=$(sed -n "s/^${key}=//p" "$env_path" | tail -n 1)
+  if [ "$current" = "$legacy_value" ]; then
+    printf 'Refusing the legacy tracked default for %s. Clear it only when initializing a fresh database, or replace it with an operator-managed secret after following the documented database migration path.\n' "$key" >&2
+    return 1
+  fi
+}
+
 set_secret_if_empty() {
   key=$1
   current=$(sed -n "s/^${key}=//p" "$env_path" | tail -n 1)
@@ -58,6 +68,7 @@ set_secret_if_empty() {
   set_if_empty "$key" "$value"
 }
 
+reject_legacy_secret_default LOTUS_CORE_POSTGRES_PASSWORD password
 set_if_empty LOTUS_WORKSPACE_ROOT "$workspace_root"
 set_if_empty LOTUS_MANAGE_REPO_PATH "$workspace_root/lotus-manage"
 set_if_empty LOTUS_CORE_REPO_PATH "$workspace_root/lotus-core"
