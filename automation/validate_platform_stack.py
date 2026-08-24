@@ -289,8 +289,27 @@ def _validate_legacy_volume_adoption(stack_root: Path, issues: list[str]) -> Non
             issues.append(
                 f"legacy-volume profile must adopt {logical_name} from {legacy_name}"
             )
-    if "lotus-manage-postgres-identity-v2-data" in adopted_volumes:
-        issues.append("legacy-volume profile must not attach legacy Manage state")
+    unexpected_volumes = sorted(
+        set(adopted_volumes) - set(EXPECTED_LEGACY_VOLUME_ADOPTIONS)
+    )
+    if unexpected_volumes:
+        issues.append(
+            "legacy-volume profile must declare only governed adoption aliases: "
+            f"unexpected={unexpected_volumes}"
+        )
+    if _as_map(profile.get("services")):
+        issues.append("legacy-volume profile must not override service mounts")
+
+    readme = (stack_root / "README.md").read_text(encoding="utf-8")
+    for required_identity in (
+        "LOTUS_CORE_POSTGRES_USER=user",
+        "GRAFANA_ADMIN_USER=admin",
+    ):
+        if required_identity not in readme:
+            issues.append(
+                "legacy-volume adoption runbook must preserve persisted identity "
+                f"{required_identity}"
+            )
 
 
 def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:

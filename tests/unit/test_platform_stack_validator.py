@@ -222,9 +222,14 @@ def test_validator_rejects_incomplete_or_unsafe_legacy_volume_adoption(
     profile = _read_yaml(profile_path)
     profile["volumes"].pop("lotus-report-postgres-data")
     profile["volumes"]["grafana-data"]["name"] = "lotus-platform_grafana-data"
-    profile["volumes"]["lotus-manage-postgres-identity-v2-data"] = {
+    profile["volumes"]["legacy-manage-data"] = {
         "external": True,
         "name": "pbwm-platform_lotus-manage-postgres-data",
+    }
+    profile["services"] = {
+        "lotus-manage-postgres": {
+            "volumes": ["legacy-manage-data:/var/lib/postgresql/data"]
+        }
     }
     _write_yaml(profile_path, profile)
 
@@ -237,7 +242,38 @@ def test_validator_rejects_incomplete_or_unsafe_legacy_volume_adoption(
     assert (
         "legacy-volume profile must adopt grafana-data from pbwm-platform_grafana-data"
     ) in issues
-    assert "legacy-volume profile must not attach legacy Manage state" in issues
+    assert any(
+        issue.startswith(
+            "legacy-volume profile must declare only governed adoption aliases"
+        )
+        and "legacy-manage-data" in issue
+        for issue in issues
+    )
+    assert "legacy-volume profile must not override service mounts" in issues
+
+
+def test_validator_requires_persisted_user_identities_in_adoption_runbook(
+    tmp_path: Path,
+) -> None:
+    stack = _copy_stack(tmp_path)
+    readme_path = stack / "README.md"
+    readme_path.write_text(
+        readme_path.read_text(encoding="utf-8")
+        .replace("LOTUS_CORE_POSTGRES_USER=user", "LOTUS_CORE_POSTGRES_USER=lotus_core")
+        .replace("GRAFANA_ADMIN_USER=admin", "GRAFANA_ADMIN_USER=lotus_operator"),
+        encoding="utf-8",
+    )
+
+    issues = validate_stack(stack)
+
+    assert (
+        "legacy-volume adoption runbook must preserve persisted identity "
+        "LOTUS_CORE_POSTGRES_USER=user"
+    ) in issues
+    assert (
+        "legacy-volume adoption runbook must preserve persisted identity "
+        "GRAFANA_ADMIN_USER=admin"
+    ) in issues
 
 
 def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -> None:

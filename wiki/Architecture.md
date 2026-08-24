@@ -88,8 +88,10 @@ operator-managed database usernames, passwords, and database names that satisfy 
 PostgreSQL URI-safe character contract.
 The project rename never silently discards pre-hardening state: an explicit, validator-governed
 Compose overlay can adopt the unchanged Core, Report, and Grafana volumes after credentials are
-rotated and verified. Manage's changed database identity is deliberately excluded and requires a
-logical dump/restore into its fresh identity-v2 volume.
+rotated and persisted role/login identities are preserved or explicitly migrated. The validator
+allows only the three governed aliases and no service-mount overrides. Manage's changed database
+identity is deliberately excluded and requires a logical dump/restore into its fresh identity-v2
+volume.
 Published ports bind to loopback, Grafana requires authentication, and an optional Caddy local-CA
 profile supports local HTTPS. Prometheus owns the shared scrape inventory and Tempo retains local
 traces for 24 hours. Long-running containers have health and resource bounds.
