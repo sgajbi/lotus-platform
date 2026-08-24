@@ -185,6 +185,10 @@ def _validate_observability(
     prometheus_extra_hosts = _as_list(prometheus_service.get("extra_hosts"))
     if "host.docker.internal:host-gateway" not in prometheus_extra_hosts:
         issues.append("Prometheus must map host.docker.internal through host-gateway")
+    ingress_service = _as_map(services.get("dev-ingress"))
+    ingress_extra_hosts = _as_list(ingress_service.get("extra_hosts"))
+    if "host.docker.internal:host-gateway" not in ingress_extra_hosts:
+        issues.append("Dev ingress must map host.docker.internal through host-gateway")
 
 
 def _validate_security(

@@ -22,6 +22,8 @@ services:
   dev-ingress:
     <<: *small-service
     image: caddy:2.8.4
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       lotus-workbench:
         condition: service_healthy

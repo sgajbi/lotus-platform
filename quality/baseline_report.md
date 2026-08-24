@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `893`
-- Total source lines: `358238`
+- Total source lines: `358250`
 - Python files: `228`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -47,7 +47,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
-| automation/validate_platform_stack.py | _validate_security | 190 | 18 | 63 |
+| automation/validate_platform_stack.py | _validate_security | 194 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `972`
+- Unit tests collected: `973`
 - Collection command return code: `0`
-- Collection summary: `972 tests collected in 0.83s`
+- Collection summary: `973 tests collected in 0.90s`
 
 ## Security Baseline
 

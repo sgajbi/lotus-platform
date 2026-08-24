@@ -132,6 +132,7 @@ def test_validator_rejects_missing_scrape_health_and_resource_controls(
         compose["services"]["prometheus"].pop("healthcheck")
         compose["services"]["prometheus"].pop("cpus")
         compose["services"]["prometheus"].pop("extra_hosts")
+        compose["services"]["dev-ingress"].pop("extra_hosts")
 
     _mutate_compose(stack, mutate)
     issues = validate_stack(stack)
@@ -140,6 +141,7 @@ def test_validator_rejects_missing_scrape_health_and_resource_controls(
     assert "prometheus must define a healthcheck" in issues
     assert "prometheus must define CPU and memory limits" in issues
     assert "Prometheus must map host.docker.internal through host-gateway" in issues
+    assert "Dev ingress must map host.docker.internal through host-gateway" in issues
 
 
 def test_validator_rejects_workstation_paths_and_secret_template_values(
@@ -213,6 +215,10 @@ def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -
         (
             ("services", "prometheus", "extra_hosts"),
             ("Prometheus must map host.docker.internal through host-gateway",),
+        ),
+        (
+            ("services", "dev-ingress", "extra_hosts"),
+            ("Dev ingress must map host.docker.internal through host-gateway",),
         ),
         (
             ("services", "dev-ingress", "depends_on"),
