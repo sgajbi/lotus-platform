@@ -71,6 +71,30 @@ def test_validator_rejects_literal_dsn_credentials(tmp_path: Path) -> None:
     assert any("literal DSN credentials" in issue for issue in validate_stack(stack))
 
 
+@pytest.mark.parametrize(
+    "dsn",
+    [
+        "postgresql://${DB_USER}:literal-password@db/app",
+        "postgresql://literal-user:${DB_PASSWORD}@db/app",
+    ],
+)
+def test_validator_rejects_mixed_literal_and_interpolated_dsn_credentials(
+    tmp_path: Path,
+    dsn: str,
+) -> None:
+    stack = _copy_stack(tmp_path)
+    _mutate_compose(
+        stack,
+        lambda compose: compose["services"]["lotus-manage"]["environment"].update(
+            {"DPM_SUPPORTABILITY_POSTGRES_DSN": dsn}
+        ),
+    )
+
+    issues = validate_stack(stack)
+
+    assert sum("literal DSN credentials" in issue for issue in issues) == 1
+
+
 def test_validator_rejects_anonymous_grafana_and_public_port_binding(
     tmp_path: Path,
 ) -> None:
