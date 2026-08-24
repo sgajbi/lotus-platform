@@ -44,6 +44,11 @@ EXPECTED_PROMETHEUS_JOBS = frozenset(
         "lotus-workbench",
     }
 )
+EXPECTED_LEGACY_VOLUME_ADOPTIONS = {
+    "lotus-core-postgres-data": "pbwm-platform_lotus-core-postgres-data",
+    "lotus-report-postgres-data": "pbwm-platform_lotus-report-postgres-data",
+    "grafana-data": "pbwm-platform_grafana-data",
+}
 _REQUIRED_INTERPOLATION = re.compile(r"^\$\{[A-Z][A-Z0-9_]*:\?[^}]+\}$")
 _LOOPBACK_PORT = re.compile(r"^127\.0\.0\.1:\$\{[A-Z][A-Z0-9_]*(?::-\d+)?\}:\d+$")
 _LITERAL_DSN_CREDENTIAL = re.compile(r"://[^${:/\s]+:[^${@/\s]+@")
@@ -270,6 +275,24 @@ def _validate_security(
             issues.append("TLS profile must use Caddy's local CA")
 
 
+def _validate_legacy_volume_adoption(stack_root: Path, issues: list[str]) -> None:
+    profile_path = stack_root / "docker-compose.legacy-volumes.yml"
+    if not profile_path.is_file():
+        issues.append("platform stack must provide the legacy-volume adoption profile")
+        return
+
+    profile = _read_yaml(profile_path)
+    adopted_volumes = _as_map(profile.get("volumes"))
+    for logical_name, legacy_name in EXPECTED_LEGACY_VOLUME_ADOPTIONS.items():
+        adoption = _as_map(adopted_volumes.get(logical_name))
+        if adoption.get("external") is not True or adoption.get("name") != legacy_name:
+            issues.append(
+                f"legacy-volume profile must adopt {logical_name} from {legacy_name}"
+            )
+    if "lotus-manage-postgres-identity-v2-data" in adopted_volumes:
+        issues.append("legacy-volume profile must not attach legacy Manage state")
+
+
 def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:
     issues: list[str] = []
     compose = _read_yaml(stack_root / "docker-compose.yml")
@@ -298,6 +321,7 @@ def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:
     )
     _validate_service_controls(services, issues)
     _validate_observability(stack_root, services, issues)
+    _validate_legacy_volume_adoption(stack_root, issues)
     return issues
 
 

@@ -214,6 +214,32 @@ def test_validator_rejects_missing_bootstrap_and_tls_profile(tmp_path: Path) -> 
     assert "platform stack must provide the Caddy local-CA TLS profile" in issues
 
 
+def test_validator_rejects_incomplete_or_unsafe_legacy_volume_adoption(
+    tmp_path: Path,
+) -> None:
+    stack = _copy_stack(tmp_path)
+    profile_path = stack / "docker-compose.legacy-volumes.yml"
+    profile = _read_yaml(profile_path)
+    profile["volumes"].pop("lotus-report-postgres-data")
+    profile["volumes"]["grafana-data"]["name"] = "lotus-platform_grafana-data"
+    profile["volumes"]["lotus-manage-postgres-identity-v2-data"] = {
+        "external": True,
+        "name": "pbwm-platform_lotus-manage-postgres-data",
+    }
+    _write_yaml(profile_path, profile)
+
+    issues = validate_stack(stack)
+
+    assert (
+        "legacy-volume profile must adopt lotus-report-postgres-data from "
+        "pbwm-platform_lotus-report-postgres-data"
+    ) in issues
+    assert (
+        "legacy-volume profile must adopt grafana-data from pbwm-platform_grafana-data"
+    ) in issues
+    assert "legacy-volume profile must not attach legacy Manage state" in issues
+
+
 def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -> None:
     stack = _copy_stack(tmp_path)
     bootstrap_path = stack / "bootstrap.sh"

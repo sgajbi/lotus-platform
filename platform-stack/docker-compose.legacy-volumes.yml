@@ -1,0 +1,12 @@
+# Explicit, operator-selected adoption profile for state whose service identity did not change.
+# Stop the legacy project and complete the credential checks in README.md before using this file.
+volumes:
+  lotus-core-postgres-data:
+    external: true
+    name: pbwm-platform_lotus-core-postgres-data
+  lotus-report-postgres-data:
+    external: true
+    name: pbwm-platform_lotus-report-postgres-data
+  grafana-data:
+    external: true
+    name: pbwm-platform_grafana-data

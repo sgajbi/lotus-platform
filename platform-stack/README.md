@@ -62,24 +62,43 @@ before changing the file.
 
 PostgreSQL applies database, role, and password initialization only when a volume is empty. Do not
 attach a volume created by the earlier stack identities to this profile and assume bootstrap has
-migrated it. The renamed Compose project and the explicit
-`lotus-manage-postgres-identity-v2-data` key create a fresh Manage database even when an operator
-overrides the Compose project name. Legacy `pbwm-platform_lotus-manage-postgres-data` state remains
-untouched.
+migrated it. The renamed Compose project otherwise creates fresh sibling volumes. The complete
+pre-hardening inventory is `pbwm-platform_lotus-core-postgres-data`,
+`pbwm-platform_lotus-manage-postgres-data`, `pbwm-platform_lotus-report-postgres-data`, and
+`pbwm-platform_grafana-data`. The explicit `lotus-manage-postgres-identity-v2-data` key always
+creates a fresh Manage database because that database identity changed; legacy Manage state remains
+untouched and must be migrated through a database-level dump and restore.
 
-Before retiring a legacy volume, choose one explicit recovery path:
+Before starting the renamed project, inspect every exact legacy target and choose one explicit
+recovery path. Take a backup before either migration or adoption.
 
-1. If its local data matters, start the old project with its old configuration, create a `pg_dump`,
-   bootstrap this stack, then restore into the new database and verify the application contract.
-2. If the Manage data is disposable, first confirm the exact legacy target with
-   `docker volume inspect pbwm-platform_lotus-manage-postgres-data`, then remove only that volume
-   with `docker volume rm pbwm-platform_lotus-manage-postgres-data`. This is destructive and cannot
-   be recovered without a backup. Do not use a current Compose model with `down --volumes` to retire
-   the legacy volume: it can delete declared sibling data while leaving the undeclared legacy
-   Manage volume untouched.
+1. **Migrate to fresh volumes (required for Manage, recommended for databases whose credentials
+   changed):** start the old project from its old revision, create logical `pg_dump` backups for
+   Core, Manage, and Report, export any operator-authored Grafana dashboards, stop the old project,
+   bootstrap this stack, restore into the new databases, and verify the owning application
+   contracts. Do not byte-copy PostgreSQL storage across identities or versions.
+2. **Adopt unchanged Core, Report, and Grafana volumes:** first stop the old project. Before adoption,
+   rotate the Core and Report database-role passwords in the old databases to the exact values in
+   the new untracked `.env`, reset the persisted Grafana admin password to
+   `GRAFANA_ADMIN_PASSWORD`, and validate login. Then start with the governed adoption overlay:
 
-Never rename or mount the legacy volume into the new project without a tested database migration.
-Bootstrap migrates environment variables only; it never rewrites database users or stored data.
+   ```powershell
+   docker compose -f docker-compose.yml -f docker-compose.legacy-volumes.yml config --quiet
+   docker compose -f docker-compose.yml -f docker-compose.legacy-volumes.yml up -d --build
+   ```
+
+   The overlay maps all three unchanged logical volumes to their exact `pbwm-platform_*` names and
+   deliberately cannot attach legacy Manage state. Continue using the overlay on every subsequent
+   command until the data is migrated to fresh canonical volumes.
+3. **Discard disposable state:** inspect and remove only the intended exact legacy volume, for
+   example `docker volume inspect pbwm-platform_lotus-manage-postgres-data` followed by
+   `docker volume rm pbwm-platform_lotus-manage-postgres-data`. Repeat explicitly for another
+   disposable volume; never build a broad deletion command from discovered names.
+
+Do not use a current Compose model with `down --volumes` to retire the old project: it can delete
+declared sibling data while leaving undeclared legacy state untouched. Never attach the legacy
+Manage volume to the new service identity. Bootstrap migrates environment variables only; it never
+rewrites database users, Grafana credentials, or stored data.
 
 Add the entries from `dev-ingress/hosts.example` to the local hosts file. On Windows, the governed
 helper can stage or apply the managed block:
