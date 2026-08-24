@@ -144,15 +144,16 @@ def test_posix_bootstrap_failure_never_leaves_environment_world_readable(
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     fake_bin.mkdir()
-    fake_awk = fake_bin / "awk"
-    fake_awk.write_text("#!/usr/bin/env sh\nexit 23\n", encoding="utf-8")
-    fake_awk.chmod(0o755)
+    fake_openssl = fake_bin / "openssl"
+    fake_openssl.write_text("#!/usr/bin/env sh\nexit 23\n", encoding="utf-8")
+    fake_openssl.chmod(0o755)
     environment = os.environ.copy()
     environment["PATH"] = f"{fake_bin}{os.pathsep}{environment['PATH']}"
 
     completed = _run_posix_bootstrap(stack, workspace, env=environment)
 
     assert completed.returncode != 0
+    assert "Failed to generate LOTUS_CORE_POSTGRES_PASSWORD" in completed.stderr
     env_path = stack / ".env"
     assert env_path.is_file()
     assert env_path.stat().st_mode & 0o077 == 0

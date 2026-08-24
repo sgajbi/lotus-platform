@@ -41,6 +41,23 @@ new_secret() {
   openssl rand -hex 32
 }
 
+set_secret_if_empty() {
+  key=$1
+  current=$(sed -n "s/^${key}=//p" "$env_path" | tail -n 1)
+  if [ -n "$current" ]; then
+    return
+  fi
+  if ! value=$(new_secret); then
+    printf 'Failed to generate %s\n' "$key" >&2
+    return 1
+  fi
+  if [ -z "$value" ]; then
+    printf 'Refusing to write an empty generated secret for %s\n' "$key" >&2
+    return 1
+  fi
+  set_if_empty "$key" "$value"
+}
+
 set_if_empty LOTUS_WORKSPACE_ROOT "$workspace_root"
 set_if_empty LOTUS_MANAGE_REPO_PATH "$workspace_root/lotus-manage"
 set_if_empty LOTUS_CORE_REPO_PATH "$workspace_root/lotus-core"
@@ -49,10 +66,10 @@ set_if_empty LOTUS_REPORT_REPO_PATH "$workspace_root/lotus-report"
 set_if_empty LOTUS_IDEA_REPO_PATH "$workspace_root/lotus-idea"
 set_if_empty LOTUS_GATEWAY_REPO_PATH "$workspace_root/lotus-gateway"
 set_if_empty LOTUS_WORKBENCH_REPO_PATH "$workspace_root/lotus-workbench"
-set_if_empty LOTUS_CORE_POSTGRES_PASSWORD "$(new_secret)"
-set_if_empty LOTUS_MANAGE_POSTGRES_PASSWORD "$(new_secret)"
-set_if_empty LOTUS_REPORT_POSTGRES_PASSWORD "$(new_secret)"
-set_if_empty GRAFANA_ADMIN_PASSWORD "$(new_secret)"
+set_secret_if_empty LOTUS_CORE_POSTGRES_PASSWORD
+set_secret_if_empty LOTUS_MANAGE_POSTGRES_PASSWORD
+set_secret_if_empty LOTUS_REPORT_POSTGRES_PASSWORD
+set_secret_if_empty GRAFANA_ADMIN_PASSWORD
 chmod 600 "$env_path"
 
 printf 'Platform stack environment is ready at %s\n' "$env_path"

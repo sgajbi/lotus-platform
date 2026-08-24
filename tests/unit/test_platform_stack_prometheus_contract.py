@@ -41,6 +41,7 @@ def test_platform_stack_prometheus_targets_match_platform_stack_service_names() 
     prometheus = _read_yaml(PLATFORM_STACK_DIR / "prometheus" / "prometheus.yml")
 
     services = compose["services"]
+    assert "host.docker.internal:host-gateway" in services["prometheus"]["extra_hosts"]
     platform_owned_bridge_hosts = {"host.docker.internal"}
     for job in prometheus["scrape_configs"]:
         target = job["static_configs"][0]["targets"][0]
