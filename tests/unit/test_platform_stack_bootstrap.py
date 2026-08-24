@@ -144,9 +144,9 @@ def test_posix_bootstrap_failure_never_leaves_environment_world_readable(
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     fake_bin.mkdir()
-    fake_openssl = fake_bin / "openssl"
-    fake_openssl.write_text("#!/usr/bin/env sh\nexit 23\n", encoding="utf-8")
-    fake_openssl.chmod(0o755)
+    fake_awk = fake_bin / "awk"
+    fake_awk.write_text("#!/usr/bin/env sh\nexit 23\n", encoding="utf-8")
+    fake_awk.chmod(0o755)
     environment = os.environ.copy()
     environment["PATH"] = f"{fake_bin}{os.pathsep}{environment['PATH']}"
 
