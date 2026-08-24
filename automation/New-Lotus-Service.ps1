@@ -578,6 +578,25 @@ function Register-PlatformDevIngress {
     }
   }
 
+  $prometheusPath = Join-Path $platformStackRoot "prometheus/prometheus.yml"
+  if (Test-Path $prometheusPath) {
+    $prometheusText = Get-Content -Raw $prometheusPath
+    $jobPattern = "(?m)^  - job_name: [`"']$([regex]::Escape($RepoName))[`"']$"
+    if ($prometheusText -notmatch $jobPattern) {
+      if ($prometheusText -notmatch "(?m)^scrape_configs:\r?$") {
+        throw "platform-stack/prometheus/prometheus.yml is missing the scrape_configs anchor"
+      }
+      $scrapeJob = @"
+  - job_name: "$RepoName"
+    static_configs:
+      - targets: ["${RepoName}:$RepoPort"]
+"@
+      $prometheusText = $prometheusText.TrimEnd("`r", "`n") + "`n`n$scrapeJob`n"
+      Set-Content -Path $prometheusPath -Value $prometheusText
+      Write-Host "Updated platform-stack/prometheus/prometheus.yml with $RepoName"
+    }
+  }
+
   $composePath = Join-Path $platformStackRoot "docker-compose.yml"
   if (Test-Path $composePath) {
     $composeText = Get-Content -Raw $composePath
