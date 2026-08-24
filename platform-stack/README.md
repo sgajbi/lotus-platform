@@ -78,18 +78,23 @@ recovery path. Take a backup before either migration or adoption.
    bootstrap this stack, restore into the new databases, and verify the owning application
    contracts. Do not byte-copy PostgreSQL storage across identities or versions.
 2. **Adopt unchanged Core, Report, and Grafana volumes:** first stop the old project. Before adoption,
-   rotate the Core and Report database-role passwords in the old databases to the exact values in
-   the new untracked `.env`, reset the persisted Grafana admin password to
-   `GRAFANA_ADMIN_PASSWORD`, and validate login. Then start with the governed adoption overlay:
+   remember that PostgreSQL and Grafana initialization variables do not rename identities in
+   existing volumes. Unless you explicitly rename and verify the persisted identities first, set
+   `LOTUS_CORE_POSTGRES_USER=user` and `GRAFANA_ADMIN_USER=admin` in the new untracked `.env`;
+   Report retains `LOTUS_REPORT_POSTGRES_USER=lotus_report`. Rotate the Core and Report
+   database-role passwords in the old databases to the exact new `.env` values, reset the persisted
+   Grafana admin password to `GRAFANA_ADMIN_PASSWORD`, and validate database and Grafana login while
+   the old project is still available. Then start with the governed adoption overlay:
 
    ```powershell
    docker compose -f docker-compose.yml -f docker-compose.legacy-volumes.yml config --quiet
    docker compose -f docker-compose.yml -f docker-compose.legacy-volumes.yml up -d --build
    ```
 
-   The overlay maps all three unchanged logical volumes to their exact `pbwm-platform_*` names and
-   deliberately cannot attach legacy Manage state. Continue using the overlay on every subsequent
-   command until the data is migrated to fresh canonical volumes.
+   The overlay maps all three unchanged logical volumes to their exact `pbwm-platform_*` names. Its
+   validator permits only those aliases and rejects every service-mount override, so it cannot
+   attach legacy Manage state indirectly. Continue using the overlay on every subsequent command
+   until the data is migrated to fresh canonical volumes.
 3. **Discard disposable state:** inspect and remove only the intended exact legacy volume, for
    example `docker volume inspect pbwm-platform_lotus-manage-postgres-data` followed by
    `docker volume rm pbwm-platform_lotus-manage-postgres-data`. Repeat explicitly for another
