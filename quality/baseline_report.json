@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 13
     },
-    "total_source_lines": 358430
+    "total_source_lines": 358491
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,8 +51,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 256,
-        "line": 194,
+        "end_line": 264,
+        "line": 202,
         "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 191,
-        "line": 126,
+        "end_line": 199,
+        "line": 134,
         "lines": 66,
         "name": "_validate_observability",
         "path": "automation/validate_platform_stack.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2851
+    "python_function_count": 2853
   },
-  "generated_at_utc": "2026-08-24T17:20:35Z",
+  "generated_at_utc": "2026-08-24T19:40:07Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 983,
+    "collected_tests": 998,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "983 tests collected in 1.26s"
+    "summary": "998 tests collected in 1.11s"
   }
 }
