@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-24T19:48:44Z`
+Generated: `2026-08-24T20:07:10Z`
 
 Repository: `lotus-platform`
 
@@ -16,8 +16,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `893`
-- Total source lines: `358547`
+- Source files: `894`
+- Total source lines: `358632`
 - Python files: `228`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2854`
+- Python functions: `2856`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -47,7 +47,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
-| automation/validate_platform_stack.py | _validate_security | 208 | 18 | 63 |
+| automation/validate_platform_stack.py | _validate_security | 213 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `999`
+- Unit tests collected: `1000`
 - Collection command return code: `0`
-- Collection summary: `999 tests collected in 0.88s`
+- Collection summary: `1000 tests collected in 1.03s`
 
 ## Security Baseline
 
