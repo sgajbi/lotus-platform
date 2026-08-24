@@ -367,6 +367,7 @@ def test_service_scaffold_uses_canonical_stack_and_bootstrap_anchors() -> None:
     assert "condition: service_healthy" in scaffold
     assert "<<: *small-service" in scaffold
     assert "dev-ingress/Caddyfile.tls" in scaffold
+    assert "prometheus/prometheus.yml" in scaffold
     assert '$envLine = "$repoPathVariable="' in scaffold
     assert "platform-stack/bootstrap.ps1" in scaffold
     assert "platform-stack/bootstrap.sh" in scaffold
@@ -422,6 +423,15 @@ def test_service_scaffold_registration_preserves_valid_platform_stack(
         "condition": "service_healthy"
     }
     assert service_name not in services["grafana"]["depends_on"]
+    prometheus = yaml.safe_load(
+        (platform_root / "platform-stack" / "prometheus" / "prometheus.yml").read_text(
+            encoding="utf-8-sig"
+        )
+    )
+    scrape_jobs = {job["job_name"]: job for job in prometheus["scrape_configs"]}
+    assert scrape_jobs[service_name]["static_configs"] == [
+        {"targets": [f"{service_name}:8999"]}
+    ]
 
     env_lines = (
         (platform_root / "platform-stack" / ".env.example")
