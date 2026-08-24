@@ -84,7 +84,8 @@ The Compose project containerises Core, Manage, Performance, Report, Idea, Gatew
 Risk, Advise, AI, Archive, and Render are explicit host-run bridges, not stack-owned containers.
 Tracked configuration contains no credential values: one-time bootstrap writes an ignored `.env`,
 rejects the former tracked Core database password before mutation, and preserves genuine
-operator-managed values that satisfy the documented PostgreSQL URI-safe character contract.
+operator-managed database usernames, passwords, and database names that satisfy the documented
+PostgreSQL URI-safe character contract.
 Published ports bind to loopback, Grafana requires authentication, and an optional Caddy local-CA
 profile supports local HTTPS. Prometheus owns the shared scrape inventory and Tempo retains local
 traces for 24 hours. Long-running containers have health and resource bounds.

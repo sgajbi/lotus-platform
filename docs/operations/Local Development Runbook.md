@@ -79,9 +79,10 @@ workspace root, writes canonical repository paths, and generates independent loc
 ignored `platform-stack/.env` file. Existing non-empty operator values are preserved on later
 runs, except that bootstrap fails closed on the former tracked Core database password before
 changing the file. Clear that value only for a fresh database; otherwise follow the platform-stack
-dump/restore migration procedure and set an operator-managed secret. Database passwords must use
-only letters, numbers, dot, underscore, tilde, and hyphen because the stack embeds them in
-PostgreSQL connection URIs; bootstrap rejects unsafe values before mutation.
+dump/restore migration procedure and set an operator-managed secret. Database usernames,
+passwords, and database names must use only letters, numbers, dot, underscore, tilde, and hyphen
+because the stack embeds them in PostgreSQL connection URIs; bootstrap rejects unsafe values
+before mutation.
 
 ```powershell
 cd C:\Users\Sandeep\projects\lotus-platform
