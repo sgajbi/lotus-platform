@@ -19,6 +19,7 @@ SECRET_NAMES = {
     "LOTUS_REPORT_POSTGRES_PASSWORD",
     "GRAFANA_ADMIN_PASSWORD",
 }
+DATABASE_SECRET_NAMES = SECRET_NAMES - {"GRAFANA_ADMIN_PASSWORD"}
 REGISTRY_COMMAND_FILES = (
     "requirements.txt",
     "requirements-dev.txt",
@@ -35,6 +36,22 @@ def _read_env(path: Path) -> dict[str, str]:
         if line and not line.startswith("#") and "=" in line
         for key, value in [line.split("=", maxsplit=1)]
     }
+
+
+def _seed_environment(
+    stack: Path,
+    replacements: dict[str, str],
+    *,
+    crlf: bool = False,
+) -> bytes:
+    text = (stack / ".env.example").read_text(encoding="utf-8")
+    for name, value in replacements.items():
+        text = text.replace(f"{name}=", f"{name}={value}")
+    if crlf:
+        text = text.replace("\n", "\r\n")
+    content = text.encode("utf-8")
+    (stack / ".env").write_bytes(content)
+    return content
 
 
 def _copy_tracked_repository(destination: Path) -> None:
@@ -174,11 +191,9 @@ def test_windows_bootstrap_rejects_legacy_core_password_before_mutation(
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     env_path = stack / ".env"
-    original = (stack / ".env.example").read_text(encoding="utf-8").replace(
-        "LOTUS_CORE_POSTGRES_PASSWORD=",
-        "LOTUS_CORE_POSTGRES_PASSWORD=password",
+    original = _seed_environment(
+        stack, {"LOTUS_CORE_POSTGRES_PASSWORD": "password"}
     )
-    env_path.write_text(original, encoding="utf-8")
 
     completed = _run_bootstrap(stack, workspace)
 
@@ -186,7 +201,7 @@ def test_windows_bootstrap_rejects_legacy_core_password_before_mutation(
     assert "Refusing the legacy tracked default for LOTUS_CORE_POSTGRES_PASSWORD" in (
         completed.stderr
     )
-    assert env_path.read_text(encoding="utf-8") == original
+    assert env_path.read_bytes() == original
 
 
 def test_posix_bootstrap_rejects_legacy_core_password_before_mutation(
@@ -197,11 +212,9 @@ def test_posix_bootstrap_rejects_legacy_core_password_before_mutation(
     shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
     workspace.mkdir()
     env_path = stack / ".env"
-    original = (stack / ".env.example").read_text(encoding="utf-8").replace(
-        "LOTUS_CORE_POSTGRES_PASSWORD=",
-        "LOTUS_CORE_POSTGRES_PASSWORD=password",
+    original = _seed_environment(
+        stack, {"LOTUS_CORE_POSTGRES_PASSWORD": "password"}
     )
-    env_path.write_text(original, encoding="utf-8")
 
     completed = _run_posix_bootstrap(stack, workspace)
 
@@ -209,7 +222,65 @@ def test_posix_bootstrap_rejects_legacy_core_password_before_mutation(
     assert "Refusing the legacy tracked default for LOTUS_CORE_POSTGRES_PASSWORD" in (
         completed.stderr
     )
-    assert env_path.read_text(encoding="utf-8") == original
+    assert env_path.read_bytes() == original
+
+
+def test_posix_bootstrap_rejects_crlf_legacy_password_without_mutation(
+    tmp_path: Path,
+) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    original = _seed_environment(
+        stack,
+        {"LOTUS_CORE_POSTGRES_PASSWORD": "password"},
+        crlf=True,
+    )
+
+    completed = _run_posix_bootstrap(stack, workspace)
+
+    assert completed.returncode != 0
+    assert "Refusing the legacy tracked default for LOTUS_CORE_POSTGRES_PASSWORD" in (
+        completed.stderr
+    )
+    assert (stack / ".env").read_bytes() == original
+
+
+def test_posix_bootstrap_fills_empty_crlf_secret_values(tmp_path: Path) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    _seed_environment(stack, {}, crlf=True)
+
+    completed = _run_posix_bootstrap(stack, workspace)
+
+    assert completed.returncode == 0, completed.stderr
+    generated = _read_env(stack / ".env")
+    assert all(len(generated[name]) == 64 for name in SECRET_NAMES)
+
+
+@pytest.mark.parametrize("runner", [_run_bootstrap, _run_posix_bootstrap])
+@pytest.mark.parametrize("secret_name", sorted(DATABASE_SECRET_NAMES))
+def test_bootstrap_rejects_uri_unsafe_database_password_before_mutation(
+    tmp_path: Path,
+    runner,
+    secret_name: str,
+) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    original = _seed_environment(
+        stack, {secret_name: "operator/secret"}
+    )
+
+    completed = runner(stack, workspace)
+
+    assert completed.returncode != 0
+    assert f"{secret_name} contains characters that are unsafe" in completed.stderr
+    assert (stack / ".env").read_bytes() == original
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows PowerShell 5.1 is Windows-only")

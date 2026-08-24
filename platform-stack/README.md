@@ -53,7 +53,9 @@ Run either bootstrap again after pulling new variables. It safely adds only miss
 tracked `.env.example` contains non-secret defaults and blank path/secret placeholders only.
 Bootstrap rejects the former tracked Core database password before changing the environment file.
 Clear that value only when initializing a fresh database; when legacy data matters, follow the
-dump/restore migration path below and set an operator-managed secret explicitly.
+dump/restore migration path below and set an operator-managed secret explicitly. Database
+passwords are embedded in PostgreSQL connection URIs and must use only letters, numbers, dot,
+underscore, tilde, and hyphen; bootstrap rejects other characters before changing the file.
 
 ### Upgrade from the pre-hardening stack
 

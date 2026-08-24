@@ -47,6 +47,24 @@ function Assert-NoLegacySecretDefault {
     }
 }
 
+function Assert-UriSafeDatabaseSecret {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name
+    )
+
+    $prefix = "$Name="
+    $configuredValue = Get-Content -LiteralPath $envPath |
+        Where-Object { $_.StartsWith($prefix, [System.StringComparison]::Ordinal) } |
+        Select-Object -Last 1 |
+        ForEach-Object { $_.Substring($prefix.Length) }
+    if (
+        -not [string]::IsNullOrWhiteSpace($configuredValue) -and
+        $configuredValue -cnotmatch '^[A-Za-z0-9._~-]+$'
+    ) {
+        throw "$Name contains characters that are unsafe in the platform stack PostgreSQL URI. Use only letters, numbers, dot, underscore, tilde, and hyphen."
+    }
+}
+
 function Set-EnvironmentValueIfEmpty {
     param(
         [Parameter(Mandatory = $true)][string]$Name,
@@ -75,6 +93,13 @@ function Set-EnvironmentValueIfEmpty {
 }
 
 Assert-NoLegacySecretDefault -Name "LOTUS_CORE_POSTGRES_PASSWORD" -LegacyValue "password"
+foreach ($databaseSecretName in @(
+    "LOTUS_CORE_POSTGRES_PASSWORD",
+    "LOTUS_MANAGE_POSTGRES_PASSWORD",
+    "LOTUS_REPORT_POSTGRES_PASSWORD"
+)) {
+    Assert-UriSafeDatabaseSecret -Name $databaseSecretName
+}
 Set-EnvironmentValueIfEmpty -Name "LOTUS_WORKSPACE_ROOT" -Value $resolvedWorkspaceRoot
 $repositoryPaths = [ordered]@{
     LOTUS_MANAGE_REPO_PATH = "lotus-manage"
