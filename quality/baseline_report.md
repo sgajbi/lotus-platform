@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-23T22:54:39Z`
+Generated: `2026-08-24T14:36:52Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `893`
-- Total source lines: `357670`
+- Total source lines: `357756`
 - Python files: `228`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2830`
+- Python functions: `2833`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -50,11 +50,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
+| automation/validate_platform_stack.py | _validate_security | 149 | 15 | 44 |
 | automation/validate_auto_merge_releasability.py | _merged_pr_dispatch_violations | 226 | 15 | 30 |
 | codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py | validate | 64 | 14 | 124 |
 | automation/background_task_cancellation.py | _projects_from_contract | 672 | 14 | 48 |
 | automation/validate_deployment_promotion_manifest.py | _validate_included_environment | 174 | 14 | 47 |
-| automation/mesh_certification_gate.py | _iter_default_telemetry_paths | 177 | 14 | 34 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `960`
+- Unit tests collected: `962`
 - Collection command return code: `0`
-- Collection summary: `960 tests collected in 1.31s`
+- Collection summary: `962 tests collected in 0.62s`
 
 ## Security Baseline
 

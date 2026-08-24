@@ -161,6 +161,23 @@ def _validate_security(stack_root: Path, services: dict[str, Any], issues: list[
         if not (stack_root / bootstrap_name).is_file():
             issues.append(f"platform stack is missing {bootstrap_name}")
 
+    posix_bootstrap_path = stack_root / "bootstrap.sh"
+    if posix_bootstrap_path.is_file():
+        posix_bootstrap = posix_bootstrap_path.read_text(encoding="utf-8")
+        restrictive_umask = posix_bootstrap.find("umask 077")
+        first_environment_write = posix_bootstrap.find('cp "$template_path" "$env_path"')
+        if (
+            restrictive_umask < 0
+            or first_environment_write < 0
+            or restrictive_umask > first_environment_write
+        ):
+            issues.append("POSIX bootstrap must set umask 077 before creating .env")
+
+    manage_postgres_volumes = services.get("lotus-manage-postgres", {}).get("volumes", [])
+    expected_manage_volume = "lotus-manage-postgres-identity-v2-data:/var/lib/postgresql/data"
+    if expected_manage_volume not in manage_postgres_volumes:
+        issues.append("Manage PostgreSQL must use the identity-v2 data volume")
+
     tls_profile_path = stack_root / "docker-compose.tls.yml"
     tls_caddyfile_path = stack_root / "dev-ingress" / "Caddyfile.tls"
     if not tls_profile_path.is_file() or not tls_caddyfile_path.is_file():
@@ -184,6 +201,11 @@ def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:
 
     if compose.get("name") != "lotus-platform":
         issues.append("Compose project name must be lotus-platform")
+    declared_volumes = compose.get("volumes", {})
+    if "lotus-manage-postgres-identity-v2-data" not in declared_volumes:
+        issues.append("Compose must declare the Manage identity-v2 data volume")
+    if "lotus-manage-postgres-data" in declared_volumes:
+        issues.append("Compose must not attach the legacy Manage PostgreSQL data volume")
     if "bff" in services or "ui" in services:
         issues.append("Legacy bff/ui service names are forbidden; use lotus-gateway/lotus-workbench")
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 set -eu
+umask 077
 
 stack_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 env_path="$stack_root/.env"

@@ -56,8 +56,10 @@ tracked `.env.example` contains non-secret defaults and blank path/secret placeh
 
 PostgreSQL applies database, role, and password initialization only when a volume is empty. Do not
 attach a volume created by the earlier stack identities to this profile and assume bootstrap has
-migrated it. The renamed Compose project creates fresh `lotus-platform_*` volumes and deliberately
-leaves legacy `pbwm-platform_*` volumes untouched.
+migrated it. The renamed Compose project and the explicit
+`lotus-manage-postgres-identity-v2-data` key create a fresh Manage database even when an operator
+overrides the Compose project name. Legacy `pbwm-platform_lotus-manage-postgres-data` state remains
+untouched.
 
 Before retiring a legacy volume, choose one explicit recovery path:
 

@@ -47,14 +47,26 @@ def _run_bootstrap(stack: Path, workspace: Path) -> subprocess.CompletedProcess[
     )
 
 
-def _run_posix_bootstrap(stack: Path, workspace: Path) -> subprocess.CompletedProcess[str]:
+def _run_posix_bootstrap(
+    stack: Path,
+    workspace: Path,
+    *,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     if os.name == "nt":
         shell = shutil.which("sh")
         assert shell is not None, "A POSIX shell is required to verify bootstrap.sh"
         command = [shell, str(stack / "bootstrap.sh"), str(workspace)]
     else:
         command = [str(stack / "bootstrap.sh"), str(workspace)]
-    return subprocess.run(command, cwd=stack, capture_output=True, text=True, check=False)
+    return subprocess.run(
+        command,
+        cwd=stack,
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
 
 
 def test_windows_bootstrap_generates_once_and_preserves_operator_values(tmp_path: Path) -> None:
@@ -102,6 +114,7 @@ def test_bootstrap_scripts_never_embed_tracked_secret_defaults() -> None:
     assert "RandomNumberGenerator" in powershell
     assert "openssl rand -hex 32" in posix
     assert "chmod 600" in posix
+    assert posix.index("umask 077") < posix.index('cp "$template_path" "$env_path"')
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX path semantics are verified on Linux CI")
@@ -119,3 +132,27 @@ def test_posix_bootstrap_resolves_relative_workspace_before_writing_paths(tmp_pa
     normalized_workspace = workspace.resolve().as_posix()
     assert generated["LOTUS_WORKSPACE_ROOT"] == normalized_workspace
     assert generated["LOTUS_MANAGE_REPO_PATH"] == f"{normalized_workspace}/lotus-manage"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX file modes are verified on Linux CI")
+def test_posix_bootstrap_failure_never_leaves_environment_world_readable(
+    tmp_path: Path,
+) -> None:
+    stack = tmp_path / "platform-stack"
+    workspace = tmp_path / "workspace"
+    fake_bin = tmp_path / "fake-bin"
+    shutil.copytree(SOURCE_STACK, stack, ignore=shutil.ignore_patterns(".env"))
+    workspace.mkdir()
+    fake_bin.mkdir()
+    fake_openssl = fake_bin / "openssl"
+    fake_openssl.write_text("#!/usr/bin/env sh\nexit 23\n", encoding="utf-8")
+    fake_openssl.chmod(0o755)
+    environment = os.environ.copy()
+    environment["PATH"] = f"{fake_bin}{os.pathsep}{environment['PATH']}"
+
+    completed = _run_posix_bootstrap(stack, workspace, env=environment)
+
+    assert completed.returncode != 0
+    env_path = stack / ".env"
+    assert env_path.is_file()
+    assert env_path.stat().st_mode & 0o077 == 0
