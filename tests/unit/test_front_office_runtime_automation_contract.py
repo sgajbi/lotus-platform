@@ -146,6 +146,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "refresh-from-core" in dpm_seed
     assert "/api/v1/dpm/monitoring/run-once" in dpm_seed
     assert "manage-monitoring-run-once" in dpm_seed
+    assert "resolve_canonical_cash_evidence.py" in dpm_seed
+    assert "gateway-date-aligned-cash-evidence" in dpm_seed
+    assert "cash_weight = [string]$summary.cash_evidence.normalized_cash_weight" in dpm_seed
+    assert 'cash_weight = "0.05"' not in dpm_seed
     assert "manage-campaign-definition-upsert" in dpm_seed
     assert "function Upsert-CampaignDefinition" in dpm_seed
     assert "Existing Manage campaign definition" in dpm_seed

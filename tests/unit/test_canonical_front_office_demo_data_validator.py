@@ -256,3 +256,14 @@ def test_validator_rejects_missing_ready_partial_empty_posture_evidence() -> Non
         "Invoke-DpmCommandCenterSeed.ps1 is missing step "
         "gateway-command-center-empty-posture"
     ) in errors
+
+
+def test_validator_rejects_missing_date_aligned_cash_evidence() -> None:
+    seed_script = _seed_script().replace("gateway-date-aligned-cash-evidence", "")
+
+    errors = _validator().validate_contract(_contract(), _invariants(), seed_script)
+
+    assert (
+        "Invoke-DpmCommandCenterSeed.ps1 is missing step gateway-date-aligned-cash-evidence"
+        in errors
+    )
