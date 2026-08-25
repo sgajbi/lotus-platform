@@ -240,6 +240,25 @@
                   {
                       "name":  "lotus-manage",
                       "pathHint":  "lotus-manage",
+                      "composeEnvironment":  {
+                                                     "LOTUS_MANAGE_HOST_PORT":  "8001",
+                                                     "DPM_CAP_INPUT_MODE_PORTFOLIO_ID_ENABLED":  "true",
+                                                     "DPM_STATEFUL_CORE_SOURCING_ENABLED":  "true",
+                                                     "DPM_WORKFLOW_ENABLED":  "true",
+                                                     "DPM_CORE_BASE_URL":  "http://host.docker.internal:8202",
+                                                     "DPM_CORE_QUERY_BASE_URL":  "http://host.docker.internal:8201"
+                                                 },
+                      "serviceVerification":  {
+                                                      "lotus-manage":  {
+                                                                           "requireHealthy":  true,
+                                                                           "publishedPorts":  [
+                                                                                                  {
+                                                                                                      "target":  8000,
+                                                                                                      "published":  8001
+                                                                                                  }
+                                                                                              ]
+                                                                       }
+                                                  },
                       "defaultServices":  [
                                               "lotus-manage"
                                           ],
