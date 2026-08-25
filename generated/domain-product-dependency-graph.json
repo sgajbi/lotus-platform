@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 97,
-  "edge_count": 336,
+  "edge_count": 340,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -1864,6 +1864,91 @@
         "feature",
         "pr-merge",
         "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-gateway",
+      "to": "product:lotus-core:BenchmarkAssignment:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ],
+      "failure_posture_conditions": [
+        {
+          "condition": "Core assignment lookup returns an HTTP error, invalid payload, or unexpected transport exception",
+          "posture": "degrade_to_partial",
+          "reason_codes": [
+            "BENCHMARK_ASSIGNMENT_UNAVAILABLE"
+          ],
+          "behavior": "Preserve the bounded response without assuming an assignment; append the warning and sanitized lotus-core partial failure."
+        }
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-gateway",
+      "to": "product:lotus-core:BenchmarkDefinition:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "degrade_to_partial",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-gateway",
+      "to": "product:lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "consumption_mode": "supportability_lookup",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ]
+    },
+    {
+      "edge_type": "consumes",
+      "from": "repo:lotus-gateway",
+      "to": "product:lotus-core:PortfolioAnalyticsReference:v1",
+      "consumption_mode": "api_read",
+      "failure_posture": "fail_closed",
+      "validation_lanes": [
+        "feature",
+        "pr-merge",
+        "platform-end-to-end"
+      ],
+      "failure_posture_conditions": [
+        {
+          "condition": "reference unavailable for a request that does not require inception metadata",
+          "posture": "degrade_to_partial",
+          "reason_codes": [
+            "PERFORMANCE_REFERENCE_UNAVAILABLE"
+          ],
+          "behavior": "Preserve the bounded partial response and record the typed source failure."
+        },
+        {
+          "condition": "Core reference lacks performance_end_date",
+          "posture": "degrade_to_partial",
+          "reason_codes": [
+            "PERFORMANCE_REFERENCE_MISSING_END_DATE"
+          ],
+          "behavior": "Use the configured fallback reporting end date and expose the PERFORMANCE_REFERENCE_MISSING_END_DATE warning; do not claim a typed partial failure."
+        },
+        {
+          "condition": "period=SI without explicit start and Core portfolio_open_date is unavailable, invalid, or after the requested end date",
+          "posture": "fail_closed",
+          "reason_codes": [
+            "PERFORMANCE_INCEPTION_UNAVAILABLE",
+            "PERFORMANCE_INCEPTION_AFTER_WINDOW_END"
+          ],
+          "behavior": "Return the typed performance window error and do not submit the analytics request."
+        }
       ]
     },
     {

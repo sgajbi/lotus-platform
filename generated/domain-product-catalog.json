@@ -93,7 +93,7 @@
     ]
   },
   "product_count": 85,
-  "dependency_count": 67,
+  "dependency_count": 71,
   "repository_count": 8,
   "repositories": [
     {
@@ -109,7 +109,7 @@
     {
       "repository": "lotus-gateway",
       "produced_product_count": 0,
-      "consumed_dependency_count": 1
+      "consumed_dependency_count": 5
     },
     {
       "repository": "lotus-idea",
@@ -5787,9 +5787,148 @@
     },
     {
       "consumer_repository": "lotus-gateway",
-      "dependency_count": 1,
+      "dependency_count": 5,
       "source_path": "lotus-gateway/contracts/domain-data-products/lotus-gateway-consumers.v1.json",
       "dependencies": [
+        {
+          "dependency_id": "lotus-core:BenchmarkAssignment:v1",
+          "product_name": "BenchmarkAssignment",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve Core-owned effective portfolio benchmark assignment for Gateway performance and workspace responses without defining benchmark methodology or moving assignment ownership into Gateway.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "degrade_to_partial",
+          "failure_posture_conditions": [
+            {
+              "condition": "Core assignment lookup returns an HTTP error, invalid payload, or unexpected transport exception",
+              "posture": "degrade_to_partial",
+              "reason_codes": [
+                "BENCHMARK_ASSIGNMENT_UNAVAILABLE"
+              ],
+              "behavior": "Preserve the bounded response without assuming an assignment; append the warning and sanitized lotus-core partial failure."
+            }
+          ]
+        },
+        {
+          "dependency_id": "lotus-core:BenchmarkDefinition:v1",
+          "product_name": "BenchmarkDefinition",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "as_of_date",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve Core-owned benchmark catalog and definition records for Gateway benchmark-aware performance responses without owning benchmark master or constituent evidence.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "degrade_to_partial"
+        },
+        {
+          "dependency_id": "lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+          "product_name": "ExternalOrderExecutionAcknowledgement",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "as_of_date",
+            "data_quality_status",
+            "latest_evidence_timestamp",
+            "source_batch_fingerprint",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "supportability_lookup",
+          "business_purpose": "Preserve Core-owned fail-closed external OMS acknowledgement supportability through Gateway without generating orders, claiming fills or settlement, or asserting OMS ingestion.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "fail_closed"
+        },
+        {
+          "dependency_id": "lotus-core:PortfolioAnalyticsReference:v1",
+          "product_name": "PortfolioAnalyticsReference",
+          "producer_repository": "lotus-core",
+          "required_product_version": "v1",
+          "required_trust_metadata": [
+            "product_name",
+            "product_version",
+            "generated_at",
+            "as_of_date",
+            "reconciliation_status",
+            "data_quality_status",
+            "correlation_id"
+          ],
+          "migration_posture": {
+            "status": "current"
+          },
+          "consumption_mode": "api_read",
+          "business_purpose": "Resolve Core-owned portfolio analytics reference dates and lifecycle context for Gateway Workbench and performance composition without calculating analytics or owning portfolio state.",
+          "validation_lanes": [
+            "feature",
+            "pr-merge",
+            "platform-end-to-end"
+          ],
+          "failure_posture": "fail_closed",
+          "failure_posture_conditions": [
+            {
+              "condition": "reference unavailable for a request that does not require inception metadata",
+              "posture": "degrade_to_partial",
+              "reason_codes": [
+                "PERFORMANCE_REFERENCE_UNAVAILABLE"
+              ],
+              "behavior": "Preserve the bounded partial response and record the typed source failure."
+            },
+            {
+              "condition": "Core reference lacks performance_end_date",
+              "posture": "degrade_to_partial",
+              "reason_codes": [
+                "PERFORMANCE_REFERENCE_MISSING_END_DATE"
+              ],
+              "behavior": "Use the configured fallback reporting end date and expose the PERFORMANCE_REFERENCE_MISSING_END_DATE warning; do not claim a typed partial failure."
+            },
+            {
+              "condition": "period=SI without explicit start and Core portfolio_open_date is unavailable, invalid, or after the requested end date",
+              "posture": "fail_closed",
+              "reason_codes": [
+                "PERFORMANCE_INCEPTION_UNAVAILABLE",
+                "PERFORMANCE_INCEPTION_AFTER_WINDOW_END"
+              ],
+              "behavior": "Return the typed performance window error and do not submit the analytics request."
+            }
+          ]
+        },
         {
           "dependency_id": "lotus-core:PortfolioManagerBookMembership:v1",
           "product_name": "PortfolioManagerBookMembership",
