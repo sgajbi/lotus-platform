@@ -8,7 +8,7 @@
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
   "node_count": 97,
-  "edge_count": 332,
+  "edge_count": 336,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -1055,6 +1055,11 @@
     {
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:BenchmarkAssignment:v1",
+      "to": "repo:lotus-gateway"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkAssignment:v1",
       "to": "repo:lotus-idea"
     },
     {
@@ -1086,6 +1091,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:BenchmarkConstituentWindow:v1",
       "to": "repo:lotus-risk"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:BenchmarkDefinition:v1",
+      "to": "repo:lotus-gateway"
     },
     {
       "edge_type": "approves_consumer",
@@ -1201,6 +1211,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:ExternalHedgePolicy:v1",
       "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:ExternalOrderExecutionAcknowledgement:v1",
+      "to": "repo:lotus-gateway"
     },
     {
       "edge_type": "approves_consumer",
@@ -1326,6 +1341,11 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PlannedWithdrawalSchedule:v1",
       "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioAnalyticsReference:v1",
+      "to": "repo:lotus-gateway"
     },
     {
       "edge_type": "approves_consumer",
