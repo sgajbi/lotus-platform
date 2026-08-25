@@ -104,6 +104,12 @@ def _has_resource_limit(service: dict[str, Any]) -> bool:
 
 def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None:
     for service_name, service in services.items():
+        raw_environment = service.get("environment")
+        if raw_environment is not None and not isinstance(raw_environment, dict):
+            issues.append(
+                f"{service_name}.environment must use mapping form for deterministic validation"
+            )
+            continue
         for key, value in _environment_map(service).items():
             if any(marker in key.upper() for marker in ("PASSWORD", "SECRET", "TOKEN")):
                 if not isinstance(value, str) or not _REQUIRED_INTERPOLATION.fullmatch(
