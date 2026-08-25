@@ -29,14 +29,21 @@ powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -Project
 ## Failure Semantics
 
 `Service-Refresh.ps1` fails closed when Docker rejects `compose up` or when `docker compose ps`
-cannot report post-refresh state. Treat any non-zero exit as failed runtime evidence: inspect the
-Docker error, correct the service name or Compose state, and rerun the refresh before validating the
-application. Do not record a targeted refresh as successful from partial console output.
+cannot prove the selected services are running with their governed health and published-port
+posture. Treat any non-zero exit as failed runtime evidence: inspect the Docker error, correct the
+service name, Compose environment, port, or health state, and rerun the refresh before validating
+the application. Do not record a targeted refresh as successful from partial console output.
+
+`automation/service-map.json` also owns non-secret canonical Compose environment and service
+verification requirements. Always inspect `-DryRun` output before refreshing a shared stack. For
+Manage, the output must show host port `8001`, its canonical DPM/Core source settings, and expected
+publication `8001:8000`; do not recreate Manage from an ad hoc shell that omits this posture.
 
 ## Rules
 
 - Prefer `-ChangedOnly` first.
 - Do not restart full stack unless explicitly requested.
+- Use the governed map; never pass credentials, tokens, or process-critical variables through it.
 - Check container logs first when service startup fails.
 
 For service mapping details, read `references/mapping.md`.

@@ -636,6 +636,12 @@ Changed-files based (recommended):
 powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-core -ChangedOnly -BaseRef origin/main
 ```
 
+Run the same command with `-DryRun` before changing a shared canonical stack. The service map is the
+source of truth for non-secret Compose environment and readiness checks. A Manage refresh must show
+`LOTUS_MANAGE_HOST_PORT=8001`, canonical Core source/workflow settings, and expected publication
+`8001:8000`, preserving Advise on host port 8000. The refresh is successful only after Compose JSON
+proves each selected service is running, required health is healthy, and governed ports match.
+
 ### 14.4 Offload Parallel Work Outside Chat
 
 Use these profiles to run repeatable, long-running tasks without consuming chat context:

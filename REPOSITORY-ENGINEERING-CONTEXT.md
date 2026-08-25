@@ -586,6 +586,10 @@ Most relevant current governance:
    not start below the enterprise quality bar.
 9. Certified endpoint examples require code-owned runtime parity evidence. A second documentation
    literal or schema-only assertion does not prove current response truth.
+10. Targeted service refreshes must resolve repository-governed non-secret Compose environment and
+    service verification from `automation/service-map.json`. Shared-stack Manage refreshes preserve
+    host port 8001 plus canonical Core source/workflow settings, restore the caller environment, and
+    fail unless Compose proves running, healthy, correctly published service state.
 
 ## Context Maintenance Rule
 
