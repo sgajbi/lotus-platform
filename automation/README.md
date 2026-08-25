@@ -619,6 +619,13 @@ Dry run:
 powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-gateway -ChangedOnly -DryRun
 ```
 
+The dry run reports repository-governed, non-secret Compose environment and expected published
+ports. `lotus-manage` refreshes always preserve the canonical shared-stack posture: host port 8001,
+stateful Core sourcing/workflow settings, and Core endpoints on 8202/8201. After recreation the
+script polls Compose JSON and fails unless every selected service is running, configured health is
+healthy, and required published ports match. Governed environment is process-scoped and restored
+after the command; credential-bearing or process-critical environment names are rejected.
+
 ## Parallel Offload Profiles
 
 Run a profile in this terminal:

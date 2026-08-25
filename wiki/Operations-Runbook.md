@@ -68,6 +68,10 @@ python automation\validate_analytics_ui_entitlement_certification.py
    explicitly recognizes `lotus-core`, `lotus-core-app-local`, and
    `lotus-core-canonical-ui` as Core project identities only when their working-directory label is
    the canonical `lotus-core` checkout; a noncanonical checkout alias is a blocking conflict.
+9. use `Service-Refresh.ps1 -DryRun` before refreshing a service in a shared stack. The governed
+   service map must preserve non-secret coexistence environment and published ports; Manage must
+   retain host port 8001 and its canonical Core source/workflow settings while Advise remains on
+   host port 8000. A refresh is incomplete until running, health, and port verification passes.
 
 ## Canonical DPM command-center seed
 
