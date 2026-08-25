@@ -109,6 +109,11 @@ Current repository posture:
     the preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the full seed is a source-readiness
     dependency, not an auth failure; current canonical evidence links that Core-owned
     `PB_SG_GLOBAL_BAL_001` DPM readiness gap to `sgajbi/lotus-core#840`.
+14. Canonical mandate-health seeding must resolve portfolio cash from the implementation-backed
+    Gateway overview for the exact requested portfolio and business date, validate the source
+    identity/date/unit, and normalize percentage to ratio once. Platform automation must never
+    substitute a hard-coded cash weight or persist health after missing, mismatched, malformed, or
+    out-of-range evidence.
 
 ## Architecture And Module Map
 

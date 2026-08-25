@@ -218,6 +218,10 @@ Canonical DPM command-center seed authority:
   without refreshing or persisting DPM evidence.
 - a 403 from that preflight is a caller-contract defect; do not disable Manage authorization to
   produce canonical runtime evidence.
+- mandate-health seeding resolves the portfolio cash percentage through the Gateway Workbench
+  overview at the requested business date, validates portfolio/date identity, and records the
+  normalized ratio. There is no hard-coded fallback; untrustworthy evidence fails before the
+  health write.
 - after preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the full seed means source readiness is
   incomplete rather than authorization is failing; preserve the response body in
   `output/front-office-qa/dpm-command-center-seed-latest.json` and link the Core owner issue

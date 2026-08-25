@@ -817,6 +817,9 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 By default the wrapper also runs the DPM command-center seed after stack bring-up and before
 Workbench validation. That seed refreshes the canonical mandate from `lotus-core` through
 `lotus-manage`, runs one Manage monitoring pass for command-center evidence, persists or reuses
+the date-aligned portfolio cash weight from Gateway's implementation-backed Workbench overview
+before recalculating mandate health (the evidence records source URI, requested/resolved date,
+percentage, and normalized ratio), persists or reuses
 the canonical source-backed DPM campaign definition for
 `lotus-core:DpmPortfolioUniverseCandidate:v1`, including source-owned selection-basis evidence
 from the governed contract, creates and verifies the canonical Manage-owned outcome review through
@@ -850,7 +853,8 @@ python automation/validate_canonical_front_office_demo_data_contract.py
 ```
 
 This focused check verifies that the canonical mandate, PM book, source-product lineage,
-ready/partial/empty posture expectations, Manage authority preflight, and seed-script evidence hooks remain aligned before
+date-aligned cash evidence, ready/partial/empty posture expectations, Manage authority preflight,
+and seed-script evidence hooks remain aligned before
 the heavier Workbench runtime proof runs. The CLI is the fail-closed cross-repository path and
 requires a resolvable `lotus-core` checkout (or explicit `--core-repo`) for executable seed proof.
 Platform unit callers may use `validate_default_paths()` for hermetic Platform-owned contract
