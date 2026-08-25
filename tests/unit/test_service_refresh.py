@@ -11,6 +11,7 @@ TARGETED_REFRESH_SKILL = (
     ROOT / "codex" / "skills" / "targeted-service-refresh" / "SKILL.md"
 )
 AUTOMATION_GUIDE = ROOT / "automation" / "docs" / "Automation-Guide.md"
+SERVICE_MAP = ROOT / "automation" / "service-map.json"
 
 
 def _powershell_executable() -> str:
@@ -275,6 +276,16 @@ def test_service_refresh_rejects_manage_port_mismatch(tmp_path: Path) -> None:
 def test_service_refresh_fail_closed_behavior_is_documented() -> None:
     skill = TARGETED_REFRESH_SKILL.read_text(encoding="utf-8")
     guide = AUTOMATION_GUIDE.read_text(encoding="utf-8")
+    service_map = json.loads(SERVICE_MAP.read_text(encoding="utf-8"))
+    manage = next(
+        repo for repo in service_map["repos"] if repo["name"] == "lotus-manage"
+    )
 
     assert "fails closed when Docker rejects `compose up`" in skill
-    assert "when `docker compose up` or `docker compose ps` returns non-zero" in guide
+    assert "governed non-secret Compose environment" in guide
+    assert "published-port" in skill
+    assert manage["composeEnvironment"]["LOTUS_MANAGE_HOST_PORT"] == "8001"
+    assert manage["serviceVerification"]["lotus-manage"] == {
+        "requireHealthy": True,
+        "publishedPorts": [{"target": 8000, "published": 8001}],
+    }
