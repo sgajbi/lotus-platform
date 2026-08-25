@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 410,
     "powershell_file_count": 69,
-    "python_file_count": 228,
-    "source_file_count": 894,
+    "python_file_count": 230,
+    "source_file_count": 896,
     "suffix_counts": {
       ".json": 138,
       ".md": 410,
       ".ps1": 69,
-      ".py": 228,
+      ".py": 230,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 359154
+    "total_source_lines": 359503
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -115,6 +115,14 @@
       },
       {
         "complexity": 14,
+        "end_line": 84,
+        "line": 31,
+        "lines": 54,
+        "name": "cash_evidence_from_overview",
+        "path": "automation/resolve_canonical_cash_evidence.py"
+      },
+      {
+        "complexity": 14,
         "end_line": 719,
         "line": 672,
         "lines": 48,
@@ -184,14 +192,6 @@
         "lines": 43,
         "name": "fetch_checks",
         "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 556,
-        "line": 520,
-        "lines": 37,
-        "name": "_verify_container_provenance",
-        "path": "automation/background_task_cancellation.py"
       }
     ],
     "largest_functions": [
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 326,
+        "end_line": 330,
         "line": 26,
-        "lines": 301,
+        "lines": 305,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2871
+    "python_function_count": 2881
   },
-  "generated_at_utc": "2026-08-25T04:22:32Z",
+  "generated_at_utc": "2026-08-25T15:35:22Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1688,
+      "lines": 1692,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -449,6 +449,11 @@
     },
     {
       "lines": 1172,
+      "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
+      "suffix": ".ps1"
+    },
+    {
+      "lines": 1172,
       "path": "automation/generate_domain_product_onboarding.py",
       "suffix": ".py"
     },
@@ -456,11 +461,6 @@
       "lines": 1170,
       "path": "automation/background_task_cancellation.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1148,
-      "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "suffix": ".ps1"
     }
   ],
   "openapi": {
@@ -717,12 +717,12 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1360,
+        "line": 1364,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1366,
+        "line": 1370,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1014,
+    "collected_tests": 1027,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform-rfc509\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1014 tests collected in 0.71s"
+    "summary": "1027 tests collected in 3.57s"
   }
 }
