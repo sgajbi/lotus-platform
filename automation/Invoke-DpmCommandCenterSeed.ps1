@@ -17,6 +17,10 @@ param(
 $ErrorActionPreference = "Stop"
 
 $platformRoot = Split-Path -Parent $PSScriptRoot
+$canonicalCashEvidenceScript = Join-Path $PSScriptRoot "resolve_canonical_cash_evidence.py"
+if (-not (Test-Path $canonicalCashEvidenceScript)) {
+  throw "Canonical cash-evidence resolver not found: $canonicalCashEvidenceScript"
+}
 if ([string]::IsNullOrWhiteSpace($ContractPath)) {
   $ContractPath = Join-Path $platformRoot "context\contracts\canonical-front-office-demo-data-contract.json"
 }
@@ -621,9 +625,13 @@ function New-CanonicalOutcomeReviewGatewayBody {
 function New-CanonicalMandateHealthBody {
   param([object]$Mandate)
 
+  if (-not $summary.cash_evidence -or [string]::IsNullOrWhiteSpace([string]$summary.cash_evidence.normalized_cash_weight)) {
+    throw "Canonical cash evidence must be resolved before mandate health recalculation."
+  }
+
   return [ordered]@{
     twin = $Mandate
-    cash_weight = "0.05"
+    cash_weight = [string]$summary.cash_evidence.normalized_cash_weight
     source_readiness_state = "READY"
     risk_health_context = [ordered]@{
       source_system = "lotus-risk"
@@ -887,6 +895,7 @@ $summary = [ordered]@{
   manage_authorization_preflight_response = $null
   preflight_only = [bool]$PreflightOnly
   refresh_response = $null
+  cash_evidence = $null
   recalculated_health_response = $null
   monitoring_run_response = $null
   action_register_simulation_response = $null
@@ -963,6 +972,21 @@ try {
     requested_by = "platform-seed-automation"
   })
   $summary.steps += "manage-monitoring-run-once"
+
+  Write-Host "[dpm-seed] resolving date-aligned canonical cash evidence"
+  $cashEvidenceJson = & python $canonicalCashEvidenceScript `
+    --gateway-base-url $gatewayApiBaseUrl `
+    --portfolio-id $resolvedPortfolioId `
+    --as-of-date $resolvedAsOfDate
+  if ($LASTEXITCODE -ne 0) {
+    throw "Canonical cash-evidence resolution failed with exit code $LASTEXITCODE."
+  }
+  try {
+    $summary.cash_evidence = $cashEvidenceJson | ConvertFrom-Json
+  } catch {
+    throw "Canonical cash-evidence resolver returned invalid JSON: $($_.Exception.Message)"
+  }
+  $summary.steps += "gateway-date-aligned-cash-evidence"
 
   Write-Host "[dpm-seed] preserving source-owned risk/performance mandate health contexts"
   $summary.recalculated_health_response = Invoke-JsonRequest `
