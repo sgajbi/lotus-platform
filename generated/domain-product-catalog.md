@@ -101,74 +101,74 @@ This file is generated from governed domain-data-product declarations.
 
 | Consumer | Upstream Product | Producer | Version | Mode | Failure Posture | Conditional Overrides |
 | --- | --- | --- | --- | --- | --- | --- |
-| `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-gateway` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  `degrade_to_partial` when Core assignment lookup returns an HTTP error, invalid payload, or unexpected transport exception |
-| `lotus-gateway` | `BenchmarkDefinition` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-gateway` | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `supportability_lookup` | `fail_closed`  None |
-| `lotus-gateway` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed`  `degrade_to_partial` when reference unavailable for a request that does not require inception metadata<br>`degrade_to_partial` when Core reference lacks performance_end_date<br>`fail_closed` when period=SI without explicit start and Core portfolio_open_date is unavailable, invalid, or after the requested end date |
-| `lotus-gateway` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-idea` | `AdvisoryCopilotInteractionRecord` | `lotus-advise` | `v1` | `supportability_lookup` | `support_only`  None |
-| `lotus-idea` | `AdvisoryPolicyEvaluationRecord` | `lotus-advise` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-idea` | `PortfolioCashMovementSummary` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-idea` | `PortfolioActionRegister` | `lotus-manage` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `ClientReportEvidencePack` | `lotus-report` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `ConcentrationRiskReport` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-idea` | `RiskMetricsReport` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-manage` | `BenchmarkAssignment` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade`  None |
-| `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block`  None |
-| `lotus-manage` | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `DpmPortfolioUniverseCandidate` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `DpmSourceReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ExternalHedgePolicy` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `InstrumentEligibilityProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed`  None |
-| `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `MarketDataCoverageWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block`  None |
-| `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed`  None |
-| `lotus-manage` | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block`  None |
-| `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `TransactionCostCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade`  None |
-| `lotus-manage` | `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `caller_supplied_contract_payload` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `caller_supplied_contract_payload` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_or_pending_review`  None |
-| `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-performance` | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-performance` | `IndexSeriesWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed`  None |
-| `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed`  None |
-| `lotus-performance` | `PerformanceComponentEconomics` | `lotus-core` | `v1` | `chunked_api_read` | `degrade_to_partial`  None |
-| `lotus-performance` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-performance` | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-performance` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed`  None |
-| `lotus-performance` | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-report` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-report` | `TransactionLedgerWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-risk` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed`  None |
-| `lotus-risk` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-risk` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed`  None |
-| `lotus-risk` | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial`  None |
-| `lotus-risk` | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `paged_api_read` | `degrade_to_partial`  None |
-| `lotus-risk` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `api_read` | `fail_closed`  None |
+| `lotus-advise` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-advise` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-gateway` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | `degrade_to_partial` when Core assignment lookup returns an HTTP error, invalid payload, or unexpected transport exception |
+| `lotus-gateway` | `BenchmarkDefinition` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-gateway` | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `supportability_lookup` | `fail_closed` | None |
+| `lotus-gateway` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed` | `degrade_to_partial` when reference unavailable for a request that does not require inception metadata<br>`degrade_to_partial` when Core reference lacks performance_end_date<br>`fail_closed` when period=SI without explicit start and Core portfolio_open_date is unavailable, invalid, or after the requested end date |
+| `lotus-gateway` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-idea` | `AdvisoryCopilotInteractionRecord` | `lotus-advise` | `v1` | `supportability_lookup` | `support_only` | None |
+| `lotus-idea` | `AdvisoryPolicyEvaluationRecord` | `lotus-advise` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `AdvisoryProposalLifecycleRecord` | `lotus-advise` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-idea` | `PortfolioCashMovementSummary` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-idea` | `PortfolioActionRegister` | `lotus-manage` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `ClientReportEvidencePack` | `lotus-report` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `ConcentrationRiskReport` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-idea` | `RiskMetricsReport` | `lotus-risk` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-manage` | `TacticalHouseViewAffectedCohort` | `lotus-advise` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-manage` | `BenchmarkAssignment` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `CioModelChangeAffectedCohort` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ClientIncomeNeedsSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` | None |
+| `lotus-manage` | `ClientRestrictionProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` | None |
+| `lotus-manage` | `DiscretionaryMandateBinding` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `DpmModelPortfolioTarget` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `DpmPortfolioUniverseCandidate` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `DpmSourceReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ExternalCurrencyExposure` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ExternalEligibleHedgeInstrument` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ExternalFXForwardCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ExternalHedgeExecutionReadiness` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ExternalHedgePolicy` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `ExternalOrderExecutionAcknowledgement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `InstrumentEligibilityProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `fail_closed` | None |
+| `lotus-manage` | `LiquidityReserveRequirement` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `MarketDataCoverageWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` | None |
+| `lotus-manage` | `PlannedWithdrawalSchedule` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-manage` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `caller_supplied_contract_payload` | `fail_closed` | None |
+| `lotus-manage` | `PortfolioTaxLotWindow` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_block` | None |
+| `lotus-manage` | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `TransactionCostCurve` | `lotus-core` | `v1` | `stateful_core_sourcing` | `degrade` | None |
+| `lotus-manage` | `MandatePerformanceHealthContext` | `lotus-performance` | `v1` | `caller_supplied_contract_payload` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `MandateRiskHealthContext` | `lotus-risk` | `v1` | `caller_supplied_contract_payload` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `RegimeScenarioPackEvaluation` | `lotus-risk` | `v1` | `api_read` | `degrade_or_pending_review` | None |
+| `lotus-manage` | `RiskEventAffectedCohort` | `lotus-risk` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-performance` | `BenchmarkAssignment` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-performance` | `BenchmarkConstituentWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-performance` | `IndexSeriesWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-performance` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` | None |
+| `lotus-performance` | `MarketDataWindow` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` | None |
+| `lotus-performance` | `PerformanceComponentEconomics` | `lotus-core` | `v1` | `chunked_api_read` | `degrade_to_partial` | None |
+| `lotus-performance` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-performance` | `PortfolioTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-performance` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` | None |
+| `lotus-performance` | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-report` | `HoldingsAsOf` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-report` | `TransactionLedgerWindow` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-risk` | `InstrumentReferenceBundle` | `lotus-core` | `v1` | `paged_api_read` | `fail_closed` | None |
+| `lotus-risk` | `PortfolioStateSnapshot` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-risk` | `PositionTimeseriesInput` | `lotus-core` | `v1` | `api_read` | `fail_closed` | None |
+| `lotus-risk` | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `api_read` | `degrade_to_partial` | None |
+| `lotus-risk` | `BenchmarkExposureContext` | `lotus-performance` | `v1` | `paged_api_read` | `degrade_to_partial` | None |
+| `lotus-risk` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` | `api_read` | `fail_closed` | None |

@@ -1307,7 +1307,8 @@ def _validate_dependency_failure_posture_conditions(
             _append_issue(
                 issues, path, f"{prefix}.condition must be a non-empty string"
             )
-        if condition["posture"] not in ALLOWED_FAILURE_POSTURES:
+        posture = condition["posture"]
+        if not isinstance(posture, str) or posture not in ALLOWED_FAILURE_POSTURES:
             _append_issue(
                 issues, path, f"{prefix}.posture must use a governed failure posture"
             )

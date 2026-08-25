@@ -885,7 +885,7 @@ def _render_catalog_markdown(catalog: dict[str, Any]) -> str:
                 f"`{dependency['failure_posture']}` |"
             )
             if has_conditional_failure_postures:
-                row = row[:-1] + f" {_render_failure_posture_conditions(dependency)} |"
+                row += f" {_render_failure_posture_conditions(dependency)} |"
             dependency_rows.append(row)
 
     return "\n".join(

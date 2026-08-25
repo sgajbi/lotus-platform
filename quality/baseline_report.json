@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 359082
+    "total_source_lines": 359109
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -74,20 +74,20 @@
         "path": "automation/validate_platform_stack.py"
       },
       {
+        "complexity": 16,
+        "end_line": 1331,
+        "line": 1273,
+        "lines": 59,
+        "name": "_validate_dependency_failure_posture_conditions",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
+      },
+      {
         "complexity": 15,
         "end_line": 125,
         "line": 52,
         "lines": 74,
         "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 1330,
-        "line": 1273,
-        "lines": 58,
-        "name": "_validate_dependency_failure_posture_conditions",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       },
       {
         "complexity": 15,
@@ -261,8 +261,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2321,
-        "line": 2052,
+        "end_line": 2342,
+        "line": 2073,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -349,8 +349,8 @@
       },
       {
         "complexity": 4,
-        "end_line": 2049,
-        "line": 1915,
+        "end_line": 2070,
+        "line": 1936,
         "lines": 135,
         "name": "test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2868
+    "python_function_count": 2869
   },
-  "generated_at_utc": "2026-08-25T04:11:10Z",
+  "generated_at_utc": "2026-08-25T04:18:38Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,12 +398,12 @@
       "suffix": ".json"
     },
     {
-      "lines": 2425,
+      "lines": 2446,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
     {
-      "lines": 1854,
+      "lines": 1855,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1011,
+    "collected_tests": 1012,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform-rfc509\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1011 tests collected in 1.46s"
+    "summary": "1012 tests collected in 1.07s"
   }
 }
