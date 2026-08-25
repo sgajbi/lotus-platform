@@ -634,14 +634,14 @@ function Register-PlatformDevIngress {
       )
       if ($composeText -notmatch [regex]::Escape("      ${RepoName}:`n        condition: service_healthy")) {
         $dependsBlock = "      ${RepoName}:`n        condition: service_healthy`n"
-        $prometheusDependency = "      prometheus:\r?\n        condition: service_healthy"
-        if ($composeText -notmatch $prometheusDependency) {
-          throw "platform-stack/docker-compose.yml is missing the healthy Prometheus dependency anchor"
+        $ingressApplicationDependencyAnchor = "      lotus-idea:\r?\n        condition: service_healthy"
+        if ($composeText -notmatch $ingressApplicationDependencyAnchor) {
+          throw "platform-stack/docker-compose.yml is missing the canonical ingress application dependency anchor"
         }
-        $prometheusDependencyPattern = [regex]::new($prometheusDependency)
-        $composeText = $prometheusDependencyPattern.Replace(
+        $ingressApplicationDependencyPattern = [regex]::new($ingressApplicationDependencyAnchor)
+        $composeText = $ingressApplicationDependencyPattern.Replace(
           $composeText,
-          "$dependsBlock      prometheus:`n        condition: service_healthy",
+          "      lotus-idea:`n        condition: service_healthy`n$dependsBlock",
           1
         )
       }

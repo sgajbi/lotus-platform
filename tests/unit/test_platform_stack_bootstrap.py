@@ -363,11 +363,13 @@ def test_service_scaffold_uses_canonical_stack_and_bootstrap_anchors() -> None:
     )
 
     assert "gatewayServiceAnchor" in scaffold
+    assert "ingressApplicationDependencyAnchor" in scaffold
     assert "<<: \\*medium-service" in scaffold
     assert "condition: service_healthy" in scaffold
     assert "<<: *small-service" in scaffold
     assert "dev-ingress/Caddyfile.tls" in scaffold
     assert "prometheus/prometheus.yml" in scaffold
+    assert "healthy Prometheus dependency anchor" not in scaffold
     assert '$envLine = "$repoPathVariable="' in scaffold
     assert "platform-stack/bootstrap.ps1" in scaffold
     assert "platform-stack/bootstrap.sh" in scaffold

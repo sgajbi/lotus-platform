@@ -186,6 +186,48 @@ def test_validator_rejects_missing_scrape_health_and_resource_controls(
     assert "Dev ingress must map host.docker.internal through host-gateway" in issues
 
 
+@pytest.mark.parametrize(
+    "observability_service",
+    ["prometheus", "grafana", "tempo", "otel-collector"],
+)
+def test_validator_rejects_observability_dependencies_that_gate_ingress(
+    tmp_path: Path,
+    observability_service: str,
+) -> None:
+    stack = _copy_stack(tmp_path)
+
+    def gate_ingress_on_observability(compose: dict) -> None:
+        compose["services"]["dev-ingress"]["depends_on"][observability_service] = {
+            "condition": "service_healthy"
+        }
+
+    _mutate_compose(stack, gate_ingress_on_observability)
+
+    assert (
+        f"dev-ingress must not depend on observability service {observability_service}"
+        in validate_stack(stack)
+    )
+
+
+def test_validator_requires_healthy_application_ingress_dependencies(
+    tmp_path: Path,
+) -> None:
+    stack = _copy_stack(tmp_path)
+
+    def weaken_application_dependencies(compose: dict) -> None:
+        ingress_dependencies = compose["services"]["dev-ingress"]["depends_on"]
+        ingress_dependencies.pop("lotus-idea")
+        ingress_dependencies["lotus-gateway"]["condition"] = "service_started"
+
+    _mutate_compose(stack, weaken_application_dependencies)
+    issues = validate_stack(stack)
+
+    assert "dev-ingress must depend on application service lotus-idea" in issues
+    assert (
+        "dev-ingress must wait for healthy application service lotus-gateway" in issues
+    )
+
+
 def test_validator_rejects_workstation_paths_and_secret_template_values(
     tmp_path: Path,
 ) -> None:
@@ -327,8 +369,8 @@ def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -
         (
             ("services", "dev-ingress", "depends_on"),
             (
-                "dev-ingress must wait for healthy prometheus",
-                "dev-ingress must wait for healthy grafana",
+                "dev-ingress must depend on application service lotus-gateway",
+                "dev-ingress must depend on application service lotus-workbench",
             ),
         ),
     ],

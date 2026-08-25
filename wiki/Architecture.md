@@ -94,7 +94,9 @@ identity is deliberately excluded and requires a logical dump/restore into its f
 volume.
 Published ports bind to loopback, Grafana requires authentication, and an optional Caddy local-CA
 profile supports local HTTPS. Prometheus owns the shared scrape inventory and Tempo retains local
-traces for 24 hours. Long-running containers have health and resource bounds.
+traces for 24 hours. Long-running containers have health and resource bounds. Application ingress
+waits for healthy application services but has no dependency on Prometheus, Grafana, Tempo, or the
+collector, so an observability outage cannot suppress otherwise healthy application routes.
 
 This supports the ecosystem runtime, but it is not the canonical populated front-office product
 proof path.

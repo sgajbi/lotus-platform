@@ -193,7 +193,9 @@ Services send OTLP to `otel-collector`. Traces are exported to Tempo and retaine
 hours; metrics and logs currently remain diagnostic collector output. Grafana provisions both
 Prometheus and Tempo datasources. Telemetry is fail-open for applications: a collector or Tempo
 failure must not change financial processing, but it can cause telemetry loss and must be visible in
-container health and collector exporter metrics.
+container health and collector exporter metrics. `dev-ingress` therefore waits for healthy
+application services but never depends on Prometheus, Grafana, Tempo, or the collector; an
+observability outage cannot suppress otherwise healthy application routes.
 
 To prove a known trace is queryable, submit it through OTLP and query Tempo from inside the project:
 

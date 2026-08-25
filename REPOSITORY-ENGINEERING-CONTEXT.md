@@ -39,7 +39,8 @@ Current repository posture:
    Gateway, and Workbench plus their required local infrastructure; Risk, Advise, AI, Archive, and
    Render remain explicit host-run bridges. Bootstrap-generated untracked secrets, loopback-only
    published ports, authenticated Grafana, optional Caddy local-CA TLS, health/resource bounds,
-   complete shared Prometheus coverage, and 24-hour Tempo trace retention are enforced by
+   complete shared Prometheus coverage, 24-hour Tempo trace retention, and fail-open application
+   ingress when observability services are unavailable are enforced by
    `automation/validate_platform_stack.py` in every repository check lane.
 7. The enterprise backend refactor baseline foundation is active. The report-only generator
    `automation/generate_enterprise_backend_quality_baseline.py` writes measured quality artifacts

@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 358694
+    "total_source_lines": 358767
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,8 +51,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 275,
-        "line": 213,
+        "end_line": 304,
+        "line": 242,
         "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 210,
-        "line": 139,
+        "end_line": 239,
+        "line": 168,
         "lines": 72,
         "name": "_validate_observability",
         "path": "automation/validate_platform_stack.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2857
+    "python_function_count": 2861
   },
-  "generated_at_utc": "2026-08-24T20:14:35Z",
+  "generated_at_utc": "2026-08-25T02:22:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1001,
+    "collected_tests": 1006,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1001 tests collected in 1.27s"
+    "summary": "1006 tests collected in 1.03s"
   }
 }
