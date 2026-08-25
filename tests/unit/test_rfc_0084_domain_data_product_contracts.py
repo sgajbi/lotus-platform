@@ -546,6 +546,12 @@ def test_rfc_0084_slice_1_contract_family_is_present_and_governed() -> None:
         == "domain-data-product-consumers"
     )
     assert consumer_schema["properties"]["governed_by_rfc"]["const"] == "RFC-0084"
+    condition_schema = consumer_schema["$defs"]["failurePostureCondition"]
+    assert condition_schema["properties"]["posture"]["$ref"] == "#/$defs/failurePosture"
+    assert (
+        "failure_posture_conditions"
+        in consumer_schema["$defs"]["dependencyEntry"]["properties"]
+    )
     assert "platform-contracts/domain-data-products/" in evidence
     assert "mandatory slice review" in evidence.lower()
 
@@ -1064,6 +1070,29 @@ def test_rfc_0084_validator_rejects_current_dependency_with_target_version() -> 
         f"{path}: dependencies[0].migration_posture.target_product_version "
         "must be null or omitted when status is current"
     ) in issues
+
+
+def test_rfc_0084_validator_rejects_malformed_failure_posture_condition() -> None:
+    validator = _load_validator_module()
+    path = Path("lotus-risk-consumers.v1.json")
+    payload = _consumer_contract_with_migration_posture({"status": "current"})
+    payload["dependencies"][0]["failure_posture_conditions"] = [
+        {
+            "condition": "",
+            "posture": "invented_posture",
+            "reason_codes": ["DUPLICATE", "DUPLICATE"],
+            "behavior": "",
+        }
+    ]
+
+    issues = validator.validate_consumer_contract(path, payload)
+
+    assert any("condition must be a non-empty string" in issue for issue in issues)
+    assert any(
+        "posture must use a governed failure posture" in issue for issue in issues
+    )
+    assert any("reason_codes must not contain duplicates" in issue for issue in issues)
+    assert any("behavior must be a non-empty string" in issue for issue in issues)
 
 
 def test_rfc_0084_validator_rejects_incomplete_approved_transition() -> None:

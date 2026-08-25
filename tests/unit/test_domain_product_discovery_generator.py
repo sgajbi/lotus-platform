@@ -45,9 +45,7 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
         for consumer in catalog["consumers"]
         for dependency in consumer["dependencies"]
     }
-    products_by_id = {
-        product["product_id"]: product for product in catalog["products"]
-    }
+    products_by_id = {product["product_id"]: product for product in catalog["products"]}
 
     assert catalog["contract_id"] == "lotus-domain-product-catalog"
     assert catalog["governed_by_rfcs"] == ["RFC-0084", "RFC-0088"]
@@ -76,21 +74,26 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
         "scope_level": "portfolio",
         "supports_bulk": True,
     }
-    assert products_by_id["lotus-core:IngestionEvidenceBundle:v1"][
-        "request_scope"
-    ] == {
+    assert products_by_id["lotus-core:IngestionEvidenceBundle:v1"]["request_scope"] == {
         "scope_level": "ingestion_job",
         "supports_bulk": False,
     }
-    assert "job_id" in products_by_id["lotus-core:IngestionEvidenceBundle:v1"][
-        "identifier_refs"
-    ]
-    assert "run_id" in products_by_id[
-        "lotus-core:ReconciliationEvidenceBundle:v1"
-    ]["identifier_refs"]
-    assert "portfolio_manager_id" in products_by_id[
-        "lotus-core:PortfolioManagerBookMembership:v1"
-    ]["identifier_refs"]
+    assert (
+        "job_id"
+        in products_by_id["lotus-core:IngestionEvidenceBundle:v1"]["identifier_refs"]
+    )
+    assert (
+        "run_id"
+        in products_by_id["lotus-core:ReconciliationEvidenceBundle:v1"][
+            "identifier_refs"
+        ]
+    )
+    assert (
+        "portfolio_manager_id"
+        in products_by_id["lotus-core:PortfolioManagerBookMembership:v1"][
+            "identifier_refs"
+        ]
+    )
     assert catalog["product_count"] == len(catalog["products"])
     assert catalog["dependency_count"] == sum(
         consumer["dependency_count"] for consumer in catalog["consumers"]
@@ -109,6 +112,59 @@ def test_domain_product_discovery_generator_builds_catalog_from_governed_declara
         "| `lotus-risk` | `ReturnsSeriesBundle` | `lotus-performance` | `v1` |"
         in markdown
     )
+
+
+def test_domain_product_discovery_preserves_conditional_failure_posture() -> None:
+    generator = _load_generator_module()
+    condition = {
+        "condition": "period=SI without an explicit start",
+        "posture": "fail_closed",
+        "reason_codes": ["PERFORMANCE_INCEPTION_UNAVAILABLE"],
+        "behavior": "Do not submit the analytics request.",
+    }
+    dependency = {
+        "producer_repository": "lotus-core",
+        "product_name": "PortfolioAnalyticsReference",
+        "required_product_version": "v1",
+        "required_trust_metadata": ["as_of_date"],
+        "migration_posture": {"status": "current"},
+        "consumption_mode": "api_read",
+        "business_purpose": "Resolve the analytics reference.",
+        "validation_lanes": ["feature"],
+        "failure_posture": "fail_closed",
+        "failure_posture_conditions": [condition],
+    }
+
+    catalog_dependency = generator._build_dependency_entry(dependency)
+    assert catalog_dependency["failure_posture_conditions"] == [condition]
+
+    catalog = {
+        "governed_by_rfcs": ["RFC-0084"],
+        "generated_at_utc": CHECKED_IN_GENERATED_AT,
+        "repositories": [{"repository": "lotus-gateway"}],
+        "products": [],
+        "consumers": [
+            {
+                "consumer_repository": "lotus-gateway",
+                "dependencies": [catalog_dependency],
+            }
+        ],
+    }
+    graph = generator._build_graph(catalog)
+    edge = next(edge for edge in graph["edges"] if edge["edge_type"] == "consumes")
+    assert edge["failure_posture_conditions"] == [condition]
+
+    markdown = generator._render_catalog_markdown(
+        {
+            "generated_at_utc": CHECKED_IN_GENERATED_AT,
+            "source_declaration_directory": "contracts/domain-data-products",
+            "product_count": 0,
+            "dependency_count": 1,
+            "products": [],
+            "consumers": catalog["consumers"],
+        }
+    )
+    assert "period=SI without an explicit start" in markdown
 
 
 def test_domain_product_source_manifest_promotes_repo_native_sources_to_catalog() -> (
@@ -185,9 +241,9 @@ def test_domain_product_discovery_can_use_explicit_source_root(
             / "lotus-manage-products.v1.json"
         ).read_text(encoding="utf-8")
     )
-    source_payload["products"][0]["freshness_policy"][
-        "max_allowed_age_description"
-    ] = "Source root override proof freshness posture."
+    source_payload["products"][0]["freshness_policy"]["max_allowed_age_description"] = (
+        "Source root override proof freshness posture."
+    )
     overridden_product_name = source_payload["products"][0]["product_name"]
 
     source_root = tmp_path / "federated-main"
@@ -215,9 +271,9 @@ def test_domain_product_discovery_can_use_explicit_source_root(
     manifest_path = tmp_path / "domain-product-source-manifest.v1.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
-    assert generator.validate_source_manifest(
-        manifest_path, source_root=source_root
-    ) == []
+    assert (
+        generator.validate_source_manifest(manifest_path, source_root=source_root) == []
+    )
 
     catalog, _, _ = generator.generate_discovery_artifacts(
         DECLARATION_DIRECTORY,
@@ -231,9 +287,10 @@ def test_domain_product_discovery_can_use_explicit_source_root(
         for product in catalog["products"]
         if product["product_name"] == overridden_product_name
     )
-    assert product["freshness_policy"][
-        "max_allowed_age_description"
-    ] == "Source root override proof freshness posture."
+    assert (
+        product["freshness_policy"]["max_allowed_age_description"]
+        == "Source root override proof freshness posture."
+    )
     assert product["source_path"].endswith(
         "lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json"
     )

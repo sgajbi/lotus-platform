@@ -95,7 +95,10 @@ def _product_matches_filters(
     approved_consumer: str | None,
     lifecycle_status: str | None,
 ) -> bool:
-    if producer_repository and product.get("producer_repository") != producer_repository:
+    if (
+        producer_repository
+        and product.get("producer_repository") != producer_repository
+    ):
         return False
     if approved_consumer and approved_consumer not in product.get(
         "approved_consumers", []
@@ -610,7 +613,7 @@ def _build_product_entry(
 
 
 def _build_dependency_entry(dependency: dict[str, Any]) -> dict[str, Any]:
-    return {
+    entry = {
         "dependency_id": _product_id(
             dependency["producer_repository"],
             dependency["product_name"],
@@ -626,6 +629,9 @@ def _build_dependency_entry(dependency: dict[str, Any]) -> dict[str, Any]:
         "validation_lanes": dependency["validation_lanes"],
         "failure_posture": dependency["failure_posture"],
     }
+    if "failure_posture_conditions" in dependency:
+        entry["failure_posture_conditions"] = dependency["failure_posture_conditions"]
+    return entry
 
 
 def _build_catalog_from_sources(
@@ -801,6 +807,10 @@ def _build_graph(catalog: dict[str, Any]) -> dict[str, Any]:
                     "validation_lanes": dependency["validation_lanes"],
                 }
             )
+            if "failure_posture_conditions" in dependency:
+                edges[-1]["failure_posture_conditions"] = dependency[
+                    "failure_posture_conditions"
+                ]
 
     return {
         "contract_id": "lotus-domain-product-dependency-graph",
@@ -845,13 +855,27 @@ def _render_catalog_markdown(catalog: dict[str, Any]) -> str:
             f"{routes} |"
         )
 
+    has_conditional_failure_postures = any(
+        dependency.get("failure_posture_conditions")
+        for consumer in catalog["consumers"]
+        for dependency in consumer["dependencies"]
+    )
     dependency_rows = [
-        "| Consumer | Upstream Product | Producer | Version | Mode | Failure Posture |",
-        "| --- | --- | --- | --- | --- | --- |",
+        (
+            "| Consumer | Upstream Product | Producer | Version | Mode | Failure Posture | "
+            "Conditional Overrides |"
+            if has_conditional_failure_postures
+            else "| Consumer | Upstream Product | Producer | Version | Mode | Failure Posture |"
+        ),
+        (
+            "| --- | --- | --- | --- | --- | --- | --- |"
+            if has_conditional_failure_postures
+            else "| --- | --- | --- | --- | --- | --- |"
+        ),
     ]
     for consumer in catalog["consumers"]:
         for dependency in consumer["dependencies"]:
-            dependency_rows.append(
+            row = (
                 "| "
                 f"`{consumer['consumer_repository']}` | "
                 f"`{dependency['product_name']}` | "
@@ -860,6 +884,9 @@ def _render_catalog_markdown(catalog: dict[str, Any]) -> str:
                 f"`{dependency['consumption_mode']}` | "
                 f"`{dependency['failure_posture']}` |"
             )
+            if has_conditional_failure_postures:
+                row = row[:-1] + f" {_render_failure_posture_conditions(dependency)} |"
+            dependency_rows.append(row)
 
     return "\n".join(
         [
@@ -881,6 +908,16 @@ def _render_catalog_markdown(catalog: dict[str, Any]) -> str:
             *dependency_rows,
             "",
         ]
+    )
+
+
+def _render_failure_posture_conditions(dependency: dict[str, Any]) -> str:
+    conditions = dependency.get("failure_posture_conditions", [])
+    if not conditions:
+        return "None"
+    return "<br>".join(
+        f"`{condition['posture']}` when {condition['condition']}"
+        for condition in conditions
     )
 
 

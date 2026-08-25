@@ -44,6 +44,22 @@
       "type": "string",
       "enum": ["fail_closed", "degrade_to_partial", "support_only", "best_effort"]
     },
+    "failurePostureCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition", "posture", "reason_codes", "behavior"],
+      "properties": {
+        "condition": { "type": "string", "minLength": 1 },
+        "posture": { "$ref": "#/$defs/failurePosture" },
+        "reason_codes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "behavior": { "type": "string", "minLength": 1 }
+      }
+    },
     "validationLane": {
       "type": "string",
       "enum": ["feature", "pr-merge", "main-releasability", "platform-end-to-end"]
@@ -108,7 +124,12 @@
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/validationLane" }
         },
-        "failure_posture": { "$ref": "#/$defs/failurePosture" }
+        "failure_posture": { "$ref": "#/$defs/failurePosture" },
+        "failure_posture_conditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/failurePostureCondition" }
+        }
       }
     }
   }
