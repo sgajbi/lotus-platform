@@ -13,8 +13,9 @@ The stack containerises:
 - Caddy-based local ingress
 
 The ingress and Prometheus configuration bridge to host-run `lotus-risk`, `lotus-advise`,
-`lotus-ai`, `lotus-archive`, and `lotus-render` through `host.docker.internal`. Those applications
-are observed and routed here but are not started by this Compose project.
+`lotus-ai`, `lotus-archive`, and `lotus-render` through `host.docker.internal`. Containerized
+`lotus-idea` also consumes the host-run Risk, Advise, and AI services through that governed bridge.
+Those applications are observed and routed here but are not started by this Compose project.
 
 ## Ownership boundaries
 

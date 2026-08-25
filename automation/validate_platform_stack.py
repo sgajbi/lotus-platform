@@ -253,6 +253,22 @@ def _validate_observability(
     if "host.docker.internal:host-gateway" not in ingress_extra_hosts:
         issues.append("Dev ingress must map host.docker.internal through host-gateway")
 
+    for service_name, raw_service in services.items():
+        service = _as_map(raw_service)
+        environment = _environment_map(service)
+        uses_host_bridge = any(
+            isinstance(value, str) and "host.docker.internal" in value
+            for value in environment.values()
+        )
+        if uses_host_bridge and (
+            "host.docker.internal:host-gateway"
+            not in _as_list(service.get("extra_hosts"))
+        ):
+            issues.append(
+                f"{service_name} references host.docker.internal and must map it "
+                "through host-gateway"
+            )
+
 
 def _validate_security(
     stack_root: Path, services: dict[str, Any], issues: list[str]

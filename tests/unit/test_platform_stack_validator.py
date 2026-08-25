@@ -416,6 +416,12 @@ def test_validator_rejects_late_umask_and_legacy_manage_volume(tmp_path: Path) -
             ("Dev ingress must map host.docker.internal through host-gateway",),
         ),
         (
+            ("services", "lotus-idea", "extra_hosts"),
+            (
+                "lotus-idea references host.docker.internal and must map it through host-gateway",
+            ),
+        ),
+        (
             ("services", "dev-ingress", "depends_on"),
             (
                 "dev-ingress must depend on application service lotus-gateway",
