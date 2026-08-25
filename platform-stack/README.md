@@ -56,9 +56,9 @@ Clear that value only when initializing a fresh database; when legacy data matte
 dump/restore migration path below and set an operator-managed secret explicitly. Database
 usernames, passwords, and database names are embedded in PostgreSQL connection URIs and must use
 only letters, numbers, dot, underscore, tilde, and hyphen; bootstrap rejects other characters
-before changing the file. Tracked service environments use mapping form; list-form environments
-are validator-rejected so credential and DSN scanning cannot be bypassed through alternate Compose
-syntax.
+before changing the file. Tracked service environments in the base file and every supported overlay
+use mapping form; list-form environments are validator-rejected so credential and DSN scanning
+cannot be bypassed through alternate Compose syntax or profiles.
 
 ### Upgrade from the pre-hardening stack
 

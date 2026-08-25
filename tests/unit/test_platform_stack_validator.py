@@ -78,6 +78,36 @@ def test_validator_rejects_list_form_environment_before_secret_scanning(
     )
 
 
+def test_validator_scans_every_supported_overlay_for_environment_secrets(
+    tmp_path: Path,
+) -> None:
+    stack = _copy_stack(tmp_path)
+    host_ports_path = stack / "docker-compose.host-ports.yml"
+    host_ports = _read_yaml(host_ports_path)
+    host_ports["services"]["grafana"]["environment"] = [
+        "GRAFANA_ADMIN_PASSWORD=tracked-password"
+    ]
+    _write_yaml(host_ports_path, host_ports)
+
+    tls_path = stack / "docker-compose.tls.yml"
+    tls = _read_yaml(tls_path)
+    tls["services"]["dev-ingress"]["environment"] = {
+        "DATABASE_URL": "postgresql://operator:tracked-password@db/app"
+    }
+    _write_yaml(tls_path, tls)
+
+    issues = validate_stack(stack)
+
+    assert (
+        "docker-compose.host-ports.yml:grafana.environment must use mapping form "
+        "for deterministic validation"
+    ) in issues
+    assert (
+        "docker-compose.tls.yml:dev-ingress.DATABASE_URL contains literal DSN credentials"
+        in issues
+    )
+
+
 def test_validator_rejects_literal_dsn_credentials(tmp_path: Path) -> None:
     stack = _copy_stack(tmp_path)
     _mutate_compose(

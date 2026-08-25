@@ -102,12 +102,21 @@ def _has_resource_limit(service: dict[str, Any]) -> bool:
     return bool(limits.get("cpus") and limits.get("memory"))
 
 
-def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None:
+def _validate_secret_values(
+    services: dict[str, Any],
+    issues: list[str],
+    *,
+    source_name: str | None = None,
+) -> None:
     for service_name, service in services.items():
+        service_reference = (
+            f"{source_name}:{service_name}" if source_name else service_name
+        )
         raw_environment = service.get("environment")
         if raw_environment is not None and not isinstance(raw_environment, dict):
             issues.append(
-                f"{service_name}.environment must use mapping form for deterministic validation"
+                f"{service_reference}.environment must use mapping form "
+                "for deterministic validation"
             )
             continue
         for key, value in _environment_map(service).items():
@@ -116,7 +125,7 @@ def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None
                     value
                 ):
                     issues.append(
-                        f"{service_name}.{key} must use required environment interpolation"
+                        f"{service_reference}.{key} must use required environment interpolation"
                     )
             if isinstance(value, str) and "://" in value:
                 contains_literal_credentials = bool(
@@ -128,7 +137,7 @@ def _validate_secret_values(services: dict[str, Any], issues: list[str]) -> None
                     )
                 if contains_literal_credentials:
                     issues.append(
-                        f"{service_name}.{key} contains literal DSN credentials"
+                        f"{service_reference}.{key} contains literal DSN credentials"
                     )
 
 
@@ -370,9 +379,16 @@ def validate_stack(stack_root: Path = DEFAULT_STACK_ROOT) -> list[str]:
 
     _validate_security(stack_root, services, issues)
     _validate_port_bindings(compose, issues)
-    _validate_port_bindings(
-        _read_yaml(stack_root / "docker-compose.host-ports.yml"), issues
-    )
+    for overlay_path in sorted(stack_root.glob("docker-compose*.yml")):
+        if overlay_path.name == "docker-compose.yml":
+            continue
+        overlay = _read_yaml(overlay_path)
+        _validate_secret_values(
+            _as_map(overlay.get("services")),
+            issues,
+            source_name=overlay_path.name,
+        )
+        _validate_port_bindings(overlay, issues)
     _validate_service_controls(services, issues)
     _validate_observability(stack_root, services, issues)
     _validate_legacy_volume_adoption(stack_root, issues)
