@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 358767
+    "total_source_lines": 358794
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,8 +51,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 304,
-        "line": 242,
+        "end_line": 310,
+        "line": 248,
         "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 12,
-        "end_line": 239,
-        "line": 168,
+        "end_line": 245,
+        "line": 174,
         "lines": 72,
         "name": "_validate_observability",
         "path": "automation/validate_platform_stack.py"
@@ -179,18 +179,18 @@
       },
       {
         "complexity": 12,
+        "end_line": 132,
+        "line": 105,
+        "lines": 28,
+        "name": "_validate_secret_values",
+        "path": "automation/validate_platform_stack.py"
+      },
+      {
+        "complexity": 12,
         "end_line": 215,
         "line": 199,
         "lines": 17,
         "name": "_resolve_pointer",
-        "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
-      },
-      {
-        "complexity": 11,
-        "end_line": 315,
-        "line": 239,
-        "lines": 77,
-        "name": "_compare",
         "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
       }
     ],
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2861
+    "python_function_count": 2863
   },
-  "generated_at_utc": "2026-08-25T02:22:10Z",
+  "generated_at_utc": "2026-08-25T02:53:19Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1006,
+    "collected_tests": 1007,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1006 tests collected in 1.03s"
+    "summary": "1007 tests collected in 0.93s"
   }
 }

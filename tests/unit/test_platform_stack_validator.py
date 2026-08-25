@@ -59,6 +59,25 @@ def test_validator_rejects_a_secret_default(tmp_path: Path) -> None:
     )
 
 
+def test_validator_rejects_list_form_environment_before_secret_scanning(
+    tmp_path: Path,
+) -> None:
+    stack = _copy_stack(tmp_path)
+
+    def use_ambiguous_environment_form(compose: dict) -> None:
+        compose["services"]["lotus-manage-postgres"]["environment"] = [
+            "POSTGRES_USER=lotus_manage",
+            "POSTGRES_PASSWORD=tracked-password",
+        ]
+
+    _mutate_compose(stack, use_ambiguous_environment_form)
+
+    assert (
+        "lotus-manage-postgres.environment must use mapping form for deterministic validation"
+        in validate_stack(stack)
+    )
+
+
 def test_validator_rejects_literal_dsn_credentials(tmp_path: Path) -> None:
     stack = _copy_stack(tmp_path)
     _mutate_compose(
