@@ -718,7 +718,8 @@
         "lotus-risk",
         "lotus-report",
         "lotus-manage",
-        "lotus-idea"
+        "lotus-idea",
+        "lotus-gateway"
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/benchmark-assignment"
@@ -851,7 +852,8 @@
       "security_profile_ref": "system_access:reference_internal:retain_for_source_audit:audit_system_access",
       "approved_consumers": [
         "lotus-performance",
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-gateway"
       ],
       "current_routes": [
         "/integration/benchmarks/{benchmark_id}/definition",
@@ -1982,7 +1984,8 @@
       },
       "security_profile_ref": "system_access:client_sensitive:retain_for_client_record:audit_system_access",
       "approved_consumers": [
-        "lotus-manage"
+        "lotus-manage",
+        "lotus-gateway"
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/external-order-execution-acknowledgement"
@@ -2789,7 +2792,8 @@
       "security_profile_ref": "system_access:client_confidential:retain_for_client_record:audit_system_access",
       "approved_consumers": [
         "lotus-performance",
-        "lotus-risk"
+        "lotus-risk",
+        "lotus-gateway"
       ],
       "current_routes": [
         "/integration/portfolios/{portfolio_id}/analytics/reference"
