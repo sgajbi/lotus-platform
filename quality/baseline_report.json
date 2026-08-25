@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 359503
+    "total_source_lines": 359888
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2881
+    "python_function_count": 2885
   },
-  "generated_at_utc": "2026-08-25T15:35:22Z",
+  "generated_at_utc": "2026-08-25T15:55:03Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1692,
+      "lines": 1699,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -717,13 +717,28 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1364,
+        "line": 622,
         "path": "automation/README.md",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 1370,
+        "line": 627,
         "path": "automation/README.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 1371,
+        "path": "automation/README.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 1377,
+        "path": "automation/README.md",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 124,
+        "path": "automation/Service-Refresh.ps1",
         "signal": "sensitive-keyword-review"
       },
       {
@@ -770,27 +785,12 @@
         "line": 424,
         "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 497,
-        "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 25,
-        "path": "automation/validate_auto_merge_releasability.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 26,
-        "path": "automation/validate_auto_merge_releasability.py",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1027,
+    "collected_tests": 1031,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1027 tests collected in 3.57s"
+    "summary": "1031 tests collected in 0.97s"
   }
 }
