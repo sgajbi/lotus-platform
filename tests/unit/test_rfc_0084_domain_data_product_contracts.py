@@ -1095,6 +1095,27 @@ def test_rfc_0084_validator_rejects_malformed_failure_posture_condition() -> Non
     assert any("behavior must be a non-empty string" in issue for issue in issues)
 
 
+def test_rfc_0084_validator_reports_non_string_conditional_failure_posture() -> None:
+    validator = _load_validator_module()
+    path = Path("lotus-risk-consumers.v1.json")
+    payload = _consumer_contract_with_migration_posture({"status": "current"})
+    payload["dependencies"][0]["failure_posture_conditions"] = [
+        {
+            "condition": "the upstream response is incomplete",
+            "posture": [],
+            "reason_codes": ["UPSTREAM_DATA_INCOMPLETE"],
+            "behavior": "Do not treat partial data as authoritative.",
+        }
+    ]
+
+    issues = validator.validate_consumer_contract(path, payload)
+
+    assert (
+        f"{path}: dependencies[0].failure_posture_conditions[0].posture "
+        "must use a governed failure posture"
+    ) in issues
+
+
 def test_rfc_0084_validator_rejects_incomplete_approved_transition() -> None:
     validator = _load_validator_module()
     path = Path("lotus-risk-consumers.v1.json")

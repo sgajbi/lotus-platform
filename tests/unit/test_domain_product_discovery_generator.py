@@ -165,6 +165,11 @@ def test_domain_product_discovery_preserves_conditional_failure_posture() -> Non
         }
     )
     assert "period=SI without an explicit start" in markdown
+    assert (
+        "| `lotus-gateway` | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | "
+        "`api_read` | `fail_closed` | `fail_closed` when period=SI without an explicit start |"
+        in markdown
+    )
 
 
 def test_domain_product_source_manifest_promotes_repo_native_sources_to_catalog() -> (
