@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-25T03:08:56Z`
+Generated: `2026-08-25T04:11:10Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `894`
-- Total source lines: `358865`
+- Total source lines: `359082`
 - Python files: `228`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -33,13 +33,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/New-Lotus-Service.ps1 | 5950 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2396 | .py |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2425 | .py |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1854 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1785 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2864`
+- Python functions: `2868`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -51,10 +51,10 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 15 | 58 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
 | automation/validate_auto_merge_releasability.py | _merged_pr_dispatch_violations | 226 | 15 | 30 |
 | codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py | validate | 64 | 14 | 124 |
-| automation/background_task_cancellation.py | _projects_from_contract | 672 | 14 | 48 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1009`
+- Unit tests collected: `1011`
 - Collection command return code: `0`
-- Collection summary: `1009 tests collected in 1.25s`
+- Collection summary: `1011 tests collected in 1.46s`
 
 ## Security Baseline
 

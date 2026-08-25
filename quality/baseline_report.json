@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 358865
+    "total_source_lines": 359082
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -80,6 +80,14 @@
         "lines": 74,
         "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
+      },
+      {
+        "complexity": 15,
+        "end_line": 1330,
+        "line": 1273,
+        "lines": 58,
+        "name": "_validate_dependency_failure_posture_conditions",
+        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       },
       {
         "complexity": 15,
@@ -184,14 +192,6 @@
         "lines": 37,
         "name": "_verify_container_provenance",
         "path": "automation/background_task_cancellation.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 215,
-        "line": 199,
-        "lines": 17,
-        "name": "_resolve_pointer",
-        "path": "codex/skills/lotus-ci-enforcement-governance/scripts/endpoint_example_parity.py"
       }
     ],
     "largest_functions": [
@@ -261,8 +261,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2292,
-        "line": 2023,
+        "end_line": 2321,
+        "line": 2052,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -349,8 +349,8 @@
       },
       {
         "complexity": 4,
-        "end_line": 2020,
-        "line": 1886,
+        "end_line": 2049,
+        "line": 1915,
         "lines": 135,
         "name": "test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2864
+    "python_function_count": 2868
   },
-  "generated_at_utc": "2026-08-25T03:08:56Z",
+  "generated_at_utc": "2026-08-25T04:11:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,19 +398,19 @@
       "suffix": ".json"
     },
     {
-      "lines": 2396,
+      "lines": 2425,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
+      "suffix": ".py"
+    },
+    {
+      "lines": 1854,
+      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
     {
       "lines": 1818,
       "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1785,
-      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
-      "suffix": ".py"
     },
     {
       "lines": 1735,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1009,
+    "collected_tests": 1011,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-platform-rfc509\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1009 tests collected in 1.25s"
+    "summary": "1011 tests collected in 1.46s"
   }
 }
