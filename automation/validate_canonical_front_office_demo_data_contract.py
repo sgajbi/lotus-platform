@@ -74,6 +74,7 @@ REQUIRED_ECONOMIC_INVARIANTS = {
 REQUIRED_SEED_STEPS = {
     "manage-refresh-from-core",
     "manage-monitoring-run-once",
+    "gateway-date-aligned-cash-evidence",
     "manage-mandate-health-source-contexts",
     "manage-action-register-stateful-simulation",
     "manage-action-register-workflow-posture",
@@ -357,6 +358,8 @@ def _validate_seed_script(errors: list[str], seed_script: str) -> None:
         "X-Service-Identity",
         "X-Capabilities",
         "manage.write",
+        "resolve_canonical_cash_evidence.py",
+        "cash_weight = [string]$summary.cash_evidence.normalized_cash_weight",
     ):
         if required not in seed_script:
             errors.append(f"Invoke-DpmCommandCenterSeed.ps1 must include {required}")
