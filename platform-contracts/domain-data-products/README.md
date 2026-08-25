@@ -106,7 +106,9 @@ Contract-family rules:
 
 1. producer declarations live in the owning repository once repo-native rollout is complete,
 2. producer declarations are repo-owned in content but platform-owned in schema and validation,
-3. consumer declarations must remain explicit, version-aware, and trust-metadata-aware,
+3. consumer declarations must remain explicit, version-aware, trust-metadata-aware, and must
+   publish conditional failure-posture overrides when the effective behavior depends on request
+   context,
 4. this contract family governs ownership, lifecycle, trust metadata, and dependency posture rather
    than runtime/demo-only contracts.
 5. generated discovery artifacts must be regenerated from this contract family rather than edited

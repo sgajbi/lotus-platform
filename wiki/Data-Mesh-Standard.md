@@ -15,6 +15,7 @@ maturity matrix, and operating report; `lotus-gateway` publishes read-only disco
 | Workbench role | Workbench shows discovery, lifecycle, dependency, and trust posture through Gateway/BFF. |
 | Certification | Catalog inclusion is not certification. Certification requires runtime trust telemetry, policies, Gateway publication, Workbench discovery, evidence packs, and CI proof. |
 | Request scope | Scope names the canonical product grain. Bulk is true only for a primary collection/window; one aggregate remains non-bulk even when it contains nested rows. Material grain identities must be declared and match the serving route. |
+| Failure posture | Consumers declare a base failure posture and publish request-context conditions when the effective behavior is a bounded partial response or another governed override. Catalog and graph projections preserve these conditions for discovery. |
 
 ## Ecosystem Map
 

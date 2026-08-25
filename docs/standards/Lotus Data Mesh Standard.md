@@ -74,6 +74,7 @@ A product is mesh certified only when all required evidence is present and curre
 | Access policy | Mesh access policy defines tenant scope, allowed roles, approved use cases, denial posture, audit owner, and Gateway-only publication. |
 | Evidence policy | Mesh evidence policy defines audience filtering and prevents restricted paths, source payloads, or sensitive telemetry from leaking to customer-authorized evidence. |
 | Gateway publication | Gateway publishes generated platform evidence through read-only APIs without becoming a registry or source of product truth. |
+| Failure posture discovery | Consumer declarations publish a base failure posture and any request-context overrides; generated catalog and graph artifacts preserve those overrides so Gateway and downstream consumers can discover the effective behavior. |
 | Workbench discovery | Workbench consumes Gateway/BFF only and shows product lifecycle, certification, dependency, trust, unavailable, stale, and error states truthfully. |
 | Supported-feature promotion | Product capability is promoted only after code, tests, runtime proof, documentation, and CI evidence exist. |
 

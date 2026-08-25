@@ -59,6 +59,9 @@ ALLOWED_SERVING_PLANES = frozenset(
         "reporting_service",
     }
 )
+ALLOWED_FAILURE_POSTURES = frozenset(
+    {"fail_closed", "degrade_to_partial", "support_only", "best_effort"}
+)
 
 REQUIRED_PRODUCT_FIELDS = {
     "product_name",
@@ -1267,6 +1270,66 @@ def _validate_dependency_migration_posture(
     )
 
 
+def _validate_dependency_failure_posture_conditions(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    dependency: dict,
+) -> None:
+    conditions = dependency.get("failure_posture_conditions")
+    if conditions is None:
+        return
+    if not _is_non_empty_list(conditions):
+        _append_issue(
+            issues,
+            path,
+            f"dependencies[{index}].failure_posture_conditions must be a non-empty array when present",
+        )
+        return
+
+    for condition_index, condition in enumerate(conditions):
+        prefix = f"dependencies[{index}].failure_posture_conditions[{condition_index}]"
+        if not isinstance(condition, dict):
+            _append_issue(issues, path, f"{prefix} must be an object")
+            continue
+        required = {"condition", "posture", "reason_codes", "behavior"}
+        missing = sorted(required - set(condition))
+        if missing:
+            _append_issue(
+                issues, path, f"{prefix} missing required fields: {', '.join(missing)}"
+            )
+            continue
+        if (
+            not isinstance(condition["condition"], str)
+            or not condition["condition"].strip()
+        ):
+            _append_issue(
+                issues, path, f"{prefix}.condition must be a non-empty string"
+            )
+        if condition["posture"] not in ALLOWED_FAILURE_POSTURES:
+            _append_issue(
+                issues, path, f"{prefix}.posture must use a governed failure posture"
+            )
+        reason_codes = condition["reason_codes"]
+        if not _is_non_empty_list(reason_codes) or any(
+            not isinstance(reason_code, str) or not reason_code.strip()
+            for reason_code in reason_codes
+        ):
+            _append_issue(
+                issues, path, f"{prefix}.reason_codes must be non-empty strings"
+            )
+        elif len(set(reason_codes)) != len(reason_codes):
+            _append_issue(
+                issues, path, f"{prefix}.reason_codes must not contain duplicates"
+            )
+        if (
+            not isinstance(condition["behavior"], str)
+            or not condition["behavior"].strip()
+        ):
+            _append_issue(issues, path, f"{prefix}.behavior must be a non-empty string")
+
+
 def _validate_current_dependency_migration_posture(
     issues: list[str],
     path: Path,
@@ -1354,6 +1417,12 @@ def _validate_consumer_dependency(
         trust_metadata_keys=trust_metadata_keys,
     )
     _validate_dependency_migration_posture(
+        issues,
+        path,
+        index=index,
+        dependency=dependency,
+    )
+    _validate_dependency_failure_posture_conditions(
         issues,
         path,
         index=index,
