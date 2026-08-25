@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-25T04:18:38Z`
+Generated: `2026-08-25T04:22:32Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `894`
-- Total source lines: `359109`
+- Total source lines: `359154`
 - Python files: `228`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -33,13 +33,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/New-Lotus-Service.ps1 | 5950 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2446 | .py |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1855 | .py |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2484 | .py |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1862 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2869`
+- Python functions: `2871`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -49,8 +49,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 17 | 66 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 16 | 59 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
 | automation/validate_auto_merge_releasability.py | _merged_pr_dispatch_violations | 226 | 15 | 30 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1012`
+- Unit tests collected: `1014`
 - Collection command return code: `0`
-- Collection summary: `1012 tests collected in 1.07s`
+- Collection summary: `1014 tests collected in 0.71s`
 
 ## Security Baseline
 

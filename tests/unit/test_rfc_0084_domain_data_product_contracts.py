@@ -1116,6 +1116,44 @@ def test_rfc_0084_validator_reports_non_string_conditional_failure_posture() -> 
     ) in issues
 
 
+def test_rfc_0084_validator_rejects_null_failure_posture_conditions() -> None:
+    validator = _load_validator_module()
+    path = Path("lotus-risk-consumers.v1.json")
+    payload = _consumer_contract_with_migration_posture({"status": "current"})
+    payload["dependencies"][0]["failure_posture_conditions"] = None
+
+    issues = validator.validate_consumer_contract(path, payload)
+
+    assert (
+        f"{path}: dependencies[0].failure_posture_conditions "
+        "must be a non-empty array when present"
+    ) in issues
+
+
+def test_rfc_0084_validator_rejects_unsupported_failure_posture_condition_fields() -> (
+    None
+):
+    validator = _load_validator_module()
+    path = Path("lotus-risk-consumers.v1.json")
+    payload = _consumer_contract_with_migration_posture({"status": "current"})
+    payload["dependencies"][0]["failure_posture_conditions"] = [
+        {
+            "condition": "the upstream response is incomplete",
+            "posture": "fail_closed",
+            "reason_codes": ["UPSTREAM_DATA_INCOMPLETE"],
+            "behavior": "Do not treat partial data as authoritative.",
+            "unreviewed_override": True,
+        }
+    ]
+
+    issues = validator.validate_consumer_contract(path, payload)
+
+    assert (
+        f"{path}: dependencies[0].failure_posture_conditions[0] "
+        "has unsupported fields: unreviewed_override"
+    ) in issues
+
+
 def test_rfc_0084_validator_rejects_incomplete_approved_transition() -> None:
     validator = _load_validator_module()
     path = Path("lotus-risk-consumers.v1.json")
