@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,20 +48,32 @@ def _fake_docker(tmp_path: Path, body: str) -> Path:
 
 
 def _run_service_refresh(
-    tmp_path: Path, fake_docker: Path, service: str
+    tmp_path: Path,
+    fake_docker: Path,
+    service: str,
+    *,
+    project_name: str = "lotus-gateway",
+    map_path: Path | None = None,
+    dry_run: bool = False,
 ) -> subprocess.CompletedProcess[str]:
-    project = tmp_path / "app"
+    project = tmp_path / project_name
     project.mkdir()
+    arguments = [
+        "-ProjectPath",
+        str(project),
+        "-Services",
+        service,
+        "-DockerCommand",
+        str(fake_docker),
+        "-HealthTimeoutSeconds",
+        "0",
+    ]
+    if map_path is not None:
+        arguments.extend(["-MapPath", str(map_path)])
+    if dry_run:
+        arguments.append("-DryRun")
     return subprocess.run(
-        _powershell_command(
-            SERVICE_REFRESH,
-            "-ProjectPath",
-            str(project),
-            "-Services",
-            service,
-            "-DockerCommand",
-            str(fake_docker),
-        ),
+        _powershell_command(SERVICE_REFRESH, *arguments),
         text=True,
         capture_output=True,
         check=False,
@@ -85,7 +98,7 @@ def test_service_refresh_fails_before_ps_when_compose_up_rejects_service(
                 "  [Console]::Error.WriteLine('no such service: missing-service')",
                 "  exit 17",
                 "}",
-                "if ($line -eq 'compose ps') {",
+                "if ($line -like 'compose ps*') {",
                 "  Add-Content -Path $commandLog -Value 'unexpected-ps-after-up-failure'",
                 "}",
                 "exit 0",
@@ -105,7 +118,7 @@ def test_service_refresh_fails_when_compose_ps_fails(tmp_path: Path) -> None:
         tmp_path,
         "\n".join(
             [
-                "if ($line -eq 'compose ps') {",
+                "if ($line -eq 'compose ps --format json lotus-gateway') {",
                 "  [Console]::Error.WriteLine('compose ps unavailable')",
                 "  exit 23",
                 "}",
@@ -120,22 +133,143 @@ def test_service_refresh_fails_when_compose_ps_fails(tmp_path: Path) -> None:
     assert "docker compose ps failed after service refresh" in result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
-        "compose ps",
+        "compose ps --format json lotus-gateway",
     ]
 
 
 def test_service_refresh_preserves_successful_explicit_service_refresh(
     tmp_path: Path,
 ) -> None:
-    fake_docker = _fake_docker(tmp_path, "exit 0")
+    fake_docker = _fake_docker(
+        tmp_path,
+        "\n".join(
+            [
+                "if ($line -eq 'compose ps --format json lotus-gateway') {",
+                '  Write-Output \'{"Service":"lotus-gateway","State":"running","Health":"healthy","Publishers":[]}\'',
+                "}",
+                "exit 0",
+            ]
+        ),
+    )
 
     result = _run_service_refresh(tmp_path, fake_docker, "lotus-gateway")
 
     assert result.returncode == 0, result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
-        "compose ps",
+        "compose ps --format json lotus-gateway",
     ]
+
+
+def test_service_refresh_applies_manage_canonical_environment_and_verifies_port(
+    tmp_path: Path,
+) -> None:
+    fake_docker = _fake_docker(
+        tmp_path,
+        "\n".join(
+            [
+                "if ($line -like 'compose up*') {",
+                '  Add-Content -Path $commandLog -Value "env:$env:LOTUS_MANAGE_HOST_PORT|$env:DPM_CORE_BASE_URL|$env:DPM_CORE_QUERY_BASE_URL|$env:DPM_WORKFLOW_ENABLED"',
+                "}",
+                "if ($line -eq 'compose ps --format json lotus-manage') {",
+                '  Write-Output \'{"Service":"lotus-manage","State":"running","Health":"healthy","Publishers":[{"TargetPort":8000,"PublishedPort":8001}]}\'',
+                "}",
+                "exit 0",
+            ]
+        ),
+    )
+
+    result = _run_service_refresh(
+        tmp_path,
+        fake_docker,
+        "lotus-manage",
+        project_name="lotus-manage",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Verified service readiness: lotus-manage" in result.stdout
+    assert _command_log(tmp_path) == [
+        "compose up -d --build lotus-manage",
+        "env:8001|http://host.docker.internal:8202|http://host.docker.internal:8201|true",
+        "compose ps --format json lotus-manage",
+    ]
+
+
+def test_service_refresh_dry_run_reports_manage_environment_and_port(
+    tmp_path: Path,
+) -> None:
+    fake_docker = _fake_docker(tmp_path, "exit 0")
+
+    result = _run_service_refresh(
+        tmp_path,
+        fake_docker,
+        "lotus-manage",
+        project_name="lotus-manage",
+        dry_run=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "LOTUS_MANAGE_HOST_PORT=8001" in result.stdout
+    assert "DPM_CORE_BASE_URL=http://host.docker.internal:8202" in result.stdout
+    assert "Expected published port: lotus-manage 8001:8000" in result.stdout
+    assert _command_log(tmp_path) == []
+
+
+def test_service_refresh_rejects_sensitive_environment_mapping(tmp_path: Path) -> None:
+    unsafe_map = tmp_path / "unsafe-service-map.json"
+    unsafe_map.write_text(
+        json.dumps(
+            {
+                "repos": [
+                    {
+                        "name": "unsafe-app",
+                        "composeEnvironment": {"API_TOKEN": "must-not-log"},
+                        "defaultServices": ["unsafe-service"],
+                        "rules": [],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    fake_docker = _fake_docker(tmp_path, "exit 0")
+
+    result = _run_service_refresh(
+        tmp_path,
+        fake_docker,
+        "unsafe-service",
+        project_name="unsafe-app",
+        map_path=unsafe_map,
+    )
+
+    assert result.returncode != 0
+    assert "cannot be governed by service refresh" in result.stderr
+    assert "must-not-log" not in result.stdout
+    assert _command_log(tmp_path) == []
+
+
+def test_service_refresh_rejects_manage_port_mismatch(tmp_path: Path) -> None:
+    fake_docker = _fake_docker(
+        tmp_path,
+        "\n".join(
+            [
+                "if ($line -eq 'compose ps --format json lotus-manage') {",
+                '  Write-Output \'{"Service":"lotus-manage","State":"running","Health":"healthy","Publishers":[{"TargetPort":8000,"PublishedPort":8000}]}\'',
+                "}",
+                "exit 0",
+            ]
+        ),
+    )
+
+    result = _run_service_refresh(
+        tmp_path,
+        fake_docker,
+        "lotus-manage",
+        project_name="lotus-manage",
+    )
+
+    assert result.returncode != 0
+    assert "does not publish required port 8001:8000" in result.stderr
 
 
 def test_service_refresh_fail_closed_behavior_is_documented() -> None:
