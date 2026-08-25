@@ -311,6 +311,8 @@ services:
     build:
       context: ${LOTUS_IDEA_REPO_PATH}
       dockerfile: Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       LOTUS_CORE_BASE_URL: http://lotus-core-control:8002
       LOTUS_CORE_QUERY_BASE_URL: http://lotus-core-query:8001

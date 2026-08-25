@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 358840
+    "total_source_lines": 358865
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,8 +51,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 319,
-        "line": 257,
+        "end_line": 335,
+        "line": 273,
         "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
@@ -64,6 +64,14 @@
         "lines": 43,
         "name": "render_results",
         "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 270,
+        "line": 183,
+        "lines": 88,
+        "name": "_validate_observability",
+        "path": "automation/validate_platform_stack.py"
       },
       {
         "complexity": 15,
@@ -152,14 +160,6 @@
         "lines": 35,
         "name": "load_issue_snapshots_from_json",
         "path": "codex/skills/lotus-app-issue-discovery/scripts/audit_rfc_issue_coverage.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 254,
-        "line": 183,
-        "lines": 72,
-        "name": "_validate_observability",
-        "path": "automation/validate_platform_stack.py"
       },
       {
         "complexity": 12,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1008,
+    "collected_tests": 1009,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1008 tests collected in 0.71s"
+    "summary": "1009 tests collected in 1.25s"
   }
 }
