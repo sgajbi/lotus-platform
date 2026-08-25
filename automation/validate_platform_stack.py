@@ -16,6 +16,22 @@ DEFAULT_STACK_ROOT = ROOT / "platform-stack"
 ONE_SHOT_SERVICES = frozenset(
     {"lotus-core-kafka-topic-creator", "lotus-core-migration-runner"}
 )
+INGRESS_APPLICATION_SERVICES = frozenset(
+    {
+        "lotus-workbench",
+        "lotus-gateway",
+        "lotus-manage",
+        "lotus-core-query",
+        "lotus-core-control",
+        "lotus-core-ingestion",
+        "lotus-performance",
+        "lotus-report",
+        "lotus-idea",
+    }
+)
+FAIL_OPEN_OBSERVABILITY_SERVICES = frozenset(
+    {"prometheus", "grafana", "tempo", "otel-collector"}
+)
 EXPECTED_OTEL_SERVICE_NAMES = {
     "lotus-core-query": "lotus-core-query",
     "lotus-core-control": "lotus-core-control",
@@ -130,10 +146,23 @@ def _validate_service_controls(services: dict[str, Any], issues: list[str]) -> N
 
     ingress = _as_map(services.get("dev-ingress"))
     ingress_dependencies = _as_map(ingress.get("depends_on"))
-    for dependency in ("prometheus", "grafana"):
-        condition = _as_map(ingress_dependencies.get(dependency)).get("condition")
+    for dependency in sorted(INGRESS_APPLICATION_SERVICES):
+        if dependency not in ingress_dependencies:
+            issues.append(
+                f"dev-ingress must depend on application service {dependency}"
+            )
+
+    for dependency, raw_configuration in ingress_dependencies.items():
+        if dependency in FAIL_OPEN_OBSERVABILITY_SERVICES:
+            issues.append(
+                f"dev-ingress must not depend on observability service {dependency}"
+            )
+            continue
+        condition = _as_map(raw_configuration).get("condition")
         if condition != "service_healthy":
-            issues.append(f"dev-ingress must wait for healthy {dependency}")
+            issues.append(
+                f"dev-ingress must wait for healthy application service {dependency}"
+            )
 
 
 def _validate_observability(

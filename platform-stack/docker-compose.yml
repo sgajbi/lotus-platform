@@ -43,10 +43,6 @@ services:
         condition: service_healthy
       lotus-idea:
         condition: service_healthy
-      prometheus:
-        condition: service_healthy
-      grafana:
-        condition: service_healthy
     ports:
       - "127.0.0.1:${DEV_INGRESS_HTTP_PORT:-80}:80"
     volumes:
