@@ -1277,9 +1277,9 @@ def _validate_dependency_failure_posture_conditions(
     index: int,
     dependency: dict,
 ) -> None:
-    conditions = dependency.get("failure_posture_conditions")
-    if conditions is None:
+    if "failure_posture_conditions" not in dependency:
         return
+    conditions = dependency["failure_posture_conditions"]
     if not _is_non_empty_list(conditions):
         _append_issue(
             issues,
@@ -1295,6 +1295,13 @@ def _validate_dependency_failure_posture_conditions(
             continue
         required = {"condition", "posture", "reason_codes", "behavior"}
         missing = sorted(required - set(condition))
+        unexpected = sorted(set(condition) - required)
+        if unexpected:
+            _append_issue(
+                issues,
+                path,
+                f"{prefix} has unsupported fields: {', '.join(unexpected)}",
+            )
         if missing:
             _append_issue(
                 issues, path, f"{prefix} missing required fields: {', '.join(missing)}"
