@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 360033
+    "total_source_lines": 360060
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -50,10 +50,10 @@
         "path": "codex/skills/gh-address-comments/scripts/fetch_comments.py"
       },
       {
-        "complexity": 19,
-        "end_line": 97,
+        "complexity": 20,
+        "end_line": 99,
         "line": 31,
-        "lines": 67,
+        "lines": 69,
         "name": "cash_evidence_from_overview",
         "path": "automation/resolve_canonical_cash_evidence.py"
       },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1045,
+    "collected_tests": 1047,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1045 tests collected in 1.06s"
+    "summary": "1047 tests collected in 1.57s"
   }
 }

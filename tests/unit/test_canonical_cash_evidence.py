@@ -14,6 +14,7 @@ def _overview(*, portfolio_id: str, as_of_date: str, cash_weight_pct: object) ->
         "portfolio": {"portfolio_id": portfolio_id},
         "as_of_date": as_of_date,
         "effective_as_of_date": as_of_date,
+        "as_of_state": "confirmed",
         "overview": {"cash_weight_pct": cash_weight_pct},
         "warnings": [],
         "partial_failures": [],
@@ -79,6 +80,7 @@ def test_cash_evidence_normalizes_source_percentage_without_rounding(
                 "portfolio": {"portfolio_id": "PB_SG_GLOBAL_BAL_001"},
                 "as_of_date": "2026-04-10",
                 "effective_as_of_date": "2026-04-10",
+                "as_of_state": "confirmed",
                 "warnings": [],
                 "partial_failures": [],
             },
@@ -88,6 +90,7 @@ def test_cash_evidence_normalizes_source_percentage_without_rounding(
             {
                 "as_of_date": "2026-04-10",
                 "effective_as_of_date": "2026-04-10",
+                "as_of_state": "confirmed",
                 "overview": {"cash_weight_pct": Decimal("10")},
                 "warnings": [],
                 "partial_failures": [],
@@ -109,6 +112,28 @@ def test_cash_evidence_normalizes_source_percentage_without_rounding(
                 ],
             },
             "CANONICAL_CASH_SOURCE_DEGRADED",
+        ),
+        (
+            {
+                **_overview(
+                    portfolio_id="PB_SG_GLOBAL_BAL_001",
+                    as_of_date="2026-04-10",
+                    cash_weight_pct=Decimal("10"),
+                ),
+                "as_of_state": "accepted_unverified",
+            },
+            "CANONICAL_CASH_TEMPORAL_STATE_UNCONFIRMED",
+        ),
+        (
+            {
+                **_overview(
+                    portfolio_id="PB_SG_GLOBAL_BAL_001",
+                    as_of_date="2026-04-10",
+                    cash_weight_pct=Decimal("10"),
+                ),
+                "as_of_state": "unavailable",
+            },
+            "CANONICAL_CASH_TEMPORAL_STATE_UNCONFIRMED",
         ),
         (
             {
