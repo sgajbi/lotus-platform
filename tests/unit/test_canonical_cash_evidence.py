@@ -23,6 +23,10 @@ def _overview(*, portfolio_id: str, as_of_date: str, cash_weight_pct: object) ->
     [
         (Decimal("10.658553"), "0.10658553"),
         (Decimal("8.589252"), "0.08589252"),
+        (
+            Decimal("12.34567890123456789012345678901"),
+            "0.1234567890123456789012345678901",
+        ),
         (Decimal("0"), "0"),
         (Decimal("100"), "1"),
     ],
@@ -100,6 +104,30 @@ def test_cash_evidence_normalizes_source_percentage_without_rounding(
                 portfolio_id="PB_SG_GLOBAL_BAL_001",
                 as_of_date="2026-04-10",
                 cash_weight_pct="10.0",
+            ),
+            "CANONICAL_CASH_WEIGHT_INVALID",
+        ),
+        (
+            _overview(
+                portfolio_id="PB_SG_GLOBAL_BAL_001",
+                as_of_date="2026-04-10",
+                cash_weight_pct=True,
+            ),
+            "CANONICAL_CASH_WEIGHT_INVALID",
+        ),
+        (
+            _overview(
+                portfolio_id="PB_SG_GLOBAL_BAL_001",
+                as_of_date="2026-04-10",
+                cash_weight_pct=float("nan"),
+            ),
+            "CANONICAL_CASH_WEIGHT_INVALID",
+        ),
+        (
+            _overview(
+                portfolio_id="PB_SG_GLOBAL_BAL_001",
+                as_of_date="2026-04-10",
+                cash_weight_pct=float("inf"),
             ),
             "CANONICAL_CASH_WEIGHT_INVALID",
         ),

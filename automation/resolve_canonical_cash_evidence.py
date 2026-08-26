@@ -69,7 +69,10 @@ def cash_evidence_from_overview(
     if not cash_weight_pct.is_finite() or cash_weight_pct < 0 or cash_weight_pct > 100:
         raise CashEvidenceError("CANONICAL_CASH_WEIGHT_OUT_OF_RANGE")
 
-    normalized_cash_weight = cash_weight_pct / Decimal("100")
+    sign, digits, exponent = cash_weight_pct.as_tuple()
+    normalized_cash_weight = Decimal((sign, digits, exponent - 2))
+    if normalized_cash_weight == normalized_cash_weight.to_integral():
+        normalized_cash_weight = normalized_cash_weight.to_integral()
     return {
         "state": "ready",
         "source_service": "lotus-gateway",

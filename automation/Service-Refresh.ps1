@@ -131,8 +131,8 @@ function Resolve-GovernedComposeEnvironment {
     if ($name -notmatch '^[A-Z][A-Z0-9_]*$') {
       throw "Unsafe Compose environment name '$name' in service map."
     }
-    if ($name -match '(SECRET|TOKEN|PASSWORD|CREDENTIAL|PRIVATE_KEY|API_KEY)' -or $name -in @('HOME', 'USERPROFILE', 'PATH', 'COMSPEC', 'TEMP', 'TMP', 'CODEX_HOME')) {
-      throw "Sensitive or process-critical Compose environment '$name' cannot be governed by service refresh."
+    if ($name -notmatch '^(LOTUS|DPM)_[A-Z0-9_]+$') {
+      throw "Compose environment '$name' is outside the governed LOTUS_/DPM_ namespaces and cannot be governed by service refresh."
     }
     if ($value -isnot [string] -or [string]::IsNullOrWhiteSpace([string]$value)) {
       throw "Compose environment '$name' must have a non-empty string value."

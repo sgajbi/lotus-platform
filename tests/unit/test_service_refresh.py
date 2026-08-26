@@ -5,6 +5,8 @@ import subprocess
 import json
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 SERVICE_REFRESH = ROOT / "automation" / "Service-Refresh.ps1"
 TARGETED_REFRESH_SKILL = (
@@ -216,7 +218,14 @@ def test_service_refresh_dry_run_reports_manage_environment_and_port(
     assert _command_log(tmp_path) == []
 
 
-def test_service_refresh_rejects_sensitive_environment_mapping(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "environment_name",
+    ["API_TOKEN", "DB_PASS", "GIT_SSH_COMMAND", "LD_PRELOAD", "PYTHONPATH"],
+)
+def test_service_refresh_rejects_ungoverned_environment_mapping(
+    tmp_path: Path,
+    environment_name: str,
+) -> None:
     unsafe_map = tmp_path / "unsafe-service-map.json"
     unsafe_map.write_text(
         json.dumps(
@@ -224,7 +233,7 @@ def test_service_refresh_rejects_sensitive_environment_mapping(tmp_path: Path) -
                 "repos": [
                     {
                         "name": "unsafe-app",
-                        "composeEnvironment": {"API_TOKEN": "must-not-log"},
+                        "composeEnvironment": {environment_name: "must-not-log"},
                         "defaultServices": ["unsafe-service"],
                         "rules": [],
                     }
