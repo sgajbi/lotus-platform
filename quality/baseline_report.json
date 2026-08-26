@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 411,
+    "markdown_file_count": 412,
     "powershell_file_count": 69,
-    "python_file_count": 230,
-    "source_file_count": 897,
+    "python_file_count": 232,
+    "source_file_count": 900,
     "suffix_counts": {
       ".json": 138,
-      ".md": 411,
+      ".md": 412,
       ".ps1": 69,
-      ".py": 230,
+      ".py": 232,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 360236
+    "total_source_lines": 360842
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,6 +147,14 @@
       },
       {
         "complexity": 13,
+        "end_line": 224,
+        "line": 153,
+        "lines": 72,
+        "name": "audit_repository",
+        "path": "automation/gate_liveness_audit.py"
+      },
+      {
+        "complexity": 13,
         "end_line": 266,
         "line": 210,
         "lines": 57,
@@ -184,14 +192,6 @@
         "lines": 43,
         "name": "_validate_final_closure",
         "path": "automation/validate_stacked_refactor_campaign_manifest.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 231,
-        "line": 189,
-        "lines": 43,
-        "name": "fetch_checks",
-        "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2886
+    "python_function_count": 2909
   },
-  "generated_at_utc": "2026-08-26T15:08:10Z",
+  "generated_at_utc": "2026-08-26T16:27:59Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1047,
+    "collected_tests": 1065,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1047 tests collected in 2.15s"
+    "summary": "1065 tests collected in 1.60s"
   }
 }
