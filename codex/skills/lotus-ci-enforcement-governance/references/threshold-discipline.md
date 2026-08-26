@@ -5,8 +5,11 @@ one discipline to the other has produced real defects in the estate, and the mis
 in both directions.
 
 A third kind is out of scope here and must not be treated as either: a **fixed policy threshold** -
-a compliance limit, an SLO, or a target such as the `>=99%` meaningful-coverage bar. These are not
-derived from the current measurement and are not ratios. Never re-bank one to the measured value:
+a compliance limit, an SLO, or a target such as the `>=99%` meaningful-coverage bar. What separates
+these from a ratchet or a band is not their **shape** - a fixed policy threshold is often a ratio,
+as that example is - but their **source**: they are chosen independently of what the tree currently
+measures. Shape cannot classify a threshold; ask where its value came from. Never re-bank one to the
+measured value:
 that replaces a policy decision with whatever the tree happens to be today, which is how a target
 silently becomes a description.
 
@@ -78,7 +81,10 @@ Two measured instances, one week, two repositories, two different gates, one sha
 Order of operations:
 
 1. Fix the classification so the gate measures the population it claims to measure.
-2. Re-bank the ratchet downward, in the same change, to the new measured value.
+2. Re-bank the ratchet **in the direction that tightens**, in the same change, to the new measured
+   value - a ceiling *down*, a floor *up*. Say which one you are moving. A classifier correction can
+   raise the measured value of something good, and "re-bank downward" applied to a floor loosens the
+   gate it claims to tighten.
 3. Never lower a bound, widen an allowance, or add an exception to go green.
 
 ## Two failure modes to check while doing this
