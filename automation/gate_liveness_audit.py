@@ -165,12 +165,45 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
     Makefile targets by callers, which prevents command arguments from becoming graph nodes.
     """
 
+    # Strip shell comments before tokenization.  A comment in a workflow command can mention a
+    # gate without invoking it (``make ci # make release-gate manually``); crediting the text after
+    # ``#`` would conceal a real orphan.  Quoted ``#`` and escaped ``\#`` remain command data.
+    uncommented: list[str] = []
+    comment_quote: str | None = None
+    escaped = False
+    for index, character in enumerate(command):
+        if escaped:
+            uncommented.append(character)
+            escaped = False
+            continue
+        if character == "\\":
+            uncommented.append(character)
+            escaped = True
+            continue
+        if character in {'"', "'"}:
+            comment_quote = (
+                None
+                if comment_quote == character
+                else character
+                if comment_quote is None
+                else comment_quote
+            )
+            uncommented.append(character)
+            continue
+        if (
+            character == "#"
+            and comment_quote is None
+            and (index == 0 or command[index - 1].isspace() or command[index - 1] in ";|&")
+        ):
+            break
+        uncommented.append(character)
+
     # Quoted prose such as ``echo "run make release-gate manually"`` is data, not a nested
     # invocation. Replace quoted segments before tokenization; make target names do not need quotes.
     unquoted: list[str] = []
     quote: str | None = None
     escaped = False
-    for character in command:
+    for character in uncommented:
         if escaped:
             unquoted.append(" " if quote else character)
             escaped = False
@@ -316,7 +349,11 @@ def _workflow_run_commands(step_block: str) -> tuple[str, ...]:
                 break
             block_lines.append(candidate.strip())
             index += 1
-        commands.append("\n".join(block_lines))
+        # YAML folded scalars (`run: >`) present a single shell command even though the source
+        # spans lines. Literal scalars (`run: |`) intentionally preserve newlines, which retain
+        # shell command boundaries and therefore their failure semantics.
+        separator = " " if value.startswith(">") else "\n"
+        commands.append(separator.join(block_lines))
     return tuple(commands)
 
 

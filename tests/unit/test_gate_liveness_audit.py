@@ -545,6 +545,42 @@ def test_multiline_workflow_run_invokes_a_gate(tmp_path: Path) -> None:
     assert [f for f in findings if f.kind == "ORPHAN"] == []
 
 
+def test_inline_workflow_shell_comment_does_not_invoke_a_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - run: make ci # make release-gate manually\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_folded_workflow_run_scalar_invokes_a_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - run: >\n"
+                "          make\n"
+                "          release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
 def test_target_capability_combines_prerequisites_and_reporting_recipes(
     tmp_path: Path,
 ) -> None:
