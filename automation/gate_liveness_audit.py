@@ -42,6 +42,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -86,8 +87,22 @@ _RECIPE_PREFIXES = re.compile(r"^[@+-]+")
 _IGNORES_ERRORS = re.compile(r"^[@+]*-")
 
 _TARGET = re.compile(r"^([A-Za-z0-9_.-]+):\s*(.*)$")
-_SUBMAKE = re.compile(r"(?:\$\(MAKE\)|\bmake)\s+([A-Za-z0-9_.-]+)")
-_RUN_STEP_MAKE = re.compile(r"\bmake\s+([A-Za-z0-9_.-]+)")
+_MAKE_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+_MAKE_OPTIONS_REQUIRING_VALUES = {
+    "-C",
+    "--directory",
+    "-f",
+    "--file",
+    "-I",
+    "--include-dir",
+    "-o",
+    "--old-file",
+    "-W",
+    "--what-if",
+    "--eval",
+    "--jobserver-auth",
+}
+_SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
 
 
 @dataclass(frozen=True)
@@ -106,6 +121,81 @@ class Finding:
 class MakeTarget:
     prerequisites: tuple[str, ...]
     recipe: tuple[str, ...]
+
+
+def _make_invoked_targets(command: str) -> tuple[str, ...]:
+    """Return targets from make invocations, skipping options and assignments.
+
+    GNU Make accepts options before targets, so a textual ``make <word>`` regex interprets
+    ``make --silent release-gate`` as a request for ``--silent`` and misses the gate. Parse each
+    shell-bounded make invocation instead. Candidate words are still intersected with parsed
+    Makefile targets by callers, which prevents command arguments from becoming graph nodes.
+    """
+
+    # Quoted prose such as ``echo "run make release-gate manually"`` is data, not a nested
+    # invocation. Replace quoted segments before tokenization; make target names do not need quotes.
+    unquoted: list[str] = []
+    quote: str | None = None
+    escaped = False
+    for character in command:
+        if escaped:
+            unquoted.append(" " if quote else character)
+            escaped = False
+        elif character == "\\":
+            escaped = True
+            unquoted.append(" " if quote else character)
+        elif quote:
+            if character == quote:
+                quote = None
+            unquoted.append(" ")
+        elif character in {'"', "'"}:
+            quote = character
+            unquoted.append(" ")
+        else:
+            unquoted.append(character)
+    sanitized = "".join(unquoted)
+
+    try:
+        lexer = shlex.shlex(sanitized, posix=True, punctuation_chars=";&|")
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        tokens = list(lexer)
+    except ValueError:
+        tokens = sanitized.split()
+
+    invoked: list[str] = []
+    for index, command_token in enumerate(tokens):
+        normalized_command = command_token.lstrip("@+-")
+        if normalized_command not in {
+            "make",
+            "$(MAKE)",
+        } and not normalized_command.endswith("/make"):
+            continue
+        skip_option_value = False
+        options_ended = False
+        for token in tokens[index + 1 :]:
+            if _SHELL_BOUNDARY.match(token):
+                break
+            if skip_option_value:
+                skip_option_value = False
+                continue
+            if not options_ended and token == "--":
+                options_ended = True
+                continue
+            if not options_ended and token.startswith("-"):
+                option_name = token.split("=", 1)[0]
+                if (
+                    option_name in _MAKE_OPTIONS_REQUIRING_VALUES
+                    and "=" not in token
+                    and token == option_name
+                ):
+                    # Joined short forms such as ``-Csrc`` and ``-j4`` already carry the value.
+                    skip_option_value = True
+                continue
+            if _MAKE_ASSIGNMENT.match(token):
+                continue
+            invoked.append(token)
+    return tuple(invoked)
 
 
 def _join_continuations(lines: list[str]) -> list[str]:
@@ -180,7 +270,7 @@ def reachable_targets(
         stack.extend(p for p in target.prerequisites if p in targets)
         for line in target.recipe:
             stack.extend(
-                m.group(1) for m in _SUBMAKE.finditer(line) if m.group(1) in targets
+                target for target in _make_invoked_targets(line) if target in targets
             )
     return seen
 
@@ -203,7 +293,7 @@ def blocking_workflow_invocations(
         cleaned = "\n".join(lines)
         if re.search(r"continue-on-error:\s*true", cleaned):
             continue
-        invoked.update(m.group(1) for m in _RUN_STEP_MAKE.finditer(cleaned))
+        invoked.update(_make_invoked_targets(cleaned))
     return invoked & set(targets)
 
 
@@ -226,12 +316,7 @@ def blocking_roots_for(
 
 def _is_comment_or_noise(recipe_line: str) -> bool:
     stripped = _RECIPE_PREFIXES.sub("", recipe_line.strip()).strip()
-    return (
-        not stripped
-        or stripped.startswith("#")
-        or stripped.startswith("echo")
-        or stripped.startswith("mkdir")
-    )
+    return not stripped or stripped.startswith(("#", "echo", "mkdir"))
 
 
 def _final_command(command: str) -> str:
@@ -269,6 +354,74 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
         if re.search(pattern, final):
             return detail
     return None
+
+
+def _target_can_fail(
+    name: str,
+    targets: dict[str, MakeTarget],
+    memo: dict[str, bool],
+    visiting: set[str] | None = None,
+) -> bool:
+    """Whether a target has at least one failure-propagating prerequisite or recipe.
+
+    Make stops when any prerequisite or recipe line fails. Capability is therefore a target-level
+    property: a reporting line cannot make a valid failing prerequisite inert, and one valid gate
+    command is enough even when a later line writes best-effort evidence.
+    """
+
+    if name in memo:
+        return memo[name]
+    active = set() if visiting is None else visiting
+    if name in active:
+        return False
+    active.add(name)
+    target = targets[name]
+
+    if any(
+        prerequisite in targets
+        and _target_can_fail(prerequisite, targets, memo, active)
+        for prerequisite in target.prerequisites
+    ):
+        active.remove(name)
+        memo[name] = True
+        return True
+
+    for recipe_line in target.recipe:
+        if _is_comment_or_noise(recipe_line):
+            continue
+        if _cannot_fail_reason(recipe_line) is None:
+            active.remove(name)
+            memo[name] = True
+            return True
+
+    active.remove(name)
+    memo[name] = False
+    return False
+
+
+def _incapable_target_evidence(target: MakeTarget) -> tuple[str, str]:
+    """Summarize why no recipe owned by a target can supply an enforcement verdict."""
+
+    reasons: list[str] = []
+    evidence: list[str] = []
+    for recipe_line in target.recipe:
+        if _is_comment_or_noise(recipe_line):
+            if recipe_line.strip():
+                evidence.append(recipe_line.strip())
+            continue
+        reason = _cannot_fail_reason(recipe_line)
+        if reason is not None:
+            reasons.append(reason)
+            evidence.append(recipe_line.strip())
+
+    if not reasons:
+        reasons.append("the target contains only comments, setup, or no-op recipes")
+    detail = (
+        "no prerequisite or recipe propagates a non-zero enforcement verdict; "
+        + "; ".join(dict.fromkeys(reasons))
+    )
+    rendered_evidence = " | ".join(evidence)[:320] or "no executable enforcement recipe"
+    return detail, rendered_evidence
 
 
 def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
@@ -319,21 +472,29 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
                 )
             )
 
+    capability_memo: dict[str, bool] = {}
     for name in sorted(blocking):
-        for recipe_line in targets[name].recipe:
-            if _is_comment_or_noise(recipe_line):
-                continue
-            reason = _cannot_fail_reason(recipe_line)
-            if reason is not None:
-                findings.append(
-                    Finding(
-                        repository=repository,
-                        kind="CANNOT_FAIL",
-                        target=name,
-                        detail=reason,
-                        evidence=recipe_line.strip()[:160],
-                    )
+        target = targets[name]
+        direct_cannot_fail = any(
+            not _is_comment_or_noise(recipe_line)
+            and _cannot_fail_reason(recipe_line) is not None
+            for recipe_line in target.recipe
+        )
+        # Declared gates must own or inherit a verdict. Also retain the original audit's ability to
+        # catch report-named blocking targets such as `container-vulnerability-report` when their
+        # scanner is explicitly configured never to fail.
+        should_evaluate = name.endswith(GATE_SUFFIXES) or direct_cannot_fail
+        if should_evaluate and not _target_can_fail(name, targets, capability_memo):
+            detail, evidence = _incapable_target_evidence(target)
+            findings.append(
+                Finding(
+                    repository=repository,
+                    kind="CANNOT_FAIL",
+                    target=name,
+                    detail=detail,
+                    evidence=evidence,
                 )
+            )
 
     return findings, len(gates)
 
