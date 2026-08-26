@@ -499,6 +499,52 @@ def test_quoted_make_text_is_not_treated_as_an_invocation() -> None:
     assert reachable_targets(targets, ("ci",)) == {"ci"}
 
 
+def test_unquoted_echoed_make_text_is_not_treated_as_an_invocation() -> None:
+    targets = parse_makefile(
+        "ci:\n\t@echo run make release-gate manually\n\nrelease-gate:\n\tpython g.py\n"
+    )
+
+    assert reachable_targets(targets, ("ci",)) == {"ci"}
+
+
+def test_workflow_step_name_is_not_treated_as_a_make_invocation(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - name: make release-gate visible to operators\n"
+                "        run: echo not-running-the-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_multiline_workflow_run_invokes_a_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - name: governed gate\n"
+                "        run: |\n"
+                "          echo preparing\n"
+                "          make release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
 def test_target_capability_combines_prerequisites_and_reporting_recipes(
     tmp_path: Path,
 ) -> None:
