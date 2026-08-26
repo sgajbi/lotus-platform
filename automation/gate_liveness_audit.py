@@ -219,7 +219,7 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
             unquoted.append(" ")
         else:
             unquoted.append(character)
-    sanitized = "".join(unquoted).replace("\n", ";")
+    sanitized = re.sub(r"(?m)(?<!\S)#.*$", "", "".join(unquoted)).replace("\n", ";")
 
     try:
         lexer = shlex.shlex(sanitized, posix=True, punctuation_chars=";&|")
