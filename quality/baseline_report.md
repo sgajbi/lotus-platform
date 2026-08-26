@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `897`
-- Total source lines: `360157`
+- Total source lines: `360184`
 - Python files: `230`
 - PowerShell files: `69`
 - Markdown files: `411`
@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `1047`
 - Collection command return code: `0`
-- Collection summary: `1047 tests collected in 1.89s`
+- Collection summary: `1047 tests collected in 2.27s`
 
 ## Security Baseline
 
