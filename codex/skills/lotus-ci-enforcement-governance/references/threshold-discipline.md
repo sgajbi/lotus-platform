@@ -1,12 +1,31 @@
 # Threshold Discipline
 
-Numeric thresholds come in two kinds that need **opposite** treatment. Applying one discipline to the
-other has produced real defects in the estate, and the mistake is easy to make in both directions.
+**Baseline-derived** numeric thresholds come in two kinds that need **opposite** treatment. Applying
+one discipline to the other has produced real defects in the estate, and the mistake is easy to make
+in both directions.
+
+A third kind is out of scope here and must not be treated as either: a **fixed policy threshold** -
+a compliance limit, an SLO, or a target such as the `>=99%` meaningful-coverage bar. These are not
+derived from the current measurement and are not ratios. Never re-bank one to the measured value:
+that replaces a policy decision with whatever the tree happens to be today, which is how a target
+silently becomes a description.
+
+## Contents
+
+1. [A ratchet belongs at exact equality](#a-ratchet-belongs-at-exact-equality)
+2. [A band must never sit on its edge](#a-band-must-never-sit-on-its-edge)
+3. [When a threshold blocks legitimate work, suspect the classifier](#when-a-threshold-blocks-legitimate-work-suspect-the-classifier)
+4. [Two failure modes to check while doing this](#two-failure-modes-to-check-while-doing-this)
+5. [Documented thresholds are a second copy that drifts](#documented-thresholds-are-a-second-copy-that-drifts)
 
 ## A ratchet belongs at exact equality
 
 A ratchet is a bound banked from a measurement: a ceiling on something bad, a floor on something
 good. Bank it at the measured value with **zero headroom**.
+
+**Re-bank in the direction that tightens.** A ceiling moves *down* to the new measurement; a floor
+moves *up*. "Re-bank downward" is only correct for a ceiling - applied to a minimum test-family
+breadth floor it would loosen the very gate it claims to tighten.
 
 Headroom is slack the next change spends without anybody deciding to spend it. A ratchet that
 regresses fails; a ratchet left above the measurement after an improvement has quietly given that
@@ -28,9 +47,10 @@ assertion that is always updated mechanically has stopped being a check.
 A band constrains a ratio between a floor and a ceiling — a test pyramid is the common case. A band
 reached *exactly* is a trap: the next good change breaches it.
 
-`lotus-risk` sat at integration `15.0463%` against a `15%` floor and e2e `3.0093%` against `3%`. Both
-breach at a total of `866`; the repository was at `864`. It had room for **two more unit tests, of
-any kind**, before CI turned red. The next pull request added four.
+`lotus-risk` sat at integration `15.0463%` against a `15%` floor and e2e `3.0093%` against `3%`. At a
+total of `866` both still pass (`15.0115%`, `3.0023%`); both first breach at `867`. The repository
+was at `864`, so it had room for **two more unit tests, of any kind**, before CI turned red. The
+next pull request added four.
 
 So: for a ratchet, zero headroom is correct. For a band, zero headroom is a defect.
 
