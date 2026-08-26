@@ -102,7 +102,11 @@ deployment, client demo readiness, or supported feature promotion.
   the report-only static audit for reachability and failure propagation. It reads local working
   trees, so fleet evidence must name inspected revisions or use clean `main` checkouts. Empty-input,
   run-history, and publish/sign/tag/deploy ordering checks remain review obligations; issue #738
-  owns disposition before `--fail-on-findings` can enter a blocking lane.
+  owns disposition before `--fail-on-findings` can enter a blocking lane. The audit treats
+  `make -C`/`--directory` and alternate `-f`/`--file` invocations as separate Make contexts,
+  audits empty and multi-target gate declarations, and recognizes a gate in the final pipeline
+  stage as status propagating; this prevents a same-named root target or logging pipeline from
+  being credited incorrectly.
 - deployment promotion proof: digest-only image references, release-evidence digest reconciliation,
   no rebuild-per-environment promotion, out-of-scope environment reasons, explicit
   `deployment_pending` manifests for release-bound-but-not-deployed services such as current
