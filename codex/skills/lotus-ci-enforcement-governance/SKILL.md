@@ -325,7 +325,9 @@ checks.
 ## Lens-Based Hardening Promotion
 
 Use `references/lens-hardening-promotion.md` for the governed lens families, Docker provenance
-requirements (including Git branch/ref, repository URL, and pipeline/run ID metadata), review-only boundaries, and
+requirements (including Git branch/ref, repository URL, pipeline/run ID, image digest, SBOM,
+vulnerability scan, image is signed, provenance attestation, deploy by digest, `/version`, and the
+same immutable image, with no secrets in Dockerfile `ARG` or Dockerfile `ENV`), review-only boundaries, and
 promotion intake.
 Treat issue-discovery output as signal, not an automatic CI requirement; promote only objective,
 deterministic, low-noise rules and never gate on issue count.
