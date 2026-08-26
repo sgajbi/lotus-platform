@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 360666
+    "total_source_lines": 360956
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,10 +147,10 @@
       },
       {
         "complexity": 13,
-        "end_line": 224,
-        "line": 153,
-        "lines": 72,
-        "name": "audit_repository",
+        "end_line": 391,
+        "line": 326,
+        "lines": 66,
+        "name": "main",
         "path": "automation/gate_liveness_audit.py"
       },
       {
@@ -187,11 +187,11 @@
       },
       {
         "complexity": 12,
-        "end_line": 266,
-        "line": 224,
-        "lines": 43,
-        "name": "_validate_final_closure",
-        "path": "automation/validate_stacked_refactor_campaign_manifest.py"
+        "end_line": 316,
+        "line": 252,
+        "lines": 65,
+        "name": "audit_repository",
+        "path": "automation/gate_liveness_audit.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2909
+    "python_function_count": 2924
   },
-  "generated_at_utc": "2026-08-26T13:18:11Z",
+  "generated_at_utc": "2026-08-26T14:10:22Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -469,40 +469,40 @@
   },
   "quality_tooling": {
     "bandit": {
-      "available": true,
+      "available": false,
       "command": [
         "bandit",
         "--version"
       ],
-      "returncode": 0,
-      "summary": "  python version = 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]"
+      "returncode": null,
+      "summary": "tool not installed"
     },
     "mypy": {
-      "available": true,
+      "available": false,
       "command": [
         "mypy",
         "--version"
       ],
-      "returncode": 0,
-      "summary": "mypy 1.20.2 (compiled: yes)"
+      "returncode": null,
+      "summary": "tool not installed"
     },
     "pip_audit": {
-      "available": true,
+      "available": false,
       "command": [
         "pip-audit",
         "--version"
       ],
-      "returncode": 0,
-      "summary": "pip-audit 2.10.1"
+      "returncode": null,
+      "summary": "tool not installed"
     },
     "ruff": {
-      "available": true,
+      "available": false,
       "command": [
         "ruff",
         "--version"
       ],
-      "returncode": 0,
-      "summary": "ruff 0.6.9"
+      "returncode": null,
+      "summary": "tool not installed"
     }
   },
   "repository": "lotus-platform",
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1065,
+    "collected_tests": 1076,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-performance\\.venv\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1065 tests collected in 2.32s"
+    "summary": "1076 tests collected in 1.82s"
   }
 }

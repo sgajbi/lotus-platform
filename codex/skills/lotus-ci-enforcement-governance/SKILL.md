@@ -33,8 +33,9 @@ Before making a quality signal blocking, confirm:
 10. quantitative PR claims can be reproduced from named commands, base/head refs, or committed
     evidence artifacts where practical,
 11. the gate satisfies the Gate Liveness Standard below - reachable from a blocking lane, capable of
-    returning non-zero, fail-closed on empty input, and observed to have run. Promotion is not
-    complete until the gate has failed once on purpose.
+    returning non-zero, fail-closed on empty input, observed to have run, and ordered before the
+    irreversible act it governs. Promotion is not complete until the gate has failed once on
+    purpose.
 
 When the same scanner has both blocking and evidence-producing modes, keep those entrypoints
 separate. Wire the clean blocking target into `make check`, `make ci`, and GitHub lanes; reserve
@@ -68,8 +69,10 @@ Keep report-only until stable when the signal is noisy or policy is not settled,
 
 The promotion standard decides *whether a signal deserves a gate*; it does not establish that a gate
 which exists is alive - reachable from a blocking lane, capable of returning non-zero, fail-closed on
-empty input, and observed to have run. All four failures are indistinguishable from a passing gate:
-absence of a gate is visible, a gate that does nothing is not. Load
+empty input, observed to have run, and ordered before the irreversible act it governs. The first
+four failures are indistinguishable from a passing gate: absence of a gate is visible, a gate that
+does nothing is not. The fifth is worse, because the gate does fail and the artifact is already
+published. Load
 `references/gate-liveness-standard.md`; audit with `python automation/gate_liveness_audit.py`.
 
 ## Implementation Pattern

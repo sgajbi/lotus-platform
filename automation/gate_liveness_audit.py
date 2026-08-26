@@ -2,7 +2,7 @@
 
 The estate has a well-developed answer to *which* signals deserve a gate
 (`lotus-ci-enforcement-governance`), and no answer at all to whether a gate that exists is alive.
-A gate is alive only if all four hold:
+A gate is alive only if all five hold:
 
 1. **Reachable** - some blocking lane invokes it. A `*-gate` target nothing calls is dead
    governance: a reader of the Makefile concludes the rule is enforced, and it never runs.
@@ -13,12 +13,15 @@ A gate is alive only if all four hold:
    pass.
 4. **Observed to have run** - a correct blocking gate on a trigger that never fires has produced no
    verdict.
+5. **Ordered before the act it governs** - a gate whose verdict arrives after the irreversible step
+   reports rather than prevents. Failing the run afterwards does not un-publish an image.
 
-This script detects rules 1 and 2, which are decidable from the Makefile and the workflows. Rules 3
-and 4 are deliberately **not** implemented: rule 3 needs the gate executed against an empty input,
-and rule 4 needs GitHub run history. Both stay review obligations, recorded in the Gate Liveness
-Standard in `lotus-ci-enforcement-governance`. Claiming to cover them would reproduce the defect
-this tool exists to find.
+This script detects rules 1 and 2, which are decidable from the Makefile and the workflows. Rules 3,
+4 and 5 are deliberately **not** implemented: rule 3 needs the gate executed against an empty input,
+rule 4 needs GitHub run history, and rule 5 needs to know which step in a lane is irreversible, which
+is a judgement rather than a pattern. All three stay review obligations, recorded in the Gate
+Liveness Standard in `lotus-ci-enforcement-governance`. Claiming to cover them would reproduce the
+defect this tool exists to find.
 
 This script is itself a gate, so it fails when it inspected nothing - per repository, not only in
 aggregate. A fleet run where one path is missing or one repository declares no gates is a run that
@@ -132,7 +135,14 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
         if match:
             current = match.group(1)
             targets.setdefault(current, ([], []))
-            targets[current][0].extend(match.group(2).split())
+            # GNU Make allows an inline recipe after a semicolon: `security-gate: ; trivy ...`.
+            # Treating the whole tail as prerequisites stores `;` and the command as prerequisite
+            # names, leaves the recipe empty, and so never inspects the command - the target counts
+            # as a gate and looks reachable while its non-failing command goes unexamined.
+            prerequisites, separator, inline_recipe = match.group(2).partition(";")
+            targets[current][0].extend(prerequisites.split())
+            if separator and inline_recipe.strip():
+                targets[current][1].append(inline_recipe.strip())
         elif not line.strip():
             current = None
     return {
