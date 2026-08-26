@@ -324,96 +324,11 @@ checks.
 
 ## Lens-Based Hardening Promotion
 
-Use issue-discovery lens findings as raw signal for hardening, not as automatic CI requirements.
-Promote only the lenses that repeatedly produce objective, deterministic, low-noise failures.
-
-High-signal lens families for gates are:
-
-1. `lens/architecture-boundaries`: import-direction, runtime-composition, and package-boundary
-   checks.
-2. `lens/api-documentation-standards`: OpenAPI quality, operation IDs, response examples,
-   route-inventory, vocabulary/no-alias, and duplicate endpoint checks.
-3. `lens/http-boundary-controls`: secure headers, CORS, trusted hosts, content type, body-size, and
-   abuse-boundary checks.
-4. `lens/configuration-secrets`: required settings, unsafe defaults, secret-like values, and
-   environment parity checks.
-5. `lens/validation-idempotency`: idempotency-store, same-key/different-payload, conflict, retry,
-   and replay contract tests.
-6. `lens/auditability-lineage`: correlation, source identity, evidence fingerprint, audit, and
-   lineage contract checks.
-7. `lens/capability-publication`: supported-feature, capability registry, Gateway/Workbench
-   publication, and implementation-truth gates.
-8. `lens/evidence-proof-contracts`: proof schema, reproducibility, evidence provenance, and
-   scorecard freshness checks.
-9. `lens/observability`: no-sensitive logging/metrics, bounded labels, route templates, health,
-   readiness, and dashboard/alert contract checks.
-10. `lens/security-privacy`: first-party security rules, authorization denial tests, sensitive-data
-    scans, dependency scanner posture, and abuse-control checks.
-11. `lens/testing-quality`: required test-family breadth, uncategorized-test caps, mutation or
-    golden-fixture checks where stable.
-12. `lens/ci-release-evidence`: workflow permissions, timeouts, no critical `continue-on-error`,
-    repo-native target usage, Docker/runtime proof, and main releasability dispatch checks.
-13. `lens/dependency-hygiene` and `lens/environment-supply-chain-provenance`: lockfile, scanner,
-    SBOM, pinned image, artifact signing, OCI image labels for Git SHA/branch/source/build
-    timestamp, CI run ID capture, image digest capture, version/build metadata endpoint parity, and
-    provenance checks.
-14. AI lenses only when the app has an AI surface:
-    `lens/ai-data-boundaries`, `lens/ai-evaluation-quality`, `lens/ai-safety-abuse-controls`,
-    and `lens/ai-agent-tool-governance`.
-
-For Docker/image provenance gates, prefer a single deterministic validator that checks the full
-deployable-image chain before promoting the gate:
-
-1. image tag includes the Git SHA,
-2. OCI labels include commit, Git branch/ref, repository URL, version, build time, and CI
-   pipeline/run ID,
-3. release images are built and pushed by CI only,
-4. image digest is captured in a release manifest,
-5. SBOM is generated,
-6. vulnerability scan passes or records an approved time-bounded exception,
-7. image is signed,
-8. provenance attestation is generated,
-9. Kubernetes, Helm, or deployment manifests deploy by digest,
-10. `/version` or version/build metadata endpoint exposes the same metadata, including the image
-    digest once the image is published,
-11. the same immutable image is promoted across environments, and
-12. build secrets do not leak through Dockerfile `ARG`, Dockerfile `ENV`, image history, logs,
-    labels, or runtime metadata.
-
-The image validator should also check runtime asset closure for Compose-declared workers and
-operator entrypoints. A manifest or helper script excluded by `.dockerignore`, omitted from a
-Dockerfile `COPY`, or absent from the built image is a packaging defect even when local Python
-tests pass. Require a built-image bounded entrypoint smoke (`--check-only` where supported) and a
-focused pass/fail contract test for the declared file closure; keep this separate from OCI
-provenance so packaging and provenance failures remain diagnosable.
-
-Keep these lens families review-only until they have enough stable signal for automation:
-
-1. `lens/product-workflow-usability`,
-2. `lens/client-communication-suitability`,
-3. `lens/customer-impact-failure-modes`,
-4. `lens/localization-market-conventions`,
-5. `lens/third-party-vendor-risk`,
-6. broad `lens/dead-code-duplication` without import/runtime/test evidence.
-
-These can still produce excellent GitHub issues, but blocking CI needs objective pass/fail rules,
-known exceptions, and repo-native commands.
-
-Before promoting a lens-derived gate, record:
-
-1. the issue-discovery issue numbers and root causes that justify automation,
-2. the proposed deterministic rule and why it is low-noise,
-3. the repo-native command and intended CI lane,
-4. pass/fail tests for the validator,
-5. baseline posture and exception policy,
-6. whether the gate blocks immediately or starts report-only,
-7. scorecard, README/wiki, repo context, central context, and skill updates required by the new
-   truth.
-
-Use `lotus-app-issue-discovery` automation outputs as inputs, especially
-`validate_issue_discovery_skill.py` for taxonomy consistency and
-`plan_issue_discovery_campaign.py` for identifying high-signal hardening candidates by repository
-profile. Do not gate on issue count; gate on repeated, measured defect classes.
+Use `references/lens-hardening-promotion.md` for the governed lens families, Docker provenance
+requirements (including Git branch/ref, repository URL, and pipeline/run ID metadata), review-only boundaries, and
+promotion intake.
+Treat issue-discovery output as signal, not an automatic CI requirement; promote only objective,
+deterministic, low-noise rules and never gate on issue count.
 
 ## Context And Skill Maintenance
 
