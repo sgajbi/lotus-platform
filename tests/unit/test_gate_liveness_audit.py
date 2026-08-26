@@ -528,3 +528,57 @@ def test_one_failure_propagating_recipe_makes_the_whole_gate_capable(
     findings, _ = audit_repository("svc", repo)
 
     assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_make_directory_or_file_context_does_not_credit_root_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\nroot-gate:\n\tpython root.py\n",
+        {"main.yml": "jobs:\n  gate:\n    steps:\n      - run: make -C tools root-gate\n"},
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [finding.target for finding in findings if finding.kind == "ORPHAN"] == [
+        "root-gate"
+    ]
+
+
+def test_empty_gate_declaration_is_inspected(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: empty-gate\n\nempty-gate:\n\nother-gate:\n\tpython gate.py\n",
+    )
+
+    findings, count = audit_repository("svc", repo)
+
+    assert count == 2
+    assert any(
+        finding.kind == "CANNOT_FAIL" and finding.target == "empty-gate"
+        for finding in findings
+    )
+
+
+def test_multi_target_rule_audits_each_gate_target(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: visible-gate\n\nvisible-gate hidden-gate:\n\tpython gate.py\n",
+    )
+
+    findings, count = audit_repository("svc", repo)
+
+    assert count == 2
+    assert [finding.target for finding in findings if finding.kind == "ORPHAN"] == [
+        "hidden-gate"
+    ]
+
+
+def test_gate_in_final_pipeline_stage_can_propagate_failure(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: scan-gate\n\nscan-gate:\n\tgenerate-input | python gate.py\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [finding for finding in findings if finding.kind == "CANNOT_FAIL"] == []

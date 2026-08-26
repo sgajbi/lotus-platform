@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 361323
+    "total_source_lines": 361408
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,10 +34,10 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
-        "complexity": 24,
-        "end_line": 198,
-        "line": 126,
-        "lines": 73,
+        "complexity": 31,
+        "end_line": 222,
+        "line": 130,
+        "lines": 93,
         "name": "_make_invoked_targets",
         "path": "automation/gate_liveness_audit.py"
       },
@@ -155,16 +155,8 @@
       },
       {
         "complexity": 13,
-        "end_line": 499,
-        "line": 427,
-        "lines": 73,
-        "name": "audit_repository",
-        "path": "automation/gate_liveness_audit.py"
-      },
-      {
-        "complexity": 13,
-        "end_line": 574,
-        "line": 509,
+        "end_line": 605,
+        "line": 540,
         "lines": 66,
         "name": "main",
         "path": "automation/gate_liveness_audit.py"
@@ -192,6 +184,14 @@
         "lines": 37,
         "name": "_validate_secret_values",
         "path": "automation/validate_platform_stack.py"
+      },
+      {
+        "complexity": 13,
+        "end_line": 203,
+        "line": 169,
+        "lines": 35,
+        "name": "load_issue_snapshots_from_json",
+        "path": "codex/skills/lotus-app-issue-discovery/scripts/audit_rfc_issue_coverage.py"
       }
     ],
     "largest_functions": [
@@ -356,11 +356,11 @@
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
-    "max_complexity": 24,
+    "max_complexity": 31,
     "max_function_lines": 903,
-    "python_function_count": 2938
+    "python_function_count": 2942
   },
-  "generated_at_utc": "2026-08-26T15:34:19Z",
+  "generated_at_utc": "2026-08-26T15:52:48Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -577,22 +577,12 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 136,
+        "line": 140,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 162,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 164,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 167,
+        "line": 166,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -602,37 +592,32 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 176,
+        "line": 171,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 177,
+        "line": 172,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 182,
+        "line": 183,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 185,
+        "line": 184,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 186,
+        "line": 187,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 189,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 190,
+        "line": 192,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -642,7 +627,47 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 197,
+        "line": 196,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 203,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 204,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 205,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 206,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 211,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 212,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 217,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 219,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -760,37 +785,12 @@
         "line": 2882,
         "path": "automation/New-Lotus-Service.ps1",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 3141,
-        "path": "automation/New-Lotus-Service.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 3693,
-        "path": "automation/New-Lotus-Service.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 3694,
-        "path": "automation/New-Lotus-Service.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 3707,
-        "path": "automation/New-Lotus-Service.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 3708,
-        "path": "automation/New-Lotus-Service.ps1",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1087,
+    "collected_tests": 1091,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1087 tests collected in 1.62s"
+    "summary": "1091 tests collected in 1.63s"
   }
 }

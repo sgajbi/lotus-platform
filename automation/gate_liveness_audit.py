@@ -86,7 +86,9 @@ PIPEFAIL_ENABLED = re.compile(r"-o\s+pipefail\b|set\s+-[a-z]*o\s+pipefail\b")
 _RECIPE_PREFIXES = re.compile(r"^[@+-]+")
 _IGNORES_ERRORS = re.compile(r"^[@+]*-")
 
-_TARGET = re.compile(r"^([A-Za-z0-9_.-]+):\s*(.*)$")
+_TARGET = re.compile(
+    r"^([A-Za-z0-9_.%+-]+(?:\s+[A-Za-z0-9_.%+-]+)*):\s*(.*)$"
+)
 _MAKE_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 _MAKE_OPTIONS_REQUIRING_VALUES = {
     "-C",
@@ -103,6 +105,8 @@ _MAKE_OPTIONS_REQUIRING_VALUES = {
     "--jobserver-auth",
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
+_PIPELINE_SEPARATOR = re.compile(r"(?<!\|)\|(?!\|)")
+_PIPELINE_SINK = re.compile(r"\b(?:tee|cat|sed|awk|grep|jq)\b")
 
 
 @dataclass(frozen=True)
@@ -172,11 +176,17 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
         } and not normalized_command.endswith("/make"):
             continue
         skip_option_value = False
+        pending_context_option: str | None = None
         options_ended = False
+        alternate_context = False
+        candidate: list[str] = []
         for token in tokens[index + 1 :]:
             if _SHELL_BOUNDARY.match(token):
                 break
             if skip_option_value:
+                if pending_context_option is not None and token not in {".", "./"}:
+                    alternate_context = True
+                pending_context_option = None
                 skip_option_value = False
                 continue
             if not options_ended and token == "--":
@@ -184,6 +194,18 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
                 continue
             if not options_ended and token.startswith("-"):
                 option_name = token.split("=", 1)[0]
+                if option_name in {"-C", "--directory", "-f", "--file"}:
+                    # The target belongs to another Makefile/context. Without loading that
+                    # selected file and directory, crediting it against this root Makefile would
+                    # falsely make a same-named local gate appear reachable.
+                    if option_name in {"-f", "--file"}:
+                        alternate_context = True
+                    elif "=" in token:
+                        alternate_context = token.split("=", 1)[1] not in {".", "./"}
+                    elif token != option_name:
+                        alternate_context = token[len(option_name) :] not in {"", ".", "./"}
+                    else:
+                        pending_context_option = option_name
                 if (
                     option_name in _MAKE_OPTIONS_REQUIRING_VALUES
                     and "=" not in token
@@ -194,7 +216,9 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
                 continue
             if _MAKE_ASSIGNMENT.match(token):
                 continue
-            invoked.append(token)
+            candidate.append(token)
+        if not alternate_context:
+            invoked.extend(candidate)
     return tuple(invoked)
 
 
@@ -228,24 +252,28 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
     """
 
     targets: dict[str, tuple[list[str], list[str]]] = {}
-    current: str | None = None
+    current: tuple[str, ...] | None = None
     for line in text.splitlines():
         if line.startswith("\t"):
             if current is not None:
-                targets[current][1].append(line[1:])
+                for name in current:
+                    targets[name][1].append(line[1:])
             continue
         match = _TARGET.match(line)
         if match:
-            current = match.group(1)
-            targets.setdefault(current, ([], []))
+            current = tuple(match.group(1).split())
+            for name in current:
+                targets.setdefault(name, ([], []))
             # GNU Make allows an inline recipe after a semicolon: `security-gate: ; trivy ...`.
             # Treating the whole tail as prerequisites stores `;` and the command as prerequisite
             # names, leaves the recipe empty, and so never inspects the command - the target counts
             # as a gate and looks reachable while its non-failing command goes unexamined.
             prerequisites, separator, inline_recipe = match.group(2).partition(";")
-            targets[current][0].extend(prerequisites.split())
+            for name in current:
+                targets[name][0].extend(prerequisites.split())
             if separator and inline_recipe.strip():
-                targets[current][1].append(inline_recipe.strip())
+                for name in current:
+                    targets[name][1].append(inline_recipe.strip())
         elif not line.strip():
             current = None
     return {
@@ -347,8 +375,12 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
     # A pipeline reports the last stage's status, not the gate's - unless `pipefail` is set, which
     # makes the pipeline return the first non-zero stage. Flagging a recipe that enables it would
     # punish a correct gate, which is the failure mode this audit must not have.
-    if re.search(r"(?<!\|)\|(?!\|)", final) and not PIPEFAIL_ENABLED.search(command):
-        return "the pipeline's status is the last stage's, not the gate's"
+    stages = _PIPELINE_SEPARATOR.split(final)
+    if len(stages) > 1 and not PIPEFAIL_ENABLED.search(command):
+        # A gate in the final stage already supplies the pipeline status. Only reject the common
+        # logging shape where a gate is piped into a sink such as `tee`; earlier stages are masked.
+        if _PIPELINE_SINK.search(stages[-1]):
+            return "the pipeline's status is the final logging stage's, not the gate's"
 
     for pattern, detail in CANNOT_FAIL_PATTERNS:
         if re.search(pattern, final):
@@ -452,7 +484,6 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
         for name in targets
         if name.endswith(GATE_SUFFIXES)
         and name != ".PHONY"
-        and (targets[name].recipe or targets[name].prerequisites)
     )
 
     findings: list[Finding] = []
