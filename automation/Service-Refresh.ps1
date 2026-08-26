@@ -128,9 +128,6 @@ function Resolve-GovernedComposeEnvironment {
   foreach ($property in $RepositoryConfig.composeEnvironment.PSObject.Properties) {
     $name = [string]$property.Name
     $value = $property.Value
-    if ($name -notmatch '^[A-Z][A-Z0-9_]*$') {
-      throw "Unsafe Compose environment name '$name' in service map."
-    }
     if ($name -notmatch '^(LOTUS|DPM)_[A-Z0-9_]+$') {
       throw "Compose environment '$name' is outside the governed LOTUS_/DPM_ namespaces and cannot be governed by service refresh."
     }

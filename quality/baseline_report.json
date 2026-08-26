@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 359888
+    "total_source_lines": 359935
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -91,6 +91,14 @@
       },
       {
         "complexity": 15,
+        "end_line": 87,
+        "line": 31,
+        "lines": 57,
+        "name": "cash_evidence_from_overview",
+        "path": "automation/resolve_canonical_cash_evidence.py"
+      },
+      {
+        "complexity": 15,
         "end_line": 171,
         "line": 122,
         "lines": 50,
@@ -112,14 +120,6 @@
         "lines": 124,
         "name": "validate",
         "path": "codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 84,
-        "line": 31,
-        "lines": 54,
-        "name": "cash_evidence_from_overview",
-        "path": "automation/resolve_canonical_cash_evidence.py"
       },
       {
         "complexity": 14,
@@ -360,7 +360,7 @@
     "max_function_lines": 903,
     "python_function_count": 2885
   },
-  "generated_at_utc": "2026-08-25T15:55:03Z",
+  "generated_at_utc": "2026-08-26T04:05:02Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -737,11 +737,6 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 124,
-        "path": "automation/Service-Refresh.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
         "line": 22,
         "path": "automation/Validate-Automation-Config.ps1",
         "signal": "sensitive-keyword-review"
@@ -785,12 +780,17 @@
         "line": 424,
         "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
         "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 497,
+        "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
+        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1031,
+    "collected_tests": 1039,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1031 tests collected in 0.97s"
+    "summary": "1039 tests collected in 1.26s"
   }
 }
