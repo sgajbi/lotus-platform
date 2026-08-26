@@ -47,6 +47,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import yaml
+
 # Targets a blocking lane is rooted at. `lint` is included because several repositories hang gates
 # off it, but it is only *seeded* when something actually invokes it - see `blocking_roots_for`.
 CANONICAL_ROOTS = ("ci", "check", "check-all")
@@ -168,6 +170,7 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
     # Strip shell comments before tokenization.  A comment in a workflow command can mention a
     # gate without invoking it (``make ci # make release-gate manually``); crediting the text after
     # ``#`` would conceal a real orphan.  Quoted ``#`` and escaped ``\#`` remain command data.
+    command = command.strip()
     uncommented: list[str] = []
     comment_quote: str | None = None
     escaped = False
@@ -320,43 +323,6 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
     return tuple(invoked)
 
 
-def _workflow_run_commands(step_block: str) -> tuple[str, ...]:
-    """Extract executable `run:` values without treating step metadata as shell text."""
-
-    lines = step_block.splitlines()
-    commands: list[str] = []
-    index = 0
-    while index < len(lines):
-        match = re.match(r"^(\s*)(?:-\s*)?run:\s*(.*)$", lines[index])
-        if match is None:
-            index += 1
-            continue
-        indentation = len(match.group(1))
-        value = match.group(2).strip()
-        if value and value not in {"|", ">", "|-", ">-", "|+", ">+"}:
-            commands.append(value)
-            index += 1
-            continue
-
-        block_lines: list[str] = []
-        index += 1
-        while index < len(lines):
-            candidate = lines[index]
-            if (
-                candidate.strip()
-                and len(candidate) - len(candidate.lstrip()) <= indentation
-            ):
-                break
-            block_lines.append(candidate.strip())
-            index += 1
-        # YAML folded scalars (`run: >`) present a single shell command even though the source
-        # spans lines. Literal scalars (`run: |`) intentionally preserve newlines, which retain
-        # shell command boundaries and therefore their failure semantics.
-        separator = " " if value.startswith(">") else "\n"
-        commands.append(separator.join(block_lines))
-    return tuple(commands)
-
-
 def _join_continuations(lines: list[str]) -> list[str]:
     """Fold backslash-continued recipe lines into one logical command.
 
@@ -379,6 +345,31 @@ def _join_continuations(lines: list[str]) -> list[str]:
     return joined
 
 
+def _join_makefile_declarations(lines: list[str]) -> list[str]:
+    """Fold continued non-recipe declarations before parsing target prerequisites."""
+
+    joined: list[str] = []
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        if line.startswith("\t") or not line.rstrip().endswith("\\"):
+            joined.append(line)
+            index += 1
+            continue
+
+        logical = line.rstrip()[:-1].rstrip()
+        index += 1
+        while index < len(lines):
+            continuation = lines[index].strip()
+            continued = continuation.endswith("\\")
+            logical += " " + (continuation[:-1].rstrip() if continued else continuation)
+            index += 1
+            if not continued:
+                break
+        joined.append(logical)
+    return joined
+
+
 def parse_makefile(text: str) -> dict[str, MakeTarget]:
     """Parse target -> (prerequisites, recipe lines), with continuations folded.
 
@@ -388,7 +379,7 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
 
     targets: dict[str, tuple[list[str], list[str]]] = {}
     current: tuple[str, ...] = ()
-    for line in text.splitlines():
+    for line in _join_makefile_declarations(text.splitlines()):
         if line.startswith("\t"):
             for name in current:
                 targets[name][1].append(line[1:])
@@ -446,16 +437,31 @@ def blocking_workflow_invocations(
     both would hide a dead gate behind an invocation that cannot fail the run.
     """
 
+    try:
+        document = yaml.safe_load(workflow_text)
+    except yaml.YAMLError:
+        return set()
+
+    if isinstance(document, list):
+        jobs: dict[str, object] = {"standalone": {"steps": document}}
+    elif isinstance(document, dict) and isinstance(document.get("jobs"), dict):
+        jobs = document["jobs"]
+    else:
+        return set()
+
     invoked: set[str] = set()
-    for block in re.split(r"\n(?=\s*- )", workflow_text):
-        lines = [
-            line for line in block.splitlines() if not line.strip().startswith("#")
-        ]
-        cleaned = "\n".join(lines)
-        if re.search(r"continue-on-error:\s*true", cleaned):
+    for job in jobs.values():
+        if not isinstance(job, dict) or job.get("continue-on-error") is True:
             continue
-        for command in _workflow_run_commands(cleaned):
-            invoked.update(_make_invoked_targets(command))
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step in steps:
+            if not isinstance(step, dict) or step.get("continue-on-error") is True:
+                continue
+            command = step.get("run")
+            if isinstance(command, str):
+                invoked.update(_make_invoked_targets(command))
     return invoked & set(targets)
 
 
@@ -597,14 +603,14 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
 
     targets = parse_makefile(makefile.read_text(encoding="utf-8", errors="ignore"))
     workflow_dir = root / ".github" / "workflows"
-    workflow_text = ""
+    from_workflows: set[str] = set()
     if workflow_dir.is_dir():
-        workflow_text = "\n".join(
-            path.read_text(encoding="utf-8", errors="ignore")
-            for path in sorted(workflow_dir.glob("*.y*ml"))
-        )
-
-    from_workflows = blocking_workflow_invocations(workflow_text, targets)
+        for path in sorted(workflow_dir.glob("*.y*ml")):
+            from_workflows.update(
+                blocking_workflow_invocations(
+                    path.read_text(encoding="utf-8", errors="ignore"), targets
+                )
+            )
     roots = blocking_roots_for(targets, from_workflows)
     blocking = reachable_targets(targets, tuple(set(roots) | from_workflows))
 

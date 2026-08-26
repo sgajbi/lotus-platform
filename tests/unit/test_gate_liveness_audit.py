@@ -50,6 +50,14 @@ def test_parse_makefile_reads_prerequisites_and_recipe() -> None:
     assert [line.strip() for line in targets["ci"].recipe] == ["echo one", "echo two"]
 
 
+def test_parse_makefile_folds_continued_prerequisites() -> None:
+    targets = parse_makefile(
+        "ci: lint \\\n  release-gate\n\nlint:\n\truff check .\n\nrelease-gate:\n\tpython g.py\n"
+    )
+
+    assert targets["ci"].prerequisites == ("lint", "release-gate")
+
+
 def test_reachability_follows_prerequisites_and_recursive_make() -> None:
     targets = parse_makefile(
         "ci: lint\n\t$(MAKE) deep-gate\n\nlint:\n\truff check .\n\ndeep-gate:\n\tpython g.py\n"
@@ -278,6 +286,25 @@ def test_a_continue_on_error_step_does_not_make_a_gate_reachable(
             "main.yml": (
                 "jobs:\n  gate:\n    steps:\n      - name: soft\n"
                 "        continue-on-error: true\n        run: make release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_a_continue_on_error_job_does_not_make_a_gate_reachable(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: lint\n\nlint:\n\truff check .\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    continue-on-error: true\n    steps:\n"
+                "      - run: make release-gate\n"
             )
         },
     )
@@ -572,6 +599,23 @@ def test_folded_workflow_run_scalar_invokes_a_gate(tmp_path: Path) -> None:
                 "      - run: >\n"
                 "          make\n"
                 "          release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+def test_quoted_inline_workflow_run_scalar_invokes_a_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                '      - run: "make release-gate"\n'
             )
         },
     )
