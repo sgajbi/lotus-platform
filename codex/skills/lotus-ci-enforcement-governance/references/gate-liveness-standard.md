@@ -78,4 +78,3 @@ artifact promoted only after a passing verdict is the exception, not publish-fir
 
 The audit obeys rule 3 about itself - it exits non-zero when it inspected zero repositories or zero
 gate targets, rather than reporting a vacuous pass.
-
