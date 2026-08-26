@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 360842
+    "total_source_lines": 361139
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,10 +147,10 @@
       },
       {
         "complexity": 13,
-        "end_line": 224,
-        "line": 153,
-        "lines": 72,
-        "name": "audit_repository",
+        "end_line": 398,
+        "line": 333,
+        "lines": 66,
+        "name": "main",
         "path": "automation/gate_liveness_audit.py"
       },
       {
@@ -187,11 +187,11 @@
       },
       {
         "complexity": 12,
-        "end_line": 266,
-        "line": 224,
-        "lines": 43,
-        "name": "_validate_final_closure",
-        "path": "automation/validate_stacked_refactor_campaign_manifest.py"
+        "end_line": 323,
+        "line": 259,
+        "lines": 65,
+        "name": "audit_repository",
+        "path": "automation/gate_liveness_audit.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2909
+    "python_function_count": 2924
   },
-  "generated_at_utc": "2026-08-26T16:27:59Z",
+  "generated_at_utc": "2026-08-26T16:28:23Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1065,
+    "collected_tests": 1076,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1065 tests collected in 1.60s"
+    "summary": "1076 tests collected in 1.53s"
   }
 }
