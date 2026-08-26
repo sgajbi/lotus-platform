@@ -22,10 +22,10 @@ import pytest
 
 from automation.gate_liveness_audit import (
     audit_repository,
+    blocking_workflow_invocations,
     main,
     parse_makefile,
     reachable_targets,
-    blocking_workflow_invocations,
 )
 
 
@@ -113,7 +113,7 @@ def test_radon_in_a_blocking_lane_cannot_fail(tmp_path: Path) -> None:
     findings, _ = audit_repository("svc", repo)
 
     cannot_fail = [f for f in findings if f.kind == "CANNOT_FAIL"]
-    assert len(cannot_fail) == 2
+    assert len(cannot_fail) == 1
     assert all("radon" in f.detail for f in cannot_fail)
 
 
@@ -288,7 +288,10 @@ def test_a_continue_on_error_step_does_not_make_a_gate_reachable(
 
 
 def test_a_continued_trivy_command_is_not_flagged(tmp_path: Path) -> None:
-    """`trivy image \` then `--exit-code 1` is one command; judging the first line punishes it."""
+    r"""A trivy command continued with a trailing backslash is one command.
+
+    Judging only its first physical line reports a valid `--exit-code 1` gate as unable to fail.
+    """
 
     repo = _write_repo(
         tmp_path / "svc",
@@ -440,3 +443,88 @@ def test_a_pipeline_without_pipefail_is_still_flagged(tmp_path: Path) -> None:
     findings, _ = audit_repository("svc", repo)
 
     assert [f.kind for f in findings if f.kind == "CANNOT_FAIL"] == ["CANNOT_FAIL"]
+
+
+def test_a_gate_with_only_no_op_recipes_is_unable_to_enforce(tmp_path: Path) -> None:
+    """A declared gate that only prints or prepares directories produces no verdict."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: evidence-gate\n\nevidence-gate:\n\t@echo collecting\n\tmkdir -p output\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    cannot_fail = [f for f in findings if f.kind == "CANNOT_FAIL"]
+    assert [f.target for f in cannot_fail] == ["evidence-gate"]
+    assert "only comments, setup, or no-op recipes" in cannot_fail[0].detail
+
+
+def test_make_options_are_skipped_before_workflow_targets(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: lint\n\nlint:\n\truff check .\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": "jobs:\n  gate:\n    steps:\n      - run: make --silent release-gate\n"
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+def test_make_options_are_skipped_before_recursive_targets() -> None:
+    targets = parse_makefile(
+        "ci:\n\t@$(MAKE) -s --directory . release-gate\n\nrelease-gate:\n\tpython g.py\n"
+    )
+
+    assert reachable_targets(targets, ("ci",)) == {"ci", "release-gate"}
+
+
+def test_optional_make_option_does_not_consume_the_target() -> None:
+    targets = parse_makefile(
+        "ci:\n\t$(MAKE) --output-sync release-gate\n\nrelease-gate:\n\tpython g.py\n"
+    )
+
+    assert reachable_targets(targets, ("ci",)) == {"ci", "release-gate"}
+
+
+def test_quoted_make_text_is_not_treated_as_an_invocation() -> None:
+    targets = parse_makefile(
+        'ci:\n\t@echo "run make release-gate manually"\n\n'
+        "release-gate:\n\tpython g.py\n"
+    )
+
+    assert reachable_targets(targets, ("ci",)) == {"ci"}
+
+
+def test_target_capability_combines_prerequisites_and_reporting_recipes(
+    tmp_path: Path,
+) -> None:
+    """A failing prerequisite keeps an aggregate live despite a best-effort report line."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: aggregate-gate\n\n"
+        "aggregate-gate: scanner\n\tpython report.py | tee report.log\n\n"
+        "scanner:\n\tpython scanner.py --max-findings 0\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_one_failure_propagating_recipe_makes_the_whole_gate_capable(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: evidence-gate\n\n"
+        "evidence-gate:\n\tpython gate.py --max-findings 0\n\tpython report.py | tee report.log\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []

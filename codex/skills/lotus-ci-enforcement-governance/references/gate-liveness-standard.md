@@ -35,13 +35,13 @@ satisfied and the outcome was still an unsigned, unattested, vulnerable artifact
 consumers. That is why this is a separate rule rather than a footnote to rule 2: a gate can be
 reachable, capable of failing, fail-closed, observed to run, and still be a report.
 
-### The failure this prevents
+### The failures this prevents
 
-All four failures are invisible in the place people look. A dead gate, a gate that cannot fail, and
-a gate that never ran are each **indistinguishable from a passing gate** in the Actions UI and in a
-Makefile read. Absence of a gate is visible; a gate that does nothing is not - which makes these
-worse than the gap they appear to close, because an audit asking "does this repository enforce X?"
-gets `yes`.
+The first four failures are invisible in the place people look. A dead gate, a gate that cannot
+fail, and a gate that never ran are each **indistinguishable from a passing gate** in the Actions UI
+and in a Makefile read. Absence of a gate is visible; a gate that does nothing is not - which makes
+these worse than the gap they appear to close, because an audit asking "does this repository enforce
+X?" gets `yes`. Rule 5 is visible only after the action has already escaped the control boundary.
 
 ### Measured instances
 
@@ -70,9 +70,11 @@ whole fleet from `automation/repos.json`:
 python automation/gate_liveness_audit.py --repos-json automation/repos.json --fail-on-findings
 ```
 
-Rules 3 and 4 need execution and run history respectively, so they remain review obligations. When
-adding a gate, prove rule 3 the way any fail-closed behaviour is proven: run it against an empty or
-absent input and observe a non-zero exit.
+Rules 3, 4 and 5 need empty-input execution, run history, and workflow-ordering review respectively,
+so they remain explicit review obligations. When adding a gate, prove rule 3 the way any fail-closed
+behaviour is proven: run it against an empty or absent input and observe a non-zero exit. For rule 5,
+name the first irreversible action and prove every applicable gate precedes it; a quarantined
+artifact promoted only after a passing verdict is the exception, not publish-first plus alerting.
 
 The audit obeys rule 3 about itself - it exits non-zero when it inspected zero repositories or zero
 gate targets, rather than reporting a vacuous pass.

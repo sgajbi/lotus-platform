@@ -96,6 +96,13 @@ deployment, client demo readiness, or supported feature promotion.
   Baseline regeneration must use the interpreter returned by
   `automation\Resolve-PlatformAutomationPython.ps1` so collected-test metrics match the repo check
   lane.
+- gate liveness: promotion is not enough. A gate must be reachable, capable of returning non-zero,
+  fail closed on empty input, have observed run evidence, and execute before the irreversible act it
+  governs. `python automation/gate_liveness_audit.py --repos-json automation/repos.json` provides
+  the report-only static audit for reachability and failure propagation. It reads local working
+  trees, so fleet evidence must name inspected revisions or use clean `main` checkouts. Empty-input,
+  run-history, and publish/sign/tag/deploy ordering checks remain review obligations; issue #738
+  owns disposition before `--fail-on-findings` can enter a blocking lane.
 - deployment promotion proof: digest-only image references, release-evidence digest reconciliation,
   no rebuild-per-environment promotion, out-of-scope environment reasons, explicit
   `deployment_pending` manifests for release-bound-but-not-deployed services such as current

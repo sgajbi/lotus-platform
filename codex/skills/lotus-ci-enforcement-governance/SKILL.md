@@ -67,13 +67,11 @@ Keep report-only until stable when the signal is noisy or policy is not settled,
 
 ## Gate Liveness Standard
 
-The promotion standard decides *whether a signal deserves a gate*; it does not establish that a gate
-which exists is alive - reachable from a blocking lane, capable of returning non-zero, fail-closed on
-empty input, observed to have run, and ordered before the irreversible act it governs. The first
-four failures are indistinguishable from a passing gate: absence of a gate is visible, a gate that
-does nothing is not. The fifth is worse, because the gate does fail and the artifact is already
-published. Load
-`references/gate-liveness-standard.md`; audit with `python automation/gate_liveness_audit.py`.
+Promotion decides *whether a signal deserves a gate*; it does not establish that one which exists is
+alive - reachable, able to return non-zero, fail-closed on empty input, observed to have run, and
+ordered before the irreversible act it governs. The first four are indistinguishable from a passing
+gate; the fifth fails after the artifact ships. See `references/gate-liveness-standard.md`; audit
+with `python automation/gate_liveness_audit.py`.
 
 ## Implementation Pattern
 
