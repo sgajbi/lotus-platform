@@ -57,10 +57,11 @@ taxonomy is mature.
 
 A **ratchet** (a bound banked from a measurement) belongs at exact equality with zero headroom; a
 **band** (a ratio between a floor and a ceiling) must never sit on its edge. Opposite disciplines,
-and easy to apply backwards. When a correctly-banked threshold blocks legitimate work, suspect the
+and easy to apply backwards. Re-bank in the direction that tightens - a ceiling down, a floor up. A
+**fixed policy threshold** such as an SLO or a coverage target is neither, and is never re-banked to
+the measurement. When a correctly-banked threshold blocks legitimate work, suspect the
 **classifier**, not the bound: the gate is measuring the wrong population and is punishing the
-behaviour it exists to encourage. Fix classification, re-bank downward in the same change, and never
-lower a bound to go green. Load `references/threshold-discipline.md` for the measured instances.
+behaviour it exists to encourage. Load `references/threshold-discipline.md` for the instances.
 
 Keep report-only until stable when the signal is noisy or policy is not settled, such as:
 
