@@ -14,6 +14,16 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+trap {
+  $message = if ($_.Exception -and -not [string]::IsNullOrWhiteSpace($_.Exception.Message)) {
+    $_.Exception.Message
+  } else {
+    [string]$_
+  }
+  [Console]::Error.WriteLine($message)
+  exit 1
+}
+
 function Get-ChangedFiles {
   param(
     [string]$RepoPath,
