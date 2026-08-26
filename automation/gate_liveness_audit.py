@@ -15,15 +15,15 @@ A gate is alive only if all four hold:
    verdict.
 
 This script detects rules 1 and 2, which are decidable from the Makefile and the workflows. Rules 3
-and 4 are deliberately **not** implemented here: rule 3 needs the gate executed against an empty
-input, and rule 4 needs GitHub run history. Both stay review obligations, recorded in the Gate
-Liveness Standard in `lotus-ci-enforcement-governance`. Claiming to cover them would reproduce the
-defect this tool exists to find.
+and 4 are deliberately **not** implemented: rule 3 needs the gate executed against an empty input,
+and rule 4 needs GitHub run history. Both stay review obligations, recorded in the Gate Liveness
+Standard in `lotus-ci-enforcement-governance`. Claiming to cover them would reproduce the defect
+this tool exists to find.
 
-Measured instances that motivated each rule are recorded in `lotus-platform#595`, `#713`, `#728`,
-`#734`, `#737`, `lotus-performance#477`, `lotus-risk#216`, `#225` and `#232`.
-
-This script is itself a gate, so it fails when it inspected nothing.
+This script is itself a gate, so it fails when it inspected nothing - per repository, not only in
+aggregate. A fleet run where one path is missing or one repository declares no gates is a run that
+did not inspect what it was asked to, and reporting that as clean would be the exact class of
+defect the audit reports on others.
 """
 
 from __future__ import annotations
@@ -35,36 +35,43 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Targets that a blocking lane is expected to be rooted at. A gate reachable from none of these and
-# from no workflow is orphaned.
-BLOCKING_ROOTS = ("ci", "check", "check-all", "lint")
+# Targets a blocking lane is rooted at. `lint` is included because several repositories hang gates
+# off it, but it is only *seeded* when something actually invokes it - see `blocking_roots_for`.
+CANONICAL_ROOTS = ("ci", "check", "check-all")
+CONDITIONAL_ROOTS = ("lint",)
 
 # Suffixes that declare intent to block. A target named `*-gate` or `*-guard` is a promise.
 GATE_SUFFIXES = ("-gate", "-guard")
 
-# Report-only invocations. Each of these returns 0 whatever it finds, so a target built on one
-# cannot fail no matter what the tree contains.
+# Report-only invocations. Each returns 0 whatever it finds, so a target built on one cannot fail
+# no matter what the tree contains.
 CANNOT_FAIL_PATTERNS: tuple[tuple[str, str], ...] = (
     (
         r"\bradon\s+(?:cc|mi|raw|hal)\b",
         "radon has no failing exit code in any mode - it prints and returns 0",
     ),
     (
-        r"\btrivy\b(?![^\n]*--exit-code[= ]1)",
+        r"\btrivy\b(?![\s\S]*--exit-code[= ]1)",
         "trivy without --exit-code 1 reports findings and returns 0",
     ),
     (r"--exit-code[= ]0\b", "--exit-code 0 explicitly discards the verdict"),
-    (r"\|\|\s*true\b", "|| true discards the exit status"),
+    (r"\|\|\s*true\s*$", "|| true discards the exit status of the final command"),
     (r";\s*true\s*$", "; true discards the exit status"),
-    (r"\|\|\s*exit\s+0\b", "|| exit 0 discards the exit status"),
+    (r"\|\|\s*exit\s+0\s*$", "|| exit 0 discards the exit status of the final command"),
 )
 
-# A make recipe line starting with `-` tells make to ignore the command's failure.
-MAKE_IGNORE_ERRORS = re.compile(r"^\t-\s*\S")
+# Commands that always succeed. When one of these is the *last* command on a recipe line it
+# supplies the line's exit status, so whatever ran before it cannot fail the gate.
+ALWAYS_SUCCEEDS = re.compile(r"^(?:echo|true|:|exit\s+0)\b")
+
+# Make recipe prefixes. `-` ignores the command's failure; `@` only silences echo; `+` forces
+# execution. They combine in any order, so `@-python g.py` ignores errors just as `-python g.py`.
+_RECIPE_PREFIXES = re.compile(r"^[@+-]+")
+_IGNORES_ERRORS = re.compile(r"^[@+]*-")
 
 _TARGET = re.compile(r"^([A-Za-z0-9_.-]+):\s*(.*)$")
 _SUBMAKE = re.compile(r"(?:\$\(MAKE\)|\bmake)\s+([A-Za-z0-9_.-]+)")
-_WORKFLOW_MAKE = re.compile(r"\bmake\s+([A-Za-z0-9_.-]+)")
+_RUN_STEP_MAKE = re.compile(r"\bmake\s+([A-Za-z0-9_.-]+)")
 
 
 @dataclass(frozen=True)
@@ -85,12 +92,33 @@ class MakeTarget:
     recipe: tuple[str, ...]
 
 
-def parse_makefile(text: str) -> dict[str, MakeTarget]:
-    """Parse target -> (prerequisites, recipe lines).
+def _join_continuations(lines: list[str]) -> list[str]:
+    """Fold backslash-continued recipe lines into one logical command.
 
-    Deliberately simple: the estate's Makefiles are plain. `.PHONY` is parsed like any other
-    target, which matters - a name appearing *only* in `.PHONY` and its own definition is exactly
-    the orphan signature.
+    A valid gate written as `trivy image \\` / `--exit-code 1 app:ci` is a single command to the
+    shell. Examining the first physical line alone reports it as unable to fail, which would make
+    the audit punish a correct gate.
+    """
+
+    joined: list[str] = []
+    buffer = ""
+    for line in lines:
+        stripped = line.rstrip("\n")
+        if stripped.endswith("\\"):
+            buffer += stripped[:-1].rstrip() + " "
+            continue
+        joined.append(buffer + stripped.strip())
+        buffer = ""
+    if buffer:
+        joined.append(buffer.strip())
+    return joined
+
+
+def parse_makefile(text: str) -> dict[str, MakeTarget]:
+    """Parse target -> (prerequisites, recipe lines), with continuations folded.
+
+    `.PHONY` is parsed like any other target, which matters: a name appearing *only* in `.PHONY`
+    and its own definition is exactly the orphan signature.
     """
 
     targets: dict[str, tuple[list[str], list[str]]] = {}
@@ -98,7 +126,7 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
     for line in text.splitlines():
         if line.startswith("\t"):
             if current is not None:
-                targets[current][1].append(line)
+                targets[current][1].append(line[1:])
             continue
         match = _TARGET.match(line)
         if match:
@@ -108,7 +136,7 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
         elif not line.strip():
             current = None
     return {
-        name: MakeTarget(tuple(prerequisites), tuple(recipe))
+        name: MakeTarget(tuple(prerequisites), tuple(_join_continuations(recipe)))
         for name, (prerequisites, recipe) in targets.items()
     }
 
@@ -134,20 +162,88 @@ def reachable_targets(
     return seen
 
 
-def workflow_invoked_targets(
+def blocking_workflow_invocations(
     workflow_text: str, targets: dict[str, MakeTarget]
 ) -> set[str]:
-    return {m.group(1) for m in _WORKFLOW_MAKE.finditer(workflow_text)} & set(targets)
+    """Targets invoked by a workflow step whose failure actually fails the job.
+
+    A raw text match over the whole file counts a target named in a comment, or in a step carrying
+    `continue-on-error: true`, as reachable from a blocking lane. Neither enforces anything, so
+    both would hide a dead gate behind an invocation that cannot fail the run.
+    """
+
+    invoked: set[str] = set()
+    for block in re.split(r"\n(?=\s*- )", workflow_text):
+        lines = [
+            line for line in block.splitlines() if not line.strip().startswith("#")
+        ]
+        cleaned = "\n".join(lines)
+        if re.search(r"continue-on-error:\s*true", cleaned):
+            continue
+        invoked.update(m.group(1) for m in _RUN_STEP_MAKE.finditer(cleaned))
+    return invoked & set(targets)
+
+
+def blocking_roots_for(
+    targets: dict[str, MakeTarget], workflow_invoked: set[str]
+) -> tuple[str, ...]:
+    """Seed reachability from `lint` only when something actually invokes it.
+
+    Treating `lint` as a root unconditionally marks every gate hanging off it as reachable, even in
+    a repository where nothing runs `lint` at all - which is precisely the orphan case.
+    """
+
+    roots = [root for root in CANONICAL_ROOTS if root in targets]
+    canonical_reach = reachable_targets(targets, tuple(roots))
+    for root in CONDITIONAL_ROOTS:
+        if root in targets and (root in canonical_reach or root in workflow_invoked):
+            roots.append(root)
+    return tuple(roots)
 
 
 def _is_comment_or_noise(recipe_line: str) -> bool:
-    stripped = recipe_line.strip().lstrip("@-").strip()
+    stripped = _RECIPE_PREFIXES.sub("", recipe_line.strip()).strip()
     return (
         not stripped
         or stripped.startswith("#")
         or stripped.startswith("echo")
         or stripped.startswith("mkdir")
     )
+
+
+def _final_command(command: str) -> str:
+    """The command whose exit status make actually sees.
+
+    Make reports the status of the *last* command on the line, so `cleanup || true; python gate.py`
+    still returns the gate's verdict, while `python gate.py; echo done` does not. Judging the whole
+    line would flag the first as unable to fail, which punishes a correct recipe.
+    """
+
+    segments = [segment.strip() for segment in command.split(";") if segment.strip()]
+    return segments[-1] if segments else ""
+
+
+def _cannot_fail_reason(recipe_line: str) -> str | None:
+    stripped = recipe_line.strip()
+    if _IGNORES_ERRORS.match(stripped):
+        return "a make `-` prefix tells make to ignore this command's failure"
+
+    command = _RECIPE_PREFIXES.sub("", stripped).strip()
+    final = _final_command(command)
+    if not final:
+        return None
+
+    if ALWAYS_SUCCEEDS.match(final):
+        return "the last command on this line always succeeds, so it supplies the exit status"
+
+    # A pipeline reports the last stage's status, not the gate's. `||` is not a pipe.
+    if re.search(r"(?<!\|)\|(?!\|)", final):
+        return "the pipeline's status is the last stage's, not the gate's"
+
+    for pattern, detail in CANNOT_FAIL_PATTERNS:
+        if re.search(pattern, final):
+            return detail
+    return None
 
 
 def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
@@ -166,14 +262,19 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
             for path in sorted(workflow_dir.glob("*.y*ml"))
         )
 
-    from_lanes = reachable_targets(targets, BLOCKING_ROOTS)
-    from_workflows = workflow_invoked_targets(workflow_text, targets)
-    blocking = reachable_targets(targets, tuple(from_lanes | from_workflows))
+    from_workflows = blocking_workflow_invocations(workflow_text, targets)
+    roots = blocking_roots_for(targets, from_workflows)
+    blocking = reachable_targets(targets, tuple(set(roots) | from_workflows))
 
+    # A gate that delegates entirely through prerequisites - `orphan-gate: scan` with no recipe of
+    # its own - is still a gate. Filtering on a non-empty recipe dropped it from both the count and
+    # the orphan check.
     gates = sorted(
         name
         for name in targets
-        if name.endswith(GATE_SUFFIXES) and name != ".PHONY" and targets[name].recipe
+        if name.endswith(GATE_SUFFIXES)
+        and name != ".PHONY"
+        and (targets[name].recipe or targets[name].prerequisites)
     )
 
     findings: list[Finding] = []
@@ -187,9 +288,9 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
                     target=gate,
                     detail=(
                         "declared as a gate but reachable from no blocking lane and invoked by no "
-                        "workflow, so it never runs"
+                        "workflow step that can fail the job, so it never runs"
                     ),
-                    evidence=f"Makefile defines {gate}; no path from {list(BLOCKING_ROOTS)} or .github/workflows",
+                    evidence=f"Makefile defines {gate}; no path from {list(roots)} or .github/workflows",
                 )
             )
 
@@ -197,29 +298,17 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
         for recipe_line in targets[name].recipe:
             if _is_comment_or_noise(recipe_line):
                 continue
-            if MAKE_IGNORE_ERRORS.match(recipe_line):
+            reason = _cannot_fail_reason(recipe_line)
+            if reason is not None:
                 findings.append(
                     Finding(
                         repository=repository,
                         kind="CANNOT_FAIL",
                         target=name,
-                        detail="make '-' prefix tells make to ignore this command's failure",
+                        detail=reason,
                         evidence=recipe_line.strip()[:160],
                     )
                 )
-                continue
-            for pattern, detail in CANNOT_FAIL_PATTERNS:
-                if re.search(pattern, recipe_line):
-                    findings.append(
-                        Finding(
-                            repository=repository,
-                            kind="CANNOT_FAIL",
-                            target=name,
-                            detail=detail,
-                            evidence=recipe_line.strip()[:160],
-                        )
-                    )
-                    break
 
     return findings, len(gates)
 
@@ -255,33 +344,42 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     findings: list[Finding] = []
-    inspected_repositories = 0
+    uninspectable: list[str] = []
+    gateless: list[str] = []
     inspected_gates = 0
     for name, path in pairs:
         if not (path / "Makefile").is_file():
+            uninspectable.append(f"{name}: no Makefile at {path}")
             continue
         repository_findings, gate_count = audit_repository(name, path)
-        inspected_repositories += 1
+        if gate_count == 0:
+            gateless.append(name)
         inspected_gates += gate_count
         findings.extend(repository_findings)
-
-    # This script is a gate, so it obeys the rule it enforces: having inspected nothing is a
-    # failure, not a pass.
-    if inspected_repositories == 0 or inspected_gates == 0:
-        print(
-            f"Gate liveness audit inspected {inspected_repositories} repositories and "
-            f"{inspected_gates} gate targets. A gate that inspected nothing must fail.",
-            file=sys.stderr,
-        )
-        return 1
 
     for finding in findings:
         print(finding.render())
 
+    # Every requested repository must have been inspected and must have contributed at least one
+    # gate. Skipping a missing path, or letting one repository's gates stand in for another's
+    # silence, is the same fail-open the audit exists to report.
+    if uninspectable or gateless:
+        if uninspectable:
+            print(
+                f"Repositories that could not be inspected: {uninspectable}",
+                file=sys.stderr,
+            )
+        if gateless:
+            print(
+                f"Repositories declaring no gate targets: {gateless}", file=sys.stderr
+            )
+        print("A gate that inspected nothing must fail.", file=sys.stderr)
+        return 1
+
     orphans = sum(1 for f in findings if f.kind == "ORPHAN")
     cannot_fail = sum(1 for f in findings if f.kind == "CANNOT_FAIL")
     print(
-        f"\nInspected {inspected_gates} gate targets across {inspected_repositories} repositories: "
+        f"\nInspected {inspected_gates} gate targets across {len(pairs)} repositories: "
         f"{orphans} orphaned, {cannot_fail} unable to fail."
     )
 
