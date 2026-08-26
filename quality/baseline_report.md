@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-26T15:52:48Z`
+Generated: `2026-08-26T15:53:34Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `899`
-- Total source lines: `361412`
+- Total source lines: `361432`
 - Python files: `232`
 - PowerShell files: `69`
 - Markdown files: `411`
@@ -39,13 +39,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2942`
-- Highest measured cyclomatic complexity: `31`
+- Python functions: `2943`
+- Highest measured cyclomatic complexity: `40`
 - Largest Python function length: `903`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/gate_liveness_audit.py | _make_invoked_targets | 130 | 31 | 93 |
+| automation/gate_liveness_audit.py | _make_invoked_targets | 127 | 40 | 99 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 31 | 20 | 69 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1091`
+- Unit tests collected: `1095`
 - Collection command return code: `0`
-- Collection summary: `1091 tests collected in 2.11s`
+- Collection summary: `1095 tests collected in 2.05s`
 
 ## Security Baseline
 

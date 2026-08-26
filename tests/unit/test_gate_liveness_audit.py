@@ -530,50 +530,74 @@ def test_one_failure_propagating_recipe_makes_the_whole_gate_capable(
     assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
 
 
-def test_make_directory_or_file_context_does_not_credit_root_gate(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "make_options",
+    ["-C tools", "--directory=tools", "-f tools.mk", "--file=tools.mk"],
+)
+def test_an_alternate_makefile_does_not_credit_a_root_target(
+    tmp_path: Path, make_options: str
+) -> None:
     repo = _write_repo(
         tmp_path / "svc",
-        "ci:\n\nroot-gate:\n\tpython root.py\n",
-        {"main.yml": "jobs:\n  gate:\n    steps:\n      - run: make -C tools root-gate\n"},
+        "ci:\n\treal-check\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                f"      - run: make {make_options} release-gate\n"
+            )
+        },
     )
 
     findings, _ = audit_repository("svc", repo)
 
-    assert [finding.target for finding in findings if finding.kind == "ORPHAN"] == [
-        "root-gate"
-    ]
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
 
 
-def test_empty_gate_declaration_is_inspected(tmp_path: Path) -> None:
+def test_an_explicit_root_makefile_still_credits_the_root_target(
+    tmp_path: Path,
+) -> None:
     repo = _write_repo(
         tmp_path / "svc",
-        "ci: empty-gate\n\nempty-gate:\n\nother-gate:\n\tpython gate.py\n",
+        "ci:\n\treal-check\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - run: make -C . --file=./Makefile release-gate\n"
+            )
+        },
     )
 
-    findings, count = audit_repository("svc", repo)
+    findings, _ = audit_repository("svc", repo)
 
-    assert count == 2
-    assert any(
-        finding.kind == "CANNOT_FAIL" and finding.target == "empty-gate"
-        for finding in findings
-    )
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
 
 
-def test_multi_target_rule_audits_each_gate_target(tmp_path: Path) -> None:
+def test_an_empty_gate_declaration_is_counted_and_cannot_enforce(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(tmp_path / "svc", "ci: security-gate\n\nsecurity-gate:\n")
+
+    findings, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["security-gate"]
+
+
+def test_every_target_in_a_multi_target_rule_is_audited(tmp_path: Path) -> None:
     repo = _write_repo(
         tmp_path / "svc",
-        "ci: visible-gate\n\nvisible-gate hidden-gate:\n\tpython gate.py\n",
+        "ci: hidden-gate\n\nfoo hidden-gate: ; trivy image --exit-code 0 app\n",
     )
 
-    findings, count = audit_repository("svc", repo)
+    findings, gate_count = audit_repository("svc", repo)
 
-    assert count == 2
-    assert [finding.target for finding in findings if finding.kind == "ORPHAN"] == [
-        "hidden-gate"
-    ]
+    assert gate_count == 1
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["hidden-gate"]
 
 
-def test_gate_in_final_pipeline_stage_can_propagate_failure(tmp_path: Path) -> None:
+def test_a_gate_in_the_final_pipeline_stage_propagates_its_status(
+    tmp_path: Path,
+) -> None:
     repo = _write_repo(
         tmp_path / "svc",
         "ci: scan-gate\n\nscan-gate:\n\tgenerate-input | python gate.py\n",
@@ -581,4 +605,4 @@ def test_gate_in_final_pipeline_stage_can_propagate_failure(tmp_path: Path) -> N
 
     findings, _ = audit_repository("svc", repo)
 
-    assert [finding for finding in findings if finding.kind == "CANNOT_FAIL"] == []
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
