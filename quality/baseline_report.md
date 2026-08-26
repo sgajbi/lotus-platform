@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-26T04:51:57Z`
+Generated: `2026-08-26T13:18:11Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `896`
-- Total source lines: `360060`
-- Python files: `230`
+- Source files: `899`
+- Total source lines: `360666`
+- Python files: `232`
 - PowerShell files: `69`
-- Markdown files: `410`
+- Markdown files: `411`
 
 ## Largest Files
 
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2886`
+- Python functions: `2909`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -60,16 +60,16 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 | Tool | Available | Return Code | Summary |
 | --- | --- | --- | --- |
-| ruff | no | None | tool not installed |
-| mypy | no | None | tool not installed |
-| bandit | no | None | tool not installed |
-| pip_audit | no | None | tool not installed |
+| ruff | yes | 0 | ruff 0.6.9 |
+| mypy | yes | 0 | mypy 1.20.2 (compiled: yes) |
+| bandit | yes | 0 |   python version = 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)] |
+| pip_audit | yes | 0 | pip-audit 2.10.1 |
 
 ## Test Baseline
 
-- Unit tests collected: `1047`
+- Unit tests collected: `1065`
 - Collection command return code: `0`
-- Collection summary: `1047 tests collected in 1.57s`
+- Collection summary: `1065 tests collected in 2.32s`
 
 ## Security Baseline
 

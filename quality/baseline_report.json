@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 410,
+    "markdown_file_count": 411,
     "powershell_file_count": 69,
-    "python_file_count": 230,
-    "source_file_count": 896,
+    "python_file_count": 232,
+    "source_file_count": 899,
     "suffix_counts": {
       ".json": 138,
-      ".md": 410,
+      ".md": 411,
       ".ps1": 69,
-      ".py": 230,
+      ".py": 232,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 360060
+    "total_source_lines": 360666
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,6 +147,14 @@
       },
       {
         "complexity": 13,
+        "end_line": 224,
+        "line": 153,
+        "lines": 72,
+        "name": "audit_repository",
+        "path": "automation/gate_liveness_audit.py"
+      },
+      {
+        "complexity": 13,
         "end_line": 266,
         "line": 210,
         "lines": 57,
@@ -184,14 +192,6 @@
         "lines": 43,
         "name": "_validate_final_closure",
         "path": "automation/validate_stacked_refactor_campaign_manifest.py"
-      },
-      {
-        "complexity": 12,
-        "end_line": 231,
-        "line": 189,
-        "lines": 43,
-        "name": "fetch_checks",
-        "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2886
+    "python_function_count": 2909
   },
-  "generated_at_utc": "2026-08-26T04:51:57Z",
+  "generated_at_utc": "2026-08-26T13:18:11Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -469,40 +469,40 @@
   },
   "quality_tooling": {
     "bandit": {
-      "available": false,
+      "available": true,
       "command": [
         "bandit",
         "--version"
       ],
-      "returncode": null,
-      "summary": "tool not installed"
+      "returncode": 0,
+      "summary": "  python version = 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]"
     },
     "mypy": {
-      "available": false,
+      "available": true,
       "command": [
         "mypy",
         "--version"
       ],
-      "returncode": null,
-      "summary": "tool not installed"
+      "returncode": 0,
+      "summary": "mypy 1.20.2 (compiled: yes)"
     },
     "pip_audit": {
-      "available": false,
+      "available": true,
       "command": [
         "pip-audit",
         "--version"
       ],
-      "returncode": null,
-      "summary": "tool not installed"
+      "returncode": 0,
+      "summary": "pip-audit 2.10.1"
     },
     "ruff": {
-      "available": false,
+      "available": true,
       "command": [
         "ruff",
         "--version"
       ],
-      "returncode": null,
-      "summary": "tool not installed"
+      "returncode": 0,
+      "summary": "ruff 0.6.9"
     }
   },
   "repository": "lotus-platform",
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1047,
+    "collected_tests": 1065,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-performance\\.venv\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1047 tests collected in 1.57s"
+    "summary": "1065 tests collected in 2.32s"
   }
 }
