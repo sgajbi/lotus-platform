@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 361932
+    "total_source_lines": 361992
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -34,10 +34,10 @@
   "function_hotspots": {
     "highest_complexity_functions": [
       {
-        "complexity": 63,
-        "end_line": 323,
-        "line": 161,
-        "lines": 163,
+        "complexity": 64,
+        "end_line": 333,
+        "line": 165,
+        "lines": 169,
         "name": "_make_invoked_targets",
         "path": "automation/gate_liveness_audit.py"
       },
@@ -155,8 +155,8 @@
       },
       {
         "complexity": 13,
-        "end_line": 740,
-        "line": 675,
+        "end_line": 759,
+        "line": 694,
         "lines": 66,
         "name": "main",
         "path": "automation/gate_liveness_audit.py"
@@ -187,8 +187,8 @@
       },
       {
         "complexity": 13,
-        "end_line": 465,
-        "line": 430,
+        "end_line": 475,
+        "line": 440,
         "lines": 36,
         "name": "blocking_workflow_invocations",
         "path": "automation/gate_liveness_audit.py"
@@ -300,6 +300,14 @@
         "path": "tests/unit/test_domain_product_onboarding_generator.py"
       },
       {
+        "complexity": 64,
+        "end_line": 333,
+        "line": 165,
+        "lines": 169,
+        "name": "_make_invoked_targets",
+        "path": "automation/gate_liveness_audit.py"
+      },
+      {
         "complexity": 1,
         "end_line": 466,
         "line": 300,
@@ -314,14 +322,6 @@
         "lines": 167,
         "name": "test_validate_service_addressing_accepts_canonical_hostnames",
         "path": "tests/unit/test_service_addressing_validator.py"
-      },
-      {
-        "complexity": 63,
-        "end_line": 323,
-        "line": 161,
-        "lines": 163,
-        "name": "_make_invoked_targets",
-        "path": "automation/gate_liveness_audit.py"
       },
       {
         "complexity": 10,
@@ -356,11 +356,11 @@
         "path": "automation/core_performance_mwr_validation.py"
       }
     ],
-    "max_complexity": 63,
+    "max_complexity": 64,
     "max_function_lines": 903,
-    "python_function_count": 2960
+    "python_function_count": 2963
   },
-  "generated_at_utc": "2026-08-26T16:55:24Z",
+  "generated_at_utc": "2026-08-26T17:02:59Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -577,87 +577,72 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 170,
+        "line": 176,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 205,
+        "line": 211,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 231,
+        "line": 241,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 233,
+        "line": 243,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 236,
+        "line": 246,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 237,
+        "line": 247,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 245,
+        "line": 255,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 248,
+        "line": 258,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 250,
+        "line": 260,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 251,
+        "line": 261,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 263,
+        "line": 273,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 264,
+        "line": 274,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 265,
+        "line": 275,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 268,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 270,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 276,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 279,
+        "line": 278,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -667,12 +652,22 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 281,
+        "line": 286,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 283,
+        "line": 289,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 290,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 291,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -682,27 +677,17 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 294,
+        "line": 303,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 296,
+        "line": 304,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 297,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 301,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 302,
+        "line": 306,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -712,12 +697,27 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 309,
+        "line": 311,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 311,
+        "line": 312,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 317,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 319,
+        "path": "automation/gate_liveness_audit.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 321,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
       },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1122,
+    "collected_tests": 1125,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1122 tests collected in 1.61s"
+    "summary": "1125 tests collected in 1.27s"
   }
 }

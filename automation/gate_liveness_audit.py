@@ -125,7 +125,11 @@ _MAKE_NON_ENFORCING_OPTIONS = {
     "--recon",
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
-_PIPELINE_STATUS_SINK = re.compile(r"^[\"']?(?:tee|cat|echo|true|:)(?:\s|$)")
+_PIPELINE_ENFORCING_STAGE = re.compile(
+    r"^(?:(?:python(?:\d+(?:\.\d+)?)?|bash|sh)\b[\s\S]*\b(?:gate|check|scan|validate)\b|"
+    r"(?:pytest|ruff|mypy|trivy)\b)",
+    re.IGNORECASE,
+)
 _MAKE_COMMAND_PREFIXES = {
     "!",
     "command",
@@ -158,7 +162,9 @@ class MakeTarget:
     recipe: tuple[str, ...]
 
 
-def _make_invoked_targets(command: str) -> tuple[str, ...]:
+def _make_invoked_targets(
+    command: str, *, default_errexit: bool = False
+) -> tuple[str, ...]:
     """Return targets from make invocations, skipping options and assignments.
 
     GNU Make accepts options before targets, so a textual ``make <word>`` regex interprets
@@ -222,7 +228,11 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
             unquoted.append(" ")
         else:
             unquoted.append(character)
-    sanitized = re.sub(r"(?m)(?<!\S)#.*$", "", "".join(unquoted)).replace("\n", ";")
+    sanitized = re.sub(r"(?m)(?<!\S)#.*$", "", "".join(unquoted))
+    # GitHub's default Bash runner uses `-e`; a literal YAML line break therefore stops the step
+    # after a failed gate. Represent those boundaries as `&&` while retaining explicit `;` as a
+    # status-masking shell separator.
+    sanitized = sanitized.replace("\n", " && " if default_errexit else ";")
 
     try:
         lexer = shlex.shlex(sanitized, posix=True, punctuation_chars=";&|")
@@ -461,7 +471,7 @@ def blocking_workflow_invocations(
                 continue
             command = step.get("run")
             if isinstance(command, str):
-                invoked.update(_make_invoked_targets(command))
+                invoked.update(_make_invoked_targets(command, default_errexit=True))
     return invoked & set(targets)
 
 
@@ -484,7 +494,17 @@ def blocking_roots_for(
 
 def _is_comment_or_noise(recipe_line: str) -> bool:
     stripped = _RECIPE_PREFIXES.sub("", recipe_line.strip()).strip()
-    return not stripped or stripped.startswith(("#", "echo", "mkdir"))
+    if not stripped or stripped.startswith("#"):
+        return True
+    commands = [
+        segment.strip()
+        for segment in re.split(r"&&|\|\||(?<!\|)\|(?!\|)|;", stripped)
+        if segment.strip()
+    ]
+    return bool(commands) and all(
+        re.match(r"^(?:echo|mkdir|true|:|exit\s+0)\b", segment)
+        for segment in commands
+    )
 
 
 def _final_command(command: str) -> str:
@@ -512,12 +532,11 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
     if ALWAYS_SUCCEEDS.match(final):
         return "the last command on this line always succeeds, so it supplies the exit status"
 
-    # A pipeline reports its last stage's status. A known report sink such as `tee` therefore masks
-    # an earlier verdict without pipefail, while `generate-input | python gate.py` correctly
-    # propagates the gate in the final stage. Do not reject every pipeline indiscriminately.
+    # A pipeline reports its last stage's status. Without pipefail, any non-enforcing consumer can
+    # mask an earlier verdict (`python gate.py | sed ...`), not only common `tee`/`cat` sinks.
     if re.search(r"(?<!\|)\|(?!\|)", final) and not PIPEFAIL_ENABLED.search(command):
         pipeline_tail = re.split(r"(?<!\|)\|(?!\|)", final)[-1].strip()
-        if _PIPELINE_STATUS_SINK.match(pipeline_tail):
+        if not _PIPELINE_ENFORCING_STAGE.match(pipeline_tail):
             return "the pipeline's status comes from a reporting sink, not the earlier gate"
 
     for pattern, detail in CANNOT_FAIL_PATTERNS:

@@ -488,6 +488,28 @@ def test_a_gate_with_only_no_op_recipes_is_unable_to_enforce(tmp_path: Path) -> 
     assert "only comments, setup, or no-op recipes" in cannot_fail[0].detail
 
 
+def test_setup_prefix_does_not_hide_a_failing_validator(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: release-gate\n\nrelease-gate:\n\tmkdir -p output && python gate.py\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_unknown_pipeline_consumer_is_treated_as_status_masking(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: release-gate\n\nrelease-gate:\n\tpython gate.py | sed 's/x/y/'\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
+
+
 def test_make_options_are_skipped_before_workflow_targets(tmp_path: Path) -> None:
     repo = _write_repo(
         tmp_path / "svc",
@@ -583,6 +605,25 @@ def test_multiline_workflow_run_invokes_a_gate(tmp_path: Path) -> None:
     findings, _ = audit_repository("svc", repo)
 
     assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+def test_multiline_workflow_run_honors_default_errexit(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - run: |\n"
+                "          make release-gate\n"
+                "          echo completed\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == []
 
 
 def test_inline_workflow_shell_comment_does_not_invoke_a_gate(tmp_path: Path) -> None:
