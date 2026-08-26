@@ -385,3 +385,58 @@ def test_lint_is_a_blocking_root_when_ci_reaches_it(tmp_path: Path) -> None:
     findings, _ = audit_repository("svc", repo)
 
     assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+def test_an_inline_recipe_after_a_semicolon_is_a_recipe_not_a_prerequisite(
+    tmp_path: Path,
+) -> None:
+    """GNU Make allows `target: prereqs ; command`.
+
+    Storing the whole tail as prerequisites left the recipe empty, so the target counted as a gate
+    and looked reachable while its non-failing command was never inspected.
+    """
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: security-gate\n\nsecurity-gate: ; trivy image --exit-code 0 app\n",
+    )
+
+    findings, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+    cannot_fail = [f for f in findings if f.kind == "CANNOT_FAIL"]
+    assert len(cannot_fail) == 1
+    # The trivy rule matches before the generic `--exit-code 0` one, so the detail names it.
+    assert "trivy without --exit-code 1" in cannot_fail[0].detail
+    assert cannot_fail[0].evidence == "trivy image --exit-code 0 app"
+
+
+def test_an_inline_recipe_keeps_its_prerequisites(tmp_path: Path) -> None:
+    targets = parse_makefile("build-gate: dep-one dep-two ; python g.py --max 0\n")
+
+    assert targets["build-gate"].prerequisites == ("dep-one", "dep-two")
+    assert targets["build-gate"].recipe == ("python g.py --max 0",)
+
+
+def test_a_pipeline_under_pipefail_is_not_flagged(tmp_path: Path) -> None:
+    """`pipefail` makes the pipeline return the first non-zero stage, so the gate can fail."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: scan-gate\n\nscan-gate:\n\tbash -o pipefail -c 'python g.py | tee gate.log'\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_a_pipeline_without_pipefail_is_still_flagged(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: scan-gate\n\nscan-gate:\n\tbash -c 'python g.py | tee gate.log'\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.kind for f in findings if f.kind == "CANNOT_FAIL"] == ["CANNOT_FAIL"]
