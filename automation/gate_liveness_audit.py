@@ -86,7 +86,7 @@ PIPEFAIL_ENABLED = re.compile(r"-o\s+pipefail\b|set\s+-[a-z]*o\s+pipefail\b")
 _RECIPE_PREFIXES = re.compile(r"^[@+-]+")
 _IGNORES_ERRORS = re.compile(r"^[@+]*-")
 
-_TARGET = re.compile(r"^([A-Za-z0-9_.-]+):\s*(.*)$")
+_TARGET = re.compile(r"^([A-Za-z0-9_.%+-]+(?:\s+[A-Za-z0-9_.%+-]+)*):\s*(.*)$")
 _MAKE_ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 _MAKE_OPTIONS_REQUIRING_VALUES = {
     "-C",
@@ -103,6 +103,7 @@ _MAKE_OPTIONS_REQUIRING_VALUES = {
     "--jobserver-auth",
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
+_PIPELINE_STATUS_SINK = re.compile(r"^[\"']?(?:tee|cat|echo|true|:)(?:\s|$)")
 
 
 @dataclass(frozen=True)
@@ -171,30 +172,56 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
             "$(MAKE)",
         } and not normalized_command.endswith("/make"):
             continue
-        skip_option_value = False
+        pending_option: str | None = None
         options_ended = False
+        candidates: list[str] = []
+        uses_root_makefile = True
         for token in tokens[index + 1 :]:
             if _SHELL_BOUNDARY.match(token):
                 break
-            if skip_option_value:
-                skip_option_value = False
+            if pending_option is not None:
+                if pending_option in {"-C", "--directory"} and Path(token) != Path("."):
+                    uses_root_makefile = False
+                if pending_option in {"-f", "--file"} and Path(token) != Path(
+                    "Makefile"
+                ):
+                    uses_root_makefile = False
+                pending_option = None
                 continue
             if not options_ended and token == "--":
                 options_ended = True
                 continue
             if not options_ended and token.startswith("-"):
                 option_name = token.split("=", 1)[0]
+                option_value = token.split("=", 1)[1] if "=" in token else None
+                if (
+                    option_name in {"--directory", "--file"}
+                    and option_value is not None
+                ):
+                    expected = (
+                        Path(".") if option_name == "--directory" else Path("Makefile")
+                    )
+                    if Path(option_value) != expected:
+                        uses_root_makefile = False
+                elif token.startswith("-C") and token != "-C":
+                    if Path(token[2:]) != Path("."):
+                        uses_root_makefile = False
+                elif token.startswith("-f") and token != "-f":
+                    if Path(token[2:]) != Path("Makefile"):
+                        uses_root_makefile = False
                 if (
                     option_name in _MAKE_OPTIONS_REQUIRING_VALUES
                     and "=" not in token
                     and token == option_name
                 ):
                     # Joined short forms such as ``-Csrc`` and ``-j4`` already carry the value.
-                    skip_option_value = True
+                    pending_option = option_name
                 continue
             if _MAKE_ASSIGNMENT.match(token):
                 continue
-            invoked.append(token)
+            candidates.append(token)
+        if uses_root_makefile:
+            invoked.extend(candidates)
     return tuple(invoked)
 
 
@@ -228,26 +255,28 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
     """
 
     targets: dict[str, tuple[list[str], list[str]]] = {}
-    current: str | None = None
+    current: tuple[str, ...] = ()
     for line in text.splitlines():
         if line.startswith("\t"):
-            if current is not None:
-                targets[current][1].append(line[1:])
+            for name in current:
+                targets[name][1].append(line[1:])
             continue
         match = _TARGET.match(line)
         if match:
-            current = match.group(1)
-            targets.setdefault(current, ([], []))
+            current = tuple(match.group(1).split())
+            for name in current:
+                targets.setdefault(name, ([], []))
             # GNU Make allows an inline recipe after a semicolon: `security-gate: ; trivy ...`.
             # Treating the whole tail as prerequisites stores `;` and the command as prerequisite
             # names, leaves the recipe empty, and so never inspects the command - the target counts
             # as a gate and looks reachable while its non-failing command goes unexamined.
             prerequisites, separator, inline_recipe = match.group(2).partition(";")
-            targets[current][0].extend(prerequisites.split())
-            if separator and inline_recipe.strip():
-                targets[current][1].append(inline_recipe.strip())
+            for name in current:
+                targets[name][0].extend(prerequisites.split())
+                if separator and inline_recipe.strip():
+                    targets[name][1].append(inline_recipe.strip())
         elif not line.strip():
-            current = None
+            current = ()
     return {
         name: MakeTarget(tuple(prerequisites), tuple(_join_continuations(recipe)))
         for name, (prerequisites, recipe) in targets.items()
@@ -344,11 +373,13 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
     if ALWAYS_SUCCEEDS.match(final):
         return "the last command on this line always succeeds, so it supplies the exit status"
 
-    # A pipeline reports the last stage's status, not the gate's - unless `pipefail` is set, which
-    # makes the pipeline return the first non-zero stage. Flagging a recipe that enables it would
-    # punish a correct gate, which is the failure mode this audit must not have.
+    # A pipeline reports its last stage's status. A known report sink such as `tee` therefore masks
+    # an earlier verdict without pipefail, while `generate-input | python gate.py` correctly
+    # propagates the gate in the final stage. Do not reject every pipeline indiscriminately.
     if re.search(r"(?<!\|)\|(?!\|)", final) and not PIPEFAIL_ENABLED.search(command):
-        return "the pipeline's status is the last stage's, not the gate's"
+        pipeline_tail = re.split(r"(?<!\|)\|(?!\|)", final)[-1].strip()
+        if _PIPELINE_STATUS_SINK.match(pipeline_tail):
+            return "the pipeline's status comes from a reporting sink, not the earlier gate"
 
     for pattern, detail in CANNOT_FAIL_PATTERNS:
         if re.search(pattern, final):
@@ -444,15 +475,11 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
     roots = blocking_roots_for(targets, from_workflows)
     blocking = reachable_targets(targets, tuple(set(roots) | from_workflows))
 
-    # A gate that delegates entirely through prerequisites - `orphan-gate: scan` with no recipe of
-    # its own - is still a gate. Filtering on a non-empty recipe dropped it from both the count and
-    # the orphan check.
+    # Every declared gate is audited. That includes prerequisite-only aggregates and completely
+    # empty declarations: filtering on content lets an inert `security-gate:` disappear whenever
+    # another gate keeps the repository-level count non-zero.
     gates = sorted(
-        name
-        for name in targets
-        if name.endswith(GATE_SUFFIXES)
-        and name != ".PHONY"
-        and (targets[name].recipe or targets[name].prerequisites)
+        name for name in targets if name.endswith(GATE_SUFFIXES) and name != ".PHONY"
     )
 
     findings: list[Finding] = []

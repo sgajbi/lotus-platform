@@ -528,3 +528,81 @@ def test_one_failure_propagating_recipe_makes_the_whole_gate_capable(
     findings, _ = audit_repository("svc", repo)
 
     assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+@pytest.mark.parametrize(
+    "make_options",
+    ["-C tools", "--directory=tools", "-f tools.mk", "--file=tools.mk"],
+)
+def test_an_alternate_makefile_does_not_credit_a_root_target(
+    tmp_path: Path, make_options: str
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\treal-check\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                f"      - run: make {make_options} release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_an_explicit_root_makefile_still_credits_the_root_target(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\treal-check\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - run: make -C . --file=./Makefile release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+def test_an_empty_gate_declaration_is_counted_and_cannot_enforce(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(tmp_path / "svc", "ci: security-gate\n\nsecurity-gate:\n")
+
+    findings, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["security-gate"]
+
+
+def test_every_target_in_a_multi_target_rule_is_audited(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: hidden-gate\n\nfoo hidden-gate: ; trivy image --exit-code 0 app\n",
+    )
+
+    findings, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["hidden-gate"]
+
+
+def test_a_gate_in_the_final_pipeline_stage_propagates_its_status(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: scan-gate\n\nscan-gate:\n\tgenerate-input | python gate.py\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
