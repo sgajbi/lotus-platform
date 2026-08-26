@@ -164,13 +164,30 @@ function Get-ComposeServiceStates {
   )
 
   $arguments = @('compose', 'ps', '--format', 'json') + $ServiceNames
-  $output = @(& $Command @arguments 2>&1)
-  $exitCode = $LASTEXITCODE
+  $stdoutPath = [IO.Path]::GetTempFileName()
+  $stderrPath = [IO.Path]::GetTempFileName()
+  try {
+    & $Command @arguments 1> $stdoutPath 2> $stderrPath
+    $exitCode = $LASTEXITCODE
+    $output = @(Get-Content -LiteralPath $stdoutPath)
+    $diagnostics = Get-Content -LiteralPath $stderrPath -Raw
+    if ($null -eq $diagnostics) {
+      $diagnostics = ""
+    } else {
+      $diagnostics = ([string]$diagnostics).Trim()
+    }
+  } finally {
+    Remove-Item -LiteralPath $stdoutPath, $stderrPath -Force -ErrorAction SilentlyContinue
+  }
   if ($null -eq $exitCode) {
     $exitCode = 0
   }
   if ($exitCode -ne 0) {
-    throw "docker compose ps failed after service refresh (exit code $exitCode): $Command $($arguments -join ' ')"
+    $diagnosticSuffix = if ([string]::IsNullOrWhiteSpace($diagnostics)) { "" } else { "; stderr: $diagnostics" }
+    throw "docker compose ps failed after service refresh (exit code $exitCode): $Command $($arguments -join ' ')$diagnosticSuffix"
+  }
+  if (-not [string]::IsNullOrWhiteSpace($diagnostics)) {
+    [Console]::Error.WriteLine($diagnostics)
   }
 
   $states = @()

@@ -15,6 +15,8 @@ def _overview(*, portfolio_id: str, as_of_date: str, cash_weight_pct: object) ->
         "as_of_date": as_of_date,
         "effective_as_of_date": as_of_date,
         "overview": {"cash_weight_pct": cash_weight_pct},
+        "warnings": [],
+        "partial_failures": [],
     }
 
 
@@ -77,6 +79,8 @@ def test_cash_evidence_normalizes_source_percentage_without_rounding(
                 "portfolio": {"portfolio_id": "PB_SG_GLOBAL_BAL_001"},
                 "as_of_date": "2026-04-10",
                 "effective_as_of_date": "2026-04-10",
+                "warnings": [],
+                "partial_failures": [],
             },
             "CANONICAL_CASH_OVERVIEW_MISSING",
         ),
@@ -85,8 +89,37 @@ def test_cash_evidence_normalizes_source_percentage_without_rounding(
                 "as_of_date": "2026-04-10",
                 "effective_as_of_date": "2026-04-10",
                 "overview": {"cash_weight_pct": Decimal("10")},
+                "warnings": [],
+                "partial_failures": [],
             },
             "CANONICAL_CASH_PORTFOLIO_MISSING",
+        ),
+        (
+            {
+                **_overview(
+                    portfolio_id="PB_SG_GLOBAL_BAL_001",
+                    as_of_date="2026-04-10",
+                    cash_weight_pct=Decimal("10"),
+                ),
+                "partial_failures": [
+                    {
+                        "source_service": "lotus-core",
+                        "error_code": "UPSTREAM_TIMEOUT",
+                    }
+                ],
+            },
+            "CANONICAL_CASH_SOURCE_DEGRADED",
+        ),
+        (
+            {
+                **_overview(
+                    portfolio_id="PB_SG_GLOBAL_BAL_001",
+                    as_of_date="2026-04-10",
+                    cash_weight_pct=Decimal("10"),
+                ),
+                "warnings": ["cash source used a fallback value"],
+            },
+            "CANONICAL_CASH_SOURCE_DEGRADED",
         ),
         (
             {

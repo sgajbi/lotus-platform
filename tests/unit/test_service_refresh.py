@@ -134,6 +134,7 @@ def test_service_refresh_fails_when_compose_ps_fails(tmp_path: Path) -> None:
 
     assert result.returncode != 0
     assert "docker compose ps failed after service refresh" in result.stderr
+    assert "compose ps unavailable" in result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
         "compose ps --format json lotus-gateway",
@@ -158,6 +159,31 @@ def test_service_refresh_preserves_successful_explicit_service_refresh(
     result = _run_service_refresh(tmp_path, fake_docker, "lotus-gateway")
 
     assert result.returncode == 0, result.stderr
+    assert _command_log(tmp_path) == [
+        "compose up -d --build lotus-gateway",
+        "compose ps --format json lotus-gateway",
+    ]
+
+
+def test_service_refresh_keeps_compose_stderr_out_of_json_state(tmp_path: Path) -> None:
+    fake_docker = _fake_docker(
+        tmp_path,
+        "\n".join(
+            [
+                "if ($line -eq 'compose ps --format json lotus-gateway') {",
+                "  [Console]::Error.WriteLine('compose warning: obsolete attribute')",
+                '  Write-Output \'{"Service":"lotus-gateway","State":"running","Health":"healthy","Publishers":[]}\'',
+                "}",
+                "exit 0",
+            ]
+        ),
+    )
+
+    result = _run_service_refresh(tmp_path, fake_docker, "lotus-gateway")
+
+    assert result.returncode == 0, result.stderr
+    assert "compose warning: obsolete attribute" in result.stderr
+    assert "invalid JSON service state" not in result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
         "compose ps --format json lotus-gateway",

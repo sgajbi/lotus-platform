@@ -50,6 +50,16 @@ def cash_evidence_from_overview(
     if effective_as_of_date != as_of_date:
         raise CashEvidenceError("CANONICAL_CASH_EFFECTIVE_DATE_MISMATCH")
 
+    warnings = payload.get("warnings")
+    partial_failures = payload.get("partial_failures")
+    if (
+        not isinstance(warnings, list)
+        or warnings
+        or not isinstance(partial_failures, list)
+        or partial_failures
+    ):
+        raise CashEvidenceError("CANONICAL_CASH_SOURCE_DEGRADED")
+
     overview = payload.get("overview")
     if not isinstance(overview, Mapping):
         raise CashEvidenceError("CANONICAL_CASH_OVERVIEW_MISSING")
