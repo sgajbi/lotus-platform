@@ -131,6 +131,9 @@ function Resolve-GovernedComposeEnvironment {
     if ($name -notmatch '^(LOTUS|DPM)_[A-Z0-9_]+$') {
       throw "Compose environment '$name' is outside the governed LOTUS_/DPM_ namespaces and cannot be governed by service refresh."
     }
+    if ($name -match '(SECRET|TOKEN|PASSWORD|PASS|CREDENTIAL|PRIVATE_KEY|API_KEY)') {
+      throw "Credential-bearing Compose environment '$name' cannot be governed by service refresh."
+    }
     if ($value -isnot [string] -or [string]::IsNullOrWhiteSpace([string]$value)) {
       throw "Compose environment '$name' must have a non-empty string value."
     }

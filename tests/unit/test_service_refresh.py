@@ -220,7 +220,16 @@ def test_service_refresh_dry_run_reports_manage_environment_and_port(
 
 @pytest.mark.parametrize(
     "environment_name",
-    ["API_TOKEN", "DB_PASS", "GIT_SSH_COMMAND", "LD_PRELOAD", "PYTHONPATH"],
+    [
+        "API_TOKEN",
+        "DB_PASS",
+        "GIT_SSH_COMMAND",
+        "LD_PRELOAD",
+        "PYTHONPATH",
+        "DPM_API_TOKEN",
+        "LOTUS_DB_PASSWORD",
+        "LOTUS_DB_PASS",
+    ],
 )
 def test_service_refresh_rejects_ungoverned_environment_mapping(
     tmp_path: Path,

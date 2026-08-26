@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 359935
+    "total_source_lines": 359947
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -360,7 +360,7 @@
     "max_function_lines": 903,
     "python_function_count": 2885
   },
-  "generated_at_utc": "2026-08-26T04:05:02Z",
+  "generated_at_utc": "2026-08-26T04:10:37Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -737,6 +737,16 @@
         "signal": "sensitive-keyword-review"
       },
       {
+        "line": 134,
+        "path": "automation/Service-Refresh.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 135,
+        "path": "automation/Service-Refresh.ps1",
+        "signal": "sensitive-keyword-review"
+      },
+      {
         "line": 22,
         "path": "automation/Validate-Automation-Config.ps1",
         "signal": "sensitive-keyword-review"
@@ -775,22 +785,12 @@
         "line": 103,
         "path": "automation/Validate-Enterprise-Readiness.ps1",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 424,
-        "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 497,
-        "path": "automation/Validate-LotusDeveloperEnvironment.ps1",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1039,
+    "collected_tests": 1042,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1039 tests collected in 1.26s"
+    "summary": "1042 tests collected in 1.39s"
   }
 }
