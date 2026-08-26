@@ -534,6 +534,12 @@ def test_unquoted_echoed_make_text_is_not_treated_as_an_invocation() -> None:
     assert reachable_targets(targets, ("ci",)) == {"ci"}
 
 
+def test_shell_comment_does_not_add_targets_after_the_command() -> None:
+    assert _make_invoked_targets("make release-gate # documentation only") == (
+        "release-gate",
+    )
+
+
 def test_workflow_step_name_is_not_treated_as_a_make_invocation(tmp_path: Path) -> None:
     repo = _write_repo(
         tmp_path / "svc",
