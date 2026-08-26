@@ -129,6 +129,9 @@ _MAKE_NON_ENFORCING_OPTIONS = {
     "--touch",
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
+_ENFORCEMENT_PREREQUISITE = re.compile(
+    r"(?:^|[-_.])(?:gate|guard|scan|scanner|check|lint|test|validate|audit|security)(?:$|[-_.])"
+)
 _PIPELINE_ENFORCING_STAGE = re.compile(
     r"^(?:(?:python(?:\d+(?:\.\d+)?)?|bash|sh)\b[\s\S]*\b(?:gate|check|scan|validate)\b|"
     r"(?:pytest|ruff|mypy|trivy)\b)",
@@ -335,7 +338,7 @@ def _make_invoked_targets(
             ]
             # A later fallback can mask the gate even if the first boundary is `&&`, as in
             # `make gate && report || true`, so inspect the complete remaining list.
-            if "||" in boundaries or (
+            if "&" in boundaries or "||" in boundaries or (
                 ";" in boundaries and not ERREXIT_ENABLED.search(command)
             ) or ("|" in boundaries and not PIPEFAIL_ENABLED.search(command)):
                 non_enforcing = True
@@ -427,6 +430,42 @@ def parse_makefile(text: str) -> dict[str, MakeTarget]:
         name: MakeTarget(tuple(prerequisites), tuple(_join_continuations(recipe)))
         for name, (prerequisites, recipe) in targets.items()
     }
+
+
+def _read_effective_makefile(
+    path: Path, repository_root: Path, seen: set[Path] | None = None
+) -> str:
+    """Read repository-local static Make includes once, without escaping the repository."""
+
+    visited = set() if seen is None else seen
+    resolved = path.resolve()
+    root = repository_root.resolve()
+    if resolved in visited or not resolved.is_relative_to(root) or not resolved.is_file():
+        return ""
+    visited.add(resolved)
+    text = resolved.read_text(encoding="utf-8", errors="ignore")
+    fragments = [text]
+    for line in text.splitlines():
+        match = re.match(r"^\s*(?:-?include|sinclude)\s+(.+?)\s*$", line)
+        if match is None:
+            continue
+        try:
+            include_names = shlex.split(match.group(1), comments=True)
+        except ValueError:
+            continue
+        for include_name in include_names:
+            if "$" in include_name:
+                continue
+            candidates = (
+                sorted(resolved.parent.glob(include_name))
+                if any(character in include_name for character in "*?[")
+                else [resolved.parent / include_name]
+            )
+            fragments.extend(
+                _read_effective_makefile(candidate, root, visited)
+                for candidate in candidates
+            )
+    return "\n".join(fragment for fragment in fragments if fragment)
 
 
 def reachable_targets(
@@ -601,6 +640,14 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
     if ALWAYS_SUCCEEDS.match(final):
         return "the last command on this line always succeeds, so it supplies the exit status"
 
+    if (
+        re.match(r"^if\b", command)
+        and re.search(r"\bthen\b", command)
+        and re.search(r"\bfi\s*$", command)
+        and not re.search(r"\belse\b", command)
+    ):
+        return "a failed command used as an if condition is converted into a successful no-branch result"
+
     # A pipeline reports its last stage's status. Without pipefail, any non-enforcing consumer can
     # mask an earlier verdict (`python gate.py | sed ...`), not only common `tee`/`cat` sinks.
     if re.search(r"(?<!\|)\|(?!\|)", final) and not PIPEFAIL_ENABLED.search(command):
@@ -639,6 +686,10 @@ def _target_can_fail(
 
     if any(
         prerequisite in targets
+        and (
+            prerequisite.endswith(GATE_SUFFIXES)
+            or _ENFORCEMENT_PREREQUISITE.search(prerequisite)
+        )
         and _target_can_fail(prerequisite, targets, memo, active, oneshell=oneshell)
         for prerequisite in target.prerequisites
     ):
@@ -711,7 +762,7 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
     if not makefile.is_file():
         return [], 0
 
-    targets = parse_makefile(makefile.read_text(encoding="utf-8", errors="ignore"))
+    targets = parse_makefile(_read_effective_makefile(makefile, root))
     oneshell = ".ONESHELL" in targets
     workflow_dir = root / ".github" / "workflows"
     from_workflows: set[str] = set()
