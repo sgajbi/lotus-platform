@@ -53,6 +53,15 @@ minimum contract/governance test-family breadth, and maximum uncategorized-test 
 should block loss of proof or unchecked taxonomy drift; they should not pretend that the entire
 taxonomy is mature.
 
+## Threshold Discipline
+
+A **ratchet** (a bound banked from a measurement) belongs at exact equality with zero headroom; a
+**band** (a ratio between a floor and a ceiling) must never sit on its edge. Opposite disciplines,
+and easy to apply backwards. When a correctly-banked threshold blocks legitimate work, suspect the
+**classifier**, not the bound: the gate is measuring the wrong population and is punishing the
+behaviour it exists to encourage. Fix classification, re-bank downward in the same change, and never
+lower a bound to go green. Load `references/threshold-discipline.md` for the measured instances.
+
 Keep report-only until stable when the signal is noisy or policy is not settled, such as:
 
 1. maintainability index,
