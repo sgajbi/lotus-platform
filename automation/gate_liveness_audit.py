@@ -109,6 +109,18 @@ _MAKE_OPTIONS_REQUIRING_VALUES = {
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
 _PIPELINE_STATUS_SINK = re.compile(r"^[\"']?(?:tee|cat|echo|true|:)(?:\s|$)")
+_MAKE_COMMAND_PREFIXES = {
+    "!",
+    "command",
+    "do",
+    "else",
+    "env",
+    "if",
+    "sudo",
+    "then",
+    "until",
+    "while",
+}
 
 
 @dataclass(frozen=True)
@@ -159,7 +171,7 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
             unquoted.append(" ")
         else:
             unquoted.append(character)
-    sanitized = "".join(unquoted)
+    sanitized = "".join(unquoted).replace("\n", ";")
 
     try:
         lexer = shlex.shlex(sanitized, posix=True, punctuation_chars=";&|")
@@ -176,6 +188,20 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
             "make",
             "$(MAKE)",
         } and not normalized_command.endswith("/make"):
+            continue
+        segment_start = index
+        while segment_start > 0 and not _SHELL_BOUNDARY.match(
+            tokens[segment_start - 1]
+        ):
+            segment_start -= 1
+        prefix = [token.lstrip("@+-") for token in tokens[segment_start:index]]
+        if any(
+            token not in _MAKE_COMMAND_PREFIXES and not _MAKE_ASSIGNMENT.match(token)
+            for token in prefix
+        ):
+            # `echo make release-gate` and step labels containing the word make are data, not
+            # invocations. Only credit make at a shell command position (optionally after wrappers
+            # such as `env`/`sudo` or environment assignments).
             continue
         pending_option: str | None = None
         options_ended = False
@@ -228,6 +254,39 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
         if uses_root_makefile:
             invoked.extend(candidates)
     return tuple(invoked)
+
+
+def _workflow_run_commands(step_block: str) -> tuple[str, ...]:
+    """Extract executable `run:` values without treating step metadata as shell text."""
+
+    lines = step_block.splitlines()
+    commands: list[str] = []
+    index = 0
+    while index < len(lines):
+        match = re.match(r"^(\s*)(?:-\s*)?run:\s*(.*)$", lines[index])
+        if match is None:
+            index += 1
+            continue
+        indentation = len(match.group(1))
+        value = match.group(2).strip()
+        if value and value not in {"|", ">", "|-", ">-", "|+", ">+"}:
+            commands.append(value)
+            index += 1
+            continue
+
+        block_lines: list[str] = []
+        index += 1
+        while index < len(lines):
+            candidate = lines[index]
+            if (
+                candidate.strip()
+                and len(candidate) - len(candidate.lstrip()) <= indentation
+            ):
+                break
+            block_lines.append(candidate.strip())
+            index += 1
+        commands.append("\n".join(block_lines))
+    return tuple(commands)
 
 
 def _join_continuations(lines: list[str]) -> list[str]:
@@ -327,7 +386,8 @@ def blocking_workflow_invocations(
         cleaned = "\n".join(lines)
         if re.search(r"continue-on-error:\s*true", cleaned):
             continue
-        invoked.update(_make_invoked_targets(cleaned))
+        for command in _workflow_run_commands(cleaned):
+            invoked.update(_make_invoked_targets(command))
     return invoked & set(targets)
 
 
