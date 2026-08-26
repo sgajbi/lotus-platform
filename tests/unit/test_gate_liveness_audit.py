@@ -510,6 +510,47 @@ def test_unknown_pipeline_consumer_is_treated_as_status_masking(tmp_path: Path) 
     assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
 
 
+def test_included_makefile_targets_are_audited_and_reachable(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "include gates.mk\n\nci: included-gate\n",
+    )
+    (repo / "gates.mk").write_text("included-gate:\n\tpython gate.py\n", encoding="utf-8")
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+def test_oneshell_uses_final_recipe_status(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        ".ONESHELL:\n\nci: release-gate\n\nrelease-gate:\n\tfalse\n\techo completed\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
+
+
+def test_workflow_subdirectory_does_not_credit_root_makefile(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - working-directory: tools\n"
+                "        run: make release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
 def test_make_options_are_skipped_before_workflow_targets(tmp_path: Path) -> None:
     repo = _write_repo(
         tmp_path / "svc",
@@ -892,3 +933,146 @@ def test_ruff_exit_zero_is_report_only(tmp_path: Path) -> None:
     findings, _ = audit_repository("svc", repo)
 
     assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["lint-gate"]
+
+
+@pytest.mark.parametrize("fallback", ["true", "echo failed"])
+def test_a_later_or_fallback_masks_an_and_list_gate(
+    tmp_path: Path, fallback: str
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                f"      - run: make release-gate && echo passed || {fallback}\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_multiline_comment_preserves_a_later_gate_invocation() -> None:
+    assert _make_invoked_targets(
+        "echo preparing # note\nmake release-gate", default_errexit=True
+    ) == ("release-gate",)
+
+
+def test_recipe_comment_does_not_hide_a_status_fallback(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: release-gate\n\nrelease-gate:\n\tpython gate.py || true # advisory\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
+
+
+def test_quoted_semicolon_does_not_hide_the_final_successful_command(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        'ci: release-gate\n\nrelease-gate:\n\tpython gate.py; echo "gate; complete"\n',
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
+
+
+@pytest.mark.parametrize("make_option", ["-q", "--question", "-t", "--touch"])
+def test_non_executing_make_modes_do_not_credit_a_workflow_gate(
+    tmp_path: Path, make_option: str
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                f"      - run: make {make_option} release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_negated_make_does_not_credit_a_workflow_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {"main.yml": "jobs:\n  gate:\n    steps:\n      - run: '! make release-gate'\n"},
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+@pytest.mark.parametrize(
+    "directory_declaration",
+    [
+        "    defaults:\n      run:\n        working-directory: tools\n",
+        "    steps:\n      - working-directory: tools\n        run: make release-gate\n",
+    ],
+)
+def test_non_root_working_directory_does_not_credit_a_root_gate(
+    tmp_path: Path, directory_declaration: str
+) -> None:
+    steps = "    steps:\n      - run: make release-gate\n" if "defaults" in directory_declaration else ""
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {"main.yml": "jobs:\n  gate:\n" + directory_declaration + steps},
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_oneshell_uses_the_final_recipe_status(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        ".ONESHELL:\nci: release-gate\n\nrelease-gate:\n\tpython gate.py\n\techo completed\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
+
+
+def test_oneshell_errexit_preserves_an_earlier_gate_failure(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        ".ONESHELL:\nci: release-gate\n\nrelease-gate:\n\tset -e\n\tpython gate.py\n\techo completed\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_statically_false_workflow_step_does_not_credit_a_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - if: false\n        run: make release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]

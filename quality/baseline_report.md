@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-26T17:02:59Z`
+Generated: `2026-08-26T17:09:46Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `901`
-- Total source lines: `361992`
+- Total source lines: `362270`
 - Python files: `232`
 - PowerShell files: `69`
 - Markdown files: `413`
@@ -39,14 +39,15 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2963`
-- Highest measured cyclomatic complexity: `64`
+- Python functions: `2978`
+- Highest measured cyclomatic complexity: `54`
 - Largest Python function length: `903`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
-| automation/gate_liveness_audit.py | _make_invoked_targets | 165 | 64 | 169 |
+| automation/gate_liveness_audit.py | _make_invoked_targets | 205 | 54 | 142 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
+| automation/gate_liveness_audit.py | blocking_workflow_invocations | 453 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 31 | 20 | 69 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
@@ -54,7 +55,6 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 17 | 66 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
-| automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1125`
+- Unit tests collected: `1143`
 - Collection command return code: `0`
-- Collection summary: `1125 tests collected in 1.27s`
+- Collection summary: `1143 tests collected in 1.18s`
 
 ## Security Baseline
 
