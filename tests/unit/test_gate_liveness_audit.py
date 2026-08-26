@@ -1076,3 +1076,85 @@ def test_statically_false_workflow_step_does_not_credit_a_gate(tmp_path: Path) -
     findings, _ = audit_repository("svc", repo)
 
     assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_repository_local_included_makefile_targets_are_audited(tmp_path: Path) -> None:
+    repo = _write_repo(tmp_path / "svc", "include gates.mk\nci: release-gate\n")
+    (repo / "gates.mk").write_text(
+        "release-gate:\n\ttrivy image --exit-code 0 app\n", encoding="utf-8"
+    )
+
+    findings, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
+
+
+def test_makefile_include_cannot_escape_the_repository(tmp_path: Path) -> None:
+    outside = tmp_path / "outside.mk"
+    outside.write_text("outside-gate:\n\tpython gate.py\n", encoding="utf-8")
+    repo = _write_repo(
+        tmp_path / "svc",
+        "include ../outside.mk\nci: local-gate\n\nlocal-gate:\n\tpython gate.py\n",
+    )
+
+    _, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+
+
+def test_backgrounded_make_does_not_credit_a_workflow_gate(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                "      - run: make release-gate & echo continued\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_unrelated_prerequisite_does_not_supply_a_gate_verdict(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: security-gate\n\n"
+        "security-gate: compile\n\ttrivy image --exit-code 0 app\n\n"
+        "compile:\n\tpython build.py\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["security-gate"]
+
+
+def test_enforcement_prerequisite_can_supply_an_aggregate_gate_verdict(
+    tmp_path: Path,
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: security-gate\n\n"
+        "security-gate: vulnerability-scan\n\techo evidence\n\n"
+        "vulnerability-scan:\n\tpython scanner.py\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_gate_used_only_as_if_condition_cannot_fail_the_recipe(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: release-gate\n\n"
+        "release-gate:\n\tif python gate.py; then echo clean; fi\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["release-gate"]
