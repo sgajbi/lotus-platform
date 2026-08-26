@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-26T04:10:37Z`
+Generated: `2026-08-26T04:51:57Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `896`
-- Total source lines: `359947`
+- Total source lines: `360033`
 - Python files: `230`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `2885`
+- Python functions: `2886`
 - Highest measured cyclomatic complexity: `24`
 - Largest Python function length: `903`
 
@@ -47,12 +47,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
+| automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 31 | 19 | 67 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 17 | 66 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
 | tests/unit/test_lotus_platform_standards_docs.py | test_client_demo_certification_standard_is_audience_ready_and_evidence_backed | 52 | 15 | 74 |
-| automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 31 | 15 | 57 |
 | automation/validate_deployment_promotion_manifest.py | _validate_environments | 122 | 15 | 50 |
 | automation/validate_auto_merge_releasability.py | _merged_pr_dispatch_violations | 226 | 15 | 30 |
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1042`
+- Unit tests collected: `1045`
 - Collection command return code: `0`
-- Collection summary: `1042 tests collected in 1.39s`
+- Collection summary: `1045 tests collected in 1.06s`
 
 ## Security Baseline
 

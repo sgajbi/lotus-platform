@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 359947
+    "total_source_lines": 360033
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -48,6 +48,14 @@
         "lines": 69,
         "name": "fetch_all",
         "path": "codex/skills/gh-address-comments/scripts/fetch_comments.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 97,
+        "line": 31,
+        "lines": 67,
+        "name": "cash_evidence_from_overview",
+        "path": "automation/resolve_canonical_cash_evidence.py"
       },
       {
         "complexity": 18,
@@ -88,14 +96,6 @@
         "lines": 74,
         "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 87,
-        "line": 31,
-        "lines": 57,
-        "name": "cash_evidence_from_overview",
-        "path": "automation/resolve_canonical_cash_evidence.py"
       },
       {
         "complexity": 15,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 24,
     "max_function_lines": 903,
-    "python_function_count": 2885
+    "python_function_count": 2886
   },
-  "generated_at_utc": "2026-08-26T04:10:37Z",
+  "generated_at_utc": "2026-08-26T04:51:57Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1042,
+    "collected_tests": 1045,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1042 tests collected in 1.39s"
+    "summary": "1045 tests collected in 1.06s"
   }
 }
