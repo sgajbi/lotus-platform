@@ -85,7 +85,11 @@ Order of operations:
    moving and in which direction**, because the two are not interchangeable: an improvement moves a
    ceiling *down* and a floor *up*, and "re-bank downward" applied to a floor loosens the gate it
    claims to tighten.
-3. Never lower a bound, widen an allowance, or add an exception to go green.
+3. **Move a bound only because the measurement changed, never because the gate is red.** The test is
+   *cause*, not motive - "to go green" is not visible in a diff, and a legitimate classifier
+   correction also turns the gate green. A bound may follow a corrected measurement, under the
+   burden of proof below; it may never follow a regression in the tree. **If you cannot demonstrate
+   which of the two you are in, you are in the second.**
 
 **A correction may legitimately move a bound outward, and that is not weakening.** If a classifier
 was under-counting, fixing it exposes items that were always there: the measured backlog rises and
@@ -102,8 +106,10 @@ The question is never which direction the number moved. It is **why**:
 
 A correction that moves a bound outward looks identical to a weakening in a diff, so it carries the
 burden of proof: state what the classifier was missing, show the count it was missing, and show that
-the code did not change in the same commit. If those cannot be shown separately, split the change
-until they can.
+the underlying measured population did not regress in the same change. The classifier and its
+focused tests are expected to change; the source files or tests being classified must remain stable
+enough to isolate the measurement correction. If those causes cannot be separated in evidence,
+split the change until they can.
 
 ## Two failure modes to check while doing this
 
