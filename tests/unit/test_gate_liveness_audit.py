@@ -679,3 +679,82 @@ def test_an_ignored_echo_fallback_before_the_gate_does_not_mask_it(
     findings, _ = audit_repository("svc", repo)
 
     assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+@pytest.mark.parametrize(
+    "invocation",
+    [
+        "make release-gate || true",
+        "make release-gate || :",
+        "make release-gate || echo skipped",
+        "make release-gate; true",
+        "make release-gate; python report.py",
+        "make release-gate | tee gate.log",
+    ],
+)
+def test_a_workflow_make_invocation_with_discarded_status_is_not_blocking(
+    tmp_path: Path, invocation: str
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {"main.yml": f"jobs:\n  gate:\n    steps:\n      - run: {invocation}\n"},
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+@pytest.mark.parametrize(
+    "invocation",
+    [
+        "make release-gate && echo completed",
+        "set -e; make release-gate; echo completed",
+    ],
+)
+def test_a_workflow_make_invocation_with_propagated_status_is_blocking(
+    tmp_path: Path, invocation: str
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {"main.yml": f"jobs:\n  gate:\n    steps:\n      - run: {invocation}\n"},
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
+
+
+@pytest.mark.parametrize(
+    "make_option", ["--ignore-errors", "--dry-run", "--just-print", "-i", "-n"]
+)
+def test_non_enforcing_make_modes_do_not_credit_a_workflow_gate(
+    tmp_path: Path, make_option: str
+) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci:\n\tpython check.py\n\nrelease-gate:\n\tpython gate.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n"
+                f"      - run: make {make_option} release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_ruff_exit_zero_is_report_only(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: lint-gate\n\nlint-gate:\n\truff check --exit-zero .\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "CANNOT_FAIL"] == ["lint-gate"]

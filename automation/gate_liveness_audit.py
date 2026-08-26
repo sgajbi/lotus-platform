@@ -67,6 +67,10 @@ CANNOT_FAIL_PATTERNS: tuple[tuple[str, str], ...] = (
         "trivy without --exit-code 1 reports findings and returns 0",
     ),
     (r"--exit-code[= ]0\b", "--exit-code 0 explicitly discards the verdict"),
+    (
+        r"\bruff\b[\s\S]*--exit-zero\b",
+        "ruff --exit-zero explicitly discards the verdict",
+    ),
     (r"\|\|\s*true\s*$", "|| true discards the exit status of the final command"),
     (r"\|\|\s*:\s*$", "|| : discards the exit status of the final command"),
     (
@@ -79,12 +83,15 @@ CANNOT_FAIL_PATTERNS: tuple[tuple[str, str], ...] = (
 
 # Commands that always succeed. When one of these is the *last* command on a recipe line it
 # supplies the line's exit status, so whatever ran before it cannot fail the gate.
-ALWAYS_SUCCEEDS = re.compile(r"^(?:echo|true|:|exit\s+0)\b")
+ALWAYS_SUCCEEDS = re.compile(r"^(?::(?:\s|$)|(?:echo|true|exit\s+0)\b)")
 
 # `set -o pipefail` / `bash -o pipefail -c ...` makes a pipeline return the first non-zero stage,
 # so a piped gate under it does fail. Checked against the whole recipe line, not the final segment,
 # because the option is usually enabled before the pipeline it protects.
 PIPEFAIL_ENABLED = re.compile(r"-o\s+pipefail\b|set\s+-[a-z]*o\s+pipefail\b")
+ERREXIT_ENABLED = re.compile(
+    r"(?:^|[;&]\s*)set\s+-[a-z]*e[a-z]*\b|\bbash\s+-[^\s]*e[^\s]*"
+)
 
 # Make recipe prefixes. `-` ignores the command's failure; `@` only silences echo; `+` forces
 # execution. They combine in any order, so `@-python g.py` ignores errors just as `-python g.py`.
@@ -106,6 +113,14 @@ _MAKE_OPTIONS_REQUIRING_VALUES = {
     "--what-if",
     "--eval",
     "--jobserver-auth",
+}
+_MAKE_NON_ENFORCING_OPTIONS = {
+    "-i",
+    "--ignore-errors",
+    "-n",
+    "--dry-run",
+    "--just-print",
+    "--recon",
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
 _PIPELINE_STATUS_SINK = re.compile(r"^[\"']?(?:tee|cat|echo|true|:)(?:\s|$)")
@@ -207,8 +222,11 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
         options_ended = False
         candidates: list[str] = []
         uses_root_makefile = True
-        for token in tokens[index + 1 :]:
+        non_enforcing = False
+        boundary_index: int | None = None
+        for token_index, token in enumerate(tokens[index + 1 :], start=index + 1):
             if _SHELL_BOUNDARY.match(token):
+                boundary_index = token_index
                 break
             if pending_option is not None:
                 if pending_option in {"-C", "--directory"} and Path(token) != Path("."):
@@ -224,6 +242,8 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
                 continue
             if not options_ended and token.startswith("-"):
                 option_name = token.split("=", 1)[0]
+                if token in _MAKE_NON_ENFORCING_OPTIONS:
+                    non_enforcing = True
                 option_value = token.split("=", 1)[1] if "=" in token else None
                 if (
                     option_name in {"--directory", "--file"}
@@ -251,7 +271,18 @@ def _make_invoked_targets(command: str) -> tuple[str, ...]:
             if _MAKE_ASSIGNMENT.match(token):
                 continue
             candidates.append(token)
-        if uses_root_makefile:
+        if boundary_index is not None:
+            boundary = tokens[boundary_index]
+            # `make gate; report` and `make gate || fallback` do not propagate the gate verdict.
+            # `&&` does: a failed make short-circuits the list and remains the shell status. A
+            # pipeline needs pipefail because make cannot be the final stage when a pipe follows it.
+            if (
+                boundary == "||"
+                or (boundary == ";" and not ERREXIT_ENABLED.search(command))
+                or (boundary == "|" and not PIPEFAIL_ENABLED.search(command))
+            ):
+                non_enforcing = True
+        if uses_root_makefile and not non_enforcing:
             invoked.extend(candidates)
     return tuple(invoked)
 
