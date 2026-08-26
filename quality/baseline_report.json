@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 361925
+    "total_source_lines": 361926
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1121 tests collected in 1.43s"
+    "summary": "1121 tests collected in 1.13s"
   }
 }

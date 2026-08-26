@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 from automation.gate_liveness_audit import (
+    _make_invoked_targets,
     audit_repository,
     blocking_workflow_invocations,
     main,
