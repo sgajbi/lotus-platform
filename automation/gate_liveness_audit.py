@@ -27,6 +27,14 @@ This script is itself a gate, so it fails when it inspected nothing - per reposi
 aggregate. A fleet run where one path is missing or one repository declares no gates is a run that
 did not inspect what it was asked to, and reporting that as clean would be the exact class of
 defect the audit reports on others.
+
+**It reads local working trees, not `main`.** A fleet count therefore reflects whatever branch each
+checkout happens to be on: a repository sitting on a fix branch reports the fixed state, and the
+same command run elsewhere gives a different answer. That is fine for a developer checking their own
+change and wrong for an estate measurement, so any number quoted as fleet truth must say which
+revision each repository was on - or the run must be done against clean `main` checkouts. Treating
+the output as authoritative without that is the same mistake the audit reports on others: a
+measurement that looks like it describes one thing and describes another.
 """
 
 from __future__ import annotations
@@ -66,6 +74,11 @@ CANNOT_FAIL_PATTERNS: tuple[tuple[str, str], ...] = (
 # Commands that always succeed. When one of these is the *last* command on a recipe line it
 # supplies the line's exit status, so whatever ran before it cannot fail the gate.
 ALWAYS_SUCCEEDS = re.compile(r"^(?:echo|true|:|exit\s+0)\b")
+
+# `set -o pipefail` / `bash -o pipefail -c ...` makes a pipeline return the first non-zero stage,
+# so a piped gate under it does fail. Checked against the whole recipe line, not the final segment,
+# because the option is usually enabled before the pipeline it protects.
+PIPEFAIL_ENABLED = re.compile(r"-o\s+pipefail\b|set\s+-[a-z]*o\s+pipefail\b")
 
 # Make recipe prefixes. `-` ignores the command's failure; `@` only silences echo; `+` forces
 # execution. They combine in any order, so `@-python g.py` ignores errors just as `-python g.py`.
@@ -246,8 +259,10 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
     if ALWAYS_SUCCEEDS.match(final):
         return "the last command on this line always succeeds, so it supplies the exit status"
 
-    # A pipeline reports the last stage's status, not the gate's. `||` is not a pipe.
-    if re.search(r"(?<!\|)\|(?!\|)", final):
+    # A pipeline reports the last stage's status, not the gate's - unless `pipefail` is set, which
+    # makes the pipeline return the first non-zero stage. Flagging a recipe that enables it would
+    # punish a correct gate, which is the failure mode this audit must not have.
+    if re.search(r"(?<!\|)\|(?!\|)", final) and not PIPEFAIL_ENABLED.search(command):
         return "the pipeline's status is the last stage's, not the gate's"
 
     for pattern, detail in CANNOT_FAIL_PATTERNS:
