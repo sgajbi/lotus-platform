@@ -114,6 +114,13 @@ Current repository posture:
     identity/date/unit, and normalize percentage to ratio once. Platform automation must never
     substitute a hard-coded cash weight or persist health after missing, mismatched, malformed, or
     out-of-range evidence.
+15. `automation/gate_liveness_audit.py` provides the report-only static portion of the Gate
+    Liveness Standard. It validates requested repository coverage and detects unreachable gates and
+    blocking targets that cannot propagate a non-zero verdict. Empty-input execution, GitHub run
+    history, and ordering before irreversible publish/sign/tag/deploy steps remain explicit review
+    obligations. The fleet audit reads local working trees, so estate evidence must name every
+    revision or use clean `main` checkouts. `--fail-on-findings` is not a platform lane yet because
+    issue #738 still owns disposition of the measured cross-repository findings.
 
 ## Architecture And Module Map
 
@@ -504,6 +511,11 @@ Use these commands as the primary local contract:
     `powershell -ExecutionPolicy Bypass -File automation/Cancel-Background-Run.ps1 -EngineeringTaskId <engineering_task_id> -Reason <reason> -Actor <operator>`
     with PID/start ownership verification, owned-tree termination, launch-declared exact Compose
     cleanup, atomic receipt evidence, `LOST` preservation, and fail-closed cleanup posture.
+40. report-only gate-liveness audit for a repository or the registered fleet
+    `python automation/gate_liveness_audit.py --repo-path <repository-root>`
+    `python automation/gate_liveness_audit.py --repos-json automation/repos.json`
+    Add `--fail-on-findings` only for focused blocking proof after the findings in scope are
+    dispositioned; a missing Makefile or a repository declaring no gate targets always fails.
 
 ## Validation And CI Expectations
 

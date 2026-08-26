@@ -773,6 +773,14 @@ implementation hotspots, OpenAPI/vocabulary drift, or contract-validation failur
 policy-immature metrics report-only until false positives, exceptions, and lane placement are
 settled. Blocking gates must leave a clean worktree; durable report artifacts belong behind
 explicit report-only commands such as `make architecture-boundary-report` or `make quality-baseline`.
+Gate promotion and gate liveness are separate decisions. A promoted gate is not enforcement unless
+it is reachable from a blocking lane, can propagate a non-zero verdict, fails closed on empty input,
+has observable run evidence, and executes before the irreversible action it governs. Use
+`codex/skills/lotus-ci-enforcement-governance/references/gate-liveness-standard.md` and the
+report-only fleet audit `python automation/gate_liveness_audit.py --repos-json
+automation/repos.json`. Use `--fail-on-findings` only after every reported estate finding is
+issue-backed and dispositioned; any fleet-level figure must identify the inspected revisions or be
+run against clean `main` checkouts.
 When a repeatable enforcement pattern is learned, update platform-owned skills, routing context, and
 local agent artifacts through the bootstrap/validation automation rather than hand-editing local
 skill copies as the source of truth.
