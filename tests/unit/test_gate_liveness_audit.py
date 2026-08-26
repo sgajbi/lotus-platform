@@ -541,6 +541,12 @@ def test_shell_comment_does_not_add_targets_after_the_command() -> None:
     )
 
 
+def test_malformed_workflow_is_fail_closed_for_gate_reachability() -> None:
+    targets = parse_makefile("release-gate:\n\tpython g.py\n")
+
+    assert blocking_workflow_invocations("jobs: [", targets) == set()
+
+
 def test_workflow_step_name_is_not_treated_as_a_make_invocation(tmp_path: Path) -> None:
     repo = _write_repo(
         tmp_path / "svc",
