@@ -105,8 +105,10 @@ deployment, client demo readiness, or supported feature promotion.
   owns disposition before `--fail-on-findings` can enter a blocking lane. The audit treats
   `make -C`/`--directory` and alternate `-f`/`--file` invocations as separate Make contexts,
   audits empty and multi-target gate declarations, and recognizes a gate in the final pipeline
-  stage as status propagating; this prevents a same-named root target or logging pipeline from
-  being credited incorrectly.
+  stage as status propagating; included Makefiles are resolved only within the repository, `.ONESHELL`
+  recipes are evaluated as one shell result, and workflow calls in subdirectories, background jobs,
+  or status-masking conditionals are not credited as blocking root-gate invocations. This prevents
+  a same-named root target or logging pipeline from being credited incorrectly.
 - deployment promotion proof: digest-only image references, release-evidence digest reconciliation,
   no rebuild-per-environment promotion, out-of-scope environment reasons, explicit
   `deployment_pending` manifests for release-bound-but-not-deployed services such as current
