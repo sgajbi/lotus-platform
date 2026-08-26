@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `896`
-- Total source lines: `360033`
+- Total source lines: `360060`
 - Python files: `230`
 - PowerShell files: `69`
 - Markdown files: `410`
@@ -47,7 +47,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
-| automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 31 | 19 | 67 |
+| automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 31 | 20 | 69 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 17 | 66 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1045`
+- Unit tests collected: `1047`
 - Collection command return code: `0`
-- Collection summary: `1045 tests collected in 1.06s`
+- Collection summary: `1047 tests collected in 1.57s`
 
 ## Security Baseline
 

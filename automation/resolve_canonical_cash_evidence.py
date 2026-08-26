@@ -49,6 +49,8 @@ def cash_evidence_from_overview(
     effective_as_of_date = payload.get("effective_as_of_date")
     if effective_as_of_date != as_of_date:
         raise CashEvidenceError("CANONICAL_CASH_EFFECTIVE_DATE_MISMATCH")
+    if payload.get("as_of_state") != "confirmed":
+        raise CashEvidenceError("CANONICAL_CASH_TEMPORAL_STATE_UNCONFIRMED")
 
     warnings = payload.get("warnings")
     partial_failures = payload.get("partial_failures")
