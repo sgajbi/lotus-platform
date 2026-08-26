@@ -25,7 +25,7 @@ from automation.gate_liveness_audit import (
     main,
     parse_makefile,
     reachable_targets,
-    workflow_invoked_targets,
+    blocking_workflow_invocations,
 )
 
 
@@ -182,7 +182,8 @@ def test_the_audit_fails_when_a_repository_declares_no_gates(
 
     assert exit_code == 1
     stderr = capsys.readouterr().err
-    assert "inspected 1 repositories and 0 gate targets" in stderr
+    assert "Repositories declaring no gate targets: ['svc']" in stderr
+    assert "must fail" in stderr
 
 
 def test_fail_on_findings_controls_the_exit_code(tmp_path: Path) -> None:
@@ -211,8 +212,176 @@ def test_fleet_mode_reads_repos_json(tmp_path: Path) -> None:
 def test_workflow_invocation_extraction_ignores_unknown_targets() -> None:
     targets = parse_makefile("ci:\n\techo hi\n\nreal-gate:\n\tpython g.py\n")
 
-    invoked = workflow_invoked_targets(
+    invoked = blocking_workflow_invocations(
         "- run: make real-gate\n- run: make not-a-target\n", targets
     )
 
     assert invoked == {"real-gate"}
+
+
+def test_a_missing_fleet_path_fails_rather_than_being_skipped(
+    tmp_path: Path, capsys
+) -> None:
+    """The defect this tool reports, in the tool.
+
+    A `repos.json` naming a path that is missing, stale, or not mounted used to be skipped in
+    silence, so a fleet run could report clean having never opened one of the repositories it was
+    asked about - and `--fail-on-findings` would still exit 0.
+    """
+
+    present = _write_repo(
+        tmp_path / "present",
+        "ci: real-gate\n\nreal-gate:\n\tpython scripts/g.py --max 0\n",
+    )
+    repos_json = tmp_path / "repos.json"
+    repos_json.write_text(
+        json.dumps(
+            [
+                {"name": "present", "path": str(present)},
+                {"name": "absent", "path": str(tmp_path / "not-checked-out")},
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    exit_code = main(["--repos-json", str(repos_json), "--fail-on-findings"])
+
+    assert exit_code == 1
+    stderr = capsys.readouterr().err
+    assert "could not be inspected" in stderr
+    assert "absent" in stderr
+
+
+def test_a_gate_named_only_in_a_comment_is_still_an_orphan(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: lint\n\nlint:\n\truff check .\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": "jobs:\n  gate:\n    steps:\n      # - run: make release-gate\n      - run: echo hi\n"
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_a_continue_on_error_step_does_not_make_a_gate_reachable(
+    tmp_path: Path,
+) -> None:
+    """A step that cannot fail the job does not enforce anything."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: lint\n\nlint:\n\truff check .\n\nrelease-gate:\n\tpython g.py\n",
+        {
+            "main.yml": (
+                "jobs:\n  gate:\n    steps:\n      - name: soft\n"
+                "        continue-on-error: true\n        run: make release-gate\n"
+            )
+        },
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["release-gate"]
+
+
+def test_a_continued_trivy_command_is_not_flagged(tmp_path: Path) -> None:
+    """`trivy image \` then `--exit-code 1` is one command; judging the first line punishes it."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: scan-gate\n\nscan-gate:\n\ttrivy image \\n\t\t--severity HIGH \\n\t\t--exit-code 1 app:ci\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_the_silent_and_ignore_prefixes_combine(tmp_path: Path) -> None:
+    """`@-python g.py` ignores the failure exactly as `-python g.py` does."""
+
+    repo = _write_repo(
+        tmp_path / "svc", "ci: some-gate\n\nsome-gate:\n\t@-python g.py\n"
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.kind for f in findings] == ["CANNOT_FAIL"]
+
+
+def test_a_piped_gate_cannot_fail(tmp_path: Path) -> None:
+    """Make sees the pipeline's status, which is `tee`'s, not the gate's."""
+
+    repo = _write_repo(
+        tmp_path / "svc", "ci: some-gate\n\nsome-gate:\n\tpython g.py | tee gate.log\n"
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.kind for f in findings] == ["CANNOT_FAIL"]
+
+
+def test_a_trailing_command_after_a_semicolon_masks_the_status(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc", "ci: some-gate\n\nsome-gate:\n\tpython g.py; echo completed\n"
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.kind for f in findings] == ["CANNOT_FAIL"]
+
+
+def test_an_ignored_cleanup_before_the_gate_is_not_flagged(tmp_path: Path) -> None:
+    """`cleanup || true; python g.py` still returns the gate's status."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: some-gate\n\nsome-gate:\n\trm -rf out || true; python g.py --max 0\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "CANNOT_FAIL"] == []
+
+
+def test_a_prerequisite_only_gate_is_counted_and_checked(tmp_path: Path) -> None:
+    """`orphan-gate: scan` with no recipe of its own is still a gate."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        ".PHONY: ci orphan-gate\nci: lint\n\nlint:\n\truff check .\n\nscan:\n\tpython s.py\n\norphan-gate: scan\n",
+    )
+
+    findings, gate_count = audit_repository("svc", repo)
+
+    assert gate_count == 1
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["orphan-gate"]
+
+
+def test_lint_is_not_a_blocking_root_unless_something_invokes_it(
+    tmp_path: Path,
+) -> None:
+    """A gate hanging off an uninvoked `lint` is not enforced by anything."""
+
+    repo = _write_repo(
+        tmp_path / "svc",
+        ".PHONY: lint style-gate\nlint: style-gate\n\nstyle-gate:\n\tpython g.py\n\nbuild:\n\techo build\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f.target for f in findings if f.kind == "ORPHAN"] == ["style-gate"]
+
+
+def test_lint_is_a_blocking_root_when_ci_reaches_it(tmp_path: Path) -> None:
+    repo = _write_repo(
+        tmp_path / "svc",
+        "ci: lint\n\nlint: style-gate\n\nstyle-gate:\n\tpython g.py --max 0\n",
+    )
+
+    findings, _ = audit_repository("svc", repo)
+
+    assert [f for f in findings if f.kind == "ORPHAN"] == []
