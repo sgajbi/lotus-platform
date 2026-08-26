@@ -123,6 +123,10 @@ _MAKE_NON_ENFORCING_OPTIONS = {
     "--dry-run",
     "--just-print",
     "--recon",
+    "-q",
+    "--question",
+    "-t",
+    "--touch",
 }
 _SHELL_BOUNDARY = re.compile(r"^[;&|]+$")
 _PIPELINE_ENFORCING_STAGE = re.compile(
@@ -162,6 +166,42 @@ class MakeTarget:
     recipe: tuple[str, ...]
 
 
+def _strip_shell_comments(command: str) -> str:
+    """Remove unquoted shell comments without discarding later physical lines."""
+
+    uncommented: list[str] = []
+    quote: str | None = None
+    escaped = False
+    in_comment = False
+    for index, character in enumerate(command):
+        if in_comment:
+            if character == "\n":
+                uncommented.append(character)
+                in_comment = False
+            continue
+        if escaped:
+            uncommented.append(character)
+            escaped = False
+            continue
+        if character == "\\":
+            uncommented.append(character)
+            escaped = True
+            continue
+        if character in {'"', "'"}:
+            quote = None if quote == character else character if quote is None else quote
+            uncommented.append(character)
+            continue
+        if (
+            character == "#"
+            and quote is None
+            and (index == 0 or command[index - 1].isspace() or command[index - 1] in ";|&")
+        ):
+            in_comment = True
+            continue
+        uncommented.append(character)
+    return "".join(uncommented)
+
+
 def _make_invoked_targets(
     command: str, *, default_errexit: bool = False
 ) -> tuple[str, ...]:
@@ -177,35 +217,7 @@ def _make_invoked_targets(
     # gate without invoking it (``make ci # make release-gate manually``); crediting the text after
     # ``#`` would conceal a real orphan.  Quoted ``#`` and escaped ``\#`` remain command data.
     command = command.strip()
-    uncommented: list[str] = []
-    comment_quote: str | None = None
-    escaped = False
-    for index, character in enumerate(command):
-        if escaped:
-            uncommented.append(character)
-            escaped = False
-            continue
-        if character == "\\":
-            uncommented.append(character)
-            escaped = True
-            continue
-        if character in {'"', "'"}:
-            comment_quote = (
-                None
-                if comment_quote == character
-                else character
-                if comment_quote is None
-                else comment_quote
-            )
-            uncommented.append(character)
-            continue
-        if (
-            character == "#"
-            and comment_quote is None
-            and (index == 0 or command[index - 1].isspace() or command[index - 1] in ";|&")
-        ):
-            break
-        uncommented.append(character)
+    uncommented = _strip_shell_comments(command)
 
     # Quoted prose such as ``echo "run make release-gate manually"`` is data, not a nested
     # invocation. Replace quoted segments before tokenization; make target names do not need quotes.
@@ -318,16 +330,17 @@ def _make_invoked_targets(
                 continue
             candidates.append(token)
         if boundary_index is not None:
-            boundary = tokens[boundary_index]
-            # `make gate; report` and `make gate || fallback` do not propagate the gate verdict.
-            # `&&` does: a failed make short-circuits the list and remains the shell status. A
-            # pipeline needs pipefail because make cannot be the final stage when a pipe follows it.
-            if (
-                boundary == "||"
-                or (boundary == ";" and not ERREXIT_ENABLED.search(command))
-                or (boundary == "|" and not PIPEFAIL_ENABLED.search(command))
-            ):
+            boundaries = [
+                token for token in tokens[boundary_index:] if _SHELL_BOUNDARY.match(token)
+            ]
+            # A later fallback can mask the gate even if the first boundary is `&&`, as in
+            # `make gate && report || true`, so inspect the complete remaining list.
+            if "||" in boundaries or (
+                ";" in boundaries and not ERREXIT_ENABLED.search(command)
+            ) or ("|" in boundaries and not PIPEFAIL_ENABLED.search(command)):
                 non_enforcing = True
+        if "!" in prefix:
+            non_enforcing = True
         if uses_root_makefile and not non_enforcing:
             invoked.extend(candidates)
     return tuple(invoked)
@@ -459,18 +472,51 @@ def blocking_workflow_invocations(
     else:
         return set()
 
+    workflow_defaults = document.get("defaults", {}) if isinstance(document, dict) else {}
+    workflow_run_defaults = (
+        workflow_defaults.get("run", {})
+        if isinstance(workflow_defaults, dict)
+        else {}
+    )
+    workflow_directory = (
+        workflow_run_defaults.get("working-directory")
+        if isinstance(workflow_run_defaults, dict)
+        else None
+    )
+
+    def is_root_directory(value: object) -> bool:
+        return value is None or str(value).strip() in {"", ".", "./"}
+
     invoked: set[str] = set()
     for job in jobs.values():
-        if not isinstance(job, dict) or job.get("continue-on-error") is True:
+        if (
+            not isinstance(job, dict)
+            or job.get("continue-on-error") is True
+            or job.get("if") is False
+        ):
             continue
+        job_defaults = job.get("defaults", {})
+        job_run_defaults = (
+            job_defaults.get("run", {}) if isinstance(job_defaults, dict) else {}
+        )
+        job_directory = (
+            job_run_defaults.get("working-directory")
+            if isinstance(job_run_defaults, dict)
+            else workflow_directory
+        )
         steps = job.get("steps")
         if not isinstance(steps, list):
             continue
         for step in steps:
-            if not isinstance(step, dict) or step.get("continue-on-error") is True:
+            if (
+                not isinstance(step, dict)
+                or step.get("continue-on-error") is True
+                or step.get("if") is False
+            ):
                 continue
             command = step.get("run")
-            if isinstance(command, str):
+            working_directory = step.get("working-directory", job_directory)
+            if isinstance(command, str) and is_root_directory(working_directory):
                 invoked.update(_make_invoked_targets(command, default_errexit=True))
     return invoked & set(targets)
 
@@ -515,7 +561,30 @@ def _final_command(command: str) -> str:
     line would flag the first as unable to fail, which punishes a correct recipe.
     """
 
-    segments = [segment.strip() for segment in command.split(";") if segment.strip()]
+    segments: list[str] = []
+    current: list[str] = []
+    quote: str | None = None
+    escaped = False
+    for character in _strip_shell_comments(command):
+        if escaped:
+            current.append(character)
+            escaped = False
+        elif character == "\\":
+            current.append(character)
+            escaped = True
+        elif character in {'"', "'"}:
+            quote = None if quote == character else character if quote is None else quote
+            current.append(character)
+        elif character in ";\n" and quote is None:
+            segment = "".join(current).strip()
+            if segment:
+                segments.append(segment)
+            current = []
+        else:
+            current.append(character)
+    segment = "".join(current).strip()
+    if segment:
+        segments.append(segment)
     return segments[-1] if segments else ""
 
 
@@ -524,7 +593,7 @@ def _cannot_fail_reason(recipe_line: str) -> str | None:
     if _IGNORES_ERRORS.match(stripped):
         return "a make `-` prefix tells make to ignore this command's failure"
 
-    command = _RECIPE_PREFIXES.sub("", stripped).strip()
+    command = _strip_shell_comments(_RECIPE_PREFIXES.sub("", stripped)).strip()
     final = _final_command(command)
     if not final:
         return None
@@ -550,6 +619,8 @@ def _target_can_fail(
     targets: dict[str, MakeTarget],
     memo: dict[str, bool],
     visiting: set[str] | None = None,
+    *,
+    oneshell: bool = False,
 ) -> bool:
     """Whether a target has at least one failure-propagating prerequisite or recipe.
 
@@ -568,32 +639,52 @@ def _target_can_fail(
 
     if any(
         prerequisite in targets
-        and _target_can_fail(prerequisite, targets, memo, active)
+        and _target_can_fail(prerequisite, targets, memo, active, oneshell=oneshell)
         for prerequisite in target.prerequisites
     ):
         active.remove(name)
         memo[name] = True
         return True
 
-    for recipe_line in target.recipe:
-        if _is_comment_or_noise(recipe_line):
-            continue
-        if _cannot_fail_reason(recipe_line) is None:
-            active.remove(name)
-            memo[name] = True
-            return True
+    if oneshell:
+        combined = "\n".join(
+            _RECIPE_PREFIXES.sub("", recipe_line.strip())
+            for recipe_line in target.recipe
+            if recipe_line.strip()
+        )
+        if ERREXIT_ENABLED.search(combined):
+            can_fail = any(
+                not _is_comment_or_noise(recipe_line)
+                and _cannot_fail_reason(recipe_line) is None
+                for recipe_line in target.recipe
+            )
+        else:
+            can_fail = bool(combined) and _cannot_fail_reason(combined) is None
+    else:
+        can_fail = any(
+            not _is_comment_or_noise(recipe_line)
+            and _cannot_fail_reason(recipe_line) is None
+            for recipe_line in target.recipe
+        )
+    if can_fail:
+        active.remove(name)
+        memo[name] = True
+        return True
 
     active.remove(name)
     memo[name] = False
     return False
 
 
-def _incapable_target_evidence(target: MakeTarget) -> tuple[str, str]:
+def _incapable_target_evidence(
+    target: MakeTarget, *, oneshell: bool = False
+) -> tuple[str, str]:
     """Summarize why no recipe owned by a target can supply an enforcement verdict."""
 
     reasons: list[str] = []
     evidence: list[str] = []
-    for recipe_line in target.recipe:
+    recipe_lines = (("\n".join(target.recipe),) if oneshell else target.recipe)
+    for recipe_line in recipe_lines:
         if _is_comment_or_noise(recipe_line):
             if recipe_line.strip():
                 evidence.append(recipe_line.strip())
@@ -621,6 +712,7 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
         return [], 0
 
     targets = parse_makefile(makefile.read_text(encoding="utf-8", errors="ignore"))
+    oneshell = ".ONESHELL" in targets
     workflow_dir = root / ".github" / "workflows"
     from_workflows: set[str] = set()
     if workflow_dir.is_dir():
@@ -669,8 +761,10 @@ def audit_repository(repository: str, root: Path) -> tuple[list[Finding], int]:
         # catch report-named blocking targets such as `container-vulnerability-report` when their
         # scanner is explicitly configured never to fail.
         should_evaluate = name.endswith(GATE_SUFFIXES) or direct_cannot_fail
-        if should_evaluate and not _target_can_fail(name, targets, capability_memo):
-            detail, evidence = _incapable_target_evidence(target)
+        if should_evaluate and not _target_can_fail(
+            name, targets, capability_memo, oneshell=oneshell
+        ):
+            detail, evidence = _incapable_target_evidence(target, oneshell=oneshell)
             findings.append(
                 Finding(
                     repository=repository,
