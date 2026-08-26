@@ -563,6 +563,27 @@ rg -n "timeout|retry|backoff|sleep|while True|gather|Semaphore|pool|cache|batch|
 rg -n "pytest|make |npm run|continue-on-error|timeout-minutes|permissions:|pull_request_target|coverage|docker|trivy|bandit|pip-audit|main-releasability|merge gate" .github Makefile package.json pyproject.toml docs wiki --glob "*.yml" --glob "*.yaml" --glob "*.md" --glob "Makefile" --glob "*.toml" --glob "*.json"
 ```
 
+**Gate liveness.** The search above finds gates that exist. It cannot tell a gate that enforces
+something from one that is never invoked, cannot return non-zero, or has never run - and all three
+are indistinguishable from a passing gate. Run the audit rather than reading target names:
+
+```powershell
+python automation/gate_liveness_audit.py --repo-path <repo> --fail-on-findings
+```
+
+Then check the two shapes the static audit cannot see:
+
+```powershell
+# a gate whose lane never fires: active workflow, zero runs
+gh api "repos/<owner>/<repo>/actions/workflows" --jq '.workflows[]|"\(.state) \(.id) \(.path)"'
+gh api "repos/<owner>/<repo>/actions/workflows/<id>/runs" --jq '.total_count'
+
+# a gate that passes on empty input: run it where its source root does not exist
+```
+
+A gate reported as passing without naming a run is not evidence. See the Gate Liveness Standard in
+`lotus-ci-enforcement-governance`.
+
 ### Repo Organization And Cleanup
 
 ```powershell
