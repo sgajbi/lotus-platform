@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import posixpath
+import stat
 import subprocess
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime, timezone
@@ -57,6 +59,18 @@ def paths_match_exactly(path: str, expected_path: str) -> bool:
     return normalize_docker_path(path) == normalize_docker_path(expected_path)
 
 
+def path_entry_exists(value: str) -> bool:
+    """Probe the path entry itself and propagate every error except proven absence."""
+
+    try:
+        os.lstat(value)
+    except FileNotFoundError:
+        return False
+    except OSError as exc:
+        raise OSError(f"cannot prove path absence for {value}: {exc}") from exc
+    return True
+
+
 def collect_registered_worktree_paths(
     allowed_project_roots: Mapping[str, str],
 ) -> set[str]:
@@ -69,8 +83,20 @@ def collect_registered_worktree_paths(
     registered: set[str] = set()
     for repository_root in sorted(set(allowed_project_roots.values())):
         root = Path(repository_root)
-        if not root.is_dir():
-            continue
+        try:
+            root_mode = root.stat().st_mode
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(
+                f"canonical repository root is unavailable: {root}"
+            ) from exc
+        except OSError as exc:
+            raise OSError(
+                f"cannot inspect canonical repository root {root}: {exc}"
+            ) from exc
+        if not stat.S_ISDIR(root_mode):
+            raise NotADirectoryError(
+                f"canonical repository root is not a directory: {root}"
+            )
         result = subprocess.run(
             ["git", "-C", str(root), "worktree", "list", "--porcelain"],
             check=True,
@@ -160,7 +186,7 @@ def select_ownership_conflicts(
     allowed_project_roots: Mapping[str, str],
     *,
     registered_worktrees: Iterable[str] = (),
-    checkout_exists: Callable[[str], bool] = lambda value: Path(value).exists(),
+    checkout_exists: Callable[[str], bool] = path_entry_exists,
 ) -> list[dict[str, str]]:
     normalized_worktrees = {
         normalize_docker_path(worktree) for worktree in registered_worktrees
@@ -292,7 +318,7 @@ def build_cleanup_plan(
     images: Iterable[Mapping[str, Any]],
     include_projects: Iterable[str] = (),
     registered_worktrees: Iterable[str] = (),
-    checkout_exists: Callable[[str], bool] = lambda value: Path(value).exists(),
+    checkout_exists: Callable[[str], bool] = path_entry_exists,
 ) -> dict[str, Any]:
     container_items = list(containers)
     volume_items = list(volumes)

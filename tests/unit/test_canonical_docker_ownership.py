@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -9,7 +11,9 @@ from automation.canonical_docker_ownership import (
     MISSING_LABELLED_CHECKOUT,
     UNPROVEN_RESOURCE_ONLY_OWNER,
     build_cleanup_plan,
+    collect_registered_worktree_paths,
     normalize_docker_path,
+    path_entry_exists,
     paths_match_exactly,
     select_ownership_conflicts,
 )
@@ -47,6 +51,54 @@ def test_checkout_path_match_is_normalized_and_exact() -> None:
         root,
     )
     assert not paths_match_exactly(r"C:\Users\Sandeep\projects\lotus-core-shadow", root)
+
+
+def test_path_entry_probe_distinguishes_absence_from_entry_and_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.os.lstat",
+        lambda _: SimpleNamespace(),
+    )
+    assert path_entry_exists("broken-link-entry") is True
+
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.os.lstat",
+        lambda _: (_ for _ in ()).throw(FileNotFoundError()),
+    )
+    assert path_entry_exists("absent") is False
+
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.os.lstat",
+        lambda _: (_ for _ in ()).throw(PermissionError("denied")),
+    )
+    with pytest.raises(OSError, match="cannot prove path absence"):
+        path_entry_exists("uninspectable")
+
+
+def test_worktree_collection_refuses_an_unavailable_canonical_root(
+    tmp_path: Path,
+) -> None:
+    missing_root = tmp_path / "missing-repository"
+
+    with pytest.raises(FileNotFoundError, match="canonical repository root"):
+        collect_registered_worktree_paths({"lotus-gateway": str(missing_root)})
+
+
+def test_worktree_collection_propagates_git_enumeration_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repository_root = tmp_path / "lotus-gateway"
+    repository_root.mkdir()
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.subprocess.run",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            subprocess.CalledProcessError(1, "git worktree list")
+        ),
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        collect_registered_worktree_paths({"lotus-gateway": str(repository_root)})
 
 
 @pytest.mark.parametrize(
