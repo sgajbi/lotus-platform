@@ -1,6 +1,6 @@
 {
   "contract_id": "canonical-front-office-demo-data-invariants",
-  "contract_version": "1.1.0",
+  "contract_version": "1.1.1",
   "status": "proposed-for-rfc-0076-slice-1",
   "governed_by_rfc": "RFC-0076",
   "canonical_portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -45,6 +45,7 @@
     "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment_before_workbench_validation",
     "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
+    "dpm_command_center_health_date_must_match_canonical_portfolio_valuation_date",
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
     "dpm_rebalance_wave_validation_must_cover_multi_portfolio_explicit_list_preview",
     "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
