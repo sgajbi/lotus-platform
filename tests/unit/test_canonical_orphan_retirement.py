@@ -418,6 +418,91 @@ def test_execute_reports_indeterminate_if_post_removal_inspection_fails(
     receipt = json.loads(output.read_text(encoding="utf-8"))
     assert receipt["status"] == "indeterminate_after_mutation"
     assert receipt["error"] == "daemon unavailable"
+    assert receipt["checks"]["pre_mutation_revalidated"] is True
+    assert receipt["before"]["id"] == CONTAINER_ID
+
+
+def test_execute_preserves_known_after_state_when_conflict_refresh_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan_path, digest = _write_plan(tmp_path)
+    output = tmp_path / "indeterminate-refresh-receipt.json"
+    inspections = iter(
+        [
+            _live_container(),
+            _live_container(),
+            retirement.ContainerNotFound("container absent"),
+        ]
+    )
+
+    def inspect(_: str) -> dict[str, object]:
+        value = next(inspections)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    monkeypatch.setattr(retirement, "inspect_container", inspect)
+    monkeypatch.setattr(
+        retirement, "collect_registered_worktree_paths", lambda _: set()
+    )
+    monkeypatch.setattr(retirement, "remove_container", lambda _: None)
+    monkeypatch.setattr(
+        retirement,
+        "collect_remaining_conflicts",
+        lambda **_: (_ for _ in ()).throw(OSError("refresh unavailable")),
+    )
+    arguments = _cli_arguments(plan_path, digest, output) + [
+        "--execute",
+        "--confirmation",
+        retirement.EXECUTION_CONFIRMATION,
+    ]
+
+    assert retirement.main(arguments) == 2
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert receipt["status"] == "indeterminate_after_mutation"
+    assert receipt["checks"]["pre_mutation_revalidated"] is True
+    assert receipt["before"]["id"] == CONTAINER_ID
+    assert receipt["after"] == {"container_present": False}
+
+
+def test_live_validation_runs_slow_git_probe_before_final_docker_and_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    events: list[str] = []
+    args = SimpleNamespace(
+        container_id=CONTAINER_ID,
+        container_name=CONTAINER_NAME,
+        compose_project=COMPOSE_PROJECT,
+        labelled_working_dir=LABELLED_WORKING_DIR,
+        expected_working_dir=EXPECTED_WORKING_DIR,
+        projects_root=PROJECTS_ROOT,
+        workbench_repo_path=WORKBENCH_REPO,
+        max_plan_age_seconds=300,
+    )
+    monkeypatch.setattr(
+        retirement,
+        "collect_registered_worktree_paths",
+        lambda _: events.append("git") or set(),
+    )
+    monkeypatch.setattr(
+        retirement,
+        "inspect_container",
+        lambda _: events.append("docker") or _live_container(),
+    )
+    monkeypatch.setattr(
+        retirement,
+        "path_entry_exists",
+        lambda _: events.append("path") or False,
+    )
+    now = datetime.now(timezone.utc)
+
+    retirement.validate_live_request(
+        args=args,
+        plan=_plan(now),
+        plan_generated_at=now,
+    )
+
+    assert events == ["git", "path", "docker", "path"]
 
 
 def test_execute_revalidates_identity_after_receipt_before_mutation(

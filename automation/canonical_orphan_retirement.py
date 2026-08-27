@@ -28,6 +28,7 @@ if __package__:
         collect_registered_worktree_paths,
         inspect_docker,
         normalize_docker_path,
+        path_entry_exists,
     )
 else:
     from canonical_docker_ownership import (  # type: ignore[no-redef]
@@ -39,6 +40,7 @@ else:
         collect_registered_worktree_paths,
         inspect_docker,
         normalize_docker_path,
+        path_entry_exists,
     )
 
 PLAN_SCHEMA_VERSION = "1.1"
@@ -251,10 +253,15 @@ def validate_live_request(
 ) -> tuple[Mapping[str, Any], dict[str, Any]]:
     """Reinspect every mutable ownership fact for the CLI request."""
 
-    live_container = inspect_container(args.container_id)
     allowed_roots = canonical_project_roots(
         args.projects_root, args.workbench_repo_path
     )
+    # Git enumeration is the slowest ownership probe and must succeed before the final Docker and
+    # filesystem snapshot. Missing or inaccessible canonical roots are refusal conditions.
+    registered_worktrees = collect_registered_worktree_paths(allowed_roots)
+    if path_entry_exists(args.labelled_working_dir):
+        raise OrphanRetirementRefused("labelled checkout now exists")
+    live_container = inspect_container(args.container_id)
     checks = validate_orphan_retirement(
         plan=plan,
         plan_generated_at=plan_generated_at,
@@ -268,8 +275,8 @@ def validate_live_request(
         projects_root=args.projects_root,
         workbench_repo_path=args.workbench_repo_path,
         live_container=live_container,
-        registered_worktrees=collect_registered_worktree_paths(allowed_roots),
-        path_exists=lambda value: Path(value).exists(),
+        registered_worktrees=registered_worktrees,
+        path_exists=path_entry_exists,
     )
     return live_container, checks
 
@@ -368,6 +375,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     }
     plan_sha256 = ""
     mutation_started = False
+    checks: dict[str, Any] = {}
+    before: dict[str, Any] = {}
+    after: dict[str, Any] = {}
     try:
         if args.execute and args.confirmation != EXECUTION_CONFIRMATION:
             raise OrphanRetirementRefused(
@@ -469,6 +479,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             plan_sha256=plan_sha256,
             execute=args.execute,
             target=target,
+            checks=checks,
+            before=before,
+            after=after,
             error=str(exc),
         )
         write_receipt(args.output, receipt)
