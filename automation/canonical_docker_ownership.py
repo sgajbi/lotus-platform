@@ -11,11 +11,10 @@ import argparse
 import json
 import posixpath
 import subprocess
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
 
 COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
 COMPOSE_WORKING_DIR_LABEL = "com.docker.compose.project.working_dir"
@@ -40,6 +39,9 @@ CANONICAL_COMPOSE_PROJECT_ALIASES = {
     ),
 }
 EXACT_OWNED_CONTAINER_NAMES = frozenset({"lotus-direct-dev-ingress"})
+ACTIVE_FOREIGN_OWNER = "active_foreign_owner"
+MISSING_LABELLED_CHECKOUT = "missing_labelled_checkout"
+UNPROVEN_RESOURCE_ONLY_OWNER = "unproven_resource_only_owner"
 
 
 def normalize_docker_path(value: str) -> str:
@@ -53,6 +55,32 @@ def paths_match_exactly(path: str, expected_path: str) -> bool:
     """Compare checkout paths without accepting nested worktrees or sibling prefixes."""
 
     return normalize_docker_path(path) == normalize_docker_path(expected_path)
+
+
+def collect_registered_worktree_paths(
+    allowed_project_roots: Mapping[str, str],
+) -> set[str]:
+    """Return every worktree registered by the canonical repositories.
+
+    A missing directory is not sufficient orphan proof when Git still registers that path as a
+    worktree. Collection therefore happens independently from filesystem existence checks.
+    """
+
+    registered: set[str] = set()
+    for repository_root in sorted(set(allowed_project_roots.values())):
+        root = Path(repository_root)
+        if not root.is_dir():
+            continue
+        result = subprocess.run(
+            ["git", "-C", str(root), "worktree", "list", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        for line in result.stdout.splitlines():
+            if line.startswith("worktree "):
+                registered.add(normalize_docker_path(line.removeprefix("worktree ")))
+    return registered
 
 
 def canonical_project_roots(
@@ -130,7 +158,13 @@ def select_owned_containers(
 def select_ownership_conflicts(
     items: Iterable[Mapping[str, Any]],
     allowed_project_roots: Mapping[str, str],
+    *,
+    registered_worktrees: Iterable[str] = (),
+    checkout_exists: Callable[[str], bool] = lambda value: Path(value).is_dir(),
 ) -> list[dict[str, str]]:
+    normalized_worktrees = {
+        normalize_docker_path(worktree) for worktree in registered_worktrees
+    }
     conflicts: list[dict[str, str]] = []
     for item in items:
         labels = _labels(item)
@@ -141,6 +175,16 @@ def select_ownership_conflicts(
         working_dir = str(labels.get(COMPOSE_WORKING_DIR_LABEL, ""))
         if working_dir and paths_match_exactly(working_dir, expected_root):
             continue
+        normalized_working_dir = (
+            normalize_docker_path(working_dir) if working_dir else ""
+        )
+        ownership_state = ACTIVE_FOREIGN_OWNER
+        if (
+            working_dir
+            and normalized_working_dir not in normalized_worktrees
+            and not checkout_exists(working_dir)
+        ):
+            ownership_state = MISSING_LABELLED_CHECKOUT
         conflicts.append(
             {
                 "id": str(item.get("Id") or item.get("ID") or ""),
@@ -149,6 +193,7 @@ def select_ownership_conflicts(
                 "compose_working_dir": working_dir,
                 "expected_working_dir": expected_root,
                 "conflict_reason": "compose_project_owned_by_different_working_directory",
+                "ownership_state": ownership_state,
             }
         )
     return sorted(conflicts, key=lambda item: item["name"])
@@ -193,6 +238,7 @@ def select_resource_only_ownership_conflicts(
                     "conflict_reason": (
                         "compose_project_resource_without_working_directory_provenance"
                     ),
+                    "ownership_state": UNPROVEN_RESOURCE_ONLY_OWNER,
                 }
             )
     return sorted(conflicts, key=lambda item: (item["compose_project"], item["name"]))
@@ -245,6 +291,8 @@ def build_cleanup_plan(
     volumes: Iterable[Mapping[str, Any]],
     images: Iterable[Mapping[str, Any]],
     include_projects: Iterable[str] = (),
+    registered_worktrees: Iterable[str] = (),
+    checkout_exists: Callable[[str], bool] = lambda value: Path(value).is_dir(),
 ) -> dict[str, Any]:
     container_items = list(containers)
     volume_items = list(volumes)
@@ -253,7 +301,15 @@ def build_cleanup_plan(
     explicitly_included_projects = {project.casefold() for project in included_projects}
     allowed_project_roots = canonical_project_roots(projects_root, workbench_repo_path)
     owned_containers = select_owned_containers(container_items, allowed_project_roots)
-    conflicts = select_ownership_conflicts(container_items, allowed_project_roots)
+    normalized_worktrees = sorted(
+        {normalize_docker_path(worktree) for worktree in registered_worktrees}
+    )
+    conflicts = select_ownership_conflicts(
+        container_items,
+        allowed_project_roots,
+        registered_worktrees=normalized_worktrees,
+        checkout_exists=checkout_exists,
+    )
     conflicts.extend(
         select_resource_only_ownership_conflicts(
             containers=container_items,
@@ -273,10 +329,11 @@ def build_cleanup_plan(
     }
     projects.update(included_projects)
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "selection_policy": "compose-ownership-labels-v1",
+        "selection_policy": "compose-ownership-labels-v2",
         "allowed_compose_projects": allowed_project_roots,
+        "registered_worktrees": normalized_worktrees,
         "exact_owned_container_names": sorted(EXACT_OWNED_CONTAINER_NAMES),
         "compose_projects": sorted(projects),
         "ownership_conflicts": conflicts,
@@ -303,9 +360,7 @@ def _docker_inspect(
     )
     payload = json.loads(result.stdout)
     if not isinstance(payload, list):
-        raise RuntimeError(
-            f"docker {resource_type} inspect returned a non-list payload"
-        )
+        raise TypeError(f"docker {resource_type} inspect returned a non-list payload")
     return payload
 
 
@@ -343,6 +398,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     containers, volumes, images = inspect_docker()
+    allowed_project_roots = canonical_project_roots(
+        args.projects_root, args.workbench_repo_path
+    )
     plan = build_cleanup_plan(
         projects_root=args.projects_root,
         workbench_repo_path=args.workbench_repo_path,
@@ -350,6 +408,7 @@ def main() -> int:
         volumes=volumes,
         images=images,
         include_projects=args.include_project,
+        registered_worktrees=collect_registered_worktree_paths(allowed_project_roots),
     )
     print(json.dumps(plan, indent=2, sort_keys=True))
     return 0

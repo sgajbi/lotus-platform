@@ -3,9 +3,13 @@ from __future__ import annotations
 import pytest
 
 from automation.canonical_docker_ownership import (
+    ACTIVE_FOREIGN_OWNER,
+    MISSING_LABELLED_CHECKOUT,
+    UNPROVEN_RESOURCE_ONLY_OWNER,
     build_cleanup_plan,
     normalize_docker_path,
     paths_match_exactly,
+    select_ownership_conflicts,
 )
 
 
@@ -81,7 +85,8 @@ def test_cleanup_plan_selects_only_compose_resources_owned_by_canonical_roots(
         ],
     )
 
-    assert plan["selection_policy"] == "compose-ownership-labels-v1"
+    assert plan["schema_version"] == "1.1"
+    assert plan["selection_policy"] == "compose-ownership-labels-v2"
     assert plan["allowed_compose_projects"]["lotus-core"] == (
         "c:/users/sandeep/projects/lotus-core"
     )
@@ -133,6 +138,7 @@ def test_cleanup_plan_blocks_reused_project_name_from_another_worktree() -> None
             "compose_working_dir": r"C:\Users\Sandeep\projects\lotus-core-shadow",
             "expected_working_dir": "c:/users/sandeep/projects/lotus-core",
             "conflict_reason": "compose_project_owned_by_different_working_directory",
+            "ownership_state": MISSING_LABELLED_CHECKOUT,
         }
     ]
 
@@ -191,6 +197,7 @@ def test_cleanup_plan_blocks_core_alias_owned_by_temporary_checkout() -> None:
             "compose_working_dir": temporary_checkout,
             "expected_working_dir": "c:/users/sandeep/projects/lotus-core",
             "conflict_reason": "compose_project_owned_by_different_working_directory",
+            "ownership_state": MISSING_LABELLED_CHECKOUT,
         }
     ]
 
@@ -210,18 +217,25 @@ def test_cleanup_plan_blocks_resource_only_project_without_checkout_provenance()
     assert plan["volumes"] == []
     assert plan["images"] == []
     assert {
-        (item["resource_type"], item["name"], item["conflict_reason"])
+        (
+            item["resource_type"],
+            item["name"],
+            item["conflict_reason"],
+            item["ownership_state"],
+        )
         for item in plan["ownership_conflicts"]
     } == {
         (
             "volume",
             "lotus-core-residual-data",
             "compose_project_resource_without_working_directory_provenance",
+            UNPROVEN_RESOURCE_ONLY_OWNER,
         ),
         (
             "image",
             "lotus-core-residual-api:local",
             "compose_project_resource_without_working_directory_provenance",
+            UNPROVEN_RESOURCE_ONLY_OWNER,
         ),
     }
 
@@ -244,6 +258,32 @@ def test_cleanup_plan_blocks_resource_only_core_alias_without_checkout_provenanc
     assert plan["ownership_conflicts"][0]["conflict_reason"] == (
         "compose_project_resource_without_working_directory_provenance"
     )
+    assert plan["ownership_conflicts"][0]["ownership_state"] == (
+        UNPROVEN_RESOURCE_ONLY_OWNER
+    )
+
+
+def test_existing_foreign_checkout_is_not_classified_as_retirable() -> None:
+    working_dir = r"C:\Users\Sandeep\projects\lotus-core-feature"
+    conflicts = select_ownership_conflicts(
+        [_container("lotus-core-feature-api", "lotus-core", working_dir)],
+        {"lotus-core": "c:/users/sandeep/projects/lotus-core"},
+        checkout_exists=lambda value: value == working_dir,
+    )
+
+    assert conflicts[0]["ownership_state"] == ACTIVE_FOREIGN_OWNER
+
+
+def test_registered_missing_worktree_is_not_classified_as_retirable() -> None:
+    working_dir = r"C:\Users\Sandeep\projects\lotus-core-feature"
+    conflicts = select_ownership_conflicts(
+        [_container("lotus-core-feature-api", "lotus-core", working_dir)],
+        {"lotus-core": "c:/users/sandeep/projects/lotus-core"},
+        registered_worktrees=[working_dir],
+        checkout_exists=lambda _: False,
+    )
+
+    assert conflicts[0]["ownership_state"] == ACTIVE_FOREIGN_OWNER
 
 
 def test_cleanup_plan_keeps_exact_ingress_but_rejects_similarly_named_container() -> (
