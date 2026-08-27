@@ -51,6 +51,7 @@ def test_checkout_path_match_is_normalized_and_exact() -> None:
         root,
     )
     assert not paths_match_exactly(r"C:\Users\Sandeep\projects\lotus-core-shadow", root)
+    assert not paths_match_exactly("/tmp/ActiveCheckout", "/tmp/activecheckout")
 
 
 def test_path_entry_probe_distinguishes_absence_from_entry_and_error(

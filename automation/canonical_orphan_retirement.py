@@ -218,15 +218,18 @@ def validate_orphan_retirement(
     _assert_exact(
         live_labels.get(COMPOSE_PROJECT_LABEL), compose_project, "live Compose project"
     )
+    live_labelled_working_dir = live_labels.get(COMPOSE_WORKING_DIR_LABEL)
     _assert_exact_path(
-        live_labels.get(COMPOSE_WORKING_DIR_LABEL),
+        live_labelled_working_dir,
         labelled_working_dir,
         "live labelled working directory",
     )
 
-    if path_exists(labelled_working_dir):
+    if not isinstance(live_labelled_working_dir, str):
+        raise OrphanRetirementRefused("live labelled working directory is missing")
+    if path_exists(live_labelled_working_dir):
         raise OrphanRetirementRefused("labelled checkout now exists")
-    normalized_labelled_path = normalize_docker_path(labelled_working_dir)
+    normalized_labelled_path = normalize_docker_path(live_labelled_working_dir)
     if normalized_labelled_path in {
         normalize_docker_path(worktree) for worktree in registered_worktrees
     }:
@@ -259,8 +262,6 @@ def validate_live_request(
     # Git enumeration is the slowest ownership probe and must succeed before the final Docker and
     # filesystem snapshot. Missing or inaccessible canonical roots are refusal conditions.
     registered_worktrees = collect_registered_worktree_paths(allowed_roots)
-    if path_entry_exists(args.labelled_working_dir):
-        raise OrphanRetirementRefused("labelled checkout now exists")
     live_container = inspect_container(args.container_id)
     checks = validate_orphan_retirement(
         plan=plan,

@@ -192,6 +192,74 @@ def test_validation_refuses_live_container_identity_drift(
         _validate(live_container=live)
 
 
+def test_validation_probes_the_exact_live_docker_label() -> None:
+    now = datetime.now(timezone.utc)
+    plan = _plan(now)
+    conflict = plan["ownership_conflicts"][0]
+    assert isinstance(conflict, dict)
+    conflict["compose_working_dir"] = "/tmp/ActiveCheckout"
+    live = _live_container()
+    labels = live["Config"]
+    assert isinstance(labels, dict)
+    config_labels = labels["Labels"]
+    assert isinstance(config_labels, dict)
+    config_labels["com.docker.compose.project.working_dir"] = "/tmp/ActiveCheckout"
+    observed: list[str] = []
+
+    retirement.validate_orphan_retirement(
+        plan=plan,
+        plan_generated_at=now,
+        now=now,
+        max_plan_age_seconds=300,
+        container_id=CONTAINER_ID,
+        container_name=CONTAINER_NAME,
+        compose_project=COMPOSE_PROJECT,
+        labelled_working_dir="/tmp/ActiveCheckout",
+        expected_working_dir=EXPECTED_WORKING_DIR,
+        projects_root=PROJECTS_ROOT,
+        workbench_repo_path=WORKBENCH_REPO,
+        live_container=live,
+        registered_worktrees=set(),
+        path_exists=lambda value: observed.append(value) or False,
+    )
+
+    assert observed == ["/tmp/ActiveCheckout"]
+
+
+def test_validation_refuses_posix_case_variant_restatement() -> None:
+    now = datetime.now(timezone.utc)
+    plan = _plan(now)
+    conflict = plan["ownership_conflicts"][0]
+    assert isinstance(conflict, dict)
+    conflict["compose_working_dir"] = "/tmp/ActiveCheckout"
+    live = _live_container()
+    config = live["Config"]
+    assert isinstance(config, dict)
+    labels = config["Labels"]
+    assert isinstance(labels, dict)
+    labels["com.docker.compose.project.working_dir"] = "/tmp/ActiveCheckout"
+
+    with pytest.raises(
+        retirement.OrphanRetirementRefused, match="labelled working directory"
+    ):
+        retirement.validate_orphan_retirement(
+            plan=plan,
+            plan_generated_at=now,
+            now=now,
+            max_plan_age_seconds=300,
+            container_id=CONTAINER_ID,
+            container_name=CONTAINER_NAME,
+            compose_project=COMPOSE_PROJECT,
+            labelled_working_dir="/tmp/activecheckout",
+            expected_working_dir=EXPECTED_WORKING_DIR,
+            projects_root=PROJECTS_ROOT,
+            workbench_repo_path=WORKBENCH_REPO,
+            live_container=live,
+            registered_worktrees=set(),
+            path_exists=lambda _: False,
+        )
+
+
 def _write_plan(tmp_path: Path) -> tuple[Path, str]:
     plan_path = tmp_path / "cleanup-plan.json"
     plan_path.write_text(
@@ -502,7 +570,7 @@ def test_live_validation_runs_slow_git_probe_before_final_docker_and_path(
         plan_generated_at=now,
     )
 
-    assert events == ["git", "path", "docker", "path"]
+    assert events == ["git", "docker", "path"]
 
 
 def test_execute_revalidates_identity_after_receipt_before_mutation(
