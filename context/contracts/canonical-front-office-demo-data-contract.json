@@ -1,8 +1,8 @@
 {
   "contract_id": "canonical-front-office-demo-data-contract",
-  "contract_version": "1.1.0",
+  "contract_version": "1.1.1",
   "status": "proposed-for-rfc-0076-slice-1",
-  "last_reviewed_on": "2026-07-22",
+  "last_reviewed_on": "2026-08-27",
   "governed_by_rfc": "RFC-0076",
   "portfolio": {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -55,7 +55,7 @@
     "model_portfolio_id": "MODEL_PB_SG_GLOBAL_BAL_DPM",
     "policy_pack_id": "POLICY_DPM_SG_BALANCED_V1",
     "reference_currency": "USD",
-    "command_center_as_of_date": "2026-05-03",
+    "command_center_as_of_date": "2026-04-10",
     "source_products": [
       "DiscretionaryMandateBinding:v1",
       "ModelPortfolioTargets:v1",
@@ -86,7 +86,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeDemoDataContract",
               "source_id": "canonical-front-office-demo-data-contract",
-              "source_version": "1.1.0",
+              "source_version": "1.1.1",
               "supportability_state": "READY"
             }
           ]
@@ -101,7 +101,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.1.0",
+              "source_version": "1.1.1",
               "supportability_state": "READY"
             }
           ]
@@ -116,7 +116,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.1.0",
+              "source_version": "1.1.1",
               "supportability_state": "READY"
             }
           ]

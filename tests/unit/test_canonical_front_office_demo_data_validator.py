@@ -155,6 +155,49 @@ def test_validator_rejects_drift_from_canonical_dpm_seed_identity() -> None:
     assert "dpm_command_center.portfolio_manager_id must be PM_SG_DPM_001" in errors
 
 
+def test_validator_rejects_dpm_health_date_drift_from_canonical_valuation() -> None:
+    contract = _contract()
+    contract["dpm_command_center"]["command_center_as_of_date"] = "2026-05-03"
+
+    errors = _validator().validate_contract(contract, _invariants(), _seed_script())
+
+    assert (
+        "dpm_command_center.command_center_as_of_date must match "
+        "date_policy.canonical_as_of_date" in errors
+    )
+    assert (
+        "dpm_command_center.command_center_as_of_date must match "
+        "invariants.canonical_as_of_date" in errors
+    )
+
+
+def test_validator_rejects_dpm_health_date_invariant_drift() -> None:
+    invariants = _invariants()
+    invariants["canonical_as_of_date"] = "2026-05-03"
+
+    errors = _validator().validate_contract(_contract(), invariants, _seed_script())
+
+    assert (
+        "dpm_command_center.command_center_as_of_date must match "
+        "invariants.canonical_as_of_date" in errors
+    )
+
+
+def test_validator_rejects_stale_canonical_source_ref_version() -> None:
+    contract = _contract()
+    source_ref = contract["dpm_command_center"]["multi_portfolio_wave_scenario"][
+        "portfolios"
+    ][0]["source_refs"][0]
+    source_ref["source_version"] = "1.1.0"
+
+    errors = _validator().validate_contract(contract, _invariants(), _seed_script())
+
+    assert (
+        "multi_portfolio_wave_scenario source refs must match canonical contract version"
+        in errors
+    )
+
+
 def test_validator_rejects_drift_from_canonical_advisor_book_identity() -> None:
     contract = _contract()
     contract["advisor_book"]["portfolio_id"] = "PB_OTHER"

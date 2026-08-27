@@ -20,7 +20,7 @@ SEED_SCRIPT_PATH = ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1"
 CORE_SEED_VALIDATOR_RELATIVE_PATH = Path(
     "tools/validate_front_office_advisor_book_seed.py"
 )
-REQUIRED_CONTRACT_VERSION = "1.1.0"
+REQUIRED_CONTRACT_VERSION = "1.1.1"
 
 REQUIRED_DPM_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -28,7 +28,6 @@ REQUIRED_DPM_IDENTITIES = {
     "portfolio_manager_id": "PM_SG_DPM_001",
     "book_id": "BOOK_SG_BALANCED_DPM",
     "tenant_id": "default",
-    "command_center_as_of_date": "2026-05-03",
 }
 REQUIRED_ADVISOR_BOOK_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -64,6 +63,7 @@ REQUIRED_COVERAGE_ASSERTIONS = {
     "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment_before_workbench_validation",
     "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
+    "dpm_command_center_health_date_must_match_canonical_portfolio_valuation_date",
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
     "dpm_command_center_evidence_must_record_source_product_lineage",
     "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
@@ -156,11 +156,15 @@ def validate_contract(
         errors.append("canonical contract must define advisor_book")
 
     if isinstance(dpm, dict):
-        _validate_dpm_identity(errors, dpm)
+        _validate_dpm_identity(errors, dpm, contract, invariants)
         _validate_source_products(errors, dpm)
         _validate_surface_states(errors, dpm, invariants)
         _validate_campaign_definition(errors, dpm)
-        _validate_multi_portfolio_wave(errors, dpm)
+        _validate_multi_portfolio_wave(
+            errors,
+            dpm,
+            contract_version=contract.get("contract_version"),
+        )
     if isinstance(advisor_book, dict):
         _validate_advisor_book(errors, advisor_book, contract, invariants)
     _validate_invariants(errors, invariants)
@@ -168,7 +172,12 @@ def validate_contract(
     return errors
 
 
-def _validate_dpm_identity(errors: list[str], dpm: dict[str, Any]) -> None:
+def _validate_dpm_identity(
+    errors: list[str],
+    dpm: dict[str, Any],
+    contract: dict[str, Any],
+    invariants: dict[str, Any],
+) -> None:
     for field, expected in REQUIRED_DPM_IDENTITIES.items():
         if dpm.get(field) != expected:
             errors.append(f"dpm_command_center.{field} must be {expected}")
@@ -177,6 +186,24 @@ def _validate_dpm_identity(errors: list[str], dpm: dict[str, Any]) -> None:
     ):
         errors.append(
             "dpm_command_center.seed_refresh_endpoint must use lotus-manage refresh"
+        )
+    portfolio = contract.get("portfolio")
+    if not isinstance(portfolio, dict) or dpm.get("portfolio_id") != portfolio.get(
+        "portfolio_id"
+    ):
+        errors.append("dpm_command_center.portfolio_id must match portfolio.portfolio_id")
+    date_policy = contract.get("date_policy")
+    if not isinstance(date_policy, dict) or dpm.get(
+        "command_center_as_of_date"
+    ) != date_policy.get("canonical_as_of_date"):
+        errors.append(
+            "dpm_command_center.command_center_as_of_date must match "
+            "date_policy.canonical_as_of_date"
+        )
+    if dpm.get("command_center_as_of_date") != invariants.get("canonical_as_of_date"):
+        errors.append(
+            "dpm_command_center.command_center_as_of_date must match "
+            "invariants.canonical_as_of_date"
         )
 
 
@@ -280,7 +307,12 @@ def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> Non
         errors.append("campaign selection basis must bound platform-local discovery")
 
 
-def _validate_multi_portfolio_wave(errors: list[str], dpm: dict[str, Any]) -> None:
+def _validate_multi_portfolio_wave(
+    errors: list[str],
+    dpm: dict[str, Any],
+    *,
+    contract_version: object,
+) -> None:
     wave = dpm.get("multi_portfolio_wave_scenario")
     if not isinstance(wave, dict):
         errors.append("dpm_command_center.multi_portfolio_wave_scenario is required")
@@ -299,6 +331,17 @@ def _validate_multi_portfolio_wave(errors: list[str], dpm: dict[str, Any]) -> No
         isinstance(item, dict) and item.get("source_refs") for item in portfolios
     ):
         errors.append("multi_portfolio_wave_scenario.portfolios must carry source_refs")
+        return
+    for item in portfolios:
+        for source_ref in item["source_refs"]:
+            if not isinstance(source_ref, dict) or source_ref.get(
+                "source_version"
+            ) != contract_version:
+                errors.append(
+                    "multi_portfolio_wave_scenario source refs must match "
+                    "canonical contract version"
+                )
+                return
 
 
 def _validate_invariants(errors: list[str], invariants: dict[str, Any]) -> None:
