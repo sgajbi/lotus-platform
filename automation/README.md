@@ -896,8 +896,38 @@ includes Compose-project and working-directory provenance. A Lotus-shaped name i
 ownership evidence. The inventory explicitly maps `lotus-core`, repository-declared
 `lotus-core-app-local`, and isolated `lotus-core-canonical-ui` to the canonical `lotus-core`
 checkout boundary. If another, temporary, or nested checkout reuses one of those project names, the
-plan records an ownership conflict and `-Clean` fails before mutation. Residual project-labeled
-volumes or images without a live container proving the expected checkout also fail closed.
+plan records an ownership conflict and `-Clean` fails before mutation. The plan distinguishes
+`active_foreign_owner`, `missing_labelled_checkout`, and `unproven_resource_only_owner`; all three
+remain blocking. Residual project-labeled volumes or images without a live container proving the
+expected checkout also fail closed.
+
+When a fresh plan proves that one exact conflict is a `missing_labelled_checkout`, first run the
+separate retirement command without `--execute`. Bind the plan digest and restate every identity
+field from that conflict rather than copying this example literally:
+
+```powershell
+$plan = Resolve-Path output\front-office-qa\cleanup-plan-latest.json
+$digest = (Get-FileHash -Algorithm SHA256 $plan).Hash.ToLowerInvariant()
+python automation\canonical_orphan_retirement.py `
+  --plan $plan --expected-plan-sha256 $digest `
+  --container-id <full-container-id> --container-name <exact-container-name> `
+  --compose-project <exact-project> --labelled-working-dir <missing-checkout> `
+  --expected-working-dir <canonical-repository-root> `
+  --projects-root C:\Users\Sandeep\projects `
+  --workbench-repo-path C:\Users\Sandeep\projects\lotus-workbench `
+  --output output\front-office-qa\orphan-retirement-dry-run.json
+```
+
+Review the receipt. To execute, generate a new cleanup plan and digest within the default five-minute
+freshness window, repeat the exact command with a new receipt path, and add
+`--execute --confirmation RETIRE_EXACT_ORPHAN`. The command re-inspects the full container ID,
+name, Compose project, labelled working directory, filesystem absence, and every registered Git
+worktree immediately before removing only that container. It never removes a Compose project,
+volume, image, network, similarly named resource, active checkout, registered missing worktree, or
+resource-only conflict. A failed post-mutation verification is recorded as
+`indeterminate_after_mutation`, never as success. Execution writes a validated pre-mutation receipt
+before removal and replaces it with a final receipt containing a newly generated view of all
+remaining ownership conflicts.
 
 Clean only the canonical Compose projects owned by the declared repository roots before governed
 bring-up:
