@@ -225,6 +225,25 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-upsert-' in dpm_seed
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-supersede-' in dpm_seed
 
+    cash_preflight = dpm_seed.index(
+        "resolving date-aligned canonical cash evidence before persistent writes"
+    )
+    persistent_refresh = dpm_seed.index(
+        "refreshing $resolvedMandateId from lotus-core through lotus-manage"
+    )
+    assert cash_preflight < persistent_refresh
+    assert "Assert-MandateHealthMatchesSeed" in dpm_seed
+    assert "manage-mandate-health-date-match" in dpm_seed
+    assert "gateway-mandate-health-date-match" in dpm_seed
+    assert (
+        dpm_seed.index("Manage mandate-health recalculation")
+        < dpm_seed.index('manage-mandate-health-date-match')
+    )
+    assert (
+        dpm_seed.index("Gateway command-center mandate health")
+        < dpm_seed.index('gateway-mandate-health-date-match')
+    )
+
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
     qa_profile_commands = {task["command"] for task in profiles["qa-platform-readiness"]["tasks"]}
     assert (

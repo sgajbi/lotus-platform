@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 363898
+    "total_source_lines": 363999
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 330,
+        "end_line": 349,
         "line": 26,
-        "lines": 305,
+        "lines": 324,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3043
+    "python_function_count": 3045
   },
-  "generated_at_utc": "2026-08-27T13:56:25Z",
+  "generated_at_utc": "2026-08-27T14:20:40Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -448,7 +448,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1172,
+      "lines": 1204,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1184,
+    "collected_tests": 1186,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1184 tests collected in 0.59s"
+    "summary": "1186 tests collected in 0.73s"
   }
 }

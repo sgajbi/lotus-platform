@@ -407,6 +407,28 @@ def _validate_seed_script(errors: list[str], seed_script: str) -> None:
         if required not in seed_script:
             errors.append(f"Invoke-DpmCommandCenterSeed.ps1 must include {required}")
 
+    cash_preflight = seed_script.find(
+        "resolving date-aligned canonical cash evidence before persistent writes"
+    )
+    first_persistent_write = seed_script.find(
+        "refreshing $resolvedMandateId from lotus-core through lotus-manage"
+    )
+    if cash_preflight < 0 or first_persistent_write < 0 or cash_preflight > first_persistent_write:
+        errors.append(
+            "Invoke-DpmCommandCenterSeed.ps1 must resolve date-aligned cash evidence "
+            "before its first persistent seed write"
+        )
+    for required in (
+        "Assert-MandateHealthMatchesSeed",
+        "manage-mandate-health-date-match",
+        "gateway-mandate-health-date-match",
+    ):
+        if required not in seed_script:
+            errors.append(
+                "Invoke-DpmCommandCenterSeed.ps1 must verify source-owned health identity "
+                f"with {required}"
+            )
+
 
 def _resolve_core_repo(explicit_core_repo: Path | None = None) -> Path:
     if explicit_core_repo is not None:

@@ -310,3 +310,28 @@ def test_validator_rejects_missing_date_aligned_cash_evidence() -> None:
         "Invoke-DpmCommandCenterSeed.ps1 is missing step gateway-date-aligned-cash-evidence"
         in errors
     )
+
+
+def test_validator_rejects_cash_evidence_after_persistent_seed_write() -> None:
+    seed_script = _seed_script().replace(
+        "resolving date-aligned canonical cash evidence before persistent writes",
+        "resolving cash evidence after persistent writes",
+    )
+
+    errors = _validator().validate_contract(_contract(), _invariants(), seed_script)
+
+    assert (
+        "Invoke-DpmCommandCenterSeed.ps1 must resolve date-aligned cash evidence "
+        "before its first persistent seed write" in errors
+    )
+
+
+def test_validator_rejects_missing_health_date_identity_assertion() -> None:
+    seed_script = _seed_script().replace("gateway-mandate-health-date-match", "")
+
+    errors = _validator().validate_contract(_contract(), _invariants(), seed_script)
+
+    assert (
+        "Invoke-DpmCommandCenterSeed.ps1 must verify source-owned health identity "
+        "with gateway-mandate-health-date-match" in errors
+    )

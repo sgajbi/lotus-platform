@@ -40,6 +40,9 @@ campaign governance date remains valid for campaign discovery and approval, but 
 substitute for a confirmed portfolio valuation. This follows the valuation-date consistency
 principle in the official [GIPS Standards Handbook for Firms](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/): comparable portfolio facts must be based on consistent valuation periods. Lotus adopts date-aligned, source-confirmed
 evidence and rejects forward-date fallback or residual database state.
+The canonical seed resolves and validates date-aligned cash evidence before its first persistent
+write, then verifies that both Manage's recalculation response and Gateway's composed health read
+carry the requested portfolio, mandate, valuation date, and source-owned snapshot identity.
 
 ## Business Story
 

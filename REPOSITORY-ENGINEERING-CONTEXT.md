@@ -111,7 +111,10 @@ Current repository posture:
     `PB_SG_GLOBAL_BAL_001` DPM readiness gap to `sgajbi/lotus-core#840`.
 14. Canonical mandate-health seeding must resolve portfolio cash from the implementation-backed
     Gateway overview for the exact requested portfolio and business date, validate the source
-    identity/date/unit, and normalize percentage to ratio once. The source read must omit unrelated
+    identity/date/unit before the first persistent seed write, and normalize percentage to ratio
+    once. After health recalculation, both the Manage response and Gateway read must match the
+    requested mandate, portfolio, and valuation date and carry source-owned snapshot identity. The
+    source read must omit unrelated
     optional Performance and rebalance enrichment while continuing to fail closed on overview
     warnings or partial failures. Platform automation must never substitute a hard-coded cash
     weight or persist health after missing, mismatched, malformed, or out-of-range evidence. The
