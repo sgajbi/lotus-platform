@@ -160,7 +160,7 @@ def select_ownership_conflicts(
     allowed_project_roots: Mapping[str, str],
     *,
     registered_worktrees: Iterable[str] = (),
-    checkout_exists: Callable[[str], bool] = lambda value: Path(value).is_dir(),
+    checkout_exists: Callable[[str], bool] = lambda value: Path(value).exists(),
 ) -> list[dict[str, str]]:
     normalized_worktrees = {
         normalize_docker_path(worktree) for worktree in registered_worktrees
@@ -292,7 +292,7 @@ def build_cleanup_plan(
     images: Iterable[Mapping[str, Any]],
     include_projects: Iterable[str] = (),
     registered_worktrees: Iterable[str] = (),
-    checkout_exists: Callable[[str], bool] = lambda value: Path(value).is_dir(),
+    checkout_exists: Callable[[str], bool] = lambda value: Path(value).exists(),
 ) -> dict[str, Any]:
     container_items = list(containers)
     volume_items = list(volumes)

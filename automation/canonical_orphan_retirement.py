@@ -243,6 +243,37 @@ def validate_orphan_retirement(
     }
 
 
+def validate_live_request(
+    *,
+    args: argparse.Namespace,
+    plan: Mapping[str, Any],
+    plan_generated_at: datetime,
+) -> tuple[Mapping[str, Any], dict[str, Any]]:
+    """Reinspect every mutable ownership fact for the CLI request."""
+
+    live_container = inspect_container(args.container_id)
+    allowed_roots = canonical_project_roots(
+        args.projects_root, args.workbench_repo_path
+    )
+    checks = validate_orphan_retirement(
+        plan=plan,
+        plan_generated_at=plan_generated_at,
+        now=datetime.now(timezone.utc),
+        max_plan_age_seconds=args.max_plan_age_seconds,
+        container_id=args.container_id,
+        container_name=args.container_name,
+        compose_project=args.compose_project,
+        labelled_working_dir=args.labelled_working_dir,
+        expected_working_dir=args.expected_working_dir,
+        projects_root=args.projects_root,
+        workbench_repo_path=args.workbench_repo_path,
+        live_container=live_container,
+        registered_worktrees=collect_registered_worktree_paths(allowed_roots),
+        path_exists=lambda value: Path(value).exists(),
+    )
+    return live_container, checks
+
+
 def build_receipt(
     *,
     status: str,
@@ -352,27 +383,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         plan_generated_at = _parse_utc_timestamp(
             plan.get("generated_at"), "generated_at"
         )
-        live_container = inspect_container(args.container_id)
-        allowed_roots = canonical_project_roots(
-            args.projects_root, args.workbench_repo_path
-        )
-        registered_worktrees = collect_registered_worktree_paths(allowed_roots)
-        now = datetime.now(timezone.utc)
-        checks = validate_orphan_retirement(
+        live_container, checks = validate_live_request(
+            args=args,
             plan=plan,
             plan_generated_at=plan_generated_at,
-            now=now,
-            max_plan_age_seconds=args.max_plan_age_seconds,
-            container_id=args.container_id,
-            container_name=args.container_name,
-            compose_project=args.compose_project,
-            labelled_working_dir=args.labelled_working_dir,
-            expected_working_dir=args.expected_working_dir,
-            projects_root=args.projects_root,
-            workbench_repo_path=args.workbench_repo_path,
-            live_container=live_container,
-            registered_worktrees=registered_worktrees,
-            path_exists=lambda value: Path(value).exists(),
         )
         before = {
             "container_present": True,
@@ -397,6 +411,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                     before=before,
                 ),
             )
+            _, final_checks = validate_live_request(
+                args=args,
+                plan=plan,
+                plan_generated_at=plan_generated_at,
+            )
+            checks.update(final_checks)
+            checks["pre_mutation_revalidated"] = True
             mutation_started = True
             remove_container(args.container_id)
             try:

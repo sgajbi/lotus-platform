@@ -258,7 +258,11 @@ def test_cli_execute_removes_only_exact_container_and_records_receipt(
     plan_path, digest = _write_plan(tmp_path)
     output = tmp_path / "execute-receipt.json"
     inspections = iter(
-        [_live_container(), retirement.ContainerNotFound("container absent")]
+        [
+            _live_container(),
+            _live_container(),
+            retirement.ContainerNotFound("container absent"),
+        ]
     )
 
     def inspect(_: str) -> dict[str, object]:
@@ -290,6 +294,7 @@ def test_cli_execute_removes_only_exact_container_and_records_receipt(
     assert result == 0
     assert removed == [CONTAINER_ID]
     assert receipt["status"] == "retired"
+    assert receipt["checks"]["pre_mutation_revalidated"] is True
     assert receipt["after"] == {
         "container_present": False,
         "remaining_conflicts": {
@@ -305,7 +310,11 @@ def test_execute_writes_a_pre_mutation_receipt_before_exact_removal(
     plan_path, digest = _write_plan(tmp_path)
     output = tmp_path / "execute-receipt.json"
     inspections = iter(
-        [_live_container(), retirement.ContainerNotFound("container absent")]
+        [
+            _live_container(),
+            _live_container(),
+            retirement.ContainerNotFound("container absent"),
+        ]
     )
 
     def inspect(_: str) -> dict[str, object]:
@@ -381,7 +390,11 @@ def test_execute_reports_indeterminate_if_post_removal_inspection_fails(
     plan_path, digest = _write_plan(tmp_path)
     output = tmp_path / "indeterminate-receipt.json"
     inspections = iter(
-        [_live_container(), retirement.OrphanRetirementRefused("daemon unavailable")]
+        [
+            _live_container(),
+            _live_container(),
+            retirement.OrphanRetirementRefused("daemon unavailable"),
+        ]
     )
 
     def inspect(_: str) -> dict[str, object]:
@@ -405,6 +418,33 @@ def test_execute_reports_indeterminate_if_post_removal_inspection_fails(
     receipt = json.loads(output.read_text(encoding="utf-8"))
     assert receipt["status"] == "indeterminate_after_mutation"
     assert receipt["error"] == "daemon unavailable"
+
+
+def test_execute_revalidates_identity_after_receipt_before_mutation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan_path, digest = _write_plan(tmp_path)
+    output = tmp_path / "race-refusal-receipt.json"
+    changed = _live_container()
+    changed["Name"] = "/reclaimed-by-active-owner"
+    inspections = iter([_live_container(), changed])
+    monkeypatch.setattr(retirement, "inspect_container", lambda _: next(inspections))
+    monkeypatch.setattr(
+        retirement, "collect_registered_worktree_paths", lambda _: set()
+    )
+    removed: list[str] = []
+    monkeypatch.setattr(retirement, "remove_container", removed.append)
+    arguments = _cli_arguments(plan_path, digest, output) + [
+        "--execute",
+        "--confirmation",
+        retirement.EXECUTION_CONFIRMATION,
+    ]
+
+    assert retirement.main(arguments) == 2
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert receipt["status"] == "refused"
+    assert "live container name" in receipt["error"]
+    assert removed == []
 
 
 def test_remaining_conflicts_are_regenerated_without_project_exceptions(
