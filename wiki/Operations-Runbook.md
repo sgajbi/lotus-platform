@@ -91,10 +91,11 @@ Gateway command-center summary before browser proof starts. The seed evidence re
 command-center states before Workbench screenshots can be promoted.
 
 Before recalculating mandate health, the seed reads the portfolio's cash percentage from the
-Gateway Workbench overview at the exact requested date, validates portfolio and date identity, and
-normalizes the percentage to a ratio. Missing, mismatched, malformed, or out-of-range cash evidence
-fails the seed before persistence; there is no fixed cash-weight fallback. The evidence JSON records
-the source URI and both source and normalized values for review.
+Gateway Workbench overview at the exact requested date. The read excludes optional Performance and
+rebalance enrichment, then validates portfolio/date identity, source warnings and partial failures,
+and normalizes the percentage to a ratio. Missing, mismatched, degraded, malformed, or out-of-range
+cash evidence fails before persistence; there is no fixed cash-weight fallback. The evidence JSON
+records the source URI and both source and normalized values for review.
 
 Use `Invoke-DpmCommandCenterSeed.ps1` directly only when the stack is already running and the goal
 is to diagnose or refresh the DPM command-center data path without rerunning the full browser proof.
