@@ -536,7 +536,13 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     model repository-declared project identities explicitly: `lotus-core`,
     `lotus-core-app-local`, and `lotus-core-canonical-ui` all resolve to the canonical
     `lotus-core` checkout boundary, but an alias from a temporary or other checkout is a conflict,
-    not an owned resource.
+    not an owned resource. Classify active foreign owners, missing labelled checkouts, and
+    unproven resource-only owners distinctly while keeping every class fail-closed for normal
+    cleanup. A proven missing checkout may be retired only through the separate
+    `canonical_orphan_retirement.py` action, using a fresh plan, caller-supplied plan SHA-256, exact
+    target fields, live label reinspection, path absence, and Git worktree exclusion. That action
+    is one-container-only and must never imply volume, image, network, project, prefix, or active
+    owner cleanup.
 14. classify composite Workbench panels from the complete governed panel contract, not from one
     ready input. Endpoint, calculation, membership, and source-snapshot readiness are component
     evidence; panel promotion requires every registry-owned dependency and limitation to support

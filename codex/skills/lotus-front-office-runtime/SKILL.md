@@ -71,6 +71,14 @@ Do not route those tasks through generic platform QA by default.
     `lotus-core-canonical-ui` as explicit aliases for the `lotus-core` checkout boundary; never
     infer additional aliases from a name prefix. A Core alias labeled with a temporary or other
     checkout must appear in the plan as a conflict and must not be silently reused or deleted.
+    Distinguish `active_foreign_owner`, `missing_labelled_checkout`, and
+    `unproven_resource_only_owner`, but keep all three blocking for normal cleanup. If the labelled
+    checkout is absent, do not issue a manual Docker removal. Use the platform-owned
+    `canonical_orphan_retirement.py` dry run only when the fresh plan classifies that exact
+    container as `missing_labelled_checkout`; bind the plan SHA-256 and restate its full ID, name,
+    project, labelled path, and canonical root. Execute only after receipt review and explicit
+    confirmation. Never use this recovery path for active/registered paths, stale plans, changed
+    identities, projects, volumes, images, networks, or resource-only conflicts.
 16. Before recording a panel as `ready`, reconcile every required input and limitation against the
     panel registry's governed support state. A ready endpoint, calculation, membership, or source
     snapshot is not sufficient evidence to promote a composite panel by itself.
