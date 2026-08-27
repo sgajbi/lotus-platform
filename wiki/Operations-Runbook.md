@@ -36,6 +36,7 @@ powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.p
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly
+python automation\canonical_orphan_retirement.py --help
 powershell -ExecutionPolicy Bypass -File automation\Invoke-DpmCommandCenterSeed.ps1
 python automation\mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos
 python automation\generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z --check
@@ -67,7 +68,14 @@ python automation\validate_analytics_ui_entitlement_certification.py
    live working-directory provenance, must block cleanup before mutation. The cleanup inventory
    explicitly recognizes `lotus-core`, `lotus-core-app-local`, and
    `lotus-core-canonical-ui` as Core project identities only when their working-directory label is
-   the canonical `lotus-core` checkout; a noncanonical checkout alias is a blocking conflict.
+   the canonical `lotus-core` checkout; a noncanonical checkout alias is a blocking conflict. It
+   classifies active foreign owners, missing labelled checkouts, and unproven resource-only owners
+   separately. Only a fresh, digest-bound `missing_labelled_checkout` container may be passed to
+   `canonical_orphan_retirement.py`; dry-run first, restate every exact target field, review the
+   receipt, and use explicit confirmation for execution. The command removes only that full
+   container ID and refuses projects, volumes, images, networks, active/registered paths, stale
+   plans, and changed identities. Its execution receipt is persisted before mutation and finalized
+   with a newly generated view of remaining ownership conflicts.
 9. use `Service-Refresh.ps1 -DryRun` before refreshing a service in a shared stack. The governed
    service map must preserve non-secret coexistence environment and published ports; Manage must
    retain host port 8001 and its canonical Core source/workflow settings while Advise remains on
