@@ -735,6 +735,30 @@ function Assert-CampaignDefinitionMatchesSeed {
   }
 }
 
+function Assert-MandateHealthMatchesSeed {
+  param(
+    [string]$Name,
+    [object]$Response
+  )
+
+  $health = if ($Response.data) { $Response.data } else { $Response }
+  if (-not $health) {
+    throw "$Name returned an empty mandate-health snapshot."
+  }
+  if ([string]$health.mandate_id -ne $resolvedMandateId) {
+    throw "$Name returned mandate_id $($health.mandate_id), expected $resolvedMandateId."
+  }
+  if ([string]$health.portfolio_id -ne $resolvedPortfolioId) {
+    throw "$Name returned portfolio_id $($health.portfolio_id), expected $resolvedPortfolioId."
+  }
+  if ([string]$health.as_of_date -ne $resolvedAsOfDate) {
+    throw "$Name returned as_of_date $($health.as_of_date), expected $resolvedAsOfDate."
+  }
+  if ([string]::IsNullOrWhiteSpace([string]$health.health_snapshot_id)) {
+    throw "$Name did not return a source-owned health_snapshot_id."
+  }
+}
+
 function Upsert-CampaignDefinition {
   $existingDefinition = $null
   try {
@@ -949,6 +973,21 @@ try {
     -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-refresh-auth-preflight-$resolvedPortfolioId-$timestamp")
   $summary.steps += "manage-refresh-authorization-preflight"
 
+  Write-Host "[dpm-seed] resolving date-aligned canonical cash evidence before persistent writes"
+  $cashEvidenceJson = & python $canonicalCashEvidenceScript `
+    --gateway-base-url $gatewayApiBaseUrl `
+    --portfolio-id $resolvedPortfolioId `
+    --as-of-date $resolvedAsOfDate
+  if ($LASTEXITCODE -ne 0) {
+    throw "Canonical cash-evidence resolution failed with exit code $LASTEXITCODE before any persistent seed write."
+  }
+  try {
+    $summary.cash_evidence = $cashEvidenceJson | ConvertFrom-Json
+  } catch {
+    throw "Canonical cash-evidence resolver returned invalid JSON before any persistent seed write: $($_.Exception.Message)"
+  }
+  $summary.steps += "gateway-date-aligned-cash-evidence-preflight"
+
   Write-Host "[dpm-seed] refreshing $resolvedMandateId from lotus-core through lotus-manage"
   $summary.refresh_response = Invoke-JsonRequest `
     -Method "Post" `
@@ -973,28 +1012,17 @@ try {
   })
   $summary.steps += "manage-monitoring-run-once"
 
-  Write-Host "[dpm-seed] resolving date-aligned canonical cash evidence"
-  $cashEvidenceJson = & python $canonicalCashEvidenceScript `
-    --gateway-base-url $gatewayApiBaseUrl `
-    --portfolio-id $resolvedPortfolioId `
-    --as-of-date $resolvedAsOfDate
-  if ($LASTEXITCODE -ne 0) {
-    throw "Canonical cash-evidence resolution failed with exit code $LASTEXITCODE."
-  }
-  try {
-    $summary.cash_evidence = $cashEvidenceJson | ConvertFrom-Json
-  } catch {
-    throw "Canonical cash-evidence resolver returned invalid JSON: $($_.Exception.Message)"
-  }
-  $summary.steps += "gateway-date-aligned-cash-evidence"
-
   Write-Host "[dpm-seed] preserving source-owned risk/performance mandate health contexts"
   $summary.recalculated_health_response = Invoke-JsonRequest `
     -Method "Post" `
     -Uri $recalculateHealthUri `
     -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-$resolvedPortfolioId-$timestamp") `
     -Body (New-CanonicalMandateHealthBody -Mandate $summary.refresh_response.mandate)
+  Assert-MandateHealthMatchesSeed `
+    -Name "Manage mandate-health recalculation" `
+    -Response $summary.recalculated_health_response
   $summary.steps += "manage-mandate-health-source-contexts"
+  $summary.steps += "manage-mandate-health-date-match"
 
   Write-Host "[dpm-seed] recording stateful action-register simulation evidence"
   $actionRegisterIdempotencyKey = (
@@ -1081,7 +1109,11 @@ try {
 
     Write-Host "[dpm-seed] verifying Gateway command-center mandate health"
     $summary.gateway_health_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayHealthUri -Headers $headers
+    Assert-MandateHealthMatchesSeed `
+      -Name "Gateway command-center mandate health" `
+      -Response $summary.gateway_health_response
     $summary.steps += "gateway-mandate-health"
+    $summary.steps += "gateway-mandate-health-date-match"
 
     Write-Host "[dpm-seed] verifying Gateway campaign definitions"
     $summary.gateway_campaign_definitions_response = Invoke-JsonRequest `
