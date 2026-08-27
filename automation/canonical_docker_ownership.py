@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import ntpath
 import os
 import posixpath
 import stat
@@ -50,7 +51,9 @@ def normalize_docker_path(value: str) -> str:
     """Normalize host paths recorded by Docker labels for stable boundary checks."""
 
     normalized = posixpath.normpath(value.strip().replace("\\", "/"))
-    return normalized.rstrip("/").casefold()
+    normalized = normalized.rstrip("/")
+    windows_drive, _ = ntpath.splitdrive(value.strip())
+    return normalized.casefold() if windows_drive else normalized
 
 
 def paths_match_exactly(path: str, expected_path: str) -> bool:
