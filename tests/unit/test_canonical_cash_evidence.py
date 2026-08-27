@@ -212,7 +212,7 @@ def test_cash_evidence_fails_closed_on_untrustworthy_source_payload(
         )
 
 
-def test_overview_uri_encodes_portfolio_identity_and_business_date() -> None:
+def test_overview_uri_encodes_identity_date_and_source_isolation() -> None:
     assert build_overview_uri(
         gateway_base_url="http://gateway.dev.lotus/",
         portfolio_id="PB SG/BAL",
@@ -220,4 +220,6 @@ def test_overview_uri_encodes_portfolio_identity_and_business_date() -> None:
     ) == (
         "http://gateway.dev.lotus/api/v1/workbench/PB%20SG%2FBAL/overview"
         "?as_of_date=2026-04-10"
+        "&include_performance_snapshot=false"
+        "&include_rebalance_snapshot=false"
     )

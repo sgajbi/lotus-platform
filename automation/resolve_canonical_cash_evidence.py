@@ -21,7 +21,13 @@ class CashEvidenceError(ValueError):
 def build_overview_uri(
     *, gateway_base_url: str, portfolio_id: str, as_of_date: str
 ) -> str:
-    query = urlencode({"as_of_date": as_of_date})
+    query = urlencode(
+        {
+            "as_of_date": as_of_date,
+            "include_performance_snapshot": "false",
+            "include_rebalance_snapshot": "false",
+        }
+    )
     return (
         f"{gateway_base_url.rstrip('/')}/api/v1/workbench/"
         f"{quote(portfolio_id, safe='')}/overview?{query}"
