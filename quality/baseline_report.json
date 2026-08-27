@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 363782
+    "total_source_lines": 363898
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -67,8 +67,8 @@
       },
       {
         "complexity": 20,
-        "end_line": 99,
-        "line": 31,
+        "end_line": 105,
+        "line": 37,
         "lines": 69,
         "name": "cash_evidence_from_overview",
         "path": "automation/resolve_canonical_cash_evidence.py"
@@ -285,9 +285,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 318,
+        "end_line": 321,
         "line": 128,
-        "lines": 191,
+        "lines": 194,
         "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3040
+    "python_function_count": 3043
   },
-  "generated_at_utc": "2026-08-27T11:27:08Z",
+  "generated_at_utc": "2026-08-27T13:56:25Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1729,
+      "lines": 1731,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1181,
+    "collected_tests": 1184,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1181 tests collected in 0.86s"
+    "summary": "1184 tests collected in 0.59s"
   }
 }
