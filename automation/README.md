@@ -825,8 +825,10 @@ By default the wrapper also runs the DPM command-center seed after stack bring-u
 Workbench validation. That seed refreshes the canonical mandate from `lotus-core` through
 `lotus-manage`, runs one Manage monitoring pass for command-center evidence, persists or reuses
 the date-aligned portfolio cash weight from Gateway's implementation-backed Workbench overview
-before recalculating mandate health (the evidence records source URI, requested/resolved date,
-percentage, and normalized ratio), persists or reuses
+before recalculating mandate health. The resolver disables optional Performance and rebalance
+enrichment for this source-evidence read while continuing to reject source warnings, partial
+failures, identity/date mismatches, and invalid values (the evidence records source URI,
+requested/resolved date, percentage, and normalized ratio), persists or reuses
 the canonical source-backed DPM campaign definition for
 `lotus-core:DpmPortfolioUniverseCandidate:v1`, including source-owned selection-basis evidence
 from the governed contract, creates and verifies the canonical Manage-owned outcome review through

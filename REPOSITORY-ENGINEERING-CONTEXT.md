@@ -111,9 +111,10 @@ Current repository posture:
     `PB_SG_GLOBAL_BAL_001` DPM readiness gap to `sgajbi/lotus-core#840`.
 14. Canonical mandate-health seeding must resolve portfolio cash from the implementation-backed
     Gateway overview for the exact requested portfolio and business date, validate the source
-    identity/date/unit, and normalize percentage to ratio once. Platform automation must never
-    substitute a hard-coded cash weight or persist health after missing, mismatched, malformed, or
-    out-of-range evidence.
+    identity/date/unit, and normalize percentage to ratio once. The source read must omit unrelated
+    optional Performance and rebalance enrichment while continuing to fail closed on overview
+    warnings or partial failures. Platform automation must never substitute a hard-coded cash
+    weight or persist health after missing, mismatched, malformed, or out-of-range evidence.
 15. `automation/gate_liveness_audit.py` provides the report-only static portion of the Gate
     Liveness Standard. It validates requested repository coverage and detects unreachable gates and
     blocking targets that cannot propagate a non-zero verdict. Empty-input execution, GitHub run
