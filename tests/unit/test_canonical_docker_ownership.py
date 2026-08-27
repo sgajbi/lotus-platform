@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from automation.canonical_docker_ownership import (
@@ -269,6 +271,19 @@ def test_existing_foreign_checkout_is_not_classified_as_retirable() -> None:
         [_container("lotus-core-feature-api", "lotus-core", working_dir)],
         {"lotus-core": "c:/users/sandeep/projects/lotus-core"},
         checkout_exists=lambda value: value == working_dir,
+    )
+
+    assert conflicts[0]["ownership_state"] == ACTIVE_FOREIGN_OWNER
+
+
+def test_existing_filesystem_entry_is_not_classified_as_retirable(
+    tmp_path: Path,
+) -> None:
+    labelled_path = tmp_path / "reclaimed-checkout"
+    labelled_path.write_text("active ownership marker", encoding="utf-8")
+    conflicts = select_ownership_conflicts(
+        [_container("lotus-core-feature-api", "lotus-core", str(labelled_path))],
+        {"lotus-core": normalize_docker_path(str(tmp_path / "lotus-core"))},
     )
 
     assert conflicts[0]["ownership_state"] == ACTIVE_FOREIGN_OWNER
