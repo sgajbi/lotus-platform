@@ -25,7 +25,8 @@ current Lotus front-office stack can truthfully show.
 | PM book | `BOOK_SG_BALANCED_DPM` |
 | Model portfolio | `MODEL_PB_SG_GLOBAL_BAL_DPM` |
 | Policy pack | `POLICY_DPM_SG_BALANCED_V1` |
-| DPM command-center as-of date | `2026-05-03` |
+| DPM command-center portfolio valuation date | `2026-04-10` |
+| DPM campaign governance date | `2026-05-03` |
 | RFC-0041 multi-portfolio wave scenario | `RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL` |
 
 Source of truth:
@@ -33,6 +34,12 @@ Source of truth:
 - `context/contracts/canonical-front-office-demo-data-contract.json`
 - `context/contracts/canonical-front-office-demo-data-invariants.json`
 - `context/contracts/workbench-panel-registry.json`
+
+The command center assesses mandate health at the governed portfolio valuation date. The later
+campaign governance date remains valid for campaign discovery and approval, but it is not a
+substitute for a confirmed portfolio valuation. This follows the valuation-date consistency
+principle in the official [GIPS Standards Handbook for Firms](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/): comparable portfolio facts must be based on consistent valuation periods. Lotus adopts date-aligned, source-confirmed
+evidence and rejects forward-date fallback or residual database state.
 
 ## Business Story
 

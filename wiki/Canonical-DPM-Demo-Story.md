@@ -10,7 +10,7 @@ business, operations, engineering, sales, pre-sales, and client-facing preparati
 | Area | Implementation-backed proof |
 | --- | --- |
 | Canonical portfolio | `PB_SG_GLOBAL_BAL_001`, Singapore booking center, USD reference currency, global balanced mandate, and benchmark `BMK_PB_GLOBAL_BALANCED_60_40` are governed by the canonical demo-data contract. |
-| DPM command center | The platform seed persists the canonical mandate, runs monitoring, validates Manage and Gateway reads, and Workbench renders `dpm.command_center`. |
+| DPM command center | The platform seed assesses mandate health at the confirmed `2026-04-10` portfolio valuation date, validates Manage and Gateway reads, and Workbench renders `dpm.command_center`. The separate `2026-05-03` campaign date does not substitute for portfolio valuation evidence. |
 | Portfolio memory | Workbench renders Gateway/manage timeline truth for `dpm.portfolio_memory`; report and AI source-event families are recorded only where owning apps implemented them. |
 | Proof packs and waves | Workbench renders Gateway/manage truth for `dpm.proof_pack` and `dpm.wave_command_center` without local proof-pack construction, hash generation, or wave readiness calculation. RFC-0041 live validation includes the governed `RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL` multi-portfolio explicit-list preview and the source-backed campaign candidate review over `lotus-core:DpmPortfolioUniverseCandidate:v1`, including source-owned selection-basis evidence from the canonical contract. |
 | Outcome review | `dpm.outcome_review` product support, report materialization, archive lifecycle, and governed AI narrative request posture are implemented for first-wave scope. |
@@ -37,7 +37,7 @@ flowchart LR
 ## Talk Track
 
 1. Start with the portfolio and mandate identity: one governed canonical book, not a UI-only mock.
-2. Show the command center as the operating cockpit: health, source readiness, attention queue, and
+2. Show the command center as the operating cockpit: date-aligned health, source readiness, attention queue, and
    supportability are explicit.
 3. Move to portfolio memory: the decision trail is source-backed and does not fabricate downstream
    events that have no owner.

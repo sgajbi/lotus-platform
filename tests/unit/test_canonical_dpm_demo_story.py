@@ -30,6 +30,8 @@ def test_canonical_dpm_demo_story_is_audience_ready_and_evidence_backed() -> Non
         assert "advisory.bank_demo_proof" in content
         assert "ADVISOR_COCKPIT_ACTION_ACKNOWLEDGED" in content
         assert "BANK_DEMO_PROOF_PACK_CREATED" in content
+        assert "2026-04-10" in content
+        assert "2026-05-03" in content
         assert "sales" in content.lower()
         assert "pre-sales" in content.lower()
         assert "operations" in content.lower()
@@ -51,7 +53,7 @@ def test_canonical_dpm_demo_story_is_audience_ready_and_evidence_backed() -> Non
 
 
 def test_canonical_dpm_demo_story_uses_current_contract_identity() -> None:
-    contract = (
+    contract_text = (
         ROOT / "context" / "contracts" / "canonical-front-office-demo-data-contract.json"
     ).read_text(encoding="utf-8")
     panel_registry = (
@@ -74,8 +76,11 @@ def test_canonical_dpm_demo_story_uses_current_contract_identity() -> None:
         "RFC28_BANK_DEMO_CLIENT_READY_PROOF_CANONICAL",
         "2026-05-03",
     ):
-        assert required_value in contract
+        assert required_value in contract_text
         assert required_value in deep_doc
+
+    assert "DPM command-center portfolio valuation date | `2026-04-10`" in deep_doc
+    assert "DPM campaign governance date | `2026-05-03`" in deep_doc
 
     for panel_id in (
         "dpm.command_center",
