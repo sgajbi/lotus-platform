@@ -395,10 +395,14 @@ Boundary rules:
     singleton). Cleanup delegates to repository-scoped Workbench Compose teardown; daemon-wide
     Lotus/PBWM/performance prefix deletion is prohibited. A reused project name from a different
     working directory, including a nested Git worktree under that directory, is a blocking
-    ownership conflict. Residual Compose volumes or images without
-    a live container that proves the expected working directory are also ambiguous and must block
-    mutation. Use `-CleanPlanOnly` to review
-    `output/front-office-qa/cleanup-plan-latest.json` without mutation.
+    ownership conflict. Residual Compose volumes or images without a live container that proves the
+    expected working directory are also ambiguous and must block mutation. Use `-CleanPlanOnly` to
+    review `output/front-office-qa/cleanup-plan-latest.json` without mutation. The plan classifies
+    active foreign owners, missing labelled checkouts, and unproven resource-only owners. Recovery
+    is a separate, explicit `canonical_orphan_retirement.py` action limited to one fresh,
+    SHA-256-bound `missing_labelled_checkout` container. It must recheck exact live labels,
+    filesystem absence, and registered Git worktrees; it never broadens normal cleanup or removes
+    volumes, images, networks, projects, active paths, or ambiguous resources.
 44. `automation/validate_repository_governance.py` validates both live protected-branch posture and
     whether every required status context is emitted by current default-branch workflow source.
     Matrix job names are expanded before comparison; truly external checks require an explicit
