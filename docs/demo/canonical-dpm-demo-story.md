@@ -40,9 +40,10 @@ campaign governance date remains valid for campaign discovery and approval, but 
 substitute for a confirmed portfolio valuation. This follows the valuation-date consistency
 principle in the official [GIPS Standards Handbook for Firms](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/): comparable portfolio facts must be based on consistent valuation periods. Lotus adopts date-aligned, source-confirmed
 evidence and rejects forward-date fallback or residual database state.
-The canonical campaign is persisted and verified under the explicit `tenant-sg` caller scope used
-by the Workbench BFF. Other command-centre seed queries retain their governed `default` tenant;
-the campaign scope is not a query override and cannot bypass caller-derived tenant authority.
+The canonical contract distinguishes the `tenant-sg` Workbench caller from the `default`
+command-centre query scope. Campaign and PM Operating Quality evidence are persisted and verified
+for that Workbench caller; this is not a query override and cannot bypass caller-derived tenant
+authority.
 The canonical seed resolves and validates date-aligned cash evidence before its first persistent
 write, then verifies that both Manage's recalculation response and Gateway's composed health read
 carry the requested portfolio, mandate, valuation date, and source-owned snapshot identity.

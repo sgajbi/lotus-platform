@@ -90,11 +90,12 @@ Gateway command-center summary before browser proof starts. The seed evidence re
 `posture_checks` for populated source-ready `ready`, selector-driven `partial`, and empty-date `empty`
 command-center states before Workbench screenshots can be promoted.
 
-The governed contract separates the general command-centre seed tenant from the campaign consumer
-tenant. Campaign upsert, legacy supersession, and Gateway campaign verification use the explicit
-`campaign_definition_scenario.tenant_id` (`tenant-sg`) required by the Workbench BFF; other seed
-operations retain `dpm_command_center.tenant_id` (`default`). Do not replace this caller boundary
-with a query-parameter tenant override.
+The governed contract separates the general command-centre query tenant from the Workbench caller
+tenant. Campaign upsert, legacy supersession, Gateway campaign verification, and PM Operating
+Quality proof use `dpm_command_center.workbench_caller_tenant_id` (`tenant-sg`); the campaign
+scenario repeats the same value to prevent drift. Other command-centre seed operations retain
+`dpm_command_center.tenant_id` (`default`). Do not replace this caller boundary with a
+query-parameter tenant override.
 
 Before recalculating mandate health, the seed reads the portfolio's cash percentage from the
 Gateway Workbench overview at the exact requested date. The read excludes optional Performance and
