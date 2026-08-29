@@ -1,8 +1,8 @@
 {
   "contract_id": "canonical-front-office-demo-data-contract",
-  "contract_version": "1.1.1",
+  "contract_version": "1.1.2",
   "status": "proposed-for-rfc-0076-slice-1",
-  "last_reviewed_on": "2026-08-27",
+  "last_reviewed_on": "2026-08-30",
   "governed_by_rfc": "RFC-0076",
   "portfolio": {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -86,7 +86,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeDemoDataContract",
               "source_id": "canonical-front-office-demo-data-contract",
-              "source_version": "1.1.1",
+              "source_version": "1.1.2",
               "supportability_state": "READY"
             }
           ]
@@ -101,7 +101,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.1.1",
+              "source_version": "1.1.2",
               "supportability_state": "READY"
             }
           ]
@@ -116,7 +116,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.1.1",
+              "source_version": "1.1.2",
               "supportability_state": "READY"
             }
           ]
@@ -125,6 +125,7 @@
     },
     "campaign_definition_scenario": {
       "scenario_id": "RFC37_CORE_DPM_PORTFOLIO_UNIVERSE_CANONICAL",
+      "tenant_id": "tenant-sg",
       "campaign_id": "campaign-core-universe-202605",
       "campaign_version": "2026.05.2",
       "display_name": "Core universe candidate review",

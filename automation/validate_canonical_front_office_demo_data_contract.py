@@ -20,7 +20,8 @@ SEED_SCRIPT_PATH = ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1"
 CORE_SEED_VALIDATOR_RELATIVE_PATH = Path(
     "tools/validate_front_office_advisor_book_seed.py"
 )
-REQUIRED_CONTRACT_VERSION = "1.1.1"
+REQUIRED_CONTRACT_VERSION = "1.1.2"
+REQUIRED_DPM_CAMPAIGN_TENANT_ID = "tenant-sg"
 
 REQUIRED_DPM_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -285,6 +286,11 @@ def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> Non
     if not isinstance(campaign, dict):
         errors.append("dpm_command_center.campaign_definition_scenario is required")
         return
+    if campaign.get("tenant_id") != REQUIRED_DPM_CAMPAIGN_TENANT_ID:
+        errors.append(
+            "campaign_definition_scenario.tenant_id must match the governed "
+            "Workbench caller tenant"
+        )
     if campaign.get("candidate_source_product") != "DpmPortfolioUniverseCandidate:v1":
         errors.append(
             "campaign_definition_scenario.candidate_source_product must be governed"
