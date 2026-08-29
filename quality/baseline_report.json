@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 363999
+    "total_source_lines": 364053
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 349,
+        "end_line": 353,
         "line": 26,
-        "lines": 324,
+        "lines": 328,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -285,9 +285,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 321,
+        "end_line": 322,
         "line": 128,
-        "lines": 194,
+        "lines": 195,
         "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3045
+    "python_function_count": 3046
   },
-  "generated_at_utc": "2026-08-27T14:20:40Z",
+  "generated_at_utc": "2026-08-29T19:00:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -448,7 +448,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1204,
+      "lines": 1218,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
     },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1186,
+    "collected_tests": 1190,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1186 tests collected in 0.73s"
+    "summary": "1190 tests collected in 0.85s"
   }
 }
