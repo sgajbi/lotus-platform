@@ -129,7 +129,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     contract = _load_json("context/contracts/canonical-front-office-demo-data-contract.json")
 
     assert contract["contract_id"] == "canonical-front-office-demo-data-contract"
-    assert contract["contract_version"] == "1.1.1"
+    assert contract["contract_version"] == "1.1.2"
     assert contract["governed_by_rfc"] == "RFC-0076"
 
     portfolio = contract["portfolio"]
@@ -192,6 +192,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert all(item["source_refs"] for item in multi_portfolio_wave["portfolios"])
     campaign_definition = dpm_command_center["campaign_definition_scenario"]
     assert campaign_definition["scenario_id"] == "RFC37_CORE_DPM_PORTFOLIO_UNIVERSE_CANONICAL"
+    assert campaign_definition["tenant_id"] == "tenant-sg"
     assert campaign_definition["campaign_id"] == "campaign-core-universe-202605"
     assert campaign_definition["campaign_version"] == "2026.05.2"
     assert campaign_definition["supersedes_campaign_versions"] == ["2026.05", "2026.05.1"]
@@ -325,7 +326,7 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     invariants = _load_json("context/contracts/canonical-front-office-demo-data-invariants.json")
 
     assert invariants["contract_id"] == "canonical-front-office-demo-data-invariants"
-    assert invariants["contract_version"] == "1.1.1"
+    assert invariants["contract_version"] == "1.1.2"
     assert invariants["canonical_portfolio_id"] == "PB_SG_GLOBAL_BAL_001"
     assert invariants["canonical_benchmark_code"] == "BMK_PB_GLOBAL_BALANCED_60_40"
     assert invariants["canonical_as_of_date"] == "2026-04-10"
