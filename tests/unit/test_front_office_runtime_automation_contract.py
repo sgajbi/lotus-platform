@@ -210,6 +210,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "$errorDetails.Message" in dpm_seed
     assert "ReadAsStringAsync().GetAwaiter().GetResult()" in dpm_seed
     assert "New-ManageRequestHeaders" in dpm_seed
+    assert "$resolvedCampaignTenantId" in dpm_seed
+    assert "campaign_tenant_id = $resolvedCampaignTenantId" in dpm_seed
     assert '"X-Role" = $manageSeedRole' in dpm_seed
     assert '"X-Service-Identity" = $manageSeedServiceIdentity' in dpm_seed
     assert '"X-Capabilities" = $manageSeedCapability' in dpm_seed
@@ -222,8 +224,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-' in dpm_seed
     assert '-Headers (New-ManageRequestHeaders `' in dpm_seed
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-' in dpm_seed
-    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-upsert-' in dpm_seed
-    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-supersede-' in dpm_seed
+    assert 'corr-canonical-dpm-campaign-upsert-' in dpm_seed
+    assert 'corr-canonical-dpm-campaign-supersede-' in dpm_seed
+    assert dpm_seed.count('-TenantId $resolvedCampaignTenantId') == 3
+    assert dpm_seed.count('-Headers $campaignHeaders') == 4
 
     cash_preflight = dpm_seed.index(
         "resolving date-aligned canonical cash evidence before persistent writes"

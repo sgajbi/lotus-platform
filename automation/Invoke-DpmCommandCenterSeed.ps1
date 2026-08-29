@@ -253,6 +253,10 @@ if (-not $campaignScenario) {
 }
 $resolvedCampaignId = [string]$campaignScenario.campaign_id
 $resolvedCampaignVersion = [string]$campaignScenario.campaign_version
+$resolvedCampaignTenantId = [string]$campaignScenario.tenant_id
+if ([string]::IsNullOrWhiteSpace($resolvedCampaignTenantId)) {
+  throw "Canonical front-office data contract does not define dpm_command_center.campaign_definition_scenario.tenant_id."
+}
 $resolvedCampaignAsOfDate = Resolve-ContractValue -Candidate ([string]$campaignScenario.as_of_date) -Fallback $resolvedAsOfDate
 $resolvedCampaignCandidateSourceProduct = Resolve-ContractValue `
   -Candidate ([string]$campaignScenario.candidate_source_product) `
@@ -330,12 +334,13 @@ $manageSeedCapability = "manage.write"
 function New-ManageRequestHeaders {
   param(
     [string]$CorrelationId,
+    [string]$TenantId = $resolvedTenantId,
     [hashtable]$ExtraHeaders = @{}
   )
 
   $requestHeaders = @{
     "X-Actor-Id" = $manageSeedActorId
-    "X-Tenant-Id" = $resolvedTenantId
+    "X-Tenant-Id" = $TenantId
     "X-Region" = "APAC"
     "X-Role" = $manageSeedRole
     "X-Correlation-Id" = $CorrelationId
@@ -349,9 +354,13 @@ function New-ManageRequestHeaders {
 }
 
 $headers = New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-seed-$resolvedPortfolioId-$timestamp"
+$campaignHeaders = New-ManageRequestHeaders `
+  -CorrelationId "corr-canonical-dpm-campaign-$resolvedCampaignId-$timestamp" `
+  -TenantId $resolvedCampaignTenantId
 $manageAuthoritySummary = [ordered]@{
   actor_id = $manageSeedActorId
   tenant_id = $resolvedTenantId
+  campaign_tenant_id = $resolvedCampaignTenantId
   role = $manageSeedRole
   service_identity = $manageSeedServiceIdentity
   capabilities = @($manageSeedCapability)
@@ -765,7 +774,7 @@ function Upsert-CampaignDefinition {
     $existingDefinition = Invoke-JsonRequest `
       -Method "Get" `
       -Uri $campaignDefinitionUri `
-      -Headers $headers `
+      -Headers $campaignHeaders `
       -Attempts 1
   } catch {
     $existingDefinition = $null
@@ -785,7 +794,9 @@ function Upsert-CampaignDefinition {
   $createdDefinition = Invoke-JsonRequest `
     -Method "Put" `
     -Uri $campaignDefinitionUri `
-    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-upsert-$resolvedCampaignId-$resolvedCampaignVersion-$timestamp") `
+    -Headers (New-ManageRequestHeaders `
+      -CorrelationId "corr-canonical-dpm-campaign-upsert-$resolvedCampaignId-$resolvedCampaignVersion-$timestamp" `
+      -TenantId $resolvedCampaignTenantId) `
     -Body (New-CampaignDefinitionBody)
   Assert-CampaignDefinitionMatchesSeed `
     -Name "Created Manage campaign definition" `
@@ -806,7 +817,7 @@ function Supersede-LegacyCampaignDefinitions {
       $legacyDefinition = Invoke-JsonRequest `
         -Method "Get" `
         -Uri $legacyUri `
-        -Headers $headers `
+        -Headers $campaignHeaders `
         -Attempts 1
     } catch {
       $legacyDefinition = $null
@@ -818,7 +829,9 @@ function Supersede-LegacyCampaignDefinitions {
     [void](Invoke-JsonRequest `
       -Method "Post" `
       -Uri "$legacyUri/supersede" `
-      -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-campaign-supersede-$resolvedCampaignId-$legacyVersion-$timestamp") `
+      -Headers (New-ManageRequestHeaders `
+        -CorrelationId "corr-canonical-dpm-campaign-supersede-$resolvedCampaignId-$legacyVersion-$timestamp" `
+        -TenantId $resolvedCampaignTenantId) `
       -Body ([ordered]@{
         superseded_by_campaign_version = $resolvedCampaignVersion
         superseded_by = "platform-seed-automation"
@@ -890,6 +903,7 @@ $summary = [ordered]@{
   portfolio_manager_id = $dpm.portfolio_manager_id
   book_id = $dpm.book_id
   tenant_id = $resolvedTenantId
+  campaign_tenant_id = $resolvedCampaignTenantId
   booking_center_code = $resolvedBookingCenterCode
   model_portfolio_id = $resolvedModelPortfolioId
   policy_pack_id = $dpm.policy_pack_id
@@ -1119,7 +1133,7 @@ try {
     $summary.gateway_campaign_definitions_response = Invoke-JsonRequest `
       -Method "Get" `
       -Uri $gatewayCampaignDefinitionsUri `
-      -Headers $headers
+      -Headers $campaignHeaders
     Assert-CampaignPageContainsSeed `
       -Name "Gateway campaign definitions" `
       -Response $summary.gateway_campaign_definitions_response
@@ -1129,7 +1143,7 @@ try {
     $summary.gateway_campaign_discovery_response = Invoke-JsonRequest `
       -Method "Get" `
       -Uri $gatewayCampaignDiscoveryUri `
-      -Headers $headers
+      -Headers $campaignHeaders
     Assert-CampaignPageContainsSeed `
       -Name "Gateway campaign discovery" `
       -Response $summary.gateway_campaign_discovery_response
