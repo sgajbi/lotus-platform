@@ -200,6 +200,25 @@ def test_validator_rejects_campaign_tenant_outside_workbench_caller_scope(
     )
 
 
+@pytest.mark.parametrize("tenant_id", [None, "", "default", "tenant-other"])
+def test_validator_rejects_workbench_caller_tenant_drift(
+    tenant_id: str | None,
+) -> None:
+    contract = _contract()
+    contract["dpm_command_center"]["workbench_caller_tenant_id"] = tenant_id
+
+    errors = _validator().validate_contract(contract, _invariants(), _seed_script())
+
+    assert (
+        "dpm_command_center.workbench_caller_tenant_id must match the governed "
+        "Workbench caller tenant" in errors
+    )
+    assert (
+        "campaign_definition_scenario.tenant_id must match "
+        "dpm_command_center.workbench_caller_tenant_id" in errors
+    )
+
+
 def test_validator_rejects_stale_canonical_source_ref_version() -> None:
     contract = _contract()
     source_ref = contract["dpm_command_center"]["multi_portfolio_wave_scenario"][

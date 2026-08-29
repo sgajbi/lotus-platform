@@ -217,6 +217,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "ReadAsStringAsync().GetAwaiter().GetResult()" in dpm_seed
     assert "New-ManageRequestHeaders" in dpm_seed
     assert "$resolvedCampaignTenantId" in dpm_seed
+    assert "$resolvedWorkbenchCallerTenantId" in dpm_seed
+    assert "workbench_caller_tenant_id = $resolvedWorkbenchCallerTenantId" in dpm_seed
     assert "campaign_tenant_id = $resolvedCampaignTenantId" in dpm_seed
     assert '"X-Role" = $manageSeedRole' in dpm_seed
     assert '"X-Service-Identity" = $manageSeedServiceIdentity' in dpm_seed
