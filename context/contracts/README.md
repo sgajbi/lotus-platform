@@ -12,7 +12,9 @@ Current contracts:
    The governed identity, ownership, date policy, and coverage contract for the canonical
    front-office portfolio, advisor-book assignment, and benchmark. The advisor-book block keeps
    portfolio-manager membership distinct from the Advisor Cockpit identity and records the
-   separately owned tenant-identity limitation.
+   separately owned tenant-identity limitation. The DPM campaign scenario carries its own explicit
+   caller tenant so campaign persistence and consumer verification stay aligned without changing
+   unrelated command-centre query scope.
 2. `canonical-front-office-demo-data-invariants.json`
    The governed minimum thresholds and supportability invariants for the canonical dataset.
    Validate the canonical advisor-book and DPM command-center subsets and DPM seed-script hooks with

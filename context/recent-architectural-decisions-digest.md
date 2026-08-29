@@ -22,7 +22,7 @@ Current assumption:
 2. front-office demo, screenshot, and panel-validation flows should start from `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
 3. `lotus-platform/platform-stack` remains the shared ingress and infrastructure baseline, not the primary governed product-surface bring-up path,
 4. `PB_SG_GLOBAL_BAL_001` is the default governed seeded portfolio for local front-office proof unless the task explicitly requires another portfolio,
-5. RFC-0076 contract files under `lotus-platform/context/contracts/`, including `canonical-front-office-demo-data-contract.json`, are the machine-readable source of truth for the canonical front-office dataset; version 1.1.1 governs `PM_SG_001` as the distinct advisor-book portfolio manager and aligns DPM mandate-health evidence to the canonical `2026-04-10` portfolio valuation date while preserving later campaign dates as separate workflow governance,
+5. RFC-0076 contract files under `lotus-platform/context/contracts/`, including `canonical-front-office-demo-data-contract.json`, are the machine-readable source of truth for the canonical front-office dataset; version 1.1.2 governs `PM_SG_001` as the distinct advisor-book portfolio manager, aligns DPM mandate-health evidence to the canonical `2026-04-10` portfolio valuation date, and assigns the campaign scenario an explicit `tenant-sg` consumer scope while preserving later campaign dates as separate workflow governance,
 6. live validation evidence should preserve contract provenance rather than relying on implicit repo convention.
 
 ### RFC-0072 | Multi-lane CI, validation, and release governance
