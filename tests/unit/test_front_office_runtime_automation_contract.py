@@ -193,6 +193,12 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Assert-OutcomeReviewPageContainsSeed" in dpm_seed
     assert "CanonicalDpmOutcomeExpectedEvidence" in dpm_seed
     assert "DpmRealizedOutcomeSnapshot:v1" in dpm_seed
+    assert (
+        '"canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}:" +'
+        in dpm_seed
+    )
+    assert "[string]$contract.contract_version" in dpm_seed
+    assert "outcome_review_idempotency_key = $outcomeReviewIdempotencyKey" in dpm_seed
     assert "[switch]$PreflightOnly" in dpm_seed
     assert "Invoke-ManageWriteAuthorizationPreflight" in dpm_seed
     assert "manage-refresh-authorization-preflight" in dpm_seed

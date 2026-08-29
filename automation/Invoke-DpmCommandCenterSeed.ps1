@@ -1154,7 +1154,11 @@ try {
     $summary.steps += "gateway-command-center-summary"
 
     Write-Host "[dpm-seed] creating canonical Gateway outcome-review evidence"
-    $outcomeReviewIdempotencyKey = "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}"
+    $outcomeReviewIdempotencyKey = (
+      "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}:" +
+      [string]$contract.contract_version
+    )
+    $summary.outcome_review_idempotency_key = $outcomeReviewIdempotencyKey
     $summary.gateway_outcome_review_create_response = Invoke-JsonRequest `
       -Method "Post" `
       -Uri "$gatewayApiBaseUrl/api/v1/dpm/command-center/outcome-reviews" `
