@@ -240,6 +240,10 @@ $resolvedPortfolioId = Resolve-ContractValue -Candidate $PortfolioId -Fallback $
 $resolvedMandateId = Resolve-ContractValue -Candidate $MandateId -Fallback $dpm.mandate_id
 $resolvedAsOfDate = Resolve-ContractValue -Candidate $AsOfDate -Fallback $dpm.command_center_as_of_date
 $resolvedTenantId = Resolve-ContractValue -Candidate $TenantId -Fallback $dpm.tenant_id
+$resolvedWorkbenchCallerTenantId = [string]$dpm.workbench_caller_tenant_id
+if ([string]::IsNullOrWhiteSpace($resolvedWorkbenchCallerTenantId)) {
+  throw "Canonical front-office data contract does not define dpm_command_center.workbench_caller_tenant_id."
+}
 $resolvedBookingCenterCode = Resolve-ContractValue -Candidate $BookingCenterCode -Fallback $dpm.booking_center_code
 $resolvedModelPortfolioId = Resolve-ContractValue -Candidate $ModelPortfolioId -Fallback $dpm.model_portfolio_id
 $resolvedReferenceCurrency = Resolve-ContractValue -Candidate $ReferenceCurrency -Fallback $dpm.reference_currency
@@ -256,6 +260,9 @@ $resolvedCampaignVersion = [string]$campaignScenario.campaign_version
 $resolvedCampaignTenantId = [string]$campaignScenario.tenant_id
 if ([string]::IsNullOrWhiteSpace($resolvedCampaignTenantId)) {
   throw "Canonical front-office data contract does not define dpm_command_center.campaign_definition_scenario.tenant_id."
+}
+if ($resolvedCampaignTenantId -ne $resolvedWorkbenchCallerTenantId) {
+  throw "Canonical campaign tenant $resolvedCampaignTenantId does not match Workbench caller tenant $resolvedWorkbenchCallerTenantId."
 }
 $resolvedCampaignAsOfDate = Resolve-ContractValue -Candidate ([string]$campaignScenario.as_of_date) -Fallback $resolvedAsOfDate
 $resolvedCampaignCandidateSourceProduct = Resolve-ContractValue `
@@ -360,6 +367,7 @@ $campaignHeaders = New-ManageRequestHeaders `
 $manageAuthoritySummary = [ordered]@{
   actor_id = $manageSeedActorId
   tenant_id = $resolvedTenantId
+  workbench_caller_tenant_id = $resolvedWorkbenchCallerTenantId
   campaign_tenant_id = $resolvedCampaignTenantId
   role = $manageSeedRole
   service_identity = $manageSeedServiceIdentity
@@ -903,6 +911,7 @@ $summary = [ordered]@{
   portfolio_manager_id = $dpm.portfolio_manager_id
   book_id = $dpm.book_id
   tenant_id = $resolvedTenantId
+  workbench_caller_tenant_id = $resolvedWorkbenchCallerTenantId
   campaign_tenant_id = $resolvedCampaignTenantId
   booking_center_code = $resolvedBookingCenterCode
   model_portfolio_id = $resolvedModelPortfolioId

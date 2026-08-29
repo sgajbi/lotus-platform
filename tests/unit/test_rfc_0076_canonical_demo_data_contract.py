@@ -162,6 +162,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert dpm_command_center["portfolio_manager_id"] == "PM_SG_DPM_001"
     assert dpm_command_center["book_id"] == "BOOK_SG_BALANCED_DPM"
     assert dpm_command_center["tenant_id"] == "default"
+    assert dpm_command_center["workbench_caller_tenant_id"] == "tenant-sg"
     assert dpm_command_center["model_portfolio_id"] == "MODEL_PB_SG_GLOBAL_BAL_DPM"
     assert (
         dpm_command_center["command_center_as_of_date"]

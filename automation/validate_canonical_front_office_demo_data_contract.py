@@ -22,6 +22,7 @@ CORE_SEED_VALIDATOR_RELATIVE_PATH = Path(
 )
 REQUIRED_CONTRACT_VERSION = "1.1.2"
 REQUIRED_DPM_CAMPAIGN_TENANT_ID = "tenant-sg"
+REQUIRED_DPM_WORKBENCH_CALLER_TENANT_ID = "tenant-sg"
 
 REQUIRED_DPM_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -282,6 +283,12 @@ def _validate_surface_states(
 
 
 def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> None:
+    workbench_caller_tenant_id = dpm.get("workbench_caller_tenant_id")
+    if workbench_caller_tenant_id != REQUIRED_DPM_WORKBENCH_CALLER_TENANT_ID:
+        errors.append(
+            "dpm_command_center.workbench_caller_tenant_id must match the "
+            "governed Workbench caller tenant"
+        )
     campaign = dpm.get("campaign_definition_scenario")
     if not isinstance(campaign, dict):
         errors.append("dpm_command_center.campaign_definition_scenario is required")
@@ -290,6 +297,11 @@ def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> Non
         errors.append(
             "campaign_definition_scenario.tenant_id must match the governed "
             "Workbench caller tenant"
+        )
+    if campaign.get("tenant_id") != workbench_caller_tenant_id:
+        errors.append(
+            "campaign_definition_scenario.tenant_id must match "
+            "dpm_command_center.workbench_caller_tenant_id"
         )
     if campaign.get("candidate_source_product") != "DpmPortfolioUniverseCandidate:v1":
         errors.append(

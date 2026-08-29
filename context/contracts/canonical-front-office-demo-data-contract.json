@@ -51,6 +51,7 @@
     "portfolio_manager_id": "PM_SG_DPM_001",
     "book_id": "BOOK_SG_BALANCED_DPM",
     "tenant_id": "default",
+    "workbench_caller_tenant_id": "tenant-sg",
     "booking_center_code": "Singapore",
     "model_portfolio_id": "MODEL_PB_SG_GLOBAL_BAL_DPM",
     "policy_pack_id": "POLICY_DPM_SG_BALANCED_V1",
