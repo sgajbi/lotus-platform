@@ -13,6 +13,13 @@
       "description": "Canonical portfolio identifier used across source-data, performance, and risk products."
     },
     {
+      "key": "transaction_id",
+      "semantic_id": "lotus.transaction_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Canonical source-owned transaction identifier used for exact ledger-record selection and transaction lineage."
+    },
+    {
       "key": "proposal_id",
       "semantic_id": "lotus.proposal_id",
       "stability": "stable",

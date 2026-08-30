@@ -2004,9 +2004,20 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
         "memo_id",
         "proposal_id",
         "proposal_version_id",
+        "transaction_id",
         "version_id",
         "version_no",
     }.issubset(identifier_keys)
+    assert identifiers_by_key["transaction_id"] == {
+        "key": "transaction_id",
+        "semantic_id": "lotus.transaction_id",
+        "stability": "stable",
+        "lifecycle": "active",
+        "description": (
+            "Canonical source-owned transaction identifier used for exact ledger-record selection "
+            "and transaction lineage."
+        ),
+    }
     temporal_keys = {entry["key"] for entry in semantics_registry["temporal_semantics"]}
     freshness_classes = {
         entry["key"]
