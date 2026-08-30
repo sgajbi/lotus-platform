@@ -39,9 +39,10 @@ missing producer temporal identity.
 
 ## Transaction Identity
 
-`transaction_id` is the stable, source-owned identifier for an individual booked or projected
-transaction record. Domain-product declarations must include it when a route or payload selects an
-exact transaction. It complements `portfolio_id`; neither identifier alone implies tenant ownership.
+`transaction_id` is the stable, source-owned identifier for an individual transaction record.
+Domain-product declarations must include it when a route or payload selects an exact transaction.
+It does not prove booking or projection state; the producer's lifecycle fields own that truth. It
+complements `portfolio_id`; neither identifier alone implies tenant ownership.
 
 ## Advisory Proposal Identity
 
