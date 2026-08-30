@@ -37,6 +37,12 @@ standard temporal identity fields instead of local aliases:
 Consumers must not substitute request dates, caller clocks, or self-asserted tenant context for
 missing producer temporal identity.
 
+## Transaction Identity
+
+`transaction_id` is the stable, source-owned identifier for an individual booked or projected
+transaction record. Domain-product declarations must include it when a route or payload selects an
+exact transaction. It complements `portfolio_id`; neither identifier alone implies tenant ownership.
+
 ## Advisory Proposal Identity
 
 The domain-data-product semantics registry includes `proposal_id`, `proposal_version_id`,
