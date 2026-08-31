@@ -3845,6 +3845,7 @@
       "temporal_semantics_ref": "as_of_date",
       "identifier_refs": [
         "portfolio_id",
+        "transaction_id",
         "instrument_id",
         "tenant_id"
       ],
@@ -3885,7 +3886,8 @@
         "lotus-risk"
       ],
       "current_routes": [
-        "/portfolios/{portfolio_id}/transactions"
+        "/portfolios/{portfolio_id}/transactions",
+        "/portfolios/{portfolio_id}/transactions/{transaction_id}"
       ],
       "deprecation_policy": {
         "state": "not_deprecated",

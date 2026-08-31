@@ -66,7 +66,7 @@ This file is generated from governed domain-data-product declarations.
 | `RiskFreeSeriesWindow` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk | /integration/reference/risk-free-series |
 | `SustainabilityPreferenceProfile` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/sustainability-preference-profile |
 | `TransactionCostCurve` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/transaction-cost-curve |
-| `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions |
+| `TransactionLedgerWindow` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-risk | /portfolios/{portfolio_id}/transactions, /portfolios/{portfolio_id}/transactions/{transaction_id} |
 | `AdvisorOpportunityQueue` | `lotus-idea` | `v1` | `workflow_and_decision_state` | `proposed` | lotus-gateway | Not published |
 | `IdeaCandidate` | `lotus-idea` | `v1` | `workflow_and_decision_state` | `proposed` | lotus-gateway | Not published |
 | `IdeaConversionIntent` | `lotus-idea` | `v1` | `workflow_and_decision_state` | `proposed` | lotus-gateway, lotus-advise, lotus-manage, lotus-report | Not published |
