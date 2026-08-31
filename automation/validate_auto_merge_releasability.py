@@ -133,13 +133,58 @@ def _step_run(step: dict[str, Any]) -> str:
     return run if isinstance(run, str) else ""
 
 
-def _merged_pr_dispatch_passes_merge_commit_sha(payload: dict[str, Any]) -> bool:
+def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
+    merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
+    commit_count = _step_env_value(step, "COMMIT_COUNT")
+    run = _step_run(step)
+    return (
+        "github.event.pull_request.merge_commit_sha" in merge_commit_sha
+        and "github.event.pull_request.commits" in commit_count
+        and re.search(
+            r'revisions="\$\(git rev-list -n "\$COMMIT_COUNT" "\$MERGE_COMMIT_SHA"(?:\s*\|\s*tac)?\)"',
+            run,
+        )
+        is not None
+        and re.search(r"^\s*for\s+revision\s+in\s+\$revisions;\s*do", run, re.MULTILINE)
+        is not None
+        and 'git merge-base --is-ancestor "$revision" HEAD' in run
+    )
+
+
+def _merged_pr_dispatch_passes_exact_sha(payload: dict[str, Any]) -> bool:
     for step in _workflow_steps(payload):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
         run = _step_run(step)
         if (
             "github.event.pull_request.merge_commit_sha" in merge_commit_sha
             and re.search(r"-(?:f|F)\s+expected_sha=\"?\$MERGE_COMMIT_SHA\"?", run)
+        ):
+            return True
+        if _step_enumerates_exact_rebase_revisions(step) and re.search(
+            r"-(?:f|F)\s+expected_sha=\"?\$revision\"?", run
+        ):
+            return True
+    return False
+
+
+def _merged_pr_dispatch_has_immutable_ref(payload: dict[str, Any]) -> bool:
+    for step in _workflow_steps(payload):
+        run = _step_run(step)
+        merge_commit_strategy = (
+            'dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"' in run
+            and '-f sha="$MERGE_COMMIT_SHA"' in run
+        )
+        revision_strategy = (
+            _step_enumerates_exact_rebase_revisions(step)
+            and 'dispatch_ref="main-releasability-${revision}"' in run
+            and '-f sha="$revision"' in run
+        )
+        if (
+            (merge_commit_strategy or revision_strategy)
+            and 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"' in run
+            and 'gh api "repos/$GITHUB_REPOSITORY/git/refs"' in run
+            and "gh workflow run main-releasability.yml" in run
+            and '--ref "$dispatch_ref"' in run
         ):
             return True
     return False
@@ -237,12 +282,7 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         violations.append("merged-pr-dispatch.missing-actions-write")
     if _permissions(payload).get("contents") != "write":
         violations.append("merged-pr-dispatch.missing-contents-write")
-    has_immutable_dispatch_ref = (
-        'dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"' in text
-        and 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"' in text
-        and 'gh api "repos/$GITHUB_REPOSITORY/git/refs"' in text
-        and '--ref "$dispatch_ref"' in text
-    )
+    has_immutable_dispatch_ref = _merged_pr_dispatch_has_immutable_ref(payload)
     if (
         "gh workflow run main-releasability.yml" not in text
         or not has_immutable_dispatch_ref
@@ -250,7 +290,7 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         violations.append("merged-pr-dispatch.wrong-main-releasability-target")
     if "git/ref/tags/$dispatch_ref" in text and "|| true" in text:
         violations.append("merged-pr-dispatch.masked-immutable-ref-lookup")
-    if not _merged_pr_dispatch_passes_merge_commit_sha(payload):
+    if not _merged_pr_dispatch_passes_exact_sha(payload):
         violations.append("merged-pr-dispatch.missing-expected-sha-input")
     return violations
 
@@ -260,7 +300,6 @@ def _main_releasability_violations(
 ) -> list[str]:
     if not workflow_path.exists():
         return ["main-releasability.missing"]
-    text = workflow_path.read_text(encoding="utf-8")
     payload = _load_yaml(workflow_path)
     violations: list[str] = []
     if not _has_trigger(payload, "workflow_dispatch"):
