@@ -69,7 +69,8 @@ deployment, client demo readiness, or supported feature promotion.
 - automation and validator correctness
 - cross-repository governance posture
 - auto-merge releasability convergence: `LOTUS_AUTOMERGE_TOKEN` rebase auto-merge, merged-PR
-  `main-releasability.yml` dispatch, workflow-dispatch support, and expiring rollout exceptions
+  `main-releasability.yml` dispatch pinned to either the merge SHA or every ancestry-proven
+  rebase-added revision, workflow-dispatch support, and expiring rollout exceptions
 - mainline commit provenance: GitHub-verified exact commits, local signed-commit fallback for
   unpushed work, and exact expiring exceptions for unsigned mainline output. The shared platform
   repo check entrypoint runs this as a blocking gate only for `main-releasability`, and platform CI
