@@ -128,6 +128,55 @@ jobs:
     )
 
 
+def _write_per_revision_dispatch(repo_root: Path) -> Path:
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    workflow_path.write_text(
+        """
+name: Merged PR Main Releasability Dispatch
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          COMMIT_COUNT: ${{ github.event.pull_request.commits }}
+        run: |
+          revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"
+          for revision in $revisions; do
+            if ! git merge-base --is-ancestor "$revision" HEAD; then
+              exit 1
+            fi
+            dispatch_ref="main-releasability-${revision}"
+            existing_ref_sha=""
+            if existing_ref_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha 2>/dev/null)"; then
+              if [ "$existing_ref_sha" != "$revision" ]; then
+                exit 1
+              fi
+            else
+              existing_ref_sha=""
+            fi
+            if [ -z "$existing_ref_sha" ]; then
+              gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$revision"
+            fi
+            gh workflow run main-releasability.yml \\
+              --repo "$GITHUB_REPOSITORY" \\
+              --ref "$dispatch_ref" \\
+              -f expected_sha="$revision"
+          done
+""",
+        encoding="utf-8",
+    )
+    return workflow_path
+
+
 def test_auto_merge_releasability_accepts_aligned_repository(tmp_path: Path) -> None:
     policy = tmp_path / "policy.json"
     exceptions = tmp_path / "exceptions.json"
@@ -146,6 +195,95 @@ def test_auto_merge_releasability_accepts_aligned_repository(tmp_path: Path) -> 
 
     assert results[0].status == "aligned"
     assert results[0].violations == ()
+
+
+def test_auto_merge_releasability_accepts_exact_per_revision_rebase_dispatch(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    _write_per_revision_dispatch(repo_root)
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "aligned"
+    assert results[0].violations == ()
+
+
+def test_auto_merge_releasability_rejects_unbound_per_revision_dispatch(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = _write_per_revision_dispatch(repo_root)
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"',
+            'revisions="$(git rev-list origin/main)"',
+        ),
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.wrong-main-releasability-target",
+    )
+
+
+def test_auto_merge_releasability_rejects_per_revision_dispatch_without_ancestry_proof(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = _write_per_revision_dispatch(repo_root)
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            'git merge-base --is-ancestor "$revision" HEAD',
+            'git rev-parse "$revision"',
+        ),
+        encoding="utf-8",
+    )
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "drift"
+    assert results[0].violations == (
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.wrong-main-releasability-target",
+    )
 
 
 def test_auto_merge_releasability_accepts_checked_out_revision_fallback(
