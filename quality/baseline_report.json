@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 364315
+    "total_source_lines": 364516
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -187,11 +187,11 @@
       },
       {
         "complexity": 13,
-        "end_line": 221,
-        "line": 173,
-        "lines": 49,
-        "name": "_validate_tranches",
-        "path": "automation/validate_stacked_refactor_campaign_manifest.py"
+        "end_line": 287,
+        "line": 232,
+        "lines": 56,
+        "name": "select_resource_only_ownership_conflicts",
+        "path": "automation/canonical_docker_ownership.py"
       }
     ],
     "largest_functions": [
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 361,
+        "end_line": 362,
         "line": 26,
-        "lines": 336,
+        "lines": 337,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3053
+    "python_function_count": 3059
   },
-  "generated_at_utc": "2026-08-31T03:49:53Z",
+  "generated_at_utc": "2026-08-31T04:01:20Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,14 +413,14 @@
       "suffix": ".md"
     },
     {
+      "lines": 1736,
+      "path": "automation/README.md",
+      "suffix": ".md"
+    },
+    {
       "lines": 1735,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1732,
-      "path": "automation/README.md",
-      "suffix": ".md"
     },
     {
       "lines": 1655,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1197,
+    "collected_tests": 1204,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1197 tests collected in 0.92s"
+    "summary": "1204 tests collected in 1.55s"
   }
 }
