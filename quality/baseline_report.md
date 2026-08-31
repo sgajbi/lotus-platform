@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-08-29T19:26:42Z`
+Generated: `2026-08-31T03:49:53Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `903`
-- Total source lines: `364109`
+- Total source lines: `364315`
 - Python files: `234`
 - PowerShell files: `69`
 - Markdown files: `413`
@@ -33,13 +33,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/New-Lotus-Service.ps1 | 5950 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2484 | .py |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2495 | .py |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1862 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3047`
+- Python functions: `3053`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1194`
+- Unit tests collected: `1197`
 - Collection command return code: `0`
-- Collection summary: `1194 tests collected in 0.87s`
+- Collection summary: `1197 tests collected in 0.92s`
 
 ## Security Baseline
 
