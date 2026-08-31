@@ -21,6 +21,7 @@ from typing import Any
 
 COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
 COMPOSE_WORKING_DIR_LABEL = "com.docker.compose.project.working_dir"
+LOTUS_REPOSITORY_CHECKOUT_LABEL = "com.lotus.repository.checkout"
 CANONICAL_REPOSITORIES = (
     "lotus-core",
     "lotus-performance",
@@ -247,14 +248,28 @@ def select_resource_only_ownership_conflicts(
     conflicts: list[dict[str, str]] = []
     for resource_type, items in (("volume", volumes), ("image", images)):
         for item in items:
-            project = str(_labels(item).get(COMPOSE_PROJECT_LABEL, ""))
+            labels = _labels(item)
+            project = str(labels.get(COMPOSE_PROJECT_LABEL, ""))
             expected_root = allowed_project_roots.get(project.casefold(), "")
-            if (
-                not expected_root
-                or project.casefold() in projects_with_container_evidence
-                or project.casefold() in explicitly_included_projects
-            ):
+            if not expected_root or project.casefold() in explicitly_included_projects:
                 continue
+            checkout_path = (
+                str(labels.get(LOTUS_REPOSITORY_CHECKOUT_LABEL, ""))
+                if resource_type == "image"
+                else ""
+            )
+            if resource_type == "image" and checkout_path:
+                if paths_match_exactly(checkout_path, expected_root):
+                    continue
+                conflict_reason = "compose_project_image_owned_by_different_checkout"
+            elif project.casefold() in projects_with_container_evidence:
+                continue
+            elif resource_type == "image":
+                conflict_reason = "compose_project_image_without_checkout_provenance"
+            else:
+                conflict_reason = (
+                    "compose_project_resource_without_working_directory_provenance"
+                )
             identifier = _resource_identifier(item, resource_type)
             conflicts.append(
                 {
@@ -263,10 +278,9 @@ def select_resource_only_ownership_conflicts(
                     "resource_type": resource_type,
                     "compose_project": project,
                     "compose_working_dir": "",
+                    "repository_checkout": checkout_path,
                     "expected_working_dir": expected_root,
-                    "conflict_reason": (
-                        "compose_project_resource_without_working_directory_provenance"
-                    ),
+                    "conflict_reason": conflict_reason,
                     "ownership_state": UNPROVEN_RESOURCE_ONLY_OWNER,
                 }
             )
@@ -289,12 +303,42 @@ def _owned_project_resource_record(
     if not project or project not in projects:
         return None
     identifier = _resource_identifier(item, resource_type)
-    return {
+    record = {
         "id": str(item.get("Id") or item.get("ID") or identifier),
         "name": identifier,
         "compose_project": project,
         "ownership_provenance": f"compose_project:{project}",
     }
+    if resource_type == "image":
+        checkout_path = str(_labels(item).get(LOTUS_REPOSITORY_CHECKOUT_LABEL, ""))
+        if checkout_path:
+            record["repository_checkout"] = checkout_path
+            record["ownership_provenance"] = (
+                f"repository_checkout:{normalize_docker_path(checkout_path)}"
+            )
+    return record
+
+
+def select_owned_resource_only_images(
+    images: Iterable[Mapping[str, Any]],
+    allowed_project_roots: Mapping[str, str],
+) -> list[dict[str, str]]:
+    """Select images whose own immutable labels prove exact checkout ownership."""
+
+    owned: list[dict[str, str]] = []
+    for item in images:
+        labels = _labels(item)
+        project = str(labels.get(COMPOSE_PROJECT_LABEL, ""))
+        expected_root = allowed_project_roots.get(project.casefold(), "")
+        checkout_path = str(labels.get(LOTUS_REPOSITORY_CHECKOUT_LABEL, ""))
+        if not expected_root or not checkout_path:
+            continue
+        if not paths_match_exactly(checkout_path, expected_root):
+            continue
+        record = _owned_project_resource_record(item, {project}, "image")
+        if record is not None:
+            owned.append(record)
+    return sorted(owned, key=lambda item: item["name"])
 
 
 def select_project_resources(
@@ -330,6 +374,9 @@ def build_cleanup_plan(
     explicitly_included_projects = {project.casefold() for project in included_projects}
     allowed_project_roots = canonical_project_roots(projects_root, workbench_repo_path)
     owned_containers = select_owned_containers(container_items, allowed_project_roots)
+    owned_resource_only_images = select_owned_resource_only_images(
+        image_items, allowed_project_roots
+    )
     normalized_worktrees = sorted(
         {normalize_docker_path(worktree) for worktree in registered_worktrees}
     )
@@ -352,7 +399,7 @@ def build_cleanup_plan(
     conflicting_projects = {item["compose_project"] for item in conflicts}
     projects = {
         item["compose_project"]
-        for item in owned_containers
+        for item in (*owned_containers, *owned_resource_only_images)
         if item["compose_project"]
         and item["compose_project"] not in conflicting_projects
     }
