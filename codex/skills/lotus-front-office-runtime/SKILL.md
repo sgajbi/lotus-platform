@@ -64,9 +64,12 @@ Do not route those tasks through generic platform QA by default.
     canonical Compose project plus repository working-directory provenance; never use broad
     Lotus/PBWM/performance name prefixes, daemon-wide prune, or another project's resources. A
     concurrent certification project remains independently owned even when it uses the same repo.
-    Require exact normalized checkout-path equality: a reused project name from a different or
-    nested working directory, or residual volumes/images with
-    no live container proving the expected checkout, as a blocking ownership conflict. Treat
+    Require exact normalized checkout-path equality. A reused project name from a different or
+    nested working directory is a blocking ownership conflict. A governed resource-only image may
+    prove its checkout through the immutable `com.lotus.repository.checkout` build label, but the
+    normalized value must exactly equal the registered repository root; a missing, sibling, nested,
+    malformed, or explicitly foreign label remains blocking. This image-only proof never makes a
+    residual volume ownable without live-container evidence. Treat
     `lotus-core`, repository-declared `lotus-core-app-local`, and isolated
     `lotus-core-canonical-ui` as explicit aliases for the `lotus-core` checkout boundary; never
     infer additional aliases from a name prefix. A Core alias labeled with a temporary or other

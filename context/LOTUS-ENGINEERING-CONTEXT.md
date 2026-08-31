@@ -530,9 +530,10 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     Concurrent certification projects are independent runtime owners even when they use the same
     repository checkout. Reused Compose project names with a different working directory are
     ownership conflicts that must block cleanup before mutation; path containment is insufficient,
-    so nested Git worktrees are conflicts too. A residual Compose volume or image
-    without live container evidence for the expected checkout is equally ambiguous and must fail
-    closed rather than being selected from its project label alone. The ownership inventory must
+    so nested Git worktrees are conflicts too. A residual Compose image may carry immutable
+    `com.lotus.repository.checkout` evidence from its governed build, but the normalized value must
+    exactly match the registered root; missing, sibling, nested, or explicitly foreign image labels
+    fail closed. A residual volume still requires live-container evidence. The ownership inventory must
     model repository-declared project identities explicitly: `lotus-core`,
     `lotus-core-app-local`, and `lotus-core-canonical-ui` all resolve to the canonical
     `lotus-core` checkout boundary, but an alias from a temporary or other checkout is a conflict,
