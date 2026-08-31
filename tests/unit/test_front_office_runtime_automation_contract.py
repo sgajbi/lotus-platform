@@ -95,6 +95,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "docker_cleanup_plan_path" in wrapper
     assert "ownership_provenance" in wrapper
     assert "ownership_conflicts" in wrapper
+    assert "repository_checkout=" in wrapper
     assert "Canonical clean blocked by Compose ownership conflicts" in wrapper
     assert "Get-LotusDockerArtifacts" not in wrapper
     assert "Remove-LotusDockerArtifacts" not in wrapper

@@ -32,12 +32,15 @@ def _container(name: str, project: str, working_dir: str) -> dict[str, object]:
     }
 
 
-def _resource(name: str, project: str) -> dict[str, object]:
+def _resource(name: str, project: str, *, checkout: str = "") -> dict[str, object]:
+    labels = {"com.docker.compose.project": project}
+    if checkout:
+        labels["com.lotus.repository.checkout"] = checkout
     return {
         "Id": f"id-{name}",
         "Name": name,
         "RepoTags": [name],
-        "Labels": {"com.docker.compose.project": project},
+        "Labels": labels,
     }
 
 
@@ -289,10 +292,150 @@ def test_cleanup_plan_blocks_resource_only_project_without_checkout_provenance()
         (
             "image",
             "lotus-core-residual-api:local",
-            "compose_project_resource_without_working_directory_provenance",
+            "compose_project_image_without_checkout_provenance",
             UNPROVEN_RESOURCE_ONLY_OWNER,
         ),
     }
+
+
+def test_cleanup_plan_selects_resource_only_image_with_exact_checkout_label() -> None:
+    checkout = r"C:\Users\Sandeep\projects\lotus-workbench"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=checkout,
+        containers=[],
+        volumes=[],
+        images=[
+            _resource(
+                "lotus-workbench:latest",
+                "lotus-workbench",
+                checkout=checkout,
+            )
+        ],
+    )
+
+    assert plan["ownership_conflicts"] == []
+    assert plan["compose_projects"] == ["lotus-workbench"]
+    assert plan["images"] == [
+        {
+            "id": "id-lotus-workbench:latest",
+            "name": "lotus-workbench:latest",
+            "compose_project": "lotus-workbench",
+            "repository_checkout": checkout,
+            "ownership_provenance": (
+                "repository_checkout:c:/users/sandeep/projects/lotus-workbench"
+            ),
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    ("checkout", "reason"),
+    [
+        (
+            r"C:\Users\Sandeep\projects\lotus-workbench-shadow",
+            "compose_project_image_owned_by_different_checkout",
+        ),
+        (
+            r"C:\Users\Sandeep\projects\lotus-workbench\.worktrees\feature",
+            "compose_project_image_owned_by_different_checkout",
+        ),
+        ("", "compose_project_image_without_checkout_provenance"),
+    ],
+)
+def test_cleanup_plan_rejects_unproven_resource_only_workbench_image(
+    checkout: str, reason: str
+) -> None:
+    canonical_checkout = r"C:\Users\Sandeep\projects\lotus-workbench"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=canonical_checkout,
+        containers=[],
+        volumes=[],
+        images=[
+            _resource(
+                "lotus-workbench:latest",
+                "lotus-workbench",
+                checkout=checkout,
+            )
+        ],
+    )
+
+    assert plan["compose_projects"] == []
+    assert plan["images"] == []
+    assert plan["ownership_conflicts"][0]["repository_checkout"] == checkout
+    assert plan["ownership_conflicts"][0]["conflict_reason"] == reason
+
+
+def test_foreign_image_label_blocks_project_even_with_owned_container() -> None:
+    canonical_checkout = r"C:\Users\Sandeep\projects\lotus-workbench"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=canonical_checkout,
+        containers=[
+            _container(
+                "lotus-workbench-1",
+                "lotus-workbench",
+                canonical_checkout,
+            )
+        ],
+        volumes=[],
+        images=[
+            _resource(
+                "lotus-workbench:foreign",
+                "lotus-workbench",
+                checkout=r"C:\Users\Sandeep\projects\lotus-workbench-shadow",
+            )
+        ],
+    )
+
+    assert plan["compose_projects"] == []
+    assert plan["images"] == []
+    assert plan["ownership_conflicts"][0]["conflict_reason"] == (
+        "compose_project_image_owned_by_different_checkout"
+    )
+
+
+def test_unproven_volume_blocks_exact_resource_only_image_for_same_project() -> None:
+    checkout = r"C:\Users\Sandeep\projects\lotus-workbench"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=checkout,
+        containers=[],
+        volumes=[_resource("lotus-workbench-cache", "lotus-workbench")],
+        images=[
+            _resource(
+                "lotus-workbench:latest",
+                "lotus-workbench",
+                checkout=checkout,
+            )
+        ],
+    )
+
+    assert plan["compose_projects"] == []
+    assert plan["volumes"] == []
+    assert plan["images"] == []
+    assert plan["ownership_conflicts"][0]["resource_type"] == "volume"
+
+
+def test_resource_only_image_from_unrelated_project_is_ignored() -> None:
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[],
+        volumes=[],
+        images=[
+            _resource(
+                "customer-workbench:latest",
+                "customer-workbench",
+                checkout=r"C:\Users\Sandeep\projects\lotus-workbench",
+            )
+        ],
+    )
+
+    assert plan["compose_projects"] == []
+    assert plan["ownership_conflicts"] == []
+    assert plan["images"] == []
 
 
 def test_cleanup_plan_blocks_resource_only_core_alias_without_checkout_provenance() -> (

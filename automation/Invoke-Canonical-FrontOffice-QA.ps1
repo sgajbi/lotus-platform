@@ -342,7 +342,7 @@ try {
   } elseif ($Clean) {
     if (@($summary.docker_before.ownership_conflicts).Count -gt 0) {
       $conflicts = @($summary.docker_before.ownership_conflicts | ForEach-Object {
-        "$($_.name) project=$($_.compose_project) working_dir=$($_.compose_working_dir)"
+        "$($_.name) project=$($_.compose_project) working_dir=$($_.compose_working_dir) repository_checkout=$($_.repository_checkout)"
       })
       throw ("Canonical clean blocked by Compose ownership conflicts: {0}" -f ($conflicts -join "; "))
     }
