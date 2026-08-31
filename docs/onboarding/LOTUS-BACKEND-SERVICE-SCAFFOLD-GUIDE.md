@@ -157,12 +157,14 @@ Generated workflow templates must also pass the platform workflow action runtime
 Node-runtime deprecation warnings as harmless noise. The `Main Releasability Gate` must generate
 release evidence with the supported `cyclonedx-py` console command after `make install`, producing
 `sbom.cdx.json` and `release-evidence.json`.
-The merged-PR dispatcher must create an immutable `main-releasability-<merge-sha>` ref, call
-`gh workflow run main-releasability.yml --ref "$dispatch_ref"`, and set `expected_sha` from
-`github.event.pull_request.merge_commit_sha` so rebase auto-merged PRs still produce explicit
-post-merge release evidence without silently validating a later `main` head. The Main Releasability
-workflow must accept optional `expected_sha` and `triggering_pr` inputs, use revision-aware
-concurrency, and fail when the checked-out `git rev-parse HEAD` differs from `expected_sha`.
+The merged-PR dispatcher must create immutable `main-releasability-<sha>` refs and call
+`gh workflow run main-releasability.yml --ref "$dispatch_ref"` with the same SHA as `expected_sha`.
+It may dispatch the merge SHA once or, for rebase-only repositories, enumerate every revision from
+the source-bound merge SHA and PR commit count after proving each revision is reachable from
+checked-out `main`. This produces explicit post-merge release evidence without silently validating
+a later `main` head. The Main Releasability workflow must accept optional `expected_sha` and
+`triggering_pr` inputs, use revision-aware concurrency, and fail when the checked-out
+`git rev-parse HEAD` differs from `expected_sha`.
 Operators may still dispatch Main Releasability manually without `expected_sha`; that run is treated
 as an explicit operator-dispatched validation of current `main`.
 The auto-merge workflow must use `LOTUS_AUTOMERGE_TOKEN`, not `GITHUB_TOKEN`, so the merge event is

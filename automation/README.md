@@ -1380,11 +1380,12 @@ python automation/validate_auto_merge_releasability.py
 The validator checks local sibling repositories when they are present, records temporary rollout
 exceptions from `platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json`,
 and fails on undeclared or expired drift in `pr-auto-merge.yml`,
-`merged-pr-main-releasability.yml`, or `main-releasability.yml`. The merged-PR dispatcher must create
-and dispatch through an immutable `main-releasability-<merge-sha>` ref, pass `expected_sha` from
-`github.event.pull_request.merge_commit_sha`, and Main Releasability must use revision-aware
-concurrency and assert that the checked-out commit matches that expected SHA when provided. Manual
-operator dispatch remains valid without `expected_sha`.
+`merged-pr-main-releasability.yml`, or `main-releasability.yml`. A merged-PR dispatcher may certify
+the merge SHA once or enumerate every rebase-added revision from the source-bound merge SHA and PR
+commit count. Every dispatched revision must be reachable from checked-out `main`, use its own
+immutable `main-releasability-<sha>` ref, and be passed as `expected_sha`. Main Releasability uses
+revision-aware concurrency and asserts that its checkout matches that expected SHA. Manual operator
+dispatch remains valid without `expected_sha`.
 
 Validate exact-commit GitHub verification before accepting mainline provenance:
 
