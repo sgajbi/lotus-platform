@@ -901,7 +901,11 @@ checkout boundary. If another, temporary, or nested checkout reuses one of those
 plan records an ownership conflict and `-Clean` fails before mutation. The plan distinguishes
 `active_foreign_owner`, `missing_labelled_checkout`, and `unproven_resource_only_owner`; all three
 remain blocking. Residual project-labeled volumes or images without a live container proving the
-expected checkout also fail closed.
+expected checkout also fail closed. A resource-only image may instead prove ownership through the
+immutable `com.lotus.repository.checkout` label emitted by its governed build. The normalized label
+must exactly equal the registered canonical repository root; sibling and nested-worktree paths are
+conflicts, and an explicitly foreign image label blocks its project even when a current container
+exists. This image-only proof does not make residual volumes ownable.
 
 When a fresh plan proves that one exact conflict is a `missing_labelled_checkout`, first run the
 separate retirement command without `--execute`. Bind the plan digest and restate every identity
