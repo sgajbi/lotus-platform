@@ -12,6 +12,7 @@ import json
 import ntpath
 import os
 import posixpath
+import re
 import stat
 import subprocess
 from collections.abc import Callable, Iterable, Mapping, Sequence
@@ -452,11 +453,21 @@ def _docker_inspect(
     return payload
 
 
+_MISSING_OBJECT_ERROR = re.compile(
+    r"no such (object|container|volume|image|network):",
+    re.IGNORECASE,
+)
+
+
 def _only_missing_object_errors(stderr: str) -> bool:
+    # Only docker's missing-object diagnostics qualify ("No such container: <id>").
+    # The colon-anchored resource nouns exclude transport failures such as
+    # "dial unix /var/run/docker.sock: connect: no such file or directory",
+    # which must stay fatal rather than masquerade as an empty inventory.
     lines = [line.strip() for line in stderr.splitlines() if line.strip()]
     if not lines:
         return False
-    return all("no such" in line.lower() for line in lines)
+    return all(_MISSING_OBJECT_ERROR.search(line) for line in lines)
 
 
 def _docker_identifiers(*arguments: str) -> list[str]:

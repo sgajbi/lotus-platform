@@ -552,8 +552,21 @@ def test_docker_inspect_tolerates_resources_that_vanished_after_listing(
     ]
 
 
+@pytest.mark.parametrize(
+    "stderr",
+    [
+        "error during connect: the docker daemon is not running\n",
+        # A vanished daemon socket also says "no such", but names a file, not a
+        # docker object; tolerating it would report an empty inventory instead
+        # of failing the run.
+        "Cannot connect to the Docker daemon at unix:///var/run/docker.sock: "
+        "dial unix /var/run/docker.sock: connect: no such file or directory\n",
+        "Error response from daemon: No such container: id-vanished\n"
+        "error during connect: connection reset\n",
+    ],
+)
 def test_docker_inspect_raises_on_non_missing_object_failures(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, stderr: str
 ) -> None:
     from automation.canonical_docker_ownership import _docker_inspect
 
@@ -563,7 +576,7 @@ def test_docker_inspect_raises_on_non_missing_object_failures(
             args=args,
             returncode=1,
             stdout="",
-            stderr="error during connect: the docker daemon is not running\n",
+            stderr=stderr,
         ),
     )
 
