@@ -530,3 +530,42 @@ def test_include_projects_preserves_post_cleanup_assertion_scope() -> None:
     assert "canonical-owned" in plan["compose_projects"]
     assert [item["name"] for item in plan["volumes"]] == ["owned-data"]
     assert [item["name"] for item in plan["images"]] == ["owned-api:local"]
+
+
+def test_docker_inspect_tolerates_resources_that_vanished_after_listing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from automation.canonical_docker_ownership import _docker_inspect
+
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.subprocess.run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout='[{"Id": "id-survivor"}]\n',
+            stderr="Error response from daemon: No such container: id-vanished\n",
+        ),
+    )
+
+    assert _docker_inspect("container", ["id-survivor", "id-vanished"]) == [
+        {"Id": "id-survivor"}
+    ]
+
+
+def test_docker_inspect_raises_on_non_missing_object_failures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from automation.canonical_docker_ownership import _docker_inspect
+
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.subprocess.run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout="",
+            stderr="error during connect: the docker daemon is not running\n",
+        ),
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        _docker_inspect("container", ["id-any"])

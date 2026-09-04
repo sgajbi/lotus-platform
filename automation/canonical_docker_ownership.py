@@ -428,16 +428,35 @@ def _docker_inspect(
 ) -> list[Mapping[str, Any]]:
     if not identifiers:
         return []
+    # A resource can legitimately disappear between the listing call and this
+    # inspection (concurrent sessions and test batteries churn short-lived
+    # containers); docker then exits non-zero while still printing the payload
+    # for every resource that does exist. Only missing-object errors are
+    # tolerated — any other failure stays fatal.
     result = subprocess.run(
         ["docker", resource_type, "inspect", *identifiers],
-        check=True,
+        check=False,
         capture_output=True,
         text=True,
     )
-    payload = json.loads(result.stdout)
+    if result.returncode != 0 and not _only_missing_object_errors(result.stderr):
+        raise subprocess.CalledProcessError(
+            result.returncode,
+            ["docker", resource_type, "inspect", *identifiers],
+            output=result.stdout,
+            stderr=result.stderr,
+        )
+    payload = json.loads(result.stdout or "[]")
     if not isinstance(payload, list):
         raise TypeError(f"docker {resource_type} inspect returned a non-list payload")
     return payload
+
+
+def _only_missing_object_errors(stderr: str) -> bool:
+    lines = [line.strip() for line in stderr.splitlines() if line.strip()]
+    if not lines:
+        return False
+    return all("no such" in line.lower() for line in lines)
 
 
 def _docker_identifiers(*arguments: str) -> list[str]:
