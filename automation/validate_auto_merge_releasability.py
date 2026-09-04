@@ -151,6 +151,29 @@ def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
     )
 
 
+def _workflow_has_verified_matrix_enumeration(payload: dict[str, Any]) -> bool:
+    """Recognize a two-job design: one step enumerates every merged commit with
+    verified integrity (rebase-only merge settings asserted, commits walked from
+    the event's merge SHA, resolved count compared to the event's commit count),
+    and a matrix job dispatches per enumerated commit."""
+
+    for step in _workflow_steps(payload):
+        merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
+        commit_count = _step_env_value(step, "PR_COMMIT_COUNT") or _step_env_value(
+            step, "COMMIT_COUNT"
+        )
+        run = _step_run(step)
+        if (
+            "github.event.pull_request.merge_commit_sha" in merge_commit_sha
+            and "github.event.pull_request.commits" in commit_count
+            and '"false,false,true"' in run
+            and "commits?sha=$MERGE_COMMIT_SHA" in run
+            and re.search(r'-ne\s+"\$(?:PR_)?COMMIT_COUNT"', run)
+        ):
+            return True
+    return False
+
+
 def _merged_pr_dispatch_passes_exact_sha(payload: dict[str, Any]) -> bool:
     for step in _workflow_steps(payload):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
@@ -162,6 +185,12 @@ def _merged_pr_dispatch_passes_exact_sha(payload: dict[str, Any]) -> bool:
             return True
         if _step_enumerates_exact_rebase_revisions(step) and re.search(
             r"-(?:f|F)\s+expected_sha=\"?\$revision\"?", run
+        ):
+            return True
+        if (
+            "matrix.commit_sha" in merge_commit_sha
+            and re.search(r"-(?:f|F)\s+expected_sha=\"?\$MERGE_COMMIT_SHA\"?", run)
+            and _workflow_has_verified_matrix_enumeration(payload)
         ):
             return True
     return False
