@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 364526
+    "total_source_lines": 364622
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -106,6 +106,22 @@
         "path": "automation/validate_platform_stack.py"
       },
       {
+        "complexity": 16,
+        "end_line": 233,
+        "line": 200,
+        "lines": 34,
+        "name": "_matrix_dispatch_is_verified",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 197,
+        "line": 166,
+        "lines": 32,
+        "name": "_job_has_verified_enumeration_step",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
         "complexity": 15,
         "end_line": 125,
         "line": 52,
@@ -176,22 +192,6 @@
         "lines": 66,
         "name": "main",
         "path": "automation/gate_liveness_audit.py"
-      },
-      {
-        "complexity": 13,
-        "end_line": 266,
-        "line": 210,
-        "lines": 57,
-        "name": "validate_commit_provenance",
-        "path": "automation/validate_mainline_commit_provenance.py"
-      },
-      {
-        "complexity": 13,
-        "end_line": 287,
-        "line": 232,
-        "lines": 56,
-        "name": "select_resource_only_ownership_conflicts",
-        "path": "automation/canonical_docker_ownership.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3063
+    "python_function_count": 3065
   },
-  "generated_at_utc": "2026-09-04T23:13:49Z",
+  "generated_at_utc": "2026-09-04T23:52:51Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1206,
+    "collected_tests": 1209,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1206 tests collected in 1.23s"
+    "summary": "1209 tests collected in 0.94s"
   }
 }

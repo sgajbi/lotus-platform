@@ -4,6 +4,8 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 from automation.validate_auto_merge_releasability import validate_repositories
 
 
@@ -868,7 +870,12 @@ jobs:
 
 
 def _write_matrix_enumeration_dispatch(
-    repo_root: Path, *, assert_merge_settings: bool = True
+    repo_root: Path,
+    *,
+    assert_merge_settings: bool = True,
+    main_only_condition: bool = True,
+    matrix_fed_from_enumeration: bool = True,
+    paginated_enumeration: bool = True,
 ) -> Path:
     workflow_path = (
         repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
@@ -883,6 +890,25 @@ def _write_matrix_enumeration_dispatch(
         if assert_merge_settings
         else ""
     )
+    condition = (
+        """
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main'
+"""
+        if main_only_condition
+        else ""
+    )
+    matrix_source = (
+        "${{ fromJSON(needs.enumerate-merged-commits.outputs.commit_shas) }}"
+        if matrix_fed_from_enumeration
+        else '["deadbeef"]'
+    )
+    commits_query = (
+        "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT"
+        if paginated_enumeration
+        else "commits?sha=$MERGE_COMMIT_SHA"
+    )
     workflow_path.write_text(
         f"""
 name: Merged PR Main Releasability Dispatch
@@ -894,6 +920,7 @@ permissions:
   contents: write
 jobs:
   enumerate-merged-commits:
+{condition}
     runs-on: ubuntu-latest
     outputs:
       commit_shas: ${{{{ steps.enumerate.outputs.commit_shas }}}}
@@ -904,7 +931,7 @@ jobs:
           PR_COMMIT_COUNT: ${{{{ github.event.pull_request.commits }}}}
         run: |
 {merge_settings_assertion}
-          commit_shas="$(gh api "repos/$GITHUB_REPOSITORY/commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" --jq '[.[].sha]')"
+          commit_shas="$(gh api "repos/$GITHUB_REPOSITORY/{commits_query}" --jq '[.[].sha]')"
           resolved_count="$(printf '%s' "$commit_shas" | jq 'length')"
           if [ "$resolved_count" -ne "$PR_COMMIT_COUNT" ]; then
             exit 1
@@ -915,7 +942,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        commit_sha: ${{{{ fromJSON(needs.enumerate-merged-commits.outputs.commit_shas) }}}}
+        commit_sha: {matrix_source}
     steps:
       - env:
           MERGE_COMMIT_SHA: ${{{{ matrix.commit_sha }}}}
@@ -961,8 +988,26 @@ def test_auto_merge_releasability_accepts_verified_matrix_enumeration_dispatch(
     assert results[0].violations == ()
 
 
-def test_auto_merge_releasability_rejects_matrix_dispatch_without_verified_enumeration(
-    tmp_path: Path,
+@pytest.mark.parametrize(
+    "weakness",
+    [
+        # No rebase-only assertion: squash/merge-commit settings would make the
+        # enumeration walk the wrong trees.
+        {"assert_merge_settings": False},
+        # No main-only condition: a PR merged to a release or feature branch
+        # could dispatch and certify commits that never reached main.
+        {"main_only_condition": False},
+        # Matrix not fed from the verified enumeration output: a hard-coded or
+        # disconnected matrix could dispatch arbitrary revisions.
+        {"matrix_fed_from_enumeration": False},
+        # No explicit page size covering the whole PR: the commits endpoint
+        # returns one default page and larger PRs would be silently truncated
+        # before the count equality can fail closed.
+        {"paginated_enumeration": False},
+    ],
+)
+def test_auto_merge_releasability_rejects_unverified_matrix_dispatch(
+    tmp_path: Path, weakness: dict
 ) -> None:
     policy = tmp_path / "policy.json"
     exceptions = tmp_path / "exceptions.json"
@@ -971,9 +1016,7 @@ def test_auto_merge_releasability_rejects_matrix_dispatch_without_verified_enume
     _write_policy(policy, ["lotus-example"])
     _write_exceptions(exceptions, [])
     _write_aligned_workflows(repo_root)
-    # A matrix dispatch fed by an enumeration that never asserts rebase-only
-    # merge settings could gate the wrong trees under squash or merge commits.
-    _write_matrix_enumeration_dispatch(repo_root, assert_merge_settings=False)
+    _write_matrix_enumeration_dispatch(repo_root, **weakness)
 
     results = validate_repositories(
         policy_path=policy,

@@ -151,13 +151,34 @@ def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
     )
 
 
-def _workflow_has_verified_matrix_enumeration(payload: dict[str, Any]) -> bool:
-    """Recognize a two-job design: one step enumerates every merged commit with
-    verified integrity (rebase-only merge settings asserted, commits walked from
-    the event's merge SHA, resolved count compared to the event's commit count),
-    and a matrix job dispatches per enumerated commit."""
+_MATRIX_COMMIT_SOURCE = re.compile(
+    r"fromJSON\(needs\.([A-Za-z0-9_-]+)\.outputs\.commit_shas\)"
+)
 
-    for step in _workflow_steps(payload):
+
+def _job_steps(job: dict[str, Any]) -> list[dict[str, Any]]:
+    steps = job.get("steps")
+    if not isinstance(steps, list):
+        return []
+    return [step for step in steps if isinstance(step, dict)]
+
+
+def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
+    # The enumeration must run only for PRs merged into main, assert rebase-only
+    # merge settings, walk the commits endpoint anchored at the event's merge
+    # SHA with an explicit page size covering the whole PR (a default page
+    # would silently truncate large PRs; the count equality then fails closed),
+    # compare the resolved count to the event's commit count, and publish the
+    # enumerated SHAs through the job's declared output.
+    condition = str(job.get("if") or "")
+    if "github.event.pull_request.merged == true" not in condition:
+        return False
+    if "github.event.pull_request.base.ref == 'main'" not in condition:
+        return False
+    outputs = job.get("outputs") if isinstance(job.get("outputs"), dict) else {}
+    if "outputs.commit_shas" not in str(outputs.get("commit_shas") or ""):
+        return False
+    for step in _job_steps(job):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
         commit_count = _step_env_value(step, "PR_COMMIT_COUNT") or _step_env_value(
             step, "COMMIT_COUNT"
@@ -167,10 +188,48 @@ def _workflow_has_verified_matrix_enumeration(payload: dict[str, Any]) -> bool:
             "github.event.pull_request.merge_commit_sha" in merge_commit_sha
             and "github.event.pull_request.commits" in commit_count
             and '"false,false,true"' in run
-            and "commits?sha=$MERGE_COMMIT_SHA" in run
+            and "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" in run
             and re.search(r'-ne\s+"\$(?:PR_)?COMMIT_COUNT"', run)
+            and "commit_shas=" in run
+            and "GITHUB_OUTPUT" in run
         ):
             return True
+    return False
+
+
+def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
+    """Recognize a two-job design: an integrity-verified enumeration job and a
+    matrix dispatch job whose matrix is provably fed from that job's output.
+
+    The dispatch job must consume ``fromJSON(needs.<job>.outputs.commit_shas)``
+    and declare that exact job in ``needs`` — a disconnected or hard-coded
+    matrix never qualifies, whatever else the workflow contains."""
+
+    jobs = payload.get("jobs") if isinstance(payload.get("jobs"), dict) else {}
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        strategy = job.get("strategy") if isinstance(job.get("strategy"), dict) else {}
+        matrix = strategy.get("matrix") if isinstance(strategy.get("matrix"), dict) else {}
+        source = _MATRIX_COMMIT_SOURCE.search(str(matrix.get("commit_sha") or ""))
+        if source is None:
+            continue
+        needs = job.get("needs")
+        needs_list = [needs] if isinstance(needs, str) else (
+            needs if isinstance(needs, list) else []
+        )
+        source_job = jobs.get(source.group(1))
+        if source.group(1) not in needs_list or not isinstance(source_job, dict):
+            continue
+        if not _job_has_verified_enumeration_step(source_job):
+            continue
+        for step in _job_steps(job):
+            if "matrix.commit_sha" in _step_env_value(
+                step, "MERGE_COMMIT_SHA"
+            ) and re.search(
+                r"-(?:f|F)\s+expected_sha=\"?\$MERGE_COMMIT_SHA\"?", _step_run(step)
+            ):
+                return True
     return False
 
 
@@ -187,13 +246,7 @@ def _merged_pr_dispatch_passes_exact_sha(payload: dict[str, Any]) -> bool:
             r"-(?:f|F)\s+expected_sha=\"?\$revision\"?", run
         ):
             return True
-        if (
-            "matrix.commit_sha" in merge_commit_sha
-            and re.search(r"-(?:f|F)\s+expected_sha=\"?\$MERGE_COMMIT_SHA\"?", run)
-            and _workflow_has_verified_matrix_enumeration(payload)
-        ):
-            return True
-    return False
+    return _matrix_dispatch_is_verified(payload)
 
 
 def _merged_pr_dispatch_has_immutable_ref(payload: dict[str, Any]) -> bool:
