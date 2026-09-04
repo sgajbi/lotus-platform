@@ -865,3 +865,121 @@ jobs:
 
     assert results[0].status == "drift"
     assert "pr-auto-merge.write-permissions" in results[0].violations
+
+
+def _write_matrix_enumeration_dispatch(
+    repo_root: Path, *, assert_merge_settings: bool = True
+) -> Path:
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    merge_settings_assertion = (
+        """
+          merge_settings="$(gh api "repos/$GITHUB_REPOSITORY" --jq '[.allow_squash_merge, .allow_merge_commit, .allow_rebase_merge] | join(",")')"
+          if [ "$merge_settings" != "false,false,true" ]; then
+            exit 1
+          fi
+"""
+        if assert_merge_settings
+        else ""
+    )
+    workflow_path.write_text(
+        f"""
+name: Merged PR Main Releasability Dispatch
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: write
+jobs:
+  enumerate-merged-commits:
+    runs-on: ubuntu-latest
+    outputs:
+      commit_shas: ${{{{ steps.enumerate.outputs.commit_shas }}}}
+    steps:
+      - id: enumerate
+        env:
+          MERGE_COMMIT_SHA: ${{{{ github.event.pull_request.merge_commit_sha }}}}
+          PR_COMMIT_COUNT: ${{{{ github.event.pull_request.commits }}}}
+        run: |
+{merge_settings_assertion}
+          commit_shas="$(gh api "repos/$GITHUB_REPOSITORY/commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" --jq '[.[].sha]')"
+          resolved_count="$(printf '%s' "$commit_shas" | jq 'length')"
+          if [ "$resolved_count" -ne "$PR_COMMIT_COUNT" ]; then
+            exit 1
+          fi
+          echo "commit_shas=$commit_shas" >> "$GITHUB_OUTPUT"
+  dispatch-main-releasability:
+    needs: enumerate-merged-commits
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        commit_sha: ${{{{ fromJSON(needs.enumerate-merged-commits.outputs.commit_shas) }}}}
+    steps:
+      - env:
+          MERGE_COMMIT_SHA: ${{{{ matrix.commit_sha }}}}
+        run: |
+          dispatch_ref="main-releasability-${{MERGE_COMMIT_SHA}}"
+          if existing_ref_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha 2>/dev/null)"; then
+            if [ "$existing_ref_sha" != "$MERGE_COMMIT_SHA" ]; then
+              exit 1
+            fi
+          else
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$MERGE_COMMIT_SHA"
+          fi
+          gh workflow run main-releasability.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$dispatch_ref" \
+            -f expected_sha="$MERGE_COMMIT_SHA"
+""",
+        encoding="utf-8",
+    )
+    return workflow_path
+
+
+def test_auto_merge_releasability_accepts_verified_matrix_enumeration_dispatch(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    _write_matrix_enumeration_dispatch(repo_root)
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert results[0].status == "aligned"
+    assert results[0].violations == ()
+
+
+def test_auto_merge_releasability_rejects_matrix_dispatch_without_verified_enumeration(
+    tmp_path: Path,
+) -> None:
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    # A matrix dispatch fed by an enumeration that never asserts rebase-only
+    # merge settings could gate the wrong trees under squash or merge commits.
+    _write_matrix_enumeration_dispatch(repo_root, assert_merge_settings=False)
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert "merged-pr-dispatch.missing-expected-sha-input" in results[0].violations
