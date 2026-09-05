@@ -61,12 +61,13 @@ when the producer publishes a replay-identity contract and the consumer sends on
 once per logical operation and reused verbatim across attempts; a correlation or trace id is
 tracing, never replay identity, and a fresh key per attempt defeats the contract. For a mutation
 with no replay identity, stop after an ambiguous loss and surface the indeterminate outcome
-truthfully. Such a mutation must also not follow redirects: a redirect re-delivers the request,
-and a failed redirect target masquerades as a pre-send connection error. Do not indiscriminately
-ban read-only retries, and record the residual seam when the consumer's own caller can retry the
-whole request without a stable inbound identity. Prove with tests: ambiguous loss then identical
-replay body, one producer execution, no second attempt without identity, and pre-send failures
-still retrying.
+truthfully. Such a mutation must not follow method-preserving redirects such as `307` or `308`:
+they re-deliver the mutation, and a failed redirect target can masquerade as a pre-send connection
+error. A `303 See Other` changes the follow-up to a read and may be valid after commit; classify any
+failure of that redirected read independently. Do not indiscriminately ban read-only retries, and
+record the residual seam when the consumer's own caller can retry the whole request without a
+stable inbound identity. Prove with tests: ambiguous loss then identical replay body, one producer
+execution, no second attempt without identity, and pre-send failures still retrying.
 
 ## Source-Response Semantic Admission
 
