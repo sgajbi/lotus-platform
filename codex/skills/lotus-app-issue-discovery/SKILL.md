@@ -66,6 +66,11 @@ Use `scripts/ensure_issue_discovery_labels.py` before filing or relabeling issue
 template. Use `scripts/plan_issue_discovery_campaign.py` to generate a repeatable repo/profile
 campaign plan before broad reviews or app handoffs. Add `--include-bank-readiness` when the review
 must map findings to the platform `BR-001` through `BR-025` catalog.
+
+```powershell
+python scripts/ensure_issue_discovery_labels.py --repository <owner>/<repo>
+```
+
 Use `scripts/audit_rfc_issue_coverage.py` before claiming a multi-repo RFC backlog is complete,
 especially when an RFC proof or blueprint contract contains owner-repo issue references. Run it in
 read-only mode first so missing issue labels, missing issues, closed/superseded posture, priority

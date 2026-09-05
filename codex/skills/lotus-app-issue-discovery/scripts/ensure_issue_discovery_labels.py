@@ -98,13 +98,19 @@ def run(command: list[str], dry_run: bool) -> None:
     subprocess.run(command, check=True)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Create or update canonical Lotus issue-discovery labels in a GitHub repository."
     )
-    parser.add_argument("--repo", required=True, help="GitHub repository in owner/name form.")
+    parser.add_argument(
+        "--repository",
+        "--repo",
+        dest="repository",
+        required=True,
+        help="GitHub repository in owner/name form.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print gh commands without executing them.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     for name, color, description in LABELS:
         run(
@@ -114,7 +120,7 @@ def main() -> int:
                 "create",
                 name,
                 "--repo",
-                args.repo,
+                args.repository,
                 "--color",
                 color,
                 "--description",
@@ -124,7 +130,7 @@ def main() -> int:
             args.dry_run,
         )
 
-    print(f"Ensured {len(LABELS)} issue-discovery labels in {args.repo}.")
+    print(f"Ensured {len(LABELS)} issue-discovery labels in {args.repository}.")
     return 0
 
 
