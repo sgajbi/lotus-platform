@@ -64,16 +64,41 @@ def _markdown_link_destination(raw_target: str) -> str:
     return target.split(maxsplit=1)[0] if target else ""
 
 
+def _valid_reference_definition(raw_target: str) -> bool:
+    target = raw_target.strip()
+    if not target:
+        return False
+    if target.startswith("<"):
+        closing_angle = target.find(">")
+        if closing_angle == -1:
+            return False
+        remainder = target[closing_angle + 1 :].strip()
+    else:
+        parts = target.split(maxsplit=1)
+        remainder = parts[1].strip() if len(parts) == 2 else ""
+    if not remainder:
+        return True
+    return (
+        len(remainder) >= 2
+        and (remainder[0], remainder[-1]) in {("\"", "\""), ("'", "'"), ("(", ")")}
+    )
+
+
 def _markdown_link_targets(text: str) -> list[str]:
     definitions: dict[str, str] = {}
     for match in REFERENCE_DEFINITION_PATTERN.finditer(text):
+        if not _valid_reference_definition(match.group(2)):
+            continue
         label = " ".join(match.group(1).lower().split())
         definitions.setdefault(label, match.group(2))
     used_references = {
         " ".join((match.group(2) or match.group(1)).lower().split())
         for match in REFERENCE_USE_PATTERN.finditer(text)
     }
-    prose_without_definitions = REFERENCE_DEFINITION_PATTERN.sub("", text)
+    prose_without_definitions = REFERENCE_DEFINITION_PATTERN.sub(
+        lambda match: "" if _valid_reference_definition(match.group(2)) else match.group(0),
+        text,
+    )
     used_references.update(
         " ".join(match.group(1).lower().split())
         for match in SHORTCUT_REFERENCE_PATTERN.finditer(prose_without_definitions)
