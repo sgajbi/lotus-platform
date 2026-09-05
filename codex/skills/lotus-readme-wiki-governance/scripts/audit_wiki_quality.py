@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 
-LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
+LINK_START_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\(")
 BARE_URL_PATTERN = re.compile(r"(?<!\]\()https?://\S+")
 SCRATCH_PATTERN = re.compile(
     r"\b(TODO|maybe|rough|temp|temporary|TBD|FIXME)\b", re.IGNORECASE
@@ -59,6 +59,35 @@ def _markdown_link_destination(raw_target: str) -> str:
     return target.split(maxsplit=1)[0] if target else ""
 
 
+def _markdown_link_targets(text: str) -> list[str]:
+    targets: list[str] = []
+    for match in LINK_START_PATTERN.finditer(text):
+        start = match.end()
+        depth = 0
+        escaped = False
+        in_angle_destination = text[start : start + 1] == "<"
+        for index in range(start, len(text)):
+            character = text[index]
+            if escaped:
+                escaped = False
+                continue
+            if character == "\\":
+                escaped = True
+                continue
+            if in_angle_destination:
+                if character == ">":
+                    in_angle_destination = False
+                continue
+            if character == "(":
+                depth += 1
+            elif character == ")":
+                if depth == 0:
+                    targets.append(text[start:index])
+                    break
+                depth -= 1
+    return targets
+
+
 def _normalize_link_target(raw_target: str) -> str | None:
     target = _markdown_link_destination(raw_target).split("#", 1)[0].strip()
     if not target or target.startswith(ALLOWED_EXTERNAL_PREFIXES):
@@ -71,8 +100,8 @@ def _normalize_link_target(raw_target: str) -> str | None:
 
 def _page_links(text: str) -> set[str]:
     links: set[str] = set()
-    for match in LINK_PATTERN.finditer(text):
-        target = _normalize_link_target(match.group(1))
+    for raw_target in _markdown_link_targets(text):
+        target = _normalize_link_target(raw_target)
         if target:
             links.add(target)
     return links
@@ -80,10 +109,12 @@ def _page_links(text: str) -> set[str]:
 
 def _publication_unsafe_parent_links(text: str) -> set[str]:
     links: set[str] = set()
-    for match in LINK_PATTERN.finditer(text):
-        target = _markdown_link_destination(match.group(1)).split("#", 1)[0].strip()
+    for raw_target in _markdown_link_targets(text):
+        target = _markdown_link_destination(raw_target).split("#", 1)[0].strip()
+        if target.startswith(ALLOWED_EXTERNAL_PREFIXES):
+            continue
         target = unquote(target).replace("\\", "/")
-        if target.startswith("../"):
+        if ".." in Path(target).parts:
             links.add(target)
     return links
 
@@ -108,14 +139,19 @@ def _repository_github_link_failures(
 ) -> list[str]:
     failures: list[str] = []
     repository_identity = _github_repository_identity(repo_root)
-    for match in LINK_PATTERN.finditer(text):
-        target = _markdown_link_destination(match.group(1))
+    for raw_target in _markdown_link_targets(text):
+        target = _markdown_link_destination(raw_target)
         parsed = urlparse(target)
         if parsed.netloc.lower() != "github.com":
             continue
 
         parts = parsed.path.strip("/").split("/", 4)
-        if len(parts) != 5 or parts[1].lower() != repo_root.name.lower():
+        if len(parts) != 5:
+            continue
+        expected_repository = (
+            repository_identity[1] if repository_identity else repo_root.name.lower()
+        )
+        if parts[1].lower() != expected_repository:
             continue
         link_identity = parts[0].lower(), parts[1].lower()
         if repository_identity is None:
@@ -131,6 +167,9 @@ def _repository_github_link_failures(
             continue
         mode = parts[2]
         if mode not in {"blob", "tree"}:
+            failures.append(
+                f"{page_name}: repository GitHub file link must use blob or tree: {target}"
+            )
             continue
         if unquote(parts[3]) != "main":
             failures.append(
