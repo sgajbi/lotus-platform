@@ -224,6 +224,17 @@ def test_wiki_quality_audit_uses_shortcut_colons_and_first_reference_definition(
         )
 
     (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Runbook][runbook]\n\n[runbook]: ../docs\\\n",
+        encoding="utf-8",
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert (
+        "Home.md: publication-unsafe parent-relative link: ../docs/" in failures
+    )
+
+    (wiki_dir / "Home.md").write_text(
         "# Home\n\n[runbook]: operational details.\n\n"
         "[runbook]: ../docs/runbook.md\n",
         encoding="utf-8",
