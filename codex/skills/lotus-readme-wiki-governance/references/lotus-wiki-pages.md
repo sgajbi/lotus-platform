@@ -292,7 +292,8 @@ that make a wiki look unfinished even when the prose is directionally correct:
 1. missing `Home.md` or `_Sidebar.md`,
 2. pages that are not reachable from `Home.md` or `_Sidebar.md`,
 3. broken local wiki links,
-4. parent-relative links that escape the published wiki repository,
+4. parent-relative or repository-relative links that break after publication into the separate wiki
+   repository, including inline and reference-style destinations,
 5. owning-repository GitHub links with the wrong owner/repository identity, a non-`main` ref, a
    URL-decoded path outside the checkout, the wrong blob/tree type, or no matching local target,
 6. duplicate or missing H1 page titles,
