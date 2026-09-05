@@ -77,9 +77,9 @@ Do not use the pack externally until:
 
 ## Source Of Truth
 
-- [Full client demo pack template](../docs/demo/client-demo-pack-template.md)
+- [Full client demo pack template](https://github.com/sgajbi/lotus-platform/blob/main/docs/demo/client-demo-pack-template.md)
 - [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
 - [Client Demo Certification](Client-Demo-Certification)
-- [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Certification Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)

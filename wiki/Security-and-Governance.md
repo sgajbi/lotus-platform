@@ -36,13 +36,13 @@
 
 ## Important standards
 
-- [Continuous Integration, Validation, and Release Governance Standard](../docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md)
-- [Dependency Hygiene and Security Standard](../docs/standards/Dependency%20Hygiene%20and%20Security%20Standard.md)
-- [Enterprise Readiness Standard](../docs/standards/Enterprise%20Readiness%20Standard.md)
-- [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md)
-- [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
-- [Platform Observability Standards](../docs/standards/Platform%20Observability%20Standards.md)
-- [Platform Integration Architecture Bible](../docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
+- [Continuous Integration, Validation, and Release Governance Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md)
+- [Dependency Hygiene and Security Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Dependency%20Hygiene%20and%20Security%20Standard.md)
+- [Enterprise Readiness Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Enterprise%20Readiness%20Standard.md)
+- [Lotus Data Mesh Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Data%20Mesh%20Standard.md)
+- [Lotus Client Demo Certification Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Platform Observability Standards](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Platform%20Observability%20Standards.md)
+- [Platform Integration Architecture Bible](https://github.com/sgajbi/lotus-platform/blob/main/docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
 
 ## Dependency and image posture
 

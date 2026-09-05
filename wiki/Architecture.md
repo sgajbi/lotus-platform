@@ -158,4 +158,4 @@ reconciliation policy and exact-main telemetry passes the blocking mesh gate.
   architectural and governance decisions
 
 For the explicit Lotus split between README, `wiki/`, deep `docs/`, and platform `context/`, use
-[Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md).
+[Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md).

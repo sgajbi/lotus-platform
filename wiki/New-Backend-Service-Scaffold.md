@@ -123,7 +123,7 @@ use a human or release actor to rebase merge.
 
 Detailed guide:
 
-- [Lotus Backend Service Scaffold Guide](../docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)
+- [Lotus Backend Service Scaffold Guide](https://github.com/sgajbi/lotus-platform/blob/main/docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)
 
 Common command:
 

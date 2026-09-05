@@ -155,9 +155,9 @@ When changing platform docs, run the targeted contract packs rather than assumin
 
 Before running the pack, classify the documentation change through:
 
-- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
-- [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md)
-- [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
+- [Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Task Routing Guide](https://github.com/sgajbi/lotus-platform/blob/main/context/TASK-ROUTING-GUIDE.md)
+- [Mesh Certification Gate Runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/mesh-certification-gate-runbook.md)
 
 That keeps README, repo-local wiki, deep docs, and platform context from drifting into the wrong
 surface even when the tests are green.
@@ -172,5 +172,5 @@ python automation/generate_enterprise_backend_quality_baseline.py --check
 
 ## Related references
 
-- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
-- [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md)
+- [Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Task Routing Guide](https://github.com/sgajbi/lotus-platform/blob/main/context/TASK-ROUTING-GUIDE.md)

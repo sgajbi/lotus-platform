@@ -2,9 +2,9 @@
 
 This page summarizes the current RFC-0108 implementation-backed analytics UI observability posture
 for operators, demo preparation, and engineering handoff. Deep technical truth remains in
-[`rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md`](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md),
-the platform contracts under [`context/contracts/`](../context/contracts/), and the
-[Analytics UI Observability Runbook](../docs/operations/analytics-ui-observability-runbook.md).
+[`rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md`](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md),
+the platform contracts under [`context/contracts/`](https://github.com/sgajbi/lotus-platform/tree/main/context/contracts), and the
+[Analytics UI Observability Runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/analytics-ui-observability-runbook.md).
 
 ## Current Supported Scope
 

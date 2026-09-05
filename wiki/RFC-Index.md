@@ -1,5 +1,16 @@
 # RFC Index
 
+Current-state lifecycle and implementation truth lives in the authoritative RFC inventory and each
+RFC's linked evidence.
+
+## RFC Reader Map
+
+| Goal | Destination |
+| --- | --- |
+| Browse every RFC and its lifecycle state | [Authoritative RFC inventory](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/README.md) |
+| Understand active platform operations | Start with the current operational RFCs below. |
+| Review implementation truth | Follow each RFC's owning repository and evidence links. |
+
 ## Most operationally important current RFCs
 
 - `RFC-0071`
@@ -21,45 +32,45 @@
 
 ## Important repo-specific references
 
-- [rfcs/README.md](../rfcs/README.md)
-- [RFC-0071](../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md)
-- [RFC-0072](../rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
-- [RFC-0073](../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
-- [RFC-0074](../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md)
-- [RFC-0089](../rfcs/RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md)
+- [rfcs/README.md](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/README.md)
+- [RFC-0071](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md)
+- [RFC-0072](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
+- [RFC-0073](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
+- [RFC-0074](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md)
+- [RFC-0089](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0089-mesh-certification-merge-gate-and-operational-trust-enforcement.md)
   mesh certification merge gate and operational trust enforcement
-- [RFC-0090](../rfcs/RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md)
+- [RFC-0090](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0090-cross-repo-mesh-certification-pr-merge-gate.md)
   cross-repo mesh certification PR Merge Gate enforcement
-- [RFC-0091](../rfcs/RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md)
+- [RFC-0091](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0091-enterprise-data-mesh-maturity-and-production-readiness.md)
   enterprise data mesh maturity and production readiness
-- [RFC-0092](../rfcs/RFC-0092-production-mesh-operations-and-escalation-control.md)
+- [RFC-0092](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0092-production-mesh-operations-and-escalation-control.md)
   production mesh operations and escalation control
-- [RFC-0093](../rfcs/RFC-0093-lotus-context-assembly-and-compaction-hardening-for-agentic-development.md)
+- [RFC-0093](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0093-lotus-context-assembly-and-compaction-hardening-for-agentic-development.md)
   context assembly, compaction, and durable promotion rules for agentic development
-- [RFC-0094](../rfcs/RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md)
+- [RFC-0094](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0094-durable-background-engineering-task-ledger-and-governed-delegation-model.md)
   background engineering task ledger, lifecycle, evidence, and delegation governance
-- [RFC-0095](../rfcs/RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md)
+- [RFC-0095](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0095-heartbeat-driven-monitoring-and-attention-surfacing.md)
   heartbeat-driven monitoring and deduplicated attention surfacing
-- [RFC-0096](../rfcs/RFC-0096-governed-multi-agent-delegation-model.md)
+- [RFC-0096](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0096-governed-multi-agent-delegation-model.md)
   governed multi-agent delegation profiles, evidence, and review discipline
-- [RFC-0097](../rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
+- [RFC-0097](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0097-task-flow-runtime-for-long-running-workflow-packs.md)
   task-flow runtime for long-running workflow packs
-- [RFC-0098](../rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
+- [RFC-0098](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0098-per-pack-queue-and-concurrency-policy.md)
   per-pack queue, lane, timeout, and concurrency policy; `lotus-ai` source-truth queue policy, durable queue-event history, terminal timeout/cancellation/degraded posture, retry/replay recovery-decision posture, repeated-failure cluster attention, degraded queue-source attention, persisted admission-lifecycle events, governed queue request-snapshot artifact refs, bounded snapshot-backed retry/replay execution, persisted queued-worker execution through the existing async runtime, final review, docs/context/wiki, and branch hygiene are complete
-- [RFC-0099](../rfcs/RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md)
+- [RFC-0099](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0099-enterprise-reporting-and-document-archive-target-architecture.md)
   proposed target-state architecture for enterprise reporting, `lotus-render`, future
   `lotus-archive`, batch reporting, durable lineage, rendering, archival, observability, security,
   and ordered follow-up RFC sequence
-- [RFC-0100](../rfcs/RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation.md)
+- [RFC-0100](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0100-reporting-gateway-invocation-and-job-ledger-foundation.md)
   proposed gateway-first report initiation and durable report job ledger foundation
-- [RFC-0101](../rfcs/RFC-0101-report-data-snapshot-and-lineage-contracts.md)
+- [RFC-0101](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0101-report-data-snapshot-and-lineage-contracts.md)
   proposed report data snapshot and upstream lineage contract
-- [RFC-0102](../rfcs/RFC-0102-render-package-template-registry-and-render-service.md)
+- [RFC-0102](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0102-render-package-template-registry-and-render-service.md)
   proposed `lotus-render` render package, template registry, and Typst rendering service
-- [RFC-0103](../rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md)
+- [RFC-0103](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0103-document-archive-retrieval-retention-and-legal-hold.md)
   implemented first-wave `lotus-archive` document metadata, retrieval, retention, legal hold,
   lifecycle, `lotus-report` handoff, and gateway retrieval support
-- [RFC-0104](../rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
+- [RFC-0104](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md)
   implemented for first-wave scope; durable batch materialization/status/control APIs, deterministic
   schedule-cycle identity, dispatch/lease/back-pressure, retry/recovery controls, internal
   execution bridge, bounded worker primitive, certified internal run-once operator API, and bounded
@@ -69,7 +80,7 @@
   single-portfolio batch operation and gateway-facing scheduler administration are implemented.
   RFC-0105 dashboards/replay, RFC-0106 security certification, and RFC-0107 production
   certification remain pending
-- [RFC-0105](../rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
+- [RFC-0105](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0105-reporting-observability-operations-and-replay-tooling.md)
   implementation started with Slice 0 platform scaffold hardening, Slice 1 `lotus-report`
   observability structure cleanup, Slice 2 cross-service trace/structured logging proof across
   `lotus-gateway`, `lotus-report`, `lotus-render`, and `lotus-archive`, Slice 3 first-wave
@@ -88,17 +99,17 @@
   implementation-backed `POST /reports/jobs/{job_id}/replay`,
   implementation-backed `POST /reports/batches/{batch_id}/items/{batch_item_id}/replay`, and the
   data-protection gate before stuck-state/SLA monitoring are now tracked
-- [RFC-0106](../rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
+- [RFC-0106](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0106-reporting-security-entitlements-and-region-tenant-segregation.md)
   gold-pass ready with implementation not started; reporting security, entitlements, role/action
   matrix, caller context, service-to-service trust, region/tenant/booking-center segregation,
   document access audit, sensitive-surface controls, API certification, supported-features
   governance, and live proof expectations are tightened before implementation
-- [RFC-0107](../rfcs/RFC-0107-enterprise-reporting-production-certification.md)
+- [RFC-0107](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0107-enterprise-reporting-production-certification.md)
   gold-pass ready with implementation not started; final enterprise reporting production
   certification across gateway, report, render, archive, upstream services, Workbench where
   supported, batch, observability, security, evidence-pack schema, non-functional thresholds,
   docs, wiki, context, and supported-features is tightened before implementation
-- [RFC-0108](../rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
+- [RFC-0108](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0108-front-office-analytics-ui-observability-and-operational-posture.md)
   implemented for first-wave scope and reopened ecosystem scope closed for current implementation-backed claims; governed front-office analytics UI
   observability across Workbench browser rendering, gateway/BFF/API delivery, backend analytics
   fan-out, user-visible freshness/degraded/empty/error states, attention and audit events,

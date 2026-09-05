@@ -1,6 +1,6 @@
 # Data Mesh Standard
 
-Lotus data mesh means domain-owned, platform-certified data products. Product truth stays in the
+Current-state Lotus data mesh means domain-owned, platform-certified data products. Product truth stays in the
 owning service; `lotus-platform` generates the catalog, dependency graph, trust certification,
 maturity matrix, and operating report; `lotus-gateway` publishes read-only discovery APIs; and
 `lotus-workbench` presents self-serve discovery through Gateway/BFF.
@@ -78,8 +78,8 @@ python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 
 
 ## Source Of Truth
 
-- [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md)
+- [Lotus Data Mesh Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Data%20Mesh%20Standard.md)
 - [Enterprise Mesh Status](Enterprise-Mesh-Status)
-- [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
-- [Domain Data Product Contracts](../platform-contracts/domain-data-products/README.md)
+- [Mesh Certification Gate Runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/mesh-certification-gate-runbook.md)
+- [Domain Data Product Contracts](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/domain-data-products/README.md)
 
