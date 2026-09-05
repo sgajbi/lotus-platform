@@ -90,7 +90,11 @@ Current assumption:
 3. the checker authenticates with a repository PAT — the workflow token cannot read branch
    protection — inside a stated trust boundary (per-PR execution only where every same-repo
    pusher holds the PAT's authority; otherwise an approved `pull_request_target` job on base-ref
-   checker code with the PR's policy read as inert data),
+   checker code with the PR's policy read as inert data — and that job alone is not sufficient:
+   its check must be bound to workflow identity via an organization-ruleset required workflow or
+   an App-produced check with `app_id` recorded as the expected source, its verdict must be
+   published against the candidate head SHA, and the checker must compare live rulesets, since a
+   name-only required context is spoofable by any same-named PR workflow),
 4. the pattern reference is
    `codex/skills/lotus-ci-enforcement-governance/references/branch-protection-policy-gate.md`;
    adoptions: lotus-gateway#737 (reference implementation), lotus-render#281.
