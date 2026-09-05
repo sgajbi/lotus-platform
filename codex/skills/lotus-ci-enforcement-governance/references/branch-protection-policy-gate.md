@@ -135,13 +135,21 @@ example — must extend the central authority to per-repository posture values a
 same change; this is the concrete first step of the federated unification named below. The checker enforces this mechanically, not just editorially: for the
 fields the central authority owns, the candidate table must equal the central declaration, so
 a candidate edited to legitimize already-weakened live protection fails against the central
-authority even though it matches live. The central input is obtained by fetching
-`automation/repository-governance-policy.json` from the platform repository at `main` at check
-time (the branch-protection PAT already reads it), failing closed when unreachable — never a
-vendored copy, which would be a second authority going stale, the exact defect this section
-forbids. Floating `main` rather than a pin is deliberate: a central change that reddens open
-sibling PRs is drift detection working, and the bootstrap ordering below (central merges first)
-keeps coordinated changes green. Neither current adopter implements this comparison yet — it is
+authority even though it matches live. The central input is obtained by fetching the central
+declaration from the platform repository at `main` at check time (the branch-protection PAT
+already reads it), failing closed when unreachable — never a vendored copy, which would be a
+second authority going stale, the exact defect this section forbids. Two prerequisites gate the
+implementation. First, `repository-governance-policy.json` today carries only repositories,
+branches, and required checks — the posture constants are hard-coded in `expected_governance()`
+and the enforcer — so the first implementer must lift those constants into the central JSON
+(with validator and enforcer reading them from it) rather than duplicate them into yet another
+authority. Second, a completed sibling verdict is not invalidated by a later central change:
+GitHub does not re-run finished checks, so an open PR validated against the old declaration
+keeps its green and can still merge. Floating `main` therefore converges legitimately
+coordinated changes (central merges before the repo-local table) but does not police that
+window — the platform must dispatch a re-evaluation of open adopter PRs when the central
+declaration changes (`repository_dispatch` or equivalent), with the scheduled supplement as the
+post-merge backstop. Neither current adopter implements this comparison yet — it is
 a specified extension each adopter owes, not something to claim as enforced before it lands. What the repo-local pattern adds is only what the
 central file does not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
@@ -152,18 +160,23 @@ meantime.
 ## Bootstrapping a new or renamed required context
 
 The base-ref-checker/candidate-policy split deadlocks a single PR that both introduces a context
-and requires it, so roll out in three green steps: (1) merge the workflow change that emits the
-new context **together with the central `repository-governance-policy.json` addition** — the
-central file is inert data, and under mechanical centrality the later repo-local update cannot
-merge while the central declaration still lists the old checks; live protection and the
-repo-local table do not require the context yet; (2) an operator
+and requires it, so roll out in ordered green steps: (1) merge the workflow change that emits the
+new context — for a sibling adopter this lands first, because the platform enforcer's
+source-only validation requires the adopter's default branch to already emit any newly declared
+check; live protection and the repo-local table do not require the context yet; (1b) merge the
+central `repository-governance-policy.json` addition in the platform repository — before the
+repo-local update, which under mechanical centrality cannot merge while the central declaration
+still lists the old checks (within the platform repository itself, 1 and 1b can be one merge);
+(2) an operator
 adds the context to live protection — from this moment until step 3 lands, the bidirectional
 comparison on open PRs honestly reports the live addition as undocumented, so do (2) and (3)
 adjacently and treat the brief red window as the drift-first transition rule in miniature; (3) merge the policy-table update listing the context, validated
 against the now-matching live state. A rename is an addition (steps 1-3) followed by a removal in the **reverse**
-order: the operator drops the old context from live protection first, the policy update
-removing it merges next, and only then does the workflow stop emitting it — stopping emission
-while the context is still required would block every PR. The drift-first transition rule above covers the brief step-2 window.
+order: the central policy drops the old context first — while it stays centrally required, the
+local-table removal cannot pass the central comparison, and the central Apply would re-add
+whatever an operator removed — then the operator drops it from live protection, the policy-table
+update removing it merges next, and only then does the workflow stop emitting it — stopping
+emission while the context is still required would block every PR. The drift-first transition rule above covers the brief step-2 window.
 
 ## Adoption record
 
