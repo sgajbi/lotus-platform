@@ -181,6 +181,34 @@ def test_wiki_quality_audit_ignores_unused_reference_definitions_for_navigation(
     assert "Orphan.md: page is not reachable from Home.md or _Sidebar.md" in failures
 
 
+def test_wiki_quality_audit_uses_shortcut_colons_and_first_reference_definition(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "repo"
+    wiki_dir = repo_root / "wiki"
+    docs_dir = repo_root / "docs"
+    wiki_dir.mkdir(parents=True)
+    docs_dir.mkdir()
+    (docs_dir / "runbook.md").write_text("# Runbook\n", encoding="utf-8")
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\nSee [runbook]: operational details.\n\n"
+        "[runbook]: ../docs/runbook.md\n"
+        "[RUNBOOK]: Home.md\n",
+        encoding="utf-8",
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Home](Home.md)\n", encoding="utf-8"
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert (
+        "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
+        in failures
+    )
+
+
 def test_wiki_quality_audit_validates_decoded_repository_github_links(
     tmp_path: Path,
 ) -> None:

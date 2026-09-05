@@ -13,7 +13,7 @@ REFERENCE_DEFINITION_PATTERN = re.compile(
     r"^[ \t]{0,3}\[(?!\^)([^\]]+)\]:[ \t]*(.+?)\s*$", re.MULTILINE
 )
 REFERENCE_USE_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\]\[([^\]]*)\]")
-SHORTCUT_REFERENCE_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\](?![\[\(:])")
+SHORTCUT_REFERENCE_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\](?![\[\(])")
 BARE_URL_PATTERN = re.compile(r"(?<!\]\()https?://\S+")
 SCRATCH_PATTERN = re.compile(
     r"\b(TODO|maybe|rough|temp|temporary|TBD|FIXME)\b", re.IGNORECASE
@@ -65,17 +65,18 @@ def _markdown_link_destination(raw_target: str) -> str:
 
 
 def _markdown_link_targets(text: str) -> list[str]:
-    definitions = {
-        " ".join(match.group(1).lower().split()): match.group(2)
-        for match in REFERENCE_DEFINITION_PATTERN.finditer(text)
-    }
+    definitions: dict[str, str] = {}
+    for match in REFERENCE_DEFINITION_PATTERN.finditer(text):
+        label = " ".join(match.group(1).lower().split())
+        definitions.setdefault(label, match.group(2))
     used_references = {
         " ".join((match.group(2) or match.group(1)).lower().split())
         for match in REFERENCE_USE_PATTERN.finditer(text)
     }
+    prose_without_definitions = REFERENCE_DEFINITION_PATTERN.sub("", text)
     used_references.update(
         " ".join(match.group(1).lower().split())
-        for match in SHORTCUT_REFERENCE_PATTERN.finditer(text)
+        for match in SHORTCUT_REFERENCE_PATTERN.finditer(prose_without_definitions)
     )
     targets = [
         definitions[label] for label in used_references if label in definitions
