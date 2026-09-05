@@ -1,295 +1,124 @@
 # lotus-platform
 
-Shared platform, governance, automation, and runtime support repository for the Lotus ecosystem.
+> The shared engineering foundation for Lotus.
 
-Repository-local engineering context:
-[REPOSITORY-ENGINEERING-CONTEXT.md](REPOSITORY-ENGINEERING-CONTEXT.md)
+Lotus is a suite of independently owned applications for private-banking portfolio management,
+analytics, advice, operations, and reporting. `lotus-platform` helps teams develop, integrate,
+validate, and operate those applications through shared contracts, standards, tooling, runtime
+support, and cross-repository assurance.
 
-Central context system:
-[context/README.md](context/README.md)
-
-Developer onboarding:
-[docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md](docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
-
-Documentation index:
-[docs/README.md](docs/README.md)
+This repository owns the engineering foundation around the applications, not their business
+capabilities. Domain behavior and implementation truth stay with the owning repositories. Start
+with the [Lotus ecosystem overview](wiki/Home.md) for the wider system.
 
 ## Reader Paths
 
-| Audience | Start Here | What You Get |
+| Goal | Start here | Outcome |
 | --- | --- | --- |
-| Engineers and agents | [REPOSITORY-ENGINEERING-CONTEXT.md](REPOSITORY-ENGINEERING-CONTEXT.md) | Current repo truth, boundaries, commands, and validation expectations |
-| Operators | [wiki/Operations-Runbook.md](wiki/Operations-Runbook.md) | Runtime checks, ingress posture, QA wrappers, and troubleshooting paths |
-| Product, demo, and business readers | [wiki/Home.md](wiki/Home.md) | Implementation-backed platform role, demo evidence, and audience-specific navigation |
-| Governance reviewers | [context/README.md](context/README.md) | Context system, playbooks, standards, RFCs, and wiki/source-of-truth rules |
+| Understand the ecosystem | [Ecosystem overview](wiki/Home.md) | See the platform, applications, ownership, and evidence paths |
+| Onboard a developer | [Developer onboarding](docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md) | Prepare a workspace and choose the right validation flow |
+| Contribute to platform tooling | [Repository engineering context](REPOSITORY-ENGINEERING-CONTEXT.md) | Follow local boundaries, commands, and delivery gates |
+| Operate shared infrastructure | [Operations runbook](wiki/Operations-Runbook.md) | Inspect ingress, shared services, QA wrappers, and recovery paths |
+| Review standards and evidence | [Documentation index](docs/README.md) | Navigate standards, contracts, RFCs, quality evidence, and decisions |
 
-## Purpose And Scope
+## Role And Operational Posture
 
-`lotus-platform` is the platform-governance repository for Lotus.
+`lotus-platform` owns shared automation, cross-repository validation, platform contracts and
+standards, central engineering context, governed agent skills, and shared ingress and
+infrastructure support. It does not own domain APIs, application behavior, or the canonical
+populated front-office runtime.
 
-It owns:
+The context system, CI lanes, validators, onboarding guidance, and platform standards are active
+engineering controls. Shared infrastructure lives under `platform-stack`; integrated populated
+product startup belongs to `lotus-workbench`. Platform automation wraps that runtime when
+cross-application QA or durable evidence is required.
 
-- shared automation
-- ingress and environment-level runtime support
-- cross-repository validation
-- standards, templates, and validators
-- onboarding and agent-operating guidance
-- ecosystem-wide governance RFCs and durable context
+Current contract assertions:
 
-It does not own:
+- Human approval reviews are optional; green required checks and resolved review conversations are
+  mandatory.
+- `lotus-idea` is included by default in canonical platform QA.
+- The canonical private-banking seed data excludes the demo pack by default.
 
-- business-domain APIs
-- portfolio, performance, risk, advisory, management, reporting, or AI domain truth
-- the canonical front-office product runtime itself, which is governed through `lotus-workbench`
+See [Platform Surfaces](wiki/Platform-Surfaces.md) for the detailed ownership map and
+[quality/baseline_report.md](quality/baseline_report.md) for the current enterprise backend quality
+baseline.
 
-## Ownership And Boundaries
+## Repository Map
 
-`lotus-platform` is the central engineering system around Lotus, not the product surface and not a
-domain service.
+| Responsibility | Primary paths | Authoritative guide |
+| --- | --- | --- |
+| Automation and assurance | `automation/`, `tests/unit/` | [Automation guide](automation/README.md) |
+| Contracts and standards | `platform-contracts/`, `platform-standards/` | [Platform standards](platform-standards/README.md) |
+| Context and onboarding | `context/`, `docs/onboarding/` | [Context system](context/README.md) |
+| Shared runtime support | `platform-stack/` | [Platform stack](platform-stack/README.md) |
+| Agent workflow source | `codex/skills/` | [Lotus skills](codex/skills/README.md) |
+| Decisions and evidence | `rfcs/`, `quality/`, `docs/`, `wiki/` | [Documentation index](docs/README.md) |
 
-Boundary rules that matter:
+## Getting Started
 
-1. platform-wide truth belongs here
-2. repository-local implementation truth stays in the owning repository
-3. `platform-stack` owns shared ingress and infrastructure support, not the canonical populated
-   front-office product runtime
-4. standards-only changes are incomplete unless validator, scaffold, automation, or runbook impact
-   is considered
+Run commands from the repository root in PowerShell. Normal platform work requires Git, an
+authenticated GitHub CLI, PowerShell, and Python; Node.js, npm, and Docker are required only by
+the selected workflow. The [developer onboarding guide](docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
+contains the complete prerequisite matrix.
 
-## Current Operational Posture
-
-1. RFC-0072 CI lane and validation governance is active.
-2. RFC-0073 central context and agent-guidance governance is active.
-3. RFC-0074 developer and agent bootstrap governance is active.
-4. The context system, onboarding guides, skills, and platform validators are already part of the
-   living engineering contract.
-5. Canonical populated product proof routes through `lotus-workbench`, while `lotus-platform`
-   supports ingress, shared automation, evidence wrappers, and governance around that flow.
-
-## Architecture At A Glance
-
-Primary platform surfaces:
-
-- `automation/`
-  PowerShell and Python automation for repo checks, ingress, QA, CI alignment, PR loops, and
-  cross-app validation
-- `context/`
-  central Lotus context system, registries, playbooks, and governed operating contract
-- `platform-standards/`
-  templates and standards for backend repositories and workflow baselines
-- `platform-contracts/`
-  machine-readable platform contract families such as API vocabulary and governed domain-data-product
-  declarations, plus platform-owned service cost-attribution and attestation contracts
-- `platform-stack/`
-  shared local ingress and infrastructure orchestration
-- `codex/skills/`
-  platform-owned Lotus skill source
-- `rfcs/`
-  ecosystem and platform governance RFCs
-- `docs/`
-  durable standards, architecture notes, operations runbooks, reports, onboarding, and archived
-  legacy mirrors; repo-root Markdown is intentionally limited to `README.md`, `AGENTS.md`, and
-  `REPOSITORY-ENGINEERING-CONTEXT.md`
-
-## Repository Layout
-
-- `automation/`
-  operational commands, validators, background-run tooling, QA entrypoints, and automation docs
-- `context/`
-  quickstart, engineering context, routing guides, registries, contracts, and playbooks
-- `platform-standards/`
-  reusable standards and scaffold templates
-- `platform-stack/`
-  shared local stack, ingress, and observability support assets
-- `codex/skills/`
-  Lotus-owned skills and manifest
-- `rfcs/`
-  governance and implementation RFC inventory
-- `tests/unit/`
-  documentation, validator, standards, and automation contract tests
-- `quality/`
-  enterprise backend refactor baseline, scorecard, quality gate rules, security notes, and
-  decision log
-- `wiki/`
-  canonical authored source for GitHub wiki publication
-
-## Quick Start
-
-Developer readiness inspection:
+### 1. Inspect the environment
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
 ```
 
-Platform repo checks:
+Expected result: a non-mutating readiness report that identifies available tools, repository
+state, and any task-specific gaps.
+
+### 2. Validate this repository
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
 ```
 
-Canonical ingress host sync preview:
+Expected result: platform feature-lane contracts and workflow lint pass locally. Use the lane
+summary below when preparing or verifying a merge.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File automation\Sync-Dev-Ingress-Hosts.ps1
-```
+### 3. Start populated products only when needed
 
-Canonical front-office QA wrapper:
+Use the Workbench-owned
+[Canonical Front-Office Local Runtime](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md)
+for `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`.
+
+When platform-owned cross-application assurance or a governed evidence pack is required, invoke
+the QA wrapper from this repository:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
 ```
 
-Important runtime note:
+The wrapper validates and records the integrated flow; it does not transfer runtime ownership from
+Workbench. Review the [operations runbook](wiki/Operations-Runbook.md) before using cleanup or
+evidence options.
 
-- use `lotus-workbench` for canonical populated front-office validation
-- use `lotus-platform` for ingress, governance, validation wrappers, and ecosystem-wide automation
-- `lotus-idea` is included by default in canonical platform QA; readiness and teardown evidence are
-  part of the default proof, not an optional flag
-- canonical private-banking seed data excludes the demo pack by default and uses the governed
-  contract files under `context/contracts/`
-- use [`wiki/Platform-Surfaces.md`](wiki/Platform-Surfaces.md) when you need to decide which
-  platform-owned area is responsible for a task
+## Validation Summary
 
-## Common Commands
+| Intent | Command |
+| --- | --- |
+| Feature feedback | `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature` |
+| Pull-request parity | `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge` |
+| Exact-main release proof | `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability` |
+| Context drift | `python automation/validate_engineering_context_system.py` |
 
-- `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature`
-  feature-lane repo checks
-- `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge`
-  PR merge gate parity
-- `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
-  main releasability parity
-- `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
-  platform validation lane
-- `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
-  report-only platform demo-readiness certification for core/performance green-lane evidence
-- `python -m pytest tests/unit -q`
-  targeted unit contract tests
-- `python -m pytest tests/unit/test_engineering_context_system_contract.py tests/unit/test_dev_ingress_status_automation_contract.py tests/unit/test_front_office_runtime_automation_contract.py -q`
-  high-signal targeted documentation and operator contract pack
-- `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
-  regenerate and validate the enterprise backend quality baseline and scorecard
-- `python automation/validate_engineering_context_system.py`
-  context-system drift validation
-- `powershell -ExecutionPolicy Bypass -File automation\Validate-Service-Addressing.ps1`
-  RFC-0071 addressing drift validation
-- `powershell -ExecutionPolicy Bypass -File automation\Validate-Shared-Infrastructure-Ownership.ps1`
-  RFC-0068 shared-infrastructure boundary validation
+GitHub enforces the remote feature, pull-request merge, and main releasability gates. See
+[Validation and CI](wiki/Validation-and-CI.md) for lane definitions, evidence, and specialist
+commands.
 
-## Validation And CI Lanes
+## Documentation
 
-`lotus-platform` uses:
+- [Documentation index](docs/README.md): technical guides, standards, reports, and evidence
+- [Central context system](context/README.md): cross-repository truth, routing, and playbooks
+- [Platform standards](platform-standards/README.md): reusable engineering controls and templates
+- [Automation guide](automation/README.md): command catalog and operator behavior
+- [RFC inventory](rfcs/README.md): governed decisions and delivery status
+- [Documentation layering](docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md): source placement rules
+- [Troubleshooting](wiki/Troubleshooting.md): operator diagnosis and recovery navigation
 
-1. `Remote Feature Lane`
-2. `Pull Request Merge Gate`
-3. `Main Releasability Gate`
-4. `Platform End-to-End Validation`
-
-For documentation and context slices:
-
-- use targeted doc-contract tests locally
-- keep automation and context validators green
-- let GitHub carry the heavier full matrix
-
-In the single-developer Lotus baseline, CI and conversation resolution are the merge controls.
-Human approval reviews are optional; unresolved review threads and red required checks are not.
-
-## Platform Contract Notes
-
-Important current platform truths:
-
-1. the central context system under `context/` is a governed delivery artifact, not auxiliary prose
-2. platform-owned skills under `codex/skills/` are the durable Lotus source of truth for skill
-   distribution
-3. the concise Lotus Bank-Buyable Engineering Contract is the standing quality bar; its
-   implementation playbook and versioned control catalog provide the assessment workflow and
-   machine-readable `BR-NNN` authority without duplicating controls across skills and context
-   to prevent low-quality generated code and app degradation
-4. `platform-stack` is the shared ingress and infrastructure baseline, not the canonical populated
-   front-office product proof flow
-5. repo-local truth should live in repository-local engineering context docs rather than being
-   duplicated here
-6. documentation changes in this repo are partially governed by unit-level documentation contract
-   tests and should be treated as contract work, not just prose edits
-7. enterprise backend refactor work starts from the report-only quality baseline under
-   `quality/`, and future gate promotion must update the scorecard, repo context, wiki, and
-   relevant skill guidance in the same slice
-8. new-service scaffolding through `automation/New-Lotus-Service.ps1` should keep new Lotus apps
-   current with bank-buyable quality defaults instead of requiring later cleanup to add them
-9. digest-based deployment promotion proof is owned under
-   `platform-contracts/deployment-promotion/` and validated with
-   `python automation/validate_deployment_promotion_manifest.py`; it proves deployed digest
-   reconciliation or explicitly records release-bound pending posture without replacing
-   service-owned release evidence or claiming production certification ahead of live environment
-   proof
-10. the Lotus Data Mesh Standard defines how domain-owned products become catalog-visible,
-   policy-governed, Gateway-published, Workbench-discoverable, and certified without moving product
-   authority into the platform, gateway, or UI layer
-11. the Lotus Client Demo Certification Standard defines how client-facing demo claims stay tied to
-    supported features, deterministic data, real APIs, validation evidence, and explicit boundaries
-    while the demo pack template turns that evidence into a client-understandable brief, story,
-    claim table, evidence map, boundary register, rehearsal plan, and follow-up register
-12. canonical platform QA includes `lotus-idea` by default and records readiness/teardown evidence
-   alongside Workbench, Gateway, and domain-service validation
-13. RFC-0084 domain-data-product producer and consumer schemas live under
-   `platform-contracts/domain-data-products/`, with repo-native source declarations for
-   `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-report`,
-   `lotus-manage`, and `lotus-idea`
-14. RFC-0084 cross-domain identifier, temporal-semantic, and trust vocabulary truth lives in
-   `platform-contracts/domain-vocabulary/domain-data-product-semantics.v1.json`
-15. RFC-0084 trust metadata fields, evidence access classes, and lineage bundle expectations live in
-   `platform-contracts/domain-vocabulary/domain-data-product-trust-metadata.v1.json`
-
-## Documentation Map
-
-- central context system:
-  [context/README.md](context/README.md)
-- task routing guide:
-  [context/TASK-ROUTING-GUIDE.md](context/TASK-ROUTING-GUIDE.md)
-- skill routing map:
-  [context/LOTUS-SKILL-ROUTING-MAP.md](context/LOTUS-SKILL-ROUTING-MAP.md)
-- developer onboarding:
-  [docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md](docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
-- agent ramp-up:
-  [docs/onboarding/LOTUS-AGENT-RAMP-UP.md](docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
-- automation guide:
-  [automation/README.md](automation/README.md)
-- platform stack:
-  [platform-stack/README.md](platform-stack/README.md)
-- platform standards:
-  [platform-standards/README.md](platform-standards/README.md)
-- Lotus data mesh standard:
-  [docs/standards/Lotus Data Mesh Standard.md](docs/standards/Lotus%20Data%20Mesh%20Standard.md)
-- endpoint example parity standard:
-  [docs/standards/Endpoint Example Parity Standard.md](docs/standards/Endpoint%20Example%20Parity%20Standard.md)
-- client demo certification standard:
-  [docs/standards/Lotus Client Demo Certification Standard.md](docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
-- client demo operating process:
-  [docs/demo/client-demo-operating-process.md](docs/demo/client-demo-operating-process.md)
-- client demo pack template:
-  [docs/demo/client-demo-pack-template.md](docs/demo/client-demo-pack-template.md)
-- client demo brief template:
-  [docs/demo/client-demo-brief-template.md](docs/demo/client-demo-brief-template.md)
-- enterprise backend quality baseline:
-  [quality/baseline_report.md](quality/baseline_report.md)
-- enterprise refactor scorecard:
-  [quality/quality_scorecard.md](quality/quality_scorecard.md)
-- RFC inventory:
-  [rfcs/README.md](rfcs/README.md)
-- documentation layering:
-  [docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md](docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
-- platform narrative and commercial framing:
-  [wiki/Investor-Pitch.md](wiki/Investor-Pitch.md)
-- platform market framing:
-  [wiki/Market-Landscape.md](wiki/Market-Landscape.md)
-- platform responsibility map:
-  [wiki/Platform-Surfaces.md](wiki/Platform-Surfaces.md)
-- troubleshooting:
-  [wiki/Troubleshooting.md](wiki/Troubleshooting.md)
-- wiki home:
-  [wiki/Home.md](wiki/Home.md)
-
-## Wiki Source
-
-Repository-authored wiki pages live under [wiki/](wiki). If the GitHub wiki is published later,
-keep `wiki/` as the canonical source and treat any separate `*.wiki.git` clone as publication
-plumbing only.
+Repository-authored pages under [wiki/](wiki/) are the canonical wiki source. A separate GitHub
+wiki repository is publication transport only.
