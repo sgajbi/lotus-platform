@@ -419,9 +419,7 @@ def _validate_observed_metadata(
         declared_fields = set(product.get("required_trust_metadata", [])) | set(
             conditional_fields
         )
-        undeclared_fields = sorted(
-            set(observed) - declared_fields
-        )
+        undeclared_fields = sorted(set(observed) - declared_fields)
         if undeclared_fields:
             _append_issue(
                 issues,
@@ -429,6 +427,27 @@ def _validate_observed_metadata(
                 "observed_trust_metadata contains fields not declared by the product: "
                 + ", ".join(undeclared_fields),
             )
+        if "tenant_id" in conditional_fields:
+            tenant_admission = observed.get("tenant_admission")
+            tenant_id_present = "tenant_id" in observed
+            tenant_claim_established = tenant_admission in {
+                "caller_admitted",
+                "source_verified",
+            }
+            if tenant_id_present and not tenant_claim_established:
+                _append_issue(
+                    issues,
+                    path,
+                    "observed_trust_metadata.tenant_id requires tenant_admission "
+                    "caller_admitted or source_verified",
+                )
+            elif tenant_claim_established and not tenant_id_present:
+                _append_issue(
+                    issues,
+                    path,
+                    "observed_trust_metadata.tenant_id is required when tenant_admission "
+                    "is caller_admitted or source_verified",
+                )
 
 
 def _validate_evidence(issues: list[str], path: Path, payload: dict[str, Any]) -> None:

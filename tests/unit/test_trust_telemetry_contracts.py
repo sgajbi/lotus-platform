@@ -118,12 +118,51 @@ def test_trust_telemetry_accepts_product_declared_conditional_metadata(
     product["conditional_trust_metadata"] = {
         "tenant_id": "Present only when tenant admission establishes it."
     }
+    product["required_trust_metadata"].append("tenant_admission")
+    snapshot["observed_trust_metadata"]["tenant_admission"] = "caller_admitted"
+    snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
     catalog_path = tmp_path / "catalog.json"
     catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
 
     assert validator.validate_trust_telemetry_path(
         snapshot_path, catalog_path=catalog_path
     ) == []
+
+
+def test_trust_telemetry_enforces_conditional_tenant_identity(tmp_path: Path) -> None:
+    validator = _load_validator_module()
+    catalog = json.loads(
+        (ROOT / "generated" / "domain-product-catalog.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    product = next(
+        product
+        for product in catalog["products"]
+        if product["product_id"] == "lotus-report:ClientReportEvidencePack:v1"
+    )
+    context = validator._load_validation_context()
+
+    snapshot = _valid_snapshot()
+    snapshot.update(
+        {
+            "product_id": product["product_id"],
+            "producer_repository": "lotus-report",
+            "product_name": "ClientReportEvidencePack",
+            "source_repository": "lotus-report",
+        }
+    )
+    snapshot["observed_trust_metadata"] = {
+        field: "evidence"
+        for field in product["required_trust_metadata"]
+    }
+    snapshot["observed_trust_metadata"]["tenant_admission"] = "unattributed_caller"
+    snapshot["observed_trust_metadata"]["tenant_id"] = "tenant-sg-001"
+    issues = validator.validate_trust_telemetry_snapshot(
+        tmp_path / "invalid-tenant.json", snapshot, context=context
+    )
+
+    assert any("tenant_id requires tenant_admission" in issue for issue in issues)
 
 
 def test_trust_telemetry_rejects_unknown_product_and_wrong_identity(

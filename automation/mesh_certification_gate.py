@@ -41,6 +41,7 @@ from generate_enterprise_mesh_operating_report import (
     write_enterprise_mesh_operating_report,
 )
 from mesh_maturity_scope import (
+    CERTIFICATION_CANDIDATE_PRODUCTS,
     REQUIRED_PRODUCTS,
     default_runtime_telemetry_directories,
     default_static_telemetry_directories,
@@ -524,6 +525,26 @@ def _validate_required_telemetry(
             source_evidence_path="../"
             + producer_repository
             + "/contracts/trust-telemetry",
+        )
+
+    for candidate in CERTIFICATION_CANDIDATE_PRODUCTS:
+        if candidate.product_id in telemetry_payloads:
+            continue
+        _issue(
+            issues,
+            code="missing_candidate_telemetry",
+            severity="warning",
+            producer_repository=candidate.producer_repository,
+            product_id=candidate.product_id,
+            remediation=(
+                "Add or refresh the RFC-0087 trust telemetry snapshot for this "
+                "monitored certification candidate."
+            ),
+            source_evidence_path=(
+                "../"
+                + candidate.producer_repository
+                + "/contracts/trust-telemetry"
+            ),
         )
 
 

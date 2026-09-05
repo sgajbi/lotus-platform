@@ -14,6 +14,7 @@ from validate_trust_telemetry import (
     validate_trust_telemetry_snapshot,
 )
 from mesh_maturity_scope import (
+    CERTIFICATION_CANDIDATE_PRODUCTS,
     REQUIRED_PRODUCTS,
     default_runtime_telemetry_directories,
     default_static_telemetry_directories,
@@ -254,6 +255,20 @@ def collect_trust_telemetry(
                 source_path=repository,
             )
 
+    for candidate in CERTIFICATION_CANDIDATE_PRODUCTS:
+        if candidate.product_id not in selected:
+            _add_issue(
+                issues,
+                code="missing_candidate_product",
+                severity="warning",
+                product_id=candidate.product_id,
+                detail=(
+                    "No runtime or static fixture telemetry snapshot was found for "
+                    f"monitored candidate producer {candidate.producer_repository}."
+                ),
+                source_path=candidate.producer_repository,
+            )
+
     manifest = {
         "contract_id": "lotus-trust-telemetry-collection-manifest",
         "contract_version": "1.0.0",
@@ -272,6 +287,9 @@ def collect_trust_telemetry(
             ),
             "missing_required_product_count": sum(
                 1 for issue in issues if issue["code"] == "missing_required_product"
+            ),
+            "missing_candidate_product_count": sum(
+                1 for issue in issues if issue["code"] == "missing_candidate_product"
             ),
             "issue_count": len(issues),
             "error_count": sum(1 for issue in issues if issue["severity"] == "error"),

@@ -126,6 +126,18 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "source_batch_fingerprint": "portfolio-action-register-001",
             "correlation_id": "corr-001",
         }
+    if product_id == "lotus-idea:IdeaCandidate:v1":
+        return {
+            **common,
+            "tenant_id": "tenant-private-bank",
+            "generated_at": "2026-04-19T00:00:00Z",
+            "as_of_date": "2026-04-19",
+            "reconciliation_status": "not_applicable",
+            "data_quality_status": "quality_passed",
+            "lineage_bundle_id": "lineage-idea-001",
+            "source_batch_fingerprint": "idea-candidate-001",
+            "correlation_id": "corr-001",
+        }
     return {
         **common,
         "generated_at": "2026-04-19T00:00:00Z",
@@ -146,6 +158,7 @@ def _snapshot(product_id: str) -> dict:
             "lotus-risk:RiskMetricsReport:v1",
             "lotus-report:ClientReportEvidencePack:v1",
             "lotus-manage:PortfolioActionRegister:v1",
+            "lotus-idea:IdeaCandidate:v1",
         }
         else "not_applicable"
     )
@@ -187,7 +200,11 @@ def _write_required_snapshots(
 ) -> list[Path]:
     gate = _load_gate_module()
     telemetry_paths = []
-    for product_id in gate.REQUIRED_PRODUCTS:
+    monitored_product_ids = [
+        *gate.REQUIRED_PRODUCTS,
+        *(candidate.product_id for candidate in gate.CERTIFICATION_CANDIDATE_PRODUCTS),
+    ]
+    for product_id in monitored_product_ids:
         payload = _snapshot(product_id)
         if stale_risk and product_id == "lotus-risk:RiskMetricsReport:v1":
             payload["freshness"]["freshness_state"] = "stale"
@@ -495,12 +512,11 @@ def test_mesh_certification_gate_allows_scoped_report_analytics_block(
 ) -> None:
     gate = _load_gate_module()
     telemetry_paths = _write_required_snapshots(tmp_path)
-    report_path = tmp_path / "lotus-report-ClientReportEvidencePack-v1.json"
-    report_path.write_text(
-        json.dumps(_snapshot("lotus-report:ClientReportEvidencePack:v1")),
-        encoding="utf-8",
+    report_path = next(
+        path
+        for path in telemetry_paths
+        if path.name == "lotus-report-ClientReportEvidencePack-v1.json"
     )
-    telemetry_paths.append(report_path)
     report_payload = json.loads(report_path.read_text(encoding="utf-8"))
     report_payload["completeness_status"] = "partial"
     report_payload["data_quality_status"] = "quality_warning"
