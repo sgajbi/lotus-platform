@@ -26,5 +26,7 @@ The validator checks that telemetry snapshots:
 2. use governed freshness, completeness, reconciliation, and data-quality states,
 3. identify runtime evidence with correlation and emission timestamps,
 4. carry blocked reasons when a product is blocked,
-5. only report observed trust metadata fields declared by the product.
+5. carry every `required_trust_metadata` field declared by the product,
+6. only report additional observed fields declared as conditional metadata and satisfy their
+   governed admission checks.
 

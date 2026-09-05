@@ -444,6 +444,8 @@ Use these commands as the primary local contract:
    `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
 10. trust telemetry snapshot validation
    `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
+   Validation fails closed when `observed_trust_metadata` omits any catalogue-required producer
+   field; collection, live certification, and the blocking mesh gate preserve that failure.
 11. live trust certification generation
    `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
 12. mesh certification gate, platform-only advisory smoke

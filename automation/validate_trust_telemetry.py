@@ -413,12 +413,18 @@ def _validate_observed_metadata(
             + ", ".join(unknown_fields),
         )
     if product is not None:
+        required_fields = set(product.get("required_trust_metadata", []))
+        for missing_field in sorted(required_fields - set(observed)):
+            _append_issue(
+                issues,
+                path,
+                "observed_trust_metadata is missing required product field: "
+                + missing_field,
+            )
         conditional_fields = product.get("conditional_trust_metadata", {})
         if not isinstance(conditional_fields, dict):
             conditional_fields = {}
-        declared_fields = set(product.get("required_trust_metadata", [])) | set(
-            conditional_fields
-        )
+        declared_fields = required_fields | set(conditional_fields)
         undeclared_fields = sorted(set(observed) - declared_fields)
         if undeclared_fields:
             _append_issue(

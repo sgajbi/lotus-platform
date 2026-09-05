@@ -372,7 +372,9 @@ python automation/validate_trust_telemetry.py path\to\telemetry-snapshots
 The telemetry validator checks RFC-0087 runtime trust snapshots against the generated
 domain-product catalog and governed trust vocabulary. It rejects unknown products, ungoverned
 freshness/completeness/reconciliation/data-quality states, blocked snapshots without reasons, and
-observed trust metadata that the product did not declare.
+observed trust metadata that omits required catalogue fields or includes fields the product did not
+declare. Missing producer-required fields are reported individually and prevent collection and
+certification.
 
 Generate live trust certification artifacts from validated telemetry snapshots:
 

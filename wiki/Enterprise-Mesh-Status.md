@@ -1,11 +1,24 @@
 # Enterprise Mesh Status
 
-Status: complete foundation and operating control plane.
+Current posture: complete foundation and operating control plane.
 
 Lotus has a governed enterprise data mesh control plane with repo-owned products, platform
 certification, trust telemetry, gateway publication, Workbench discovery, dependency catalog,
 SLO/access/evidence controls, CI enforcement, production operating reports, escalation posture, and
 published cross-repo documentation.
+
+Trust certification fails closed when observed telemetry omits any metadata required by the
+producer's catalogue contract. Conditional fields remain governed separately, and missing candidate
+telemetry remains visible as a nonblocking warning.
+
+## Current Support Summary
+
+| Responsibility | Authority |
+| --- | --- |
+| Product declarations and evidence | Owning domain repository |
+| Certification and operating control | `lotus-platform` |
+| Read-only publication | `lotus-gateway` |
+| Product discovery | `lotus-workbench` |
 
 ## Completed RFCs
 
@@ -46,9 +59,9 @@ policy exists. Promotion requires the policy and blocking-gate proof tracked by
 
 Use these files to continue without old chat history:
 
-- [Lotus Data Mesh Standard](../docs/standards/Lotus%20Data%20Mesh%20Standard.md)
-- [Enterprise Mesh Completion Handoff](../docs/operations/enterprise-mesh-completion-handoff.md)
-- [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
+- [Lotus Data Mesh Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Data%20Mesh%20Standard.md)
+- [Enterprise Mesh Completion Handoff](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/enterprise-mesh-completion-handoff.md)
+- [Mesh Certification Gate Runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/mesh-certification-gate-runbook.md)
 - `generated/enterprise-mesh-closure-ledger.json`
 
 ## Source-Data Product Onboarding

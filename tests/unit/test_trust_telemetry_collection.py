@@ -21,6 +21,7 @@ REQUIRED_PRODUCT_METADATA = {
         "latest_evidence_timestamp": GENERATED_AT_UTC,
         "source_batch_fingerprint": "sha256:portfolio-state-snapshot-test",
         "snapshot_id": "PB_SG_GLOBAL_BAL_001:2026-04-20",
+        "content_hash": "sha256:" + "1" * 64,
         "policy_version": "portfolio-state-snapshot-policy.v1",
         "correlation_id": "corr-lotus-core",
     },
@@ -34,6 +35,7 @@ REQUIRED_PRODUCT_METADATA = {
         "latest_evidence_timestamp": GENERATED_AT_UTC,
         "source_batch_fingerprint": "sha256:dpm-source-readiness-test",
         "snapshot_id": "dpm-source-readiness-test",
+        "content_hash": "sha256:" + "2" * 64,
         "policy_version": "dpm-source-readiness-policy.v1",
         "correlation_id": "corr-lotus-core-dpm",
     },
@@ -53,6 +55,7 @@ REQUIRED_PRODUCT_METADATA = {
         },
         "benchmark_context": "MSCI_ACWI_PRIVATE_BANKING_DEMO",
         "risk_free_context": "SGD_OVERNIGHT_DEMO",
+        "correlation_id": "rfc-0087-lotus-risk-risk-metrics",
     },
     "lotus-advise:AdvisoryProposalLifecycleRecord:v1": {
         "generated_at": GENERATED_AT_UTC,
@@ -82,6 +85,9 @@ REQUIRED_PRODUCT_METADATA = {
         "data_quality_status": "quality_passed",
         "lineage_bundle_id": "lineage:lotus-manage:portfolio-action-register:test",
         "source_batch_fingerprint": "sha256:portfolio-action-register-test",
+        "producer_generated_at": GENERATED_AT_UTC,
+        "evidence_as_of_date": "2026-04-20",
+        "temporal_identity_status": "available",
         "correlation_id": "corr-lotus-manage",
     },
 }
@@ -216,6 +222,41 @@ def test_trust_telemetry_collection_marks_fixture_fallback_explicitly(
         entry["fallback_reason"] == "No runtime telemetry snapshot was available for this product."
         for entry in manifest["snapshots"]
     )
+
+
+def test_trust_telemetry_collection_rejects_missing_required_metadata(
+    tmp_path: Path,
+) -> None:
+    collector = _load_collector_module()
+    fixture_dir = tmp_path / "fixtures"
+    output_dir = tmp_path / "collection"
+    _write_required_static_fixtures(fixture_dir)
+    core_path = next(fixture_dir.glob("lotus-core-PortfolioStateSnapshot-v1.json"))
+    core_snapshot = json.loads(core_path.read_text(encoding="utf-8"))
+    core_snapshot["observed_trust_metadata"] = {}
+    core_path.write_text(json.dumps(core_snapshot), encoding="utf-8")
+
+    manifest = collector.collect_trust_telemetry(
+        runtime_directories=[tmp_path / "empty-runtime"],
+        fixture_directories=[fixture_dir],
+        output_directory=output_dir,
+        generated_at_utc=GENERATED_AT_UTC,
+    )
+
+    assert all(
+        snapshot["product_id"] != "lotus-core:PortfolioStateSnapshot:v1"
+        for snapshot in manifest["snapshots"]
+    )
+    assert manifest["summary"]["missing_required_product_count"] == 1
+    assert manifest["summary"]["missing_candidate_product_count"] == 1
+    invalid_details = [
+        issue["detail"]
+        for issue in manifest["issues"]
+        if issue["code"] == "invalid_snapshot"
+        and issue["product_id"] == "lotus-core:PortfolioStateSnapshot:v1"
+    ]
+    assert len(invalid_details) == 14
+    assert all("missing required product field" in detail for detail in invalid_details)
 
 
 def test_trust_telemetry_collection_ignores_adjacent_non_snapshot_json(

@@ -73,6 +73,9 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "latest_evidence_timestamp": "2026-04-19T00:00:00Z",
             "source_batch_fingerprint": "batch-001",
             "snapshot_id": snapshot_id,
+            "content_hash": "sha256:"
+            + ("2" if product_id == "lotus-core:DpmSourceReadiness:v1" else "1")
+            * 64,
             "policy_version": "2026.04",
             "correlation_id": "corr-001",
         }
@@ -86,6 +89,7 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "upstream_request_fingerprints": "core-001,performance-001",
             "benchmark_context": "MSCI_ACWI",
             "risk_free_context": "SOFR",
+            "correlation_id": "rfc-0087-lotus-risk-risk-metrics",
         }
     if product_id == "lotus-advise:AdvisoryProposalLifecycleRecord:v1":
         return {
@@ -123,6 +127,9 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "data_quality_status": "quality_passed",
             "lineage_bundle_id": "lineage-manage-001",
             "source_batch_fingerprint": "portfolio-action-register-001",
+            "producer_generated_at": "2026-04-19T00:00:00Z",
+            "evidence_as_of_date": "2026-04-19",
+            "temporal_identity_status": "available",
             "correlation_id": "corr-001",
         }
     if product_id == "lotus-idea:IdeaCandidate:v1":
@@ -504,6 +511,43 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
         "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
         "lotus-manage:PortfolioActionRegister:v1",
     ]
+
+
+def test_mesh_certification_gate_blocks_required_product_with_missing_metadata(
+    tmp_path: Path,
+) -> None:
+    gate = _load_gate_module()
+    telemetry_paths = _write_required_snapshots(tmp_path)
+    core_path = next(
+        path
+        for path in telemetry_paths
+        if path.name == "lotus-core-PortfolioStateSnapshot-v1.json"
+    )
+    core_snapshot = json.loads(core_path.read_text(encoding="utf-8"))
+    core_snapshot["observed_trust_metadata"] = {}
+    core_path.write_text(json.dumps(core_snapshot), encoding="utf-8")
+
+    status = gate.build_mesh_certification_status(
+        telemetry_paths=telemetry_paths,
+        gate_mode="blocking",
+        generated_at_utc="2026-04-19T00:00:00Z",
+        check_publication_surfaces=False,
+    )
+
+    core_issues = [
+        issue
+        for issue in status["issues"]
+        if issue["product_id"] == "lotus-core:PortfolioStateSnapshot:v1"
+    ]
+    assert status["certification_state"] == "failed"
+    assert gate._exit_code(status) == 1
+    assert len(core_issues) == 14
+    assert all(issue["code"] == "invalid_telemetry" for issue in core_issues)
+    assert next(
+        product
+        for product in status["required_products"]
+        if product["product_id"] == "lotus-core:PortfolioStateSnapshot:v1"
+    )["certification_state"] == "attention_required"
 
 
 def test_mesh_certification_gate_allows_scoped_report_analytics_block(

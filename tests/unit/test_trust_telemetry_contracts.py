@@ -96,6 +96,61 @@ def test_valid_trust_telemetry_snapshot_references_catalog_and_vocabulary(
     assert validator.validate_trust_telemetry_path(snapshot_path) == []
 
 
+def test_trust_telemetry_requires_every_catalogued_metadata_field(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator_module()
+    context = validator._load_validation_context()
+    product_id = "lotus-core:PortfolioStateSnapshot:v1"
+    product = context["products_by_id"][product_id]
+    required_fields = product["required_trust_metadata"]
+    assert len(required_fields) == 14
+
+    complete = _valid_snapshot()
+    complete.update(
+        {
+            "product_id": product_id,
+            "producer_repository": "lotus-core",
+            "product_name": "PortfolioStateSnapshot",
+            "source_repository": "lotus-core",
+            "reconciliation_status": "reconciled",
+        }
+    )
+    complete["observed_trust_metadata"] = {
+        field: f"evidence-{field}" for field in required_fields
+    }
+    snapshot_path = tmp_path / "portfolio-state-snapshot.json"
+
+    assert validator.validate_trust_telemetry_snapshot(
+        snapshot_path, complete, context=context
+    ) == []
+
+    for missing_field in required_fields:
+        incomplete = json.loads(json.dumps(complete))
+        incomplete["observed_trust_metadata"].pop(missing_field)
+
+        issues = validator.validate_trust_telemetry_snapshot(
+            snapshot_path, incomplete, context=context
+        )
+
+        assert any(
+            issue.endswith(
+                "observed_trust_metadata is missing required product field: "
+                + missing_field
+            )
+            for issue in issues
+        )
+
+    empty = json.loads(json.dumps(complete))
+    empty["observed_trust_metadata"] = {}
+    empty_issues = validator.validate_trust_telemetry_snapshot(
+        snapshot_path, empty, context=context
+    )
+
+    assert len(empty_issues) == len(required_fields)
+    assert all(field in "\n".join(empty_issues) for field in required_fields)
+
+
 def test_trust_telemetry_accepts_product_declared_conditional_metadata(
     tmp_path: Path,
 ) -> None:
