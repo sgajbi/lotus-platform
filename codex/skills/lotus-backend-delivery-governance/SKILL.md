@@ -209,9 +209,11 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     Fix the same pattern beyond the named call site, preserve runtime and transaction contracts,
     and promote deterministic invariants into guards and repo context.
 17. When a backend slice touches lifecycle events, tenant-aware source adapters, shared API
-    dependency errors, dead-letter queues, replay, or recovery controls, load
+    dependency errors, upstream mutation retries, source success admission, dead-letter queues,
+    replay, or recovery controls, load
     `references/source-boundary-and-recovery-patterns.md` before implementation and apply the
-    typed-payload, tenant propagation, problem-details, and redrive contracts there.
+    typed-payload, tenant propagation, problem-details, retry/replay-identity, semantic-admission,
+    and redrive contracts there.
 18. When two or more domain fields jointly define one business state, do not validate or query them
     as independent flags. Define one exhaustive, versioned compatibility policy and apply it at
     construction, transitions, repository rehydration, writes, queue/readiness classification, API

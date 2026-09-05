@@ -1,17 +1,19 @@
 # Source Boundary And Recovery Patterns
 
 Use this reference when a backend slice touches lifecycle events, tenant-aware source adapters,
-shared API dependencies, dead-letter recovery, queue redrive, audit lineage, replay, or recovery
-operator controls.
+shared API dependencies, upstream mutation retries, source success admission, dead-letter
+recovery, queue redrive, audit lineage, replay, or recovery operator controls.
 
 ## Contents
 
 1. Typed lifecycle and audit payloads
 2. Tenant-aware downstream source adapters
 3. Shared dependency problem-details preservation
-4. Dead-letter inspection and redrive
-5. Governed replay-evidence authority
-6. Database disaster-recovery certification
+4. Ambiguous-loss retry and replay identity
+5. Source-response semantic admission
+6. Dead-letter inspection and redrive
+7. Governed replay-evidence authority
+8. Database disaster-recovery certification
 
 ## Typed Lifecycle And Audit Payloads
 
@@ -47,6 +49,39 @@ exception handler. Use a typed boundary exception for governed failures and reta
 fallback for unrelated framework errors. Test representative routes, correlation headers,
 observability category, and absence of raw header/token/scope values; add a deterministic gate when
 direct generic exceptions can be detected statically.
+
+## Ambiguous-Loss Retry And Replay Identity
+
+When a consumer retries an upstream mutation, classify transport failures by whether the request
+may already have reached the producer. Connection-establishment failures (connect errors, connect
+and pool timeouts) never delivered the request and may retry. Read/write failures, remote-protocol
+errors, and read/write timeouts are ambiguous response losses: the producer may have committed, so
+an automatic retry re-executes an operation whose outcome is unknown. Retry an ambiguous loss only
+when the producer publishes a replay-identity contract and the consumer sends one identity, minted
+once per logical operation and reused verbatim across attempts; a correlation or trace id is
+tracing, never replay identity, and a fresh key per attempt defeats the contract. For a mutation
+with no replay identity, stop after an ambiguous loss and surface the indeterminate outcome
+truthfully. Such a mutation must also not follow redirects: a redirect re-delivers the request,
+and a failed redirect target masquerades as a pre-send connection error. Do not indiscriminately
+ban read-only retries, and record the residual seam when the consumer's own caller can retry the
+whole request without a stable inbound identity. Prove with tests: ambiguous loss then identical
+replay body, one producer execution, no second attempt without identity, and pre-send failures
+still retrying.
+
+## Source-Response Semantic Admission
+
+A well-shaped upstream success is not yet an answer to the requested operation. Before publishing,
+bind the response to the identities the source contract actually exposes: the requested resource
+id, per-row identities inside collections (an event or lineage row for another owner must not ride
+in on a correct envelope), the echoed submission idempotency key, and internal relationships such
+as a handle naming the same resource as its status link (comparing URL segments decoded). Refuse a
+mismatch as a declared bounded upstream-contract failure that names only the mismatched field
+names, never raw identifiers; map a malformed success to the same declared failure family instead
+of letting a validation exception escape as an internal error. Keep one admission owner per source
+family with small operation-specific checks; do not invent identifiers the contract does not
+expose or rewrite source semantics, and verify every echoed shape against the producer's shipped
+code rather than sibling patterns. Test one refusal per operation family plus per-row refusal
+under a correct envelope.
 
 ## Dead-Letter Inspection And Redrive
 
