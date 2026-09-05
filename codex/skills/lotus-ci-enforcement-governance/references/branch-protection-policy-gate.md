@@ -119,10 +119,12 @@ restores the spoofing path while the protection comparison stays green.
 ## One authority per field
 
 `automation/repository-governance-policy.json` with `validate_repository_governance.py` is the
-existing estate-wide authority, and its overlap with the repo-local table is nearly total: its
-`expected_governance()` hardcodes not just per-repo required checks and strictness but
-approvals, stale-review dismissal, conversation resolution, linear history, force-push and
-deletion posture, and merge-method posture estate-wide. For **every** field both declare, the
+existing estate-wide authority, and its overlap with the repo-local table is nearly total: the
+authoritative field set is whatever `expected_governance()` and the
+`Enforce-Repository-Governance.ps1` apply path declare — read them rather than trusting any
+enumeration here, since the set includes per-repo required checks, strictness, approvals,
+stale-review dismissal, conversation resolution, linear history, force-push/deletion and
+merge-method posture, and grows with the enforcer. For **every** field both declare, the
 central authority is authoritative and the repo-local table must match it — a disagreement
 between the two is itself a finding, whichever file is stale. Any posture change, the
 zero-approval retirement included, therefore updates the central policy or validator **and**
@@ -144,7 +146,10 @@ meantime.
 
 The base-ref-checker/candidate-policy split deadlocks a single PR that both introduces a context
 and requires it, so roll out in three green steps: (1) merge the workflow change that emits the
-new context, with neither live protection nor the policy table requiring it yet; (2) an operator
+new context **together with the central `repository-governance-policy.json` addition** — the
+central file is inert data, and under mechanical centrality the later repo-local update cannot
+merge while the central declaration still lists the old checks; live protection and the
+repo-local table do not require the context yet; (2) an operator
 adds the context to live protection — from this moment until step 3 lands, the bidirectional
 comparison on open PRs honestly reports the live addition as undocumented, so do (2) and (3)
 adjacently and treat the brief red window as the drift-first transition rule in miniature; (3) merge the policy-table update listing the context, validated
