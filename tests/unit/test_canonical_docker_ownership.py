@@ -532,8 +532,16 @@ def test_include_projects_preserves_post_cleanup_assertion_scope() -> None:
     assert [item["name"] for item in plan["images"]] == ["owned-api:local"]
 
 
+@pytest.mark.parametrize(
+    "stderr",
+    [
+        "Error response from daemon: No such container: id-vanished\n",
+        # The volume CLI reports the id first and ends the line with the noun.
+        "Error response from daemon: get id-vanished: no such volume\n",
+    ],
+)
 def test_docker_inspect_tolerates_resources_that_vanished_after_listing(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, stderr: str
 ) -> None:
     from automation.canonical_docker_ownership import _docker_inspect
 
@@ -543,13 +551,34 @@ def test_docker_inspect_tolerates_resources_that_vanished_after_listing(
             args=args,
             returncode=1,
             stdout='[{"Id": "id-survivor"}]\n',
-            stderr="Error response from daemon: No such container: id-vanished\n",
+            stderr=stderr,
         ),
     )
 
     assert _docker_inspect("container", ["id-survivor", "id-vanished"]) == [
         {"Id": "id-survivor"}
     ]
+
+
+def test_docker_inspect_rejects_a_successful_inspection_with_no_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import json
+
+    from automation.canonical_docker_ownership import _docker_inspect
+
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.subprocess.run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args=args,
+            returncode=0,
+            stdout="",
+            stderr="",
+        ),
+    )
+
+    with pytest.raises(json.JSONDecodeError):
+        _docker_inspect("container", ["id-any"])
 
 
 @pytest.mark.parametrize(

@@ -440,29 +440,39 @@ def _docker_inspect(
         capture_output=True,
         text=True,
     )
-    if result.returncode != 0 and not _only_missing_object_errors(result.stderr):
+    if result.returncode == 0:
+        # A successful inspection must state its evidence: empty stdout for a
+        # nonempty identifier list is a malformed response, not an empty
+        # inventory, so let json.loads fail loudly rather than synthesize [].
+        payload = json.loads(result.stdout)
+    elif _only_missing_object_errors(result.stderr):
+        # Every requested resource may have vanished; only then is an absent
+        # payload a truthful empty inventory.
+        payload = json.loads(result.stdout or "[]")
+    else:
         raise subprocess.CalledProcessError(
             result.returncode,
             ["docker", resource_type, "inspect", *identifiers],
             output=result.stdout,
             stderr=result.stderr,
         )
-    payload = json.loads(result.stdout or "[]")
     if not isinstance(payload, list):
         raise TypeError(f"docker {resource_type} inspect returned a non-list payload")
     return payload
 
 
 _MISSING_OBJECT_ERROR = re.compile(
-    r"no such (object|container|volume|image|network):",
+    r"no such (object|container|volume|image|network)\b\s*(?::|$)",
     re.IGNORECASE,
 )
 
 
 def _only_missing_object_errors(stderr: str) -> bool:
-    # Only docker's missing-object diagnostics qualify ("No such container: <id>").
-    # The colon-anchored resource nouns exclude transport failures such as
-    # "dial unix /var/run/docker.sock: connect: no such file or directory",
+    # Only docker's missing-object diagnostics qualify, in both shapes the CLI
+    # emits: noun-then-id ("No such container: <id>") and id-then-noun ("get
+    # <name>: no such volume", where the noun ends the line). Anchoring the
+    # noun to a following colon or end of line excludes transport failures such
+    # as "dial unix /var/run/docker.sock: connect: no such file or directory",
     # which must stay fatal rather than masquerade as an empty inventory.
     lines = [line.strip() for line in stderr.splitlines() if line.strip()]
     if not lines:
