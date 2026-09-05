@@ -56,10 +56,16 @@ PR's own checkout, so the checker script — and for same-repository PRs the wor
 is PR-controlled code running with the secret. That is acceptable only where every same-repo
 pusher is already trusted with the PAT's full authority, which holds in the current Lotus
 single-accepted-collaborator repositories and must be re-evaluated the moment a second pusher
-exists. In a multi-contributor repository, split the gate instead: run the PAT-authenticated
-fetch-and-compare in a context the PR cannot rewrite (a push-to-`main` or scheduled lane, or a
-`pull_request_target` job that checks out the base ref's checker), and keep the per-PR lane to
-the tokenless offline shape checks. Fork and Dependabot PRs never receive the secret either way.
+exists. In a multi-contributor repository, split the gate while keeping the live comparison
+**pre-merge** — moving it to a push-to-`main` or scheduled lane would recreate the ordering
+defect this reference forbids. The isolated pre-merge shape is a `pull_request_target` job that
+checks out the **base ref's** checker and policy (never the PR's) and holds the PAT, published
+as a required context, with the per-PR lane keeping the tokenless offline shape checks. Adding
+any `pull_request_target` workflow requires the explicit approval that
+`platform-standards/Workflow-Security-and-Permissions-Standard.md` mandates — it is prohibited
+by default and allowed only for approved, narrowly constrained workflow files — so treat that
+approval as part of the adoption, not an implementation detail. Fork and Dependabot PRs never
+receive the secret either way.
 
 ## Adoption record
 
