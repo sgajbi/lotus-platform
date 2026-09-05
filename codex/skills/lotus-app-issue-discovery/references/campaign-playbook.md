@@ -236,7 +236,7 @@ Never edit or revert active fix files during issue discovery.
 Before creating issues:
 
 ```powershell
-python <skill-dir>/scripts/ensure_issue_discovery_labels.py --repo <owner>/<repo>
+python <skill-dir>/scripts/ensure_issue_discovery_labels.py --repository <owner>/<repo>
 python <skill-dir>/scripts/validate_issue_discovery_skill.py
 ```
 
