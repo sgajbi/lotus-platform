@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -29,6 +30,13 @@ def _load_audit_module():
     finally:
         sys.dont_write_bytecode = previous_bytecode_setting
     return module
+
+
+def _set_github_origin(repo_root: Path, url: str) -> None:
+    subprocess.run(["git", "init", "--quiet", str(repo_root)], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo_root), "remote", "add", "origin", url], check=True
+    )
 
 
 def test_wiki_quality_audit_accepts_navigation_and_repo_evidence_links(tmp_path: Path) -> None:
@@ -128,6 +136,7 @@ def test_wiki_quality_audit_validates_decoded_repository_github_links(
     docs_dir = repo_root / "docs"
     wiki_dir.mkdir(parents=True)
     docs_dir.mkdir()
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
     (docs_dir / "Runbook Guide.md").write_text("# Runbook\n", encoding="utf-8")
     (wiki_dir / "Home.md").write_text(
         "\n".join(
@@ -167,6 +176,39 @@ def test_wiki_quality_audit_validates_decoded_repository_github_links(
         "Home.md: broken repository GitHub blob link: docs/Missing Guide.md"
         in failures
     )
+
+
+def test_wiki_quality_audit_rejects_wrong_owner_and_escaping_github_paths(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "repo"
+    wiki_dir = repo_root / "wiki"
+    wiki_dir.mkdir(parents=True)
+    _set_github_origin(repo_root, "git@github.com:example/repo.git")
+    (wiki_dir / "Home.md").write_text(
+        "\n".join(
+            [
+                "# Home",
+                "",
+                '[Titled](https://github.com/example/repo/blob/main/AGENTS.md "Agent contract")',
+                "[Fork](https://github.com/attacker/repo/blob/main/AGENTS.md)",
+                "[Absolute](https://github.com/example/repo/blob/main/%2Fetc/passwd)",
+                "[Traversal](https://github.com/example/repo/blob/main/docs/%2E%2E/AGENTS.md)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Home](Home.md)\n", encoding="utf-8"
+    )
+    (repo_root / "AGENTS.md").write_text("# Contract\n", encoding="utf-8")
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert not any("Titled" in failure for failure in failures)
+    assert any("must target example/repo" in failure for failure in failures)
+    assert sum("escapes repository root" in failure for failure in failures) == 2
 
 
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
