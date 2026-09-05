@@ -74,14 +74,14 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadiness
 
 ## Source Of Truth
 
-- [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Certification Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - [Client Demo Pack Template](Client-Demo-Pack-Template)
 - [Client Demo Brief Template](Client-Demo-Brief-Template)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
-- [Lotus Client Demo Pack Template](../docs/demo/client-demo-pack-template.md)
-- [Lotus Client Demo Brief Template](../docs/demo/client-demo-brief-template.md)
-- [Lotus Client Demo Operating Process](../docs/demo/client-demo-operating-process.md)
+- [Lotus Client Demo Pack Template](https://github.com/sgajbi/lotus-platform/blob/main/docs/demo/client-demo-pack-template.md)
+- [Lotus Client Demo Brief Template](https://github.com/sgajbi/lotus-platform/blob/main/docs/demo/client-demo-brief-template.md)
+- [Lotus Client Demo Operating Process](https://github.com/sgajbi/lotus-platform/blob/main/docs/demo/client-demo-operating-process.md)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)
-- [Canonical demo-data contract](../context/contracts/canonical-front-office-demo-data-contract.json)
-- [Canonical invariants contract](../context/contracts/canonical-front-office-demo-data-invariants.json)
-- [Workbench panel registry](../context/contracts/workbench-panel-registry.json)
+- [Canonical demo-data contract](https://github.com/sgajbi/lotus-platform/blob/main/context/contracts/canonical-front-office-demo-data-contract.json)
+- [Canonical invariants contract](https://github.com/sgajbi/lotus-platform/blob/main/context/contracts/canonical-front-office-demo-data-invariants.json)
+- [Workbench panel registry](https://github.com/sgajbi/lotus-platform/blob/main/context/contracts/workbench-panel-registry.json)

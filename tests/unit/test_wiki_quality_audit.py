@@ -94,6 +94,71 @@ def test_wiki_quality_audit_rejects_unprofessional_structure(tmp_path: Path) -> 
     assert "Orphan.md: page is not reachable from Home.md or _Sidebar.md" in failures
 
 
+def test_wiki_quality_audit_rejects_parent_relative_publication_links(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "repo"
+    wiki_dir = repo_root / "wiki"
+    docs_dir = repo_root / "docs"
+    wiki_dir.mkdir(parents=True)
+    docs_dir.mkdir()
+    (docs_dir / "runbook.md").write_text("# Runbook\n", encoding="utf-8")
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Runbook](../docs/runbook.md)\n", encoding="utf-8"
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Home](Home.md)\n", encoding="utf-8"
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert (
+        "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
+        in failures
+    )
+
+
+def test_wiki_quality_audit_validates_decoded_repository_github_links(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "repo"
+    wiki_dir = repo_root / "wiki"
+    docs_dir = repo_root / "docs"
+    wiki_dir.mkdir(parents=True)
+    docs_dir.mkdir()
+    (docs_dir / "Runbook Guide.md").write_text("# Runbook\n", encoding="utf-8")
+    (wiki_dir / "Home.md").write_text(
+        "\n".join(
+            [
+                "# Home",
+                "",
+                "[Runbook](https://github.com/example/repo/blob/main/docs/Runbook%20Guide.md)",
+                "[Docs](https://github.com/example/repo/tree/main/docs)",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Home](Home.md)\n", encoding="utf-8"
+    )
+
+    assert audit.audit_wiki(wiki_dir, repo_root) == []
+
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Missing](https://github.com/example/repo/blob/main/docs/Missing%20Guide.md)\n",
+        encoding="utf-8",
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert (
+        "Home.md: broken repository GitHub blob link: docs/Missing Guide.md"
+        in failures
+    )
+
+
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
     tmp_path: Path,
 ) -> None:

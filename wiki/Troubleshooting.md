@@ -1,5 +1,17 @@
 # Troubleshooting
 
+Current support posture is evidence-first: identify the failing layer, run its narrow diagnostic,
+then use the owning runbook before changing shared infrastructure.
+
+## First Response Matrix
+
+| Symptom | First response |
+| --- | --- |
+| Canonical hostname fails | Check host synchronization and ingress status. |
+| Service is unhealthy | Validate ingress, then inspect the owning service. |
+| Product surface is empty or stale | Use the Workbench-owned canonical runtime validation. |
+| Documentation validation fails | Classify the documentation layer, then run its contract tests. |
+
 ## Common failure patterns
 
 ### Canonical hostname does not resolve
@@ -45,10 +57,10 @@ Rule:
 
 Classify the change first:
 
-- use [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md) to
+- use [Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md) to
   decide whether the change belongs in `README.md`, repo-local `wiki/`, deep `docs/`, or platform
   `context/`
-- use [Task Routing Guide](../context/TASK-ROUTING-GUIDE.md) when the task is really documentation
+- use [Task Routing Guide](https://github.com/sgajbi/lotus-platform/blob/main/context/TASK-ROUTING-GUIDE.md) when the task is really documentation
   workflow rather than generic platform debugging
 
 Use this high-signal pack first:
@@ -79,4 +91,4 @@ runtime flow before continuing platform-level debugging.
 - [Getting Started](Getting-Started)
 - [Operations Runbook](Operations-Runbook)
 - [Platform Surfaces](Platform-Surfaces)
-- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)

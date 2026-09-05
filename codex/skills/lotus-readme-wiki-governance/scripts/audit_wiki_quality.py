@@ -4,7 +4,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 
 
 LINK_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
@@ -64,6 +64,49 @@ def _page_links(text: str) -> set[str]:
         if target:
             links.add(target)
     return links
+
+
+def _publication_unsafe_parent_links(text: str) -> set[str]:
+    links: set[str] = set()
+    for match in LINK_PATTERN.finditer(text):
+        target = match.group(1).strip().split("#", 1)[0].strip()
+        if target.startswith("<") and target.endswith(">"):
+            target = target[1:-1].strip()
+        target = unquote(target).replace("\\", "/")
+        if target.startswith("../"):
+            links.add(target)
+    return links
+
+
+def _repository_github_link_failures(
+    page_name: str, text: str, *, repo_root: Path
+) -> list[str]:
+    failures: list[str] = []
+    for match in LINK_PATTERN.finditer(text):
+        target = match.group(1).strip()
+        if target.startswith("<") and target.endswith(">"):
+            target = target[1:-1].strip()
+        parsed = urlparse(target)
+        if parsed.netloc.lower() != "github.com":
+            continue
+
+        parts = parsed.path.strip("/").split("/", 4)
+        if len(parts) != 5 or parts[1] != repo_root.name:
+            continue
+        mode = parts[2]
+        if mode not in {"blob", "tree"}:
+            continue
+
+        relative_path = unquote(parts[4])
+        local_path = repo_root / relative_path
+        expected_type_exists = (
+            local_path.is_file() if mode == "blob" else local_path.is_dir()
+        )
+        if not expected_type_exists:
+            failures.append(
+                f"{page_name}: broken repository GitHub {mode} link: {relative_path}"
+            )
+    return failures
 
 
 def _read_pages(wiki_dir: Path) -> dict[str, str]:
@@ -258,6 +301,13 @@ def _page_link_failures(
     known_pages: set[str],
 ) -> list[str]:
     failures: list[str] = []
+    for target in sorted(_publication_unsafe_parent_links(text)):
+        failures.append(
+            f"{page_name}: publication-unsafe parent-relative link: {target}"
+        )
+    failures.extend(
+        _repository_github_link_failures(page_name, text, repo_root=repo_root)
+    )
     for target in _page_links(text):
         if not _target_exists(
             target,

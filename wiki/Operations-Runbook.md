@@ -134,7 +134,7 @@ blocked source truth.
 2. if ingress-related, run `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1`
 3. if documentation-related, first classify whether the change belongs in `README.md`, repo-local
    `wiki/`, deep `docs/`, or platform `context/` using [Lotus Documentation
-   Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md), then run the targeted
+   Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md), then run the targeted
    doc-contract pack
 4. if product-surface proof is required, switch to the governed `lotus-workbench` runtime flow
 5. if mesh posture is questioned, run the blocking mesh certification gate and inspect
@@ -186,7 +186,7 @@ Launch, monitoring reconciliation, and cancellation share one exclusive ledger l
 defers or rejects the writer without overwriting newer task evidence, and a failed launch append
 rolls back its exact newly started process tree.
 
-See [Platform automation](../automation/README.md) for cleanup-plan shape, receipt fields, and
+See [Platform automation](https://github.com/sgajbi/lotus-platform/blob/main/automation/README.md) for cleanup-plan shape, receipt fields, and
 failure classifications.
 
 ## Delegated engineering tasks
@@ -213,7 +213,7 @@ For mesh issues, start with:
 
 1. `output/mesh-certification/enterprise-mesh-certification-status.md`
 2. `output/mesh-certification/enterprise-mesh-operating-report.md`
-3. [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)
+3. [Mesh Certification Gate Runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/mesh-certification-gate-runbook.md)
 
 Operating states:
 
@@ -230,7 +230,7 @@ resource observations are supporting digests, not billing authority. Local gener
 uncertified; only the protected mainline workflow can produce evidence eligible for consumer
 qualification.
 
-Use [Service Cost Attribution Operations](../docs/operations/service-cost-attribution.md) for the
+Use [Service Cost Attribution Operations](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/service-cost-attribution.md) for the
 evidence flow, protected environment, verification steps, and failure handling. The workflow must
 never upload raw billing rows, credentials, provider-account identifiers, or business identifiers.
 
@@ -243,14 +243,14 @@ browser-supplied authority headers remain forbidden, and production token-claims
 blocked until external identity, key-discovery, revocation/logout, consumer proof, and exact-main
 evidence exist.
 
-Use [Authenticated BFF Principal Session Operations](../docs/operations/bff-principal-session.md)
+Use [Authenticated BFF Principal Session Operations](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/bff-principal-session.md)
 for contract rules, failure handling, and validation commands.
 
 ## Key references
 
-- [automation/README.md](../automation/README.md)
-- [platform-stack/README.md](../platform-stack/README.md)
-- [Local Development Runbook](../docs/operations/Local%20Development%20Runbook.md)
-- [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
-- [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
+- [automation/README.md](https://github.com/sgajbi/lotus-platform/blob/main/automation/README.md)
+- [platform-stack/README.md](https://github.com/sgajbi/lotus-platform/blob/main/platform-stack/README.md)
+- [Local Development Runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/Local%20Development%20Runbook.md)
+- [Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+- [Lotus Developer Onboarding](https://github.com/sgajbi/lotus-platform/blob/main/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 - [Troubleshooting](Troubleshooting)

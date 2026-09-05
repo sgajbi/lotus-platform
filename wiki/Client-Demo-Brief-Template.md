@@ -54,10 +54,10 @@ flowchart LR
 
 ## Source Of Truth
 
-- [Full client demo brief template](../docs/demo/client-demo-brief-template.md)
+- [Full client demo brief template](https://github.com/sgajbi/lotus-platform/blob/main/docs/demo/client-demo-brief-template.md)
 - [Client Demo Pack Template](Client-Demo-Pack-Template)
-- [Full client demo pack template](../docs/demo/client-demo-pack-template.md)
+- [Full client demo pack template](https://github.com/sgajbi/lotus-platform/blob/main/docs/demo/client-demo-pack-template.md)
 - [Client Demo Operating Process](Client-Demo-Operating-Process)
 - [Client Demo Certification](Client-Demo-Certification)
-- [Lotus Client Demo Certification Standard](../docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
+- [Lotus Client Demo Certification Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)
 - [Canonical DPM Demo Story](Canonical-DPM-Demo-Story)

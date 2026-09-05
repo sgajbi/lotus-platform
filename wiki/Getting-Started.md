@@ -1,5 +1,16 @@
 # Getting Started
 
+Current support starts with environment inspection and platform validation. Product startup follows
+the owning repository's runbook.
+
+## Start Here
+
+| Goal | First action |
+| --- | --- |
+| Inspect prerequisites | Run the environment inspection below. |
+| Validate `lotus-platform` | Run the platform repository checks below. |
+| Start populated front-office products | Follow the Workbench-owned runtime guide linked below. |
+
 ## Recommended workspace layout
 
 ```text
@@ -43,17 +54,17 @@ powershell -ExecutionPolicy Bypass -File automation\Bootstrap-LotusDeveloperEnvi
 
 ## Context reading order
 
-1. [Lotus Quickstart Context](../context/LOTUS-QUICKSTART-CONTEXT.md)
-2. [Lotus Engineering Context](../context/LOTUS-ENGINEERING-CONTEXT.md)
+1. [Lotus Quickstart Context](https://github.com/sgajbi/lotus-platform/blob/main/context/LOTUS-QUICKSTART-CONTEXT.md)
+2. [Lotus Engineering Context](https://github.com/sgajbi/lotus-platform/blob/main/context/LOTUS-ENGINEERING-CONTEXT.md)
 3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. [Context Reference Map](../context/CONTEXT-REFERENCE-MAP.md)
+4. [Context Reference Map](https://github.com/sgajbi/lotus-platform/blob/main/context/CONTEXT-REFERENCE-MAP.md)
 
 ## Documentation work path
 
 When the task is about README, wiki, or deeper docs rather than code behavior, add this before
 editing:
 
-1. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+1. [Lotus Documentation Layering](https://github.com/sgajbi/lotus-platform/blob/main/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 2. the target repo `README.md`
 3. the target repo `wiki/` source when present
 4. only the deeper `docs/` pages needed to keep the README and wiki truthful
@@ -75,7 +86,7 @@ powershell -ExecutionPolicy Bypass -File automation\New-Lotus-Service.ps1 `
 ```
 
 See [New Backend Service Scaffold](New-Backend-Service-Scaffold) for the wiki summary and
-[Lotus Backend Service Scaffold Guide](../docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)
+[Lotus Backend Service Scaffold Guide](https://github.com/sgajbi/lotus-platform/blob/main/docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md)
 for the detailed generated-feature and usage guide.
 
 ## Important runtime note
