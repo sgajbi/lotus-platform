@@ -96,6 +96,11 @@ def _repository_github_link_failures(
         mode = parts[2]
         if mode not in {"blob", "tree"}:
             continue
+        if unquote(parts[3]) != "main":
+            failures.append(
+                f"{page_name}: repository GitHub link must target main: {target}"
+            )
+            continue
 
         relative_path = unquote(parts[4])
         local_path = repo_root / relative_path

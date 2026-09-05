@@ -670,6 +670,10 @@ with the target repository name before merging wiki-affecting changes. After mer
 verification without `-AllowUnpublishedSourceChanges`; use `-AllRepositories` for coordinated
 platform-wide audits or publication sweeps.
 
+Published wiki links that leave `wiki/` must use named, `main`-anchored GitHub blob or tree URLs.
+The shared wiki audit rejects escaping `../` links, non-`main` repository refs, missing URL-decoded
+targets, and blob/tree type mismatches before publication.
+
 Do not duplicate central policy prose into every repo unless repo-local interpretation is required.
 
 ## API Quality And UI Alignment

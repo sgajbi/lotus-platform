@@ -235,6 +235,8 @@ Before treating a wiki source update as complete, verify:
    implementation-backed text or duplicate deeper architecture documents.
 8. Links route to implementation evidence, commands, RFCs, standards, contracts, runbooks, or
    authoritative docs.
+   Links from a published wiki to files in the owning repository use named, `main`-anchored GitHub
+   blob or tree URLs; do not use `../` paths that escape the separate wiki repository.
 9. No page includes scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, or unqualified
    "production-ready" language unless the wording is intentionally part of a roadmap, gap register,
    or current limitation.
@@ -290,16 +292,19 @@ that make a wiki look unfinished even when the prose is directionally correct:
 1. missing `Home.md` or `_Sidebar.md`,
 2. pages that are not reachable from `Home.md` or `_Sidebar.md`,
 3. broken local wiki links,
-4. duplicate or missing H1 page titles,
-5. bare URLs instead of named links,
-6. scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, `TBD`, and `FIXME`.
+4. parent-relative links that escape the published wiki repository,
+5. owning-repository GitHub links that do not use `main` or whose URL-decoded blob/tree target has
+   the wrong type or does not exist locally,
+6. duplicate or missing H1 page titles,
+7. bare URLs instead of named links,
+8. scratch-note terms such as `TODO`, `maybe`, `rough`, `temp`, `TBD`, and `FIXME`.
 
 Changed-page or all-page professional checks also cover:
 
-7. long pages that do not state current scope or evidence posture near the top,
-8. long pages that lack an early reader map, decision/evidence table, or equivalent first-screen
+9. long pages that do not state current scope or evidence posture near the top,
+10. long pages that lack an early reader map, decision/evidence table, or equivalent first-screen
    structure,
-9. oversized fenced command blocks that should be grouped by purpose and linked to authoritative
+11. oversized fenced command blocks that should be grouped by purpose and linked to authoritative
    command truth.
 
 These checks are intentionally co-located with the skill as first-screen structure and command-dump

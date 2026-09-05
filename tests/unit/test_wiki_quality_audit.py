@@ -146,6 +146,16 @@ def test_wiki_quality_audit_validates_decoded_repository_github_links(
 
     assert audit.audit_wiki(wiki_dir, repo_root) == []
 
+    wrong_ref = "https://github.com/example/repo/blob/typo/docs/Runbook%20Guide.md"
+    (wiki_dir / "Home.md").write_text(
+        f"# Home\n\n[Wrong ref]({wrong_ref})\n",
+        encoding="utf-8",
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert f"Home.md: repository GitHub link must target main: {wrong_ref}" in failures
+
     (wiki_dir / "Home.md").write_text(
         "# Home\n\n[Missing](https://github.com/example/repo/blob/main/docs/Missing%20Guide.md)\n",
         encoding="utf-8",
