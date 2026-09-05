@@ -583,7 +583,7 @@ def _build_product_entry(
     product: dict[str, Any],
     source_root: Path | None = None,
 ) -> dict[str, Any]:
-    return {
+    entry = {
         "product_id": _product_id(
             producer_repository,
             product["product_name"],
@@ -610,6 +610,11 @@ def _build_product_entry(
         "deprecation_policy": product["deprecation_policy"],
         "source_path": _relative_path(source_path, source_root=source_root),
     }
+    if "conditional_trust_metadata" in product:
+        entry["conditional_trust_metadata"] = product[
+            "conditional_trust_metadata"
+        ]
+    return entry
 
 
 def _build_dependency_entry(dependency: dict[str, Any]) -> dict[str, Any]:

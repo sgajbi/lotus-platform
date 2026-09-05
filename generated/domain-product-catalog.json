@@ -5250,7 +5250,10 @@
         "state": "not_deprecated",
         "successor_product": null
       },
-      "source_path": "lotus-report/contracts/domain-data-products/lotus-report-products.v1.json"
+      "source_path": "lotus-report/contracts/domain-data-products/lotus-report-products.v1.json",
+      "conditional_trust_metadata": {
+        "tenant_id": "Present exactly when tenant_admission is caller_admitted (or a future source_verified posture); an unattributed caller yields no tenant claim rather than a fabricated default."
+      }
     },
     {
       "product_id": "lotus-risk:ConcentrationRiskReport:v1",

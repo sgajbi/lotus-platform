@@ -37,11 +37,11 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
         "lotus-risk:RiskMetricsReport:v1": "lotus-risk",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1": "lotus-advise",
         "lotus-advise:AdvisoryProposalMemoEvidencePack:v1": "lotus-advise",
-        "lotus-report:ClientReportEvidencePack:v1": "lotus-report",
         "lotus-manage:PortfolioActionRegister:v1": "lotus-manage",
     }
     assert scope.CERTIFICATION_CANDIDATE_PRODUCT_IDS == {
-        "lotus-idea:IdeaCandidate:v1"
+        "lotus-report:ClientReportEvidencePack:v1",
+        "lotus-idea:IdeaCandidate:v1",
     }
     assert "lotus-idea:IdeaCandidate:v1" not in scope.REQUIRED_PRODUCTS
     assert scope.TELEMETRY_COLLECTION_REPOSITORIES == (
@@ -49,8 +49,8 @@ def test_mesh_maturity_scope_is_shared_across_certification_automation() -> None
         "lotus-performance",
         "lotus-risk",
         "lotus-advise",
-        "lotus-report",
         "lotus-manage",
+        "lotus-report",
         "lotus-idea",
     )
 
@@ -79,8 +79,8 @@ def test_mesh_maturity_scope_default_telemetry_directories_include_candidates() 
         "lotus-performance/contracts/trust-telemetry",
         "lotus-risk/contracts/trust-telemetry",
         "lotus-advise/contracts/trust-telemetry",
-        "lotus-report/contracts/trust-telemetry",
         "lotus-manage/contracts/trust-telemetry",
+        "lotus-report/contracts/trust-telemetry",
         "lotus-idea/contracts/trust-telemetry",
     ]
     assert [
@@ -91,7 +91,7 @@ def test_mesh_maturity_scope_default_telemetry_directories_include_candidates() 
         "lotus-performance/output/trust-telemetry/runtime",
         "lotus-risk/output/trust-telemetry/runtime",
         "lotus-advise/output/trust-telemetry/runtime",
-        "lotus-report/output/trust-telemetry/runtime",
         "lotus-manage/output/trust-telemetry/runtime",
+        "lotus-report/output/trust-telemetry/runtime",
         "lotus-idea/output/trust-telemetry/runtime",
     ]

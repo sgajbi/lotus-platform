@@ -590,6 +590,36 @@ def test_rfc_0084_validator_rejects_ungoverned_product_taxonomy_and_request_scop
     )
 
 
+def test_rfc_0084_validator_governs_conditional_trust_metadata() -> None:
+    validator = _load_validator_module()
+    payload = _load_json(LOTUS_CORE_PRODUCTS_PATH)
+    path = Path("conditional-trust-metadata.json")
+    product = payload["products"][0]
+    product["conditional_trust_metadata"] = {
+        "tenant_id": "Present only when tenant admission establishes it."
+    }
+
+    assert validator.validate_producer_contract(path, payload) == []
+
+    product["conditional_trust_metadata"] = {
+        "tenant_id": " ",
+        "unsupported_field": "Present conditionally.",
+    }
+    registry = _load_json(TRUST_METADATA_REGISTRY_PATH)
+    trust_metadata_keys = {
+        entry["key"] for entry in registry["trust_metadata_fields"]
+    }
+    issues = validator.validate_producer_contract(
+        path, payload, trust_metadata_keys=trust_metadata_keys
+    )
+
+    assert any(
+        "descriptions must be non-empty strings: tenant_id" in issue
+        for issue in issues
+    )
+    assert any("contains unknown fields: unsupported_field" in issue for issue in issues)
+
+
 def test_rfc_0084_validator_accepts_valid_producer_and_consumer_contracts(
     tmp_path: Path,
 ) -> None:

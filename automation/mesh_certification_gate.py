@@ -554,7 +554,9 @@ def _validate_mesh_slo_policy_and_telemetry(
     ):
         severity: Literal["error", "warning", "info"] = (
             "error"
-            if gate_mode == "blocking" and violation["severity"] == "blocking"
+            if gate_mode == "blocking"
+            and violation["severity"] == "blocking"
+            and violation["product_id"] in REQUIRED_PRODUCTS
             else "warning"
         )
         _issue(

@@ -26,8 +26,12 @@ published cross-repo documentation.
 - `lotus-performance:ReturnsSeriesBundle:v1`
 - `lotus-risk:RiskMetricsReport:v1`
 - `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
-- `lotus-report:ClientReportEvidencePack:v1`
 - `lotus-manage:PortfolioActionRegister:v1`
+
+`lotus-report:ClientReportEvidencePack:v1` is a monitored certification candidate. Evidence-truth
+hardening established that its reconciliation posture is `unknown` because no reconciliation
+policy exists. Promotion requires the policy and blocking-gate proof tracked by
+`lotus-report#283`; Platform issue #780 records the certification correction.
 
 ## Ecosystem Roles
 

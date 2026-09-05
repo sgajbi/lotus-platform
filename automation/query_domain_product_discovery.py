@@ -32,6 +32,7 @@ def _product_summary(product: dict[str, Any]) -> dict[str, Any]:
         "lifecycle_status": product["lifecycle_status"],
         "approved_consumers": product["approved_consumers"],
         "required_trust_metadata": product["required_trust_metadata"],
+        "conditional_trust_metadata": product.get("conditional_trust_metadata", {}),
         "current_routes": product["current_routes"],
         "source_path": product["source_path"],
     }

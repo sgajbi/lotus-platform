@@ -194,7 +194,9 @@ certification requires, and which anti-patterns are blocked.
     Generates certification-history records and audience-filtered evidence-pack manifests from
     derived mesh certification, catalog, SLO, access, and live trust artifacts.
 40. `../../lotus-report/contracts/domain-data-products/lotus-report-products.v1.json`
-    RFC-0091 promoted producer declaration for `ClientReportEvidencePack`.
+    Producer declaration for `ClientReportEvidencePack`; Platform issue #780 keeps the product in
+    certification-candidate posture until the reconciliation policy owned by `lotus-report#283`
+    is defined and proven by the blocking mesh gate.
 41. `../../lotus-manage/contracts/domain-data-products/lotus-manage-products.v1.json`
     RFC-0091 promoted producer declaration for `PortfolioActionRegister`.
 42. [Mesh Certification Gate Runbook](../docs/operations/mesh-certification-gate-runbook.md)

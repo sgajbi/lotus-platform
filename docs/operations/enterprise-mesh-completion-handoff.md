@@ -34,8 +34,12 @@ The current maturity-wave producer products are:
 | `lotus-performance:ReturnsSeriesBundle:v1` | `lotus-performance` | governed return-series and performance evidence |
 | `lotus-risk:RiskMetricsReport:v1` | `lotus-risk` | governed risk metrics report |
 | `lotus-advise:AdvisoryProposalLifecycleRecord:v1` | `lotus-advise` | governed advisory proposal lifecycle record |
-| `lotus-report:ClientReportEvidencePack:v1` | `lotus-report` | governed client-report evidence pack |
 | `lotus-manage:PortfolioActionRegister:v1` | `lotus-manage` | governed portfolio action register |
+
+`lotus-report:ClientReportEvidencePack:v1` remains a governed, catalogued product but is currently a
+certification candidate rather than a first-wave-certified product. Its exact-main telemetry
+truthfully reports `reconciliation_status=unknown`; promotion requires the reconciliation policy
+and blocking-gate evidence tracked by `lotus-report#283` and Platform issue #780.
 
 `lotus-gateway` is the read-only API publication face.
 

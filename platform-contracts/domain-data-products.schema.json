@@ -237,6 +237,15 @@
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/trustMetadataField" }
         },
+        "conditional_trust_metadata": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "$ref": "#/$defs/trustMetadataField" },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         "serving_plane": {
           "type": "string",
           "enum": [
