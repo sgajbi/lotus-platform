@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -21,6 +22,10 @@ INTRO_NONBLANK_LINE_LIMIT = 8
 INTRO_CHARACTER_LIMIT = 900
 COMMAND_BLOCK_LINE_LIMIT = 25
 COMMAND_BLOCK_COMMAND_LIMIT = 15
+GITHUB_ORIGIN_PATTERN = re.compile(
+    r"^(?:https://github\.com/|git@github\.com:)(?P<owner>[^/]+)/(?P<repo>[^/]+?)(?:\.git)?$",
+    re.IGNORECASE,
+)
 
 CURRENT_SCOPE_PATTERN = re.compile(
     r"\b(current[- ]state|current scope|current posture|current summary|"
@@ -45,12 +50,19 @@ COMMAND_LINE_PATTERN = re.compile(
 )
 
 
+def _markdown_link_destination(raw_target: str) -> str:
+    target = raw_target.strip()
+    if target.startswith("<"):
+        closing_angle = target.find(">")
+        if closing_angle != -1:
+            return target[1:closing_angle].strip()
+    return target.split(maxsplit=1)[0] if target else ""
+
+
 def _normalize_link_target(raw_target: str) -> str | None:
-    target = raw_target.strip().split("#", 1)[0].strip()
+    target = _markdown_link_destination(raw_target).split("#", 1)[0].strip()
     if not target or target.startswith(ALLOWED_EXTERNAL_PREFIXES):
         return None
-    if target.startswith("<") and target.endswith(">"):
-        target = target[1:-1].strip()
     target = unquote(target).replace("\\", "/")
     if not target.endswith("/") and not Path(target).suffix:
         target = f"{target}.md"
@@ -69,29 +81,53 @@ def _page_links(text: str) -> set[str]:
 def _publication_unsafe_parent_links(text: str) -> set[str]:
     links: set[str] = set()
     for match in LINK_PATTERN.finditer(text):
-        target = match.group(1).strip().split("#", 1)[0].strip()
-        if target.startswith("<") and target.endswith(">"):
-            target = target[1:-1].strip()
+        target = _markdown_link_destination(match.group(1)).split("#", 1)[0].strip()
         target = unquote(target).replace("\\", "/")
         if target.startswith("../"):
             links.add(target)
     return links
 
 
+def _github_repository_identity(repo_root: Path) -> tuple[str, str] | None:
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), "remote", "get-url", "origin"],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    match = GITHUB_ORIGIN_PATTERN.fullmatch(result.stdout.strip())
+    if not match:
+        return None
+    return match.group("owner").lower(), match.group("repo").lower()
+
+
 def _repository_github_link_failures(
     page_name: str, text: str, *, repo_root: Path
 ) -> list[str]:
     failures: list[str] = []
+    repository_identity = _github_repository_identity(repo_root)
     for match in LINK_PATTERN.finditer(text):
-        target = match.group(1).strip()
-        if target.startswith("<") and target.endswith(">"):
-            target = target[1:-1].strip()
+        target = _markdown_link_destination(match.group(1))
         parsed = urlparse(target)
         if parsed.netloc.lower() != "github.com":
             continue
 
         parts = parsed.path.strip("/").split("/", 4)
-        if len(parts) != 5 or parts[1] != repo_root.name:
+        if len(parts) != 5 or parts[1].lower() != repo_root.name.lower():
+            continue
+        link_identity = parts[0].lower(), parts[1].lower()
+        if repository_identity is None:
+            failures.append(
+                f"{page_name}: cannot verify repository GitHub link without a GitHub origin: {target}"
+            )
+            continue
+        if link_identity != repository_identity:
+            expected_slug = "/".join(repository_identity)
+            failures.append(
+                f"{page_name}: repository GitHub link must target {expected_slug}: {target}"
+            )
             continue
         mode = parts[2]
         if mode not in {"blob", "tree"}:
@@ -102,8 +138,23 @@ def _repository_github_link_failures(
             )
             continue
 
-        relative_path = unquote(parts[4])
-        local_path = repo_root / relative_path
+        relative_path = unquote(parts[4]).replace("\\", "/")
+        relative_parts = Path(relative_path).parts
+        if (
+            Path(relative_path).is_absolute()
+            or not relative_parts
+            or any(part in {".", ".."} for part in relative_parts)
+        ):
+            failures.append(
+                f"{page_name}: repository GitHub link escapes repository root: {target}"
+            )
+            continue
+        local_path = (repo_root / relative_path).resolve()
+        if not local_path.is_relative_to(repo_root.resolve()):
+            failures.append(
+                f"{page_name}: repository GitHub link escapes repository root: {target}"
+            )
+            continue
         expected_type_exists = (
             local_path.is_file() if mode == "blob" else local_path.is_dir()
         )

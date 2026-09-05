@@ -671,8 +671,9 @@ verification without `-AllowUnpublishedSourceChanges`; use `-AllRepositories` fo
 platform-wide audits or publication sweeps.
 
 Published wiki links that leave `wiki/` must use named, `main`-anchored GitHub blob or tree URLs.
-The shared wiki audit rejects escaping `../` links, non-`main` repository refs, missing URL-decoded
-targets, and blob/tree type mismatches before publication.
+The shared wiki audit rejects escaping `../` links, wrong owning-repository identities, non-`main`
+refs, URL-decoded paths outside the checkout, missing targets, and blob/tree type mismatches before
+publication.
 
 Do not duplicate central policy prose into every repo unless repo-local interpretation is required.
 
