@@ -157,7 +157,8 @@ For RFC-0087 live trust telemetry:
 
 1. `platform-contracts/trust-telemetry/` owns the governed telemetry snapshot contract,
 2. `automation/validate_trust_telemetry.py` validates snapshots against the generated catalog and
-   trust vocabulary,
+   trust vocabulary; it requires every producer-declared `required_trust_metadata` field before
+   evaluating conditional metadata and propagates omissions into collection and certification,
 3. first-wave producer snapshots live in `lotus-core`, `lotus-performance`, `lotus-risk`, and
    `lotus-advise` under `contracts/trust-telemetry/`,
 4. `automation/generate_live_trust_certification.py` creates derived live-trust certification

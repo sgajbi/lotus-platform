@@ -114,6 +114,30 @@ def test_live_trust_certification_flags_stale_blocked_and_invalid_snapshot(
     assert "product_blocked" in issue_codes
 
 
+def test_live_trust_certification_rejects_missing_required_metadata(
+    tmp_path: Path,
+) -> None:
+    certifier = _load_certifier_module()
+    snapshot = _snapshot()
+    snapshot["observed_trust_metadata"] = {}
+    snapshot_path = tmp_path / "missing-required-metadata.json"
+    snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
+
+    report = certifier.build_live_trust_certification_report(
+        snapshot_path,
+        generated_at_utc="2026-04-19T00:00:00Z",
+    )
+
+    assert report["summary"]["certification_state"] == "attention_required"
+    assert report["summary"]["certified_snapshot_count"] == 0
+    assert report["summary"]["issue_count"] == 5
+    assert all(
+        issue["code"] == "invalid_trust_telemetry"
+        and "missing required product field" in issue["detail"]
+        for issue in report["issues"]
+    )
+
+
 def test_live_trust_certification_writes_json_and_markdown(tmp_path: Path) -> None:
     certifier = _load_certifier_module()
     telemetry_dir = tmp_path / "telemetry"

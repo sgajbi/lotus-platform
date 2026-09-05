@@ -8,6 +8,11 @@ maturity-wave product declarations, RFC-0087 trust telemetry snapshots, live tru
 SLO policy, access policy, evidence-pack policy, lifecycle posture, gateway publication posture,
 and Workbench discovery consumption posture.
 
+Telemetry validation is fail-closed against each producer's catalogue declaration. Every field in
+`required_trust_metadata` must be present in `observed_trust_metadata`; omission prevents collection
+and live certification, and blocks a required product in blocking mode. Conditional metadata remains
+subject to its separate admission checks.
+
 ## When To Run
 
 Run the gate when any of these change:
