@@ -74,9 +74,11 @@ Current assumption:
 
 Current assumption:
 
-1. every repository's `main` protection is documented as a declarative policy table
+1. adopting repositories document their `main` protection as a declarative policy table
    (`quality/branch_protection_policy.v1.json`) carrying each protection field, the review
-   authority, and `documented_exceptions` with a `retires_when` condition,
+   authority, and `documented_exceptions` with a `retires_when` condition — adopted so far by
+   lotus-gateway and lotus-render, with the estate-wide required-checks inventory remaining
+   authoritative in `automation/repository-governance-policy.json`,
 2. a lifted checker compares live protection against the candidate policy field by field in a
    blocking pre-merge lane, failing in both drift directions; scheduled runs are a supplement
    (and the required home only during a documented drift-first adoption transition),

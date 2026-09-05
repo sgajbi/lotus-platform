@@ -83,6 +83,30 @@ available even for fork-originated runs (the no-secrets rule applies to plain `p
 execution), subject to GitHub's first-time-contributor approval gates — which is exactly why the
 base-ref code isolation above is non-negotiable there.
 
+## One authority per field
+
+`automation/repository-governance-policy.json` with `validate_repository_governance.py` is the
+existing estate-wide authority for each repository's required checks. The repo-local table does
+not compete with it: for the fields both declare (required contexts, strict), the central estate
+policy is authoritative and the repo-local table must match it — a disagreement between the two
+is itself a finding, whichever file is stale. What the repo-local pattern adds is what the
+central file does not carry: the review-authority prose, `documented_exceptions` with
+`retires_when`, bypass allowances, the blocking per-PR home, and the candidate-policy
+comparison. An adopter copies the central declaration rather than re-deriving it; folding the
+two into one federated authority is legitimate follow-up work, not something to duplicate
+silently in the meantime.
+
+## Bootstrapping a new or renamed required context
+
+The base-ref-checker/candidate-policy split deadlocks a single PR that both introduces a context
+and requires it, so roll out in three green steps: (1) merge the workflow change that emits the
+new context, with neither live protection nor the policy table requiring it yet; (2) an operator
+adds the context to live protection — existing PRs still compare green because step 3's policy
+lands next; do (2) and (3) adjacently, since between them the comparison reports the live
+addition as undocumented; (3) merge the policy-table update listing the context, validated
+against the now-matching live state. A rename is an addition followed by a removal in the same
+order. The drift-first transition rule above covers the brief step-2 window.
+
 ## Adoption record
 
 - `lotus-gateway#737` — reference implementation: policy table, checker
