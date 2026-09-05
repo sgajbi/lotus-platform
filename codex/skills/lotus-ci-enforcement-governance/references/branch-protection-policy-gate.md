@@ -17,11 +17,17 @@ delivery-control posture into a daily-asserted fitness function.
 ## Shape
 
 One declarative policy table plus one lifted checker; the table is the only repository-specific
-input, so a sibling adopts the script and test verbatim and edits the table. That lift delivers
+input, so a sibling adopts the script and test verbatim and edits the table. A lift is a copy,
+and copies drift: the canonical implementation lives with the reference adopter
+(`lotus-gateway`'s `scripts/check_branch_protection_policy.py` and its unit tests) until the
+checker moves into `lotus-platform` with the federated unification named below, and each
+adopter's scheduled supplement performs a parity check — fetch the canonical file at `main`,
+compare content hashes, fail on divergence — so a checker fix propagates deliberately to every
+adopter instead of silently forking an estate-wide control. The lift delivers
 the **implemented baseline** only: the table, the live field-by-field comparison, the offline
-shape tests, and the wiring and token rules below. The central-comparison, re-evaluation, and
-ruleset-binding mechanics in later sections are **specified extensions** with no canonical
-implementation anywhere yet — an adopter gains the anti-drift baseline and must not claim the
+shape tests, and the wiring and token rules below. The central-comparison, re-evaluation,
+ruleset-binding, and checker-parity mechanics in this reference are **specified extensions**
+with no canonical implementation anywhere yet — an adopter gains the anti-drift baseline and must not claim the
 anti-spoofing or freshness guarantees until those extensions land.
 
 1. **Policy table** — `quality/branch_protection_policy.v1.json` at the repository root (the
