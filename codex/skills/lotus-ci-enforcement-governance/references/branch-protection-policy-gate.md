@@ -33,7 +33,13 @@ input, so a sibling adopts the script and test verbatim and edits the table.
    Liveness Standard's ordering rule, a verdict must arrive before the act it governs, and a
    scheduled-only run cannot stop a merge — drift could permit merges for up to a day before
    detection. A scheduled daily run is a useful supplement (it catches drift between PRs) but
-   never the sole home. Offline document-shape checks (including that a zero-approval count
+   never the sole steady-state home. One transition state is legitimate: an adoption that begins
+   from known drift — exactly when adoption is most valuable — may keep the live comparison
+   scheduled-only while the policy states the target posture, provided the blocking pre-merge
+   step is a committed, tracked follow-up for the moment the drift remediation lands; a blocking
+   live step before then would deadlock every PR on an operator action. The defect is a live gate
+   with no blocking home and no such commitment. Offline document-shape checks (including that a
+   zero-approval count
    cannot lose its documented exception) run in the repo-native unit gate so the table itself
    cannot rot.
 
