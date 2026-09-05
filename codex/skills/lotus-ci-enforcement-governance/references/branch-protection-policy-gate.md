@@ -47,7 +47,10 @@ anti-spoofing or freshness guarantees until those extensions land.
    missing `required_pull_request_reviews` block and a present
    `required_approving_review_count: 0` are different postures and the output must say `ABSENT`.
    Bypass allowances are asserted (an empty list is an assertion, not an omission). CODEOWNERS is
-   checked across all three recognized locations (root, `.github/`, `docs/`).
+   resolved by GitHub's precedence — the first file found in `.github/`, then the repository
+   root, then `docs/` — and that file alone is validated. Treating presence in any of the three
+   as sufficient lets a stale or empty higher-precedence file shadow a valid lower one, so the
+   asserted review posture would not be the posture GitHub applies.
 3. **Self-anchoring and its residual** — name the gate's own status context in the policy's
    required-contexts list, so removing it is itself a policy violation the comparison reports.
    That anchor has a residual by construction: once the context is removed from live protection,
@@ -217,10 +220,12 @@ emission while the context is still required would block every PR. The drift-fir
 
 ## Adoption record
 
-Both adoptions implement the baseline; none of the specified extensions are implemented yet.
-Neither adoption has ever completed a live comparison: the PAT the checker needs exists in no
-Lotus repository (measured 2026-09-06), so the live step cannot authenticate anywhere until an
-operator provisions it.
+**Both adoptions are partial scaffolding, not compliant templates.** Each has the policy table,
+the checker, and the offline tests, but the baseline also requires operational live wiring, and
+neither has ever completed a live comparison: the PAT the checker needs exists in no Lotus
+repository (measured 2026-09-06), so the live step cannot authenticate anywhere until an
+operator provisions it. None of the specified extensions are implemented anywhere. Copy the
+structure from these repositories; do not cite either as evidence that the control is in force.
 
 - `lotus-gateway#737` — reference implementation: policy table, checker
   (`scripts/check_branch_protection_policy.py`), five offline unit tests, Quality Baseline step;
