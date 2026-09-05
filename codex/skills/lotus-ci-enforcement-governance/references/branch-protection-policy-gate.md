@@ -93,7 +93,11 @@ binding real. First, a `pull_request_target` job's own check suite attaches to t
 (`GITHUB_SHA`), while a required context is evaluated on the PR head, so the trusted job must
 explicitly publish its verdict against the candidate head SHA
 (`github.event.pull_request.head.sha`) through the checks or statuses API — otherwise the
-required context simply never completes. Second, the required-workflow binding lives in the
+required context simply never completes. That publication needs `statuses: write` or
+`checks: write`, which the Workflow Security and Permissions Standard and its validator
+restrict, so the permission grant is part of the same explicit approval as the
+`pull_request_target` event itself — request both together, never add the write scope as an
+unreviewed side effect. Second, the required-workflow binding lives in the
 rulesets API, not the branch-protection endpoint, so when the policy table records such a
 binding the checker must also read live rulesets and compare it — removing the ruleset rule
 restores the spoofing path while the protection comparison stays green.
@@ -109,7 +113,10 @@ central authority is authoritative and the repo-local table must match it — a 
 between the two is itself a finding, whichever file is stale. Any posture change, the
 zero-approval retirement included, therefore updates the central policy or validator **and**
 the repo-local table in one coordinated change; a repo-local edit alone leaves two authorities
-contradicting each other. What the repo-local pattern adds is only what the central file does
+contradicting each other. The central posture fields are currently estate-wide constants with
+no per-repository override, so the first repository to diverge — the first retirement, for
+example — must extend the central authority to per-repository posture values as part of that
+same change; this is the concrete first step of the federated unification named below. What the repo-local pattern adds is only what the central file does
 not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
 An adopter copies the central declaration rather than re-deriving it; folding the two into one
