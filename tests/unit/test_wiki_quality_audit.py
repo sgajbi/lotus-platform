@@ -126,6 +126,17 @@ def test_wiki_quality_audit_rejects_parent_relative_publication_links(
         in failures
     )
 
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Prefixed](./../docs/runbook.md)\n"
+        "[Embedded](wiki/../docs/runbook.md)\n",
+        encoding="utf-8",
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert any("./../docs/runbook.md" in failure for failure in failures)
+    assert any("wiki/../docs/runbook.md" in failure for failure in failures)
+
 
 def test_wiki_quality_audit_validates_decoded_repository_github_links(
     tmp_path: Path,
@@ -138,6 +149,7 @@ def test_wiki_quality_audit_validates_decoded_repository_github_links(
     docs_dir.mkdir()
     _set_github_origin(repo_root, "https://github.com/example/repo.git")
     (docs_dir / "Runbook Guide.md").write_text("# Runbook\n", encoding="utf-8")
+    (docs_dir / "A_(B).md").write_text("# Parenthesized guide\n", encoding="utf-8")
     (wiki_dir / "Home.md").write_text(
         "\n".join(
             [
@@ -145,6 +157,7 @@ def test_wiki_quality_audit_validates_decoded_repository_github_links(
                 "",
                 "[Runbook](https://github.com/example/repo/blob/main/docs/Runbook%20Guide.md)",
                 "[Docs](https://github.com/example/repo/tree/main/docs)",
+                "[Parenthesized](https://github.com/example/repo/blob/main/docs/A_(B).md)",
             ]
         ),
         encoding="utf-8",
@@ -176,6 +189,39 @@ def test_wiki_quality_audit_validates_decoded_repository_github_links(
         "Home.md: broken repository GitHub blob link: docs/Missing Guide.md"
         in failures
     )
+
+    malformed_route = "https://github.com/example/repo/blbo/main/docs/Runbook%20Guide.md"
+    (wiki_dir / "Home.md").write_text(
+        f"# Home\n\n[Malformed]({malformed_route})\n", encoding="utf-8"
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert (
+        f"Home.md: repository GitHub file link must use blob or tree: {malformed_route}"
+        in failures
+    )
+
+
+def test_wiki_quality_audit_uses_origin_identity_when_checkout_name_differs(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "checkout"
+    wiki_dir = repo_root / "wiki"
+    wiki_dir.mkdir(parents=True)
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Missing](https://github.com/example/repo/blob/main/missing.md)\n",
+        encoding="utf-8",
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Home](Home.md)\n", encoding="utf-8"
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert "Home.md: broken repository GitHub blob link: missing.md" in failures
 
 
 def test_wiki_quality_audit_rejects_wrong_owner_and_escaping_github_paths(
