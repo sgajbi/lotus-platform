@@ -91,7 +91,7 @@
       "key": "reconciliation_status",
       "semantic_id": "lotus.reconciliation_status",
       "evidence_access_class": "customer_consumable",
-      "description": "Published reconciliation posture for the product or its governing source inputs. reconciled is allowed only when an explicit policy proved it; unknown, partial, not_reconciled, and not_applicable are honest alternatives."
+      "description": "Published reconciliation posture for the product or its governing source inputs. reconciled is allowed only when an explicit policy proved it; unknown, partial, unreconciled, and not_applicable are the governed honest alternatives."
     },
     {
       "key": "reconciliation_reason_code",
