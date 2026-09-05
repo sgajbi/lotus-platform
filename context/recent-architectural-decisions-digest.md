@@ -52,6 +52,23 @@ Current assumption:
 3. temporal vocabulary, deterministic state reconstruction, ingestion lineage, reconciliation, data quality, and source-data product contracts are first-class architecture concerns,
 4. future implementation work should treat RFC-0083 as the target blueprint and RFC-0082 as the boundary guardrail.
 
+### Consumer retry safety and source-response admission
+
+Current assumption:
+
+1. a consumer may automatically retry an upstream mutation after an ambiguous response loss
+   (read/write failure, remote-protocol error, read/write timeout) only with a producer
+   replay-identity contract and one identity reused verbatim across attempts; without one it
+   stops and surfaces the indeterminate outcome, and it does not follow redirects,
+2. correlation and trace ids are tracing, never replay identity,
+3. a well-shaped upstream success is published only after it is bound to the requested
+   operation's identities (resource id, per-row identities, echoed idempotency key,
+   handle-to-status-link consistency); mismatches and malformed successes become the declared
+   bounded upstream-contract failure, not an internal error,
+4. the pattern reference is
+   `codex/skills/lotus-backend-delivery-governance/references/source-boundary-and-recovery-patterns.md`;
+   the first full implementation is lotus-gateway's 2026-09-05 completion campaign (PRs #724–#729).
+
 ### Product and UI posture
 
 Current assumption:
