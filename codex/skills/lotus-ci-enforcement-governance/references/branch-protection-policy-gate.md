@@ -29,17 +29,31 @@ input, so a sibling adopts the script and test verbatim and edits the table.
    `required_approving_review_count: 0` are different postures and the output must say `ABSENT`.
    Bypass allowances are asserted (an empty list is an assertion, not an omission). CODEOWNERS is
    checked across all three recognized locations (root, `.github/`, `docs/`).
-3. **Wiring** — the live comparison runs in a blocking scheduled or per-PR lane; offline
-   document-shape checks (including that a zero-approval count cannot lose its documented
-   exception) run in the repo-native unit gate so the table itself cannot rot.
+3. **Wiring** — the live comparison must run in a **blocking pre-merge lane**: per the Gate
+   Liveness Standard's ordering rule, a verdict must arrive before the act it governs, and a
+   scheduled-only run cannot stop a merge — drift could permit merges for up to a day before
+   detection. A scheduled daily run is a useful supplement (it catches drift between PRs) but
+   never the sole home. Offline document-shape checks (including that a zero-approval count
+   cannot lose its documented exception) run in the repo-native unit gate so the table itself
+   cannot rot.
 
-## Token requirement
+## Token requirement and trust boundary
 
 The workflow `github.token` cannot carry `administration: read`, which the branch-protection
 endpoint requires — a step wired to it fails everywhere or, worse, is skipped into a dead gate.
 Authenticate with a repository PAT secret (the automerge PAT already present in Lotus repos
 qualifies) and fail closed when it is missing or unauthorized; a silent pass without the token is
 the gate-liveness violation this reference exists to prevent.
+
+The PAT defines a trust boundary that must be stated, not assumed: a per-PR lane executes the
+PR's own checkout, so the checker script — and for same-repository PRs the workflow file itself —
+is PR-controlled code running with the secret. That is acceptable only where every same-repo
+pusher is already trusted with the PAT's full authority, which holds in the current Lotus
+single-accepted-collaborator repositories and must be re-evaluated the moment a second pusher
+exists. In a multi-contributor repository, split the gate instead: run the PAT-authenticated
+fetch-and-compare in a context the PR cannot rewrite (a push-to-`main` or scheduled lane, or a
+`pull_request_target` job that checks out the base ref's checker), and keep the per-PR lane to
+the tokenless offline shape checks. Fork and Dependabot PRs never receive the secret either way.
 
 ## Adoption record
 
