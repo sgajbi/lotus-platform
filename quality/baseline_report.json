@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 414,
+    "markdown_file_count": 413,
     "powershell_file_count": 69,
-    "python_file_count": 235,
-    "source_file_count": 905,
+    "python_file_count": 237,
+    "source_file_count": 906,
     "suffix_counts": {
       ".json": 138,
-      ".md": 414,
+      ".md": 413,
       ".ps1": 69,
-      ".py": 235,
+      ".py": 237,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 366303
+    "total_source_lines": 366417
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -80,6 +80,14 @@
         "lines": 63,
         "name": "_validate_security",
         "path": "automation/validate_platform_stack.py"
+      },
+      {
+        "complexity": 18,
+        "end_line": 122,
+        "line": 60,
+        "lines": 63,
+        "name": "iter_steps",
+        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
         "complexity": 18,
@@ -184,14 +192,6 @@
         "lines": 47,
         "name": "_markdown_link_targets",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 205,
-        "line": 172,
-        "lines": 34,
-        "name": "_strip_shell_comments",
-        "path": "automation/gate_liveness_audit.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3098
+    "python_function_count": 3118
   },
-  "generated_at_utc": "2026-09-05T23:31:54Z",
+  "generated_at_utc": "2026-09-05T23:34:48Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1233,
+    "collected_tests": 1243,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1233 tests collected in 1.13s"
+    "summary": "1243 tests collected in 1.19s"
   }
 }
