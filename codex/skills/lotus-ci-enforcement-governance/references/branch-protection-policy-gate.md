@@ -17,7 +17,12 @@ delivery-control posture into a daily-asserted fitness function.
 ## Shape
 
 One declarative policy table plus one lifted checker; the table is the only repository-specific
-input, so a sibling adopts the script and test verbatim and edits the table.
+input, so a sibling adopts the script and test verbatim and edits the table. That lift delivers
+the **implemented baseline** only: the table, the live field-by-field comparison, the offline
+shape tests, and the wiring and token rules below. The central-comparison, re-evaluation, and
+ruleset-binding mechanics in later sections are **specified extensions** with no canonical
+implementation anywhere yet — an adopter gains the anti-drift baseline and must not claim the
+anti-spoofing or freshness guarantees until those extensions land.
 
 1. **Policy table** — `quality/branch_protection_policy.v1.json` at the repository root (the
    checker resolves `quality/` relative to itself; keep that convention). It records:
@@ -194,6 +199,8 @@ update removing it merges next, and only then does the workflow stop emitting it
 emission while the context is still required would block every PR. The drift-first transition rule above covers the brief step-2 window.
 
 ## Adoption record
+
+Both adoptions implement the baseline; none of the specified extensions are implemented yet.
 
 - `lotus-gateway#737` — reference implementation: policy table, checker
   (`scripts/check_branch_protection_policy.py`), five offline unit tests, Quality Baseline step;

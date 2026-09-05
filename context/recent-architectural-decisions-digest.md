@@ -77,8 +77,13 @@ Current assumption:
 1. adopting repositories document their `main` protection as a declarative policy table
    (`quality/branch_protection_policy.v1.json`) carrying each protection field, the review
    authority, and `documented_exceptions` with a `retires_when` condition — adopted so far by
-   lotus-gateway and lotus-render, with the estate-wide required-checks inventory remaining
-   authoritative in `automation/repository-governance-policy.json`,
+   lotus-gateway and lotus-render; for every field the central governance authority declares —
+   `automation/repository-governance-policy.json` plus the posture constants in
+   `validate_repository_governance.py` and `Enforce-Repository-Governance.ps1` — the central
+   value is authoritative and the repo-local table must match it, so posture changes update the
+   central authority and the table in one coordinated change (a repo-local edit alone leaves the
+   central `-Apply` free to overwrite the intended posture); lifting the hard-coded constants
+   into the central JSON is the named prerequisite for enforcing that comparison mechanically,
 2. a lifted checker compares live protection against the candidate policy field by field in a
    blocking pre-merge lane, failing in both drift directions; scheduled runs are a supplement
    (and the required home only during a documented drift-first adoption transition),
