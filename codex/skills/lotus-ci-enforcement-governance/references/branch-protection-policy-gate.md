@@ -113,8 +113,12 @@ the separate Dependabot secrets store, so mirror the PAT there or every dependen
 becomes unmergeable against the fail-closed check. Fork PRs stay on the isolated path: a
 `pull_request_target` job runs the base branch's workflow and checker with repository secrets
 available even for fork-originated runs (the no-secrets rule applies to plain `pull_request`
-execution), subject to GitHub's first-time-contributor approval gates — which is exactly why the
-base-ref code isolation above is non-negotiable there. Publishing the isolated job only as a
+execution). No approval holds it: the first-time-contributor approval gate applies to
+`pull_request` runs from forks, **not** to `pull_request_target`, which starts immediately on
+any fork PR including a brand-new contributor's. The workflow must therefore be safe against
+untrusted payloads from its first execution — no checkout of PR code, no interpolation of PR
+titles, branch names, or body text into shell, and PR-head files read only as inert data. That
+is exactly why the base-ref code isolation above is non-negotiable. Publishing the isolated job only as a
 named required status context does not by itself preserve that isolation: branch protection
 matches checks by context name and creating app, and every Actions workflow shares one app, so
 a PR-controlled workflow can emit a same-named check on the candidate SHA and satisfy the
@@ -186,7 +190,12 @@ name-spoofing path — emits the `repository_ruleset` webhook, which is not an A
 Where that binding is in use, wire an organization webhook receiver that forwards ruleset
 changes as `repository_dispatch` re-evaluations, or — in an estate with no receiver — couple
 the ruleset-editing runbook to firing that dispatch by hand, with the scheduled supplement
-(which re-reads rulesets) as the bounded-delay backstop. Neither current adopter implements this comparison yet — it is
+(which re-reads rulesets) as the bounded-delay backstop. One repository is its own exception: in the repository that **hosts** the central declaration,
+the candidate central JSON arrives in the same commit as the candidate table, so the checker
+reads it from the PR head as inert data exactly as it reads the policy table. Fetching that
+repository's own central file from `main` would reject every PR that adds or renames one of its
+contexts — the two halves can never agree at `main` before the merge that introduces them.
+Neither current adopter implements this comparison yet — it is
 a specified extension each adopter owes, not something to claim as enforced before it lands. What the repo-local pattern adds is only what the
 central file does not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
@@ -203,7 +212,9 @@ source-only validation requires the adopter's default branch to already emit any
 check; live protection and the repo-local table do not require the context yet; (1b) merge the
 central `repository-governance-policy.json` addition in the platform repository — before the
 repo-local update, which under mechanical centrality cannot merge while the central declaration
-still lists the old checks (within the platform repository itself, 1 and 1b can be one merge);
+still lists the old checks (within the platform repository itself, 1 and 1b are one merge —
+which works only because that repository reads its own candidate central file from the PR head,
+per the self-hosting exception above);
 (2) an operator
 adds the context to live protection — the comparison on open PRs now also reports the live
 addition as undocumented; (3) merge the policy-table update listing the context, validated
