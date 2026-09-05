@@ -6,6 +6,14 @@ An undocumented protection exception is indistinguishable from a misconfiguratio
 document that outlives the configuration it describes is worse than none. This pattern turns the
 delivery-control posture into a daily-asserted fitness function.
 
+## Contents
+
+1. [Shape](#shape)
+2. [Token requirement and trust boundary](#token-requirement-and-trust-boundary)
+3. [One authority per field](#one-authority-per-field)
+4. [Bootstrapping a new or renamed required context](#bootstrapping-a-new-or-renamed-required-context)
+5. [Adoption record](#adoption-record)
+
 ## Shape
 
 One declarative policy table plus one lifted checker; the table is the only repository-specific
@@ -86,11 +94,14 @@ named required status context does not by itself preserve that isolation: branch
 matches checks by context name and creating app, and every Actions workflow shares one app, so
 a PR-controlled workflow can emit a same-named check on the candidate SHA and satisfy the
 requirement without the trusted job running. In the multi-contributor path, bind the gate to
-workflow identity, not name — a repository ruleset "required workflows" entry pinning the
-specific workflow file, or a check produced by a dedicated GitHub App with that App
+workflow identity, not name — a "required workflows" rule, which GitHub configures through an
+organization ruleset (repository-level rulesets do not offer it, so organization
+administration access is part of this adoption ask), pinning the specific workflow file, or a check produced by a dedicated GitHub App with that App
 recorded as the required check's expected source (`required_status_checks.checks[].app_id`)
 — producing the check from the App without binding the source leaves the name-spoofing
-path open — and record the binding in the policy table so its removal, on either the
+path open, and the central `Enforce-Repository-Governance.ps1` apply path must be extended to
+write the checks-with-`app_id` shape before this option is adopted, or its next apply strips
+the binding — and record the binding in the policy table so its removal, on either the
 protection or the ruleset surface, is a reported drift. Two mechanics make the
 binding real. First, a `pull_request_target` job's own check suite attaches to the base tip
 (`GITHUB_SHA`), while a required context is evaluated on the PR head, so the trusted job must
@@ -137,8 +148,10 @@ new context, with neither live protection nor the policy table requiring it yet;
 adds the context to live protection — from this moment until step 3 lands, the bidirectional
 comparison on open PRs honestly reports the live addition as undocumented, so do (2) and (3)
 adjacently and treat the brief red window as the drift-first transition rule in miniature; (3) merge the policy-table update listing the context, validated
-against the now-matching live state. A rename is an addition followed by a removal in the same
-order. The drift-first transition rule above covers the brief step-2 window.
+against the now-matching live state. A rename is an addition (steps 1-3) followed by a removal in the **reverse**
+order: the operator drops the old context from live protection first, the policy update
+removing it merges next, and only then does the workflow stop emitting it — stopping emission
+while the context is still required would block every PR. The drift-first transition rule above covers the brief step-2 window.
 
 ## Adoption record
 
