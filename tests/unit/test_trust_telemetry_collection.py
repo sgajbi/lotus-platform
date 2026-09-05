@@ -71,7 +71,6 @@ REQUIRED_PRODUCT_METADATA = {
         "reconciliation_status": "reconciled",
         "reconciliation_reason_code": "policy_evidence_verified",
         "data_quality_status": "quality_passed",
-        "source_batch_fingerprint": "sha256:client-report-evidence-pack-test",
         "lineage_bundle_id": "lineage:lotus-report:client-report-evidence-pack:test",
         "correlation_id": "corr-lotus-report",
     },

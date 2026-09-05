@@ -110,7 +110,6 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
             "reconciliation_status": "reconciled",
             "reconciliation_reason_code": "policy_evidence_verified",
             "data_quality_status": "quality_passed",
-            "source_batch_fingerprint": "client-report-evidence-pack-001",
             "lineage_bundle_id": "lineage-report-001",
             "correlation_id": "corr-001",
         }
