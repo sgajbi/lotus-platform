@@ -87,8 +87,11 @@ matches checks by context name and creating app, and every Actions workflow shar
 a PR-controlled workflow can emit a same-named check on the candidate SHA and satisfy the
 requirement without the trusted job running. In the multi-contributor path, bind the gate to
 workflow identity, not name — a repository ruleset "required workflows" entry pinning the
-specific workflow file (or a check produced by a dedicated GitHub App) — and record that
-binding in the policy table so its removal is also a reported drift. Two mechanics make the
+specific workflow file, or a check produced by a dedicated GitHub App with that App
+recorded as the required check's expected source (`required_status_checks.checks[].app_id`)
+— producing the check from the App without binding the source leaves the name-spoofing
+path open — and record the binding in the policy table so its removal, on either the
+protection or the ruleset surface, is a reported drift. Two mechanics make the
 binding real. First, a `pull_request_target` job's own check suite attaches to the base tip
 (`GITHUB_SHA`), while a required context is evaluated on the PR head, so the trusted job must
 explicitly publish its verdict against the candidate head SHA
@@ -116,8 +119,11 @@ the repo-local table in one coordinated change; a repo-local edit alone leaves t
 contradicting each other. The central posture fields are currently estate-wide constants with
 no per-repository override, so the first repository to diverge — the first retirement, for
 example — must extend the central authority to per-repository posture values as part of that
-same change; this is the concrete first step of the federated unification named below. What the repo-local pattern adds is only what the central file does
-not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
+same change; this is the concrete first step of the federated unification named below. The checker enforces this mechanically, not just editorially: for the
+fields the central authority owns, the candidate table must equal the central declaration, so
+a candidate edited to legitimize already-weakened live protection fails against the central
+authority even though it matches live. What the repo-local pattern adds is only what the
+central file does not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
 An adopter copies the central declaration rather than re-deriving it; folding the two into one
 federated authority is legitimate follow-up work, not something to duplicate silently in the
@@ -128,9 +134,9 @@ meantime.
 The base-ref-checker/candidate-policy split deadlocks a single PR that both introduces a context
 and requires it, so roll out in three green steps: (1) merge the workflow change that emits the
 new context, with neither live protection nor the policy table requiring it yet; (2) an operator
-adds the context to live protection — existing PRs still compare green because step 3's policy
-lands next; do (2) and (3) adjacently, since between them the comparison reports the live
-addition as undocumented; (3) merge the policy-table update listing the context, validated
+adds the context to live protection — from this moment until step 3 lands, the bidirectional
+comparison on open PRs honestly reports the live addition as undocumented, so do (2) and (3)
+adjacently and treat the brief red window as the drift-first transition rule in miniature; (3) merge the policy-table update listing the context, validated
 against the now-matching live state. A rename is an addition followed by a removal in the same
 order. The drift-first transition rule above covers the brief step-2 window.
 
