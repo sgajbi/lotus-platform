@@ -46,6 +46,7 @@ def test_wiki_quality_audit_accepts_navigation_and_repo_evidence_links(tmp_path:
     evidence_dir = repo_root / "docs" / "operations"
     wiki_dir.mkdir(parents=True)
     evidence_dir.mkdir(parents=True)
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
     (evidence_dir / "runbook.md").write_text("# Runbook\n", encoding="utf-8")
 
     (wiki_dir / "Home.md").write_text(
@@ -57,7 +58,7 @@ def test_wiki_quality_audit_accepts_navigation_and_repo_evidence_links(tmp_path:
                 "| --- | --- |",
                 "| Operations | [Operations Runbook](Operations-Runbook.md) |",
                 "",
-                "Evidence: [Runbook](docs/operations/runbook.md)",
+                "Evidence: [Runbook](https://github.com/example/repo/blob/main/docs/operations/runbook.md)",
             ]
         ),
         encoding="utf-8",
@@ -136,6 +137,23 @@ def test_wiki_quality_audit_rejects_parent_relative_publication_links(
 
     assert any("./../docs/runbook.md" in failure for failure in failures)
     assert any("wiki/../docs/runbook.md" in failure for failure in failures)
+
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[Runbook](docs/runbook.md)\n\n"
+        "[Reference runbook][runbook]\n\n[runbook]: ../docs/runbook.md\n",
+        encoding="utf-8",
+    )
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert (
+        "Home.md: repository-relative link must use a main-anchored GitHub blob/tree URL: docs/runbook.md"
+        in failures
+    )
+    assert (
+        "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
+        in failures
+    )
 
 
 def test_wiki_quality_audit_validates_decoded_repository_github_links(

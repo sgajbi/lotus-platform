@@ -9,6 +9,9 @@ from urllib.parse import unquote, urlparse
 
 
 LINK_START_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\(")
+REFERENCE_DEFINITION_PATTERN = re.compile(
+    r"^[ \t]{0,3}\[(?!\^)[^\]]+\]:[ \t]*(.+?)\s*$", re.MULTILINE
+)
 BARE_URL_PATTERN = re.compile(r"(?<!\]\()https?://\S+")
 SCRATCH_PATTERN = re.compile(
     r"\b(TODO|maybe|rough|temp|temporary|TBD|FIXME)\b", re.IGNORECASE
@@ -60,7 +63,7 @@ def _markdown_link_destination(raw_target: str) -> str:
 
 
 def _markdown_link_targets(text: str) -> list[str]:
-    targets: list[str] = []
+    targets = [match.group(1) for match in REFERENCE_DEFINITION_PATTERN.finditer(text)]
     for match in LINK_START_PATTERN.finditer(text):
         start = match.end()
         depth = 0
@@ -116,6 +119,32 @@ def _publication_unsafe_parent_links(text: str) -> set[str]:
         target = unquote(target).replace("\\", "/")
         if ".." in Path(target).parts:
             links.add(target)
+    return links
+
+
+def _publication_unsafe_repository_links(
+    text: str, *, wiki_dir: Path, repo_root: Path
+) -> set[str]:
+    links: set[str] = set()
+    resolved_wiki = wiki_dir.resolve()
+    resolved_repo = repo_root.resolve()
+    for raw_target in _markdown_link_targets(text):
+        target = _markdown_link_destination(raw_target).split("#", 1)[0].strip()
+        if not target or target.startswith(ALLOWED_EXTERNAL_PREFIXES):
+            continue
+        decoded_target = unquote(target).replace("\\", "/")
+        target_path = Path(decoded_target)
+        if target_path.is_absolute() or ".." in target_path.parts:
+            continue
+        wiki_target = (resolved_wiki / target_path).resolve()
+        repo_target = (resolved_repo / target_path).resolve()
+        if (
+            repo_target.exists()
+            and repo_target.is_relative_to(resolved_repo)
+            and not repo_target.is_relative_to(resolved_wiki)
+            and not wiki_target.exists()
+        ):
+            links.add(decoded_target)
     return links
 
 
@@ -399,6 +428,14 @@ def _page_link_failures(
     for target in sorted(_publication_unsafe_parent_links(text)):
         failures.append(
             f"{page_name}: publication-unsafe parent-relative link: {target}"
+        )
+    for target in sorted(
+        _publication_unsafe_repository_links(
+            text, wiki_dir=wiki_dir, repo_root=repo_root
+        )
+    ):
+        failures.append(
+            f"{page_name}: repository-relative link must use a main-anchored GitHub blob/tree URL: {target}"
         )
     failures.extend(
         _repository_github_link_failures(page_name, text, repo_root=repo_root)
