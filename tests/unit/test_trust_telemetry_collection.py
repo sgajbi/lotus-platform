@@ -65,9 +65,11 @@ REQUIRED_PRODUCT_METADATA = {
     },
     "lotus-report:ClientReportEvidencePack:v1": {
         "tenant_id": "TENANT_PRIVATE_BANKING_DEMO",
+        "tenant_admission": "caller_admitted",
         "generated_at": GENERATED_AT_UTC,
         "as_of_date": "2026-04-20",
         "reconciliation_status": "reconciled",
+        "reconciliation_reason_code": "policy_evidence_verified",
         "data_quality_status": "quality_passed",
         "source_batch_fingerprint": "sha256:client-report-evidence-pack-test",
         "lineage_bundle_id": "lineage:lotus-report:client-report-evidence-pack:test",
@@ -282,6 +284,16 @@ def test_trust_telemetry_collection_reports_missing_required_products(
             "lotus-risk:RiskMetricsReport:v1",
         }
     assert manifest["summary"]["error_count"] == 6
+    missing_candidates = {
+        issue["product_id"]
+        for issue in manifest["issues"]
+        if issue["code"] == "missing_candidate_product"
+    }
+    assert missing_candidates == {
+        "lotus-report:ClientReportEvidencePack:v1",
+        "lotus-idea:IdeaCandidate:v1",
+    }
+    assert manifest["summary"]["missing_candidate_product_count"] == 2
 
 
 def test_trust_telemetry_collection_cli_writes_manifest(tmp_path: Path) -> None:
