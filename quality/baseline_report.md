@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-05T15:11:40Z`
+Generated: `2026-09-05T15:23:17Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `904`
-- Total source lines: `365837`
+- Total source lines: `365894`
 - Python files: `235`
 - PowerShell files: `69`
 - Markdown files: `413`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3093`
+- Python functions: `3095`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -54,7 +54,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1319 | 17 | 66 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
-| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _repository_github_link_failures | 166 | 16 | 68 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _repository_github_link_failures | 194 | 16 | 68 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1231`
+- Unit tests collected: `1232`
 - Collection command return code: `0`
-- Collection summary: `1231 tests collected in 1.27s`
+- Collection summary: `1232 tests collected in 16.10s`
 
 ## Security Baseline
 

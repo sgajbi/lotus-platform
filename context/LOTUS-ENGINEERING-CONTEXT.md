@@ -671,10 +671,10 @@ verification without `-AllowUnpublishedSourceChanges`; use `-AllRepositories` fo
 platform-wide audits or publication sweeps.
 
 Published wiki links that leave `wiki/` must use named, `main`-anchored GitHub blob or tree URLs.
-The shared wiki audit checks inline and reference-style destinations. It rejects parent-relative or
-repository-relative links that break in the separate wiki repository, wrong owning-repository
-identities, non-`main` refs, malformed file routes, URL-decoded paths outside the checkout, missing
-targets, and blob/tree type mismatches before publication.
+The shared wiki audit checks inline and used reference-style destinations. It rejects
+parent-relative, root-relative, or repository-relative links that break in the separate wiki
+repository, wrong owning-repository identities, non-`main` refs, malformed file routes, URL-decoded
+paths outside the checkout, missing targets, and blob/tree type mismatches before publication.
 
 Do not duplicate central policy prose into every repo unless repo-local interpretation is required.
 
