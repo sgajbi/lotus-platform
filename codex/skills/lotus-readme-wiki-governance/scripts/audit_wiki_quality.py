@@ -10,8 +10,10 @@ from urllib.parse import unquote, urlparse
 
 LINK_START_PATTERN = re.compile(r"(?<!!)\[[^\]]+\]\(")
 REFERENCE_DEFINITION_PATTERN = re.compile(
-    r"^[ \t]{0,3}\[(?!\^)[^\]]+\]:[ \t]*(.+?)\s*$", re.MULTILINE
+    r"^[ \t]{0,3}\[(?!\^)([^\]]+)\]:[ \t]*(.+?)\s*$", re.MULTILINE
 )
+REFERENCE_USE_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\]\[([^\]]*)\]")
+SHORTCUT_REFERENCE_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\](?![\[\(:])")
 BARE_URL_PATTERN = re.compile(r"(?<!\]\()https?://\S+")
 SCRATCH_PATTERN = re.compile(
     r"\b(TODO|maybe|rough|temp|temporary|TBD|FIXME)\b", re.IGNORECASE
@@ -63,7 +65,21 @@ def _markdown_link_destination(raw_target: str) -> str:
 
 
 def _markdown_link_targets(text: str) -> list[str]:
-    targets = [match.group(1) for match in REFERENCE_DEFINITION_PATTERN.finditer(text)]
+    definitions = {
+        " ".join(match.group(1).lower().split()): match.group(2)
+        for match in REFERENCE_DEFINITION_PATTERN.finditer(text)
+    }
+    used_references = {
+        " ".join((match.group(2) or match.group(1)).lower().split())
+        for match in REFERENCE_USE_PATTERN.finditer(text)
+    }
+    used_references.update(
+        " ".join(match.group(1).lower().split())
+        for match in SHORTCUT_REFERENCE_PATTERN.finditer(text)
+    )
+    targets = [
+        definitions[label] for label in used_references if label in definitions
+    ]
     for match in LINK_START_PATTERN.finditer(text):
         start = match.end()
         depth = 0
@@ -119,6 +135,18 @@ def _publication_unsafe_parent_links(text: str) -> set[str]:
         target = unquote(target).replace("\\", "/")
         if ".." in Path(target).parts:
             links.add(target)
+    return links
+
+
+def _publication_unsafe_root_links(text: str) -> set[str]:
+    links: set[str] = set()
+    for raw_target in _markdown_link_targets(text):
+        target = _markdown_link_destination(raw_target).split("#", 1)[0].strip()
+        if target.startswith(ALLOWED_EXTERNAL_PREFIXES):
+            continue
+        decoded_target = unquote(target).replace("\\", "/")
+        if decoded_target.startswith("/"):
+            links.add(decoded_target)
     return links
 
 
@@ -428,6 +456,10 @@ def _page_link_failures(
     for target in sorted(_publication_unsafe_parent_links(text)):
         failures.append(
             f"{page_name}: publication-unsafe parent-relative link: {target}"
+        )
+    for target in sorted(_publication_unsafe_root_links(text)):
+        failures.append(
+            f"{page_name}: publication-unsafe root-relative link: {target}"
         )
     for target in sorted(
         _publication_unsafe_repository_links(

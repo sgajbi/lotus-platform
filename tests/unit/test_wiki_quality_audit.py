@@ -140,7 +140,8 @@ def test_wiki_quality_audit_rejects_parent_relative_publication_links(
 
     (wiki_dir / "Home.md").write_text(
         "# Home\n\n[Runbook](docs/runbook.md)\n\n"
-        "[Reference runbook][runbook]\n\n[runbook]: ../docs/runbook.md\n",
+        "[Reference runbook][runbook]\n\n[runbook]: ../docs/runbook.md\n"
+        "[Root runbook](/docs/runbook.md)\n",
         encoding="utf-8",
     )
 
@@ -154,6 +155,30 @@ def test_wiki_quality_audit_rejects_parent_relative_publication_links(
         "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
         in failures
     )
+    assert (
+        "Home.md: publication-unsafe root-relative link: /docs/runbook.md"
+        in failures
+    )
+
+
+def test_wiki_quality_audit_ignores_unused_reference_definitions_for_navigation(
+    tmp_path: Path,
+) -> None:
+    audit = _load_audit_module()
+    repo_root = tmp_path / "repo"
+    wiki_dir = repo_root / "wiki"
+    wiki_dir.mkdir(parents=True)
+    (wiki_dir / "Home.md").write_text(
+        "# Home\n\n[old]: Orphan.md\n", encoding="utf-8"
+    )
+    (wiki_dir / "_Sidebar.md").write_text(
+        "# Navigation\n\n- [Home](Home.md)\n", encoding="utf-8"
+    )
+    (wiki_dir / "Orphan.md").write_text("# Orphan\n", encoding="utf-8")
+
+    failures = audit.audit_wiki(wiki_dir, repo_root)
+
+    assert "Orphan.md: page is not reachable from Home.md or _Sidebar.md" in failures
 
 
 def test_wiki_quality_audit_validates_decoded_repository_github_links(
