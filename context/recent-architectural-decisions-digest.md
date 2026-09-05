@@ -70,6 +70,24 @@ Current assumption:
    `codex/skills/lotus-backend-delivery-governance/references/source-boundary-and-recovery-patterns.md`;
    the first full implementation is lotus-gateway's 2026-09-05 completion campaign (PRs #724–#729).
 
+### Branch protection as asserted policy
+
+Current assumption:
+
+1. every repository's `main` protection is documented as a declarative policy table
+   (`quality/branch_protection_policy.v1.json`) carrying each protection field, the review
+   authority, and `documented_exceptions` with a `retires_when` condition,
+2. a lifted checker compares live protection against the candidate policy field by field in a
+   blocking pre-merge lane, failing in both drift directions; scheduled runs are a supplement
+   (and the required home only during a documented drift-first adoption transition),
+3. the checker authenticates with a repository PAT — the workflow token cannot read branch
+   protection — inside a stated trust boundary (per-PR execution only where every same-repo
+   pusher holds the PAT's authority; otherwise an approved `pull_request_target` job on base-ref
+   checker code with the PR's policy read as inert data),
+4. the pattern reference is
+   `codex/skills/lotus-ci-enforcement-governance/references/branch-protection-policy-gate.md`;
+   adoptions: lotus-gateway#737 (reference implementation), lotus-render#281.
+
 ### Product and UI posture
 
 Current assumption:

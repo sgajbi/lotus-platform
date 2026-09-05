@@ -75,12 +75,13 @@ any `pull_request_target` workflow requires the explicit approval that
 `platform-standards/Workflow-Security-and-Permissions-Standard.md` mandates — it is prohibited
 by default and allowed only for approved, narrowly constrained workflow files — so treat that
 approval as part of the adoption, not an implementation detail. Two actor classes need explicit
-handling before the secret-backed context becomes required: Dependabot PRs draw from the
-separate Dependabot secrets store, so mirror the PAT there or every dependency update becomes
-unmergeable against the fail-closed check; fork PRs never receive the secret at all, so a
-repository that accepts fork contributions cannot anchor this gate on a secret-backed required
-context and must fall back to the single-trust-boundary or scheduled-plus-audit posture with the
-residual documented.
+handling before the secret-backed context becomes required. Dependabot-triggered runs draw from
+the separate Dependabot secrets store, so mirror the PAT there or every dependency update
+becomes unmergeable against the fail-closed check. Fork PRs stay on the isolated path: a
+`pull_request_target` job runs the base branch's workflow and checker with repository secrets
+available even for fork-originated runs (the no-secrets rule applies to plain `pull_request`
+execution), subject to GitHub's first-time-contributor approval gates — which is exactly why the
+base-ref code isolation above is non-negotiable there.
 
 ## Adoption record
 
