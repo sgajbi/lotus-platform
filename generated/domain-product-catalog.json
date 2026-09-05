@@ -5212,10 +5212,11 @@
       "required_trust_metadata": [
         "product_name",
         "product_version",
-        "tenant_id",
+        "tenant_admission",
         "generated_at",
         "as_of_date",
         "reconciliation_status",
+        "reconciliation_reason_code",
         "data_quality_status",
         "source_batch_fingerprint",
         "lineage_bundle_id",
@@ -6279,7 +6280,7 @@
           "required_trust_metadata": [
             "product_name",
             "product_version",
-            "tenant_id",
+            "tenant_admission",
             "generated_at",
             "as_of_date",
             "reconciliation_status",
