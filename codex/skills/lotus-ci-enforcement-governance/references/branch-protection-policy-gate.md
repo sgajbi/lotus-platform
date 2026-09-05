@@ -149,7 +149,13 @@ keeps its green and can still merge. Floating `main` therefore converges legitim
 coordinated changes (central merges before the repo-local table) but does not police that
 window — the platform must dispatch a re-evaluation of open adopter PRs when the central
 declaration changes (`repository_dispatch` or equivalent), with the scheduled supplement as the
-post-merge backstop. Neither current adopter implements this comparison yet — it is
+post-merge backstop. The same staleness applies to every comparison input: a verdict binds live
+protection, the central declaration, and the candidate table at evaluation time, and GitHub
+never revokes a finished check, so an operator weakening live protection after a candidate went
+green leaves that candidate mergeable against the old state. Police this with a workflow on the
+`branch_protection_rule` event (created/edited/deleted) that re-runs the comparison for every
+open candidate, so a live edit invalidates stale greens within minutes instead of at the next
+scheduled run. Neither current adopter implements this comparison yet — it is
 a specified extension each adopter owes, not something to claim as enforced before it lands. What the repo-local pattern adds is only what the
 central file does not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
@@ -160,7 +166,7 @@ meantime.
 ## Bootstrapping a new or renamed required context
 
 The base-ref-checker/candidate-policy split deadlocks a single PR that both introduces a context
-and requires it, so roll out in ordered green steps: (1) merge the workflow change that emits the
+and requires it, so roll out in ordered steps: (1) merge the workflow change that emits the
 new context — for a sibling adopter this lands first, because the platform enforcer's
 source-only validation requires the adopter's default branch to already emit any newly declared
 check; live protection and the repo-local table do not require the context yet; (1b) merge the
@@ -168,10 +174,13 @@ central `repository-governance-policy.json` addition in the platform repository 
 repo-local update, which under mechanical centrality cannot merge while the central declaration
 still lists the old checks (within the platform repository itself, 1 and 1b can be one merge);
 (2) an operator
-adds the context to live protection — from this moment until step 3 lands, the bidirectional
-comparison on open PRs honestly reports the live addition as undocumented, so do (2) and (3)
-adjacently and treat the brief red window as the drift-first transition rule in miniature; (3) merge the policy-table update listing the context, validated
-against the now-matching live state. A rename is an addition (steps 1-3) followed by a removal in the **reverse**
+adds the context to live protection — the comparison on open PRs now also reports the live
+addition as undocumented; (3) merge the policy-table update listing the context, validated
+against the now-matching live state. The red window spans (1b) through (3), not just step 2:
+once the central comparison and its re-evaluation dispatch are implemented, (1b) itself reddens
+every open candidate whose table does not yet list the new context — so do those steps
+adjacently, coordinate open PRs for the outage, and treat the window as the drift-first
+transition rule in miniature. A rename is an addition (steps 1-3) followed by a removal in the **reverse**
 order: the central policy drops the old context first — while it stays centrally required, the
 local-table removal cannot pass the central comparison, and the central Apply would re-add
 whatever an operator removed — then the operator drops it from live protection, the policy-table
