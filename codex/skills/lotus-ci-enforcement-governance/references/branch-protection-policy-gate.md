@@ -155,7 +155,13 @@ never revokes a finished check, so an operator weakening live protection after a
 green leaves that candidate mergeable against the old state. Police this with a workflow on the
 `branch_protection_rule` event (created/edited/deleted) that re-runs the comparison for every
 open candidate, so a live edit invalidates stale greens within minutes instead of at the next
-scheduled run. Neither current adopter implements this comparison yet — it is
+scheduled run. That event covers repository branch-protection rules only: an organization
+ruleset edit — which can silently remove the required-workflow identity binding and reopen the
+name-spoofing path — emits the `repository_ruleset` webhook, which is not an Actions trigger.
+Where that binding is in use, wire an organization webhook receiver that forwards ruleset
+changes as `repository_dispatch` re-evaluations, or — in an estate with no receiver — couple
+the ruleset-editing runbook to firing that dispatch by hand, with the scheduled supplement
+(which re-reads rulesets) as the bounded-delay backstop. Neither current adopter implements this comparison yet — it is
 a specified extension each adopter owes, not something to claim as enforced before it lands. What the repo-local pattern adds is only what the
 central file does not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
