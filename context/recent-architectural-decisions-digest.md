@@ -59,7 +59,8 @@ Current assumption:
 1. a consumer may automatically retry an upstream mutation after an ambiguous response loss
    (read/write failure, remote-protocol error, read/write timeout) only with a producer
    replay-identity contract and one identity reused verbatim across attempts; without one it
-   stops and surfaces the indeterminate outcome, and it does not follow redirects,
+   stops and surfaces the indeterminate outcome, and it does not follow method-preserving
+   redirects such as `307` or `308`; a `303` follow-up is a separately classified read,
 2. correlation and trace ids are tracing, never replay identity,
 3. a well-shaped upstream success is published only after it is bound to the requested
    operation's identities (resource id, per-row identities, echoed idempotency key,
