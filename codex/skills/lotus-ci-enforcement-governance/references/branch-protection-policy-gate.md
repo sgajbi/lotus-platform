@@ -81,7 +81,14 @@ becomes unmergeable against the fail-closed check. Fork PRs stay on the isolated
 `pull_request_target` job runs the base branch's workflow and checker with repository secrets
 available even for fork-originated runs (the no-secrets rule applies to plain `pull_request`
 execution), subject to GitHub's first-time-contributor approval gates — which is exactly why the
-base-ref code isolation above is non-negotiable there.
+base-ref code isolation above is non-negotiable there. Publishing the isolated job only as a
+named required status context does not by itself preserve that isolation: branch protection
+matches checks by context name and creating app, and every Actions workflow shares one app, so
+a PR-controlled workflow can emit a same-named check on the candidate SHA and satisfy the
+requirement without the trusted job running. In the multi-contributor path, bind the gate to
+workflow identity, not name — a repository ruleset "required workflows" entry pinning the
+specific workflow file (or a check produced by a dedicated GitHub App) — and record that
+binding in the policy table so its removal is also a reported drift.
 
 ## One authority per field
 
