@@ -64,6 +64,24 @@ def _markdown_link_destination(raw_target: str) -> str:
     return target.split(maxsplit=1)[0] if target else ""
 
 
+def _has_balanced_destination_parentheses(destination: str) -> bool:
+    depth = 0
+    escaped = False
+    for character in destination:
+        if escaped:
+            escaped = False
+            continue
+        if character == "\\":
+            escaped = True
+        elif character == "(":
+            depth += 1
+        elif character == ")":
+            if depth == 0:
+                return False
+            depth -= 1
+    return depth == 0 and not escaped
+
+
 def _valid_reference_definition(raw_target: str) -> bool:
     target = raw_target.strip()
     if not target:
@@ -75,6 +93,8 @@ def _valid_reference_definition(raw_target: str) -> bool:
         remainder = target[closing_angle + 1 :].strip()
     else:
         parts = target.split(maxsplit=1)
+        if not _has_balanced_destination_parentheses(parts[0]):
+            return False
         remainder = parts[1].strip() if len(parts) == 2 else ""
     if not remainder:
         return True

@@ -155,6 +155,7 @@ def test_wiki_quality_audit_rejects_parent_relative_publication_links(
         "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
         in failures
     )
+
     assert (
         "Home.md: publication-unsafe root-relative link: /docs/runbook.md"
         in failures
@@ -207,6 +208,20 @@ def test_wiki_quality_audit_uses_shortcut_colons_and_first_reference_definition(
         "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
         in failures
     )
+
+    for invalid_destination in ("operational(details", "operational)details"):
+        (wiki_dir / "Home.md").write_text(
+            f"# Home\n\n[runbook]: {invalid_destination}\n\n"
+            "[runbook]: ../docs/runbook.md\n",
+            encoding="utf-8",
+        )
+
+        failures = audit.audit_wiki(wiki_dir, repo_root)
+
+        assert (
+            "Home.md: publication-unsafe parent-relative link: ../docs/runbook.md"
+            in failures
+        )
 
     (wiki_dir / "Home.md").write_text(
         "# Home\n\n[runbook]: operational details.\n\n"
