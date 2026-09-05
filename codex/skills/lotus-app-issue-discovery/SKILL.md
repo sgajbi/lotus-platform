@@ -68,7 +68,7 @@ campaign plan before broad reviews or app handoffs. Add `--include-bank-readines
 must map findings to the platform `BR-001` through `BR-025` catalog.
 
 ```powershell
-python scripts/ensure_issue_discovery_labels.py --repository <owner>/<repo>
+python <skill-dir>\scripts\ensure_issue_discovery_labels.py --repository <owner>/<repo>
 ```
 
 Use `scripts/audit_rfc_issue_coverage.py` before claiming a multi-repo RFC backlog is complete,
