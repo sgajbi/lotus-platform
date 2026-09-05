@@ -104,9 +104,11 @@ def _metadata(product_id: str, product_name: str, product_version: str) -> dict:
         return {
             **common,
             "tenant_id": "tenant-private-bank",
+            "tenant_admission": "caller_admitted",
             "generated_at": "2026-04-19T00:00:00Z",
             "as_of_date": "2026-04-19",
             "reconciliation_status": "reconciled",
+            "reconciliation_reason_code": "policy_evidence_verified",
             "data_quality_status": "quality_passed",
             "source_batch_fingerprint": "client-report-evidence-pack-001",
             "lineage_bundle_id": "lineage-report-001",
@@ -460,7 +462,7 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
     assert status["contract_id"] == "lotus-mesh-certification-status"
     assert status["governed_by_rfcs"] == ["RFC-0089", "RFC-0091"]
     assert status["certification_state"] == "certified"
-    assert status["summary"]["certified_required_product_count"] == 8
+    assert status["summary"]["certified_required_product_count"] == 7
     assert status["summary"]["error_count"] == 0
     assert status["summary"]["mesh_lifecycle_issue_count"] == 0
     assert status["summary"]["mesh_evidence_issue_count"] == 0
@@ -484,7 +486,6 @@ def test_mesh_certification_gate_certifies_required_products(tmp_path: Path) -> 
         "lotus-risk:RiskMetricsReport:v1",
         "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
         "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
-        "lotus-report:ClientReportEvidencePack:v1",
         "lotus-manage:PortfolioActionRegister:v1",
     ]
 
@@ -494,11 +495,12 @@ def test_mesh_certification_gate_allows_scoped_report_analytics_block(
 ) -> None:
     gate = _load_gate_module()
     telemetry_paths = _write_required_snapshots(tmp_path)
-    report_path = next(
-        path
-        for path in telemetry_paths
-        if path.name == "lotus-report-ClientReportEvidencePack-v1.json"
+    report_path = tmp_path / "lotus-report-ClientReportEvidencePack-v1.json"
+    report_path.write_text(
+        json.dumps(_snapshot("lotus-report:ClientReportEvidencePack:v1")),
+        encoding="utf-8",
     )
+    telemetry_paths.append(report_path)
     report_payload = json.loads(report_path.read_text(encoding="utf-8"))
     report_payload["completeness_status"] = "partial"
     report_payload["data_quality_status"] = "quality_warning"
@@ -523,7 +525,7 @@ def test_mesh_certification_gate_allows_scoped_report_analytics_block(
     assert status["summary"]["error_count"] == 0
     assert status["summary"]["warning_count"] == 1
     assert status["summary"]["certified_required_product_count"] == 7
-    assert status["summary"]["attention_required_product_count"] == 1
+    assert status["summary"]["attention_required_product_count"] == 0
     assert status["issues"] == [
         {
             "code": "product_blocked",
@@ -592,6 +594,42 @@ def test_mesh_certification_gate_blocks_mesh_slo_violations(
     )
 
 
+def test_mesh_certification_gate_reports_candidate_slo_violation_as_warning(
+    monkeypatch,
+) -> None:
+    gate = _load_gate_module()
+    candidate_product_id = "lotus-report:ClientReportEvidencePack:v1"
+    monkeypatch.setattr(gate, "validate_mesh_slo_policies", lambda *args, **kwargs: [])
+    monkeypatch.setattr(
+        gate,
+        "evaluate_mesh_slo_violations",
+        lambda **kwargs: [
+            {
+                "code": "mesh_slo_reconciliation_violation",
+                "severity": "blocking",
+                "producer_repository": "lotus-report",
+                "product_id": candidate_product_id,
+                "remediation": "Define and prove a reconciliation policy.",
+                "policy_path": "report-slo.json",
+            }
+        ],
+    )
+    issues = []
+
+    gate._validate_mesh_slo_policy_and_telemetry(
+        telemetry_payloads={},
+        catalog_path=ROOT / "generated" / "domain-product-catalog.json",
+        slo_policy_path=ROOT / "platform-contracts" / "mesh-slo",
+        issues=issues,
+        gate_mode="blocking",
+    )
+
+    assert candidate_product_id not in gate.REQUIRED_PRODUCTS
+    assert len(issues) == 1
+    assert issues[0].code == "mesh_slo_reconciliation_violation"
+    assert issues[0].severity == "warning"
+
+
 def test_mesh_certification_gate_blocks_missing_access_policies(
     tmp_path: Path,
 ) -> None:
@@ -643,7 +681,7 @@ def test_mesh_certification_gate_blocks_missing_evidence_policies(
     )
 
 
-def test_mesh_certification_gate_blocks_required_product_lifecycle_drift(
+def test_mesh_certification_gate_blocks_required_manage_product_lifecycle_drift(
     tmp_path: Path,
 ) -> None:
     gate = _load_gate_module()
@@ -653,7 +691,7 @@ def test_mesh_certification_gate_blocks_required_product_lifecycle_drift(
         (ROOT / "generated" / "domain-product-catalog.json").read_text(encoding="utf-8")
     )
     for product in catalog["products"]:
-        if product["product_id"] == "lotus-report:ClientReportEvidencePack:v1":
+        if product["product_id"] == "lotus-manage:PortfolioActionRegister:v1":
             product["lifecycle_status"] = "deprecated"
             product["deprecation_policy"] = {
                 "state": "deprecated",
@@ -673,7 +711,7 @@ def test_mesh_certification_gate_blocks_required_product_lifecycle_drift(
     assert status["summary"]["mesh_lifecycle_issue_count"] == 1
     assert any(
         issue["code"] == "mesh_lifecycle_drift"
-        and issue["product_id"] == "lotus-report:ClientReportEvidencePack:v1"
+        and issue["product_id"] == "lotus-manage:PortfolioActionRegister:v1"
         for issue in status["issues"]
     )
 
@@ -764,7 +802,7 @@ def test_mesh_certification_gate_advisory_mode_tolerates_missing_snapshots() -> 
     )
 
     assert status["certification_state"] == "certified_with_warnings"
-    assert status["summary"]["missing_telemetry_count"] == 8
+    assert status["summary"]["missing_telemetry_count"] == 7
     assert status["summary"]["error_count"] == 0
     assert gate._exit_code(status) == 0
 

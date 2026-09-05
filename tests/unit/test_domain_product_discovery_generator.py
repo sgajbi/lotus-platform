@@ -172,6 +172,41 @@ def test_domain_product_discovery_preserves_conditional_failure_posture() -> Non
     )
 
 
+def test_domain_product_discovery_preserves_conditional_trust_metadata() -> None:
+    generator = _load_generator_module()
+    product = {
+        "product_name": "ClientReportEvidencePack",
+        "product_version": "v1",
+        "owner_repository": "lotus-report",
+        "authoritative_domain": "client_reporting",
+        "product_family": "client_reporting_evidence",
+        "lifecycle_status": "active",
+        "request_scope": {},
+        "temporal_scope": {},
+        "temporal_semantics_ref": "as_of_date",
+        "identifier_refs": ["portfolio_id"],
+        "required_trust_metadata": ["tenant_admission"],
+        "conditional_trust_metadata": {
+            "tenant_id": "Present only when tenant admission establishes it."
+        },
+        "freshness_policy": {},
+        "completeness_policy": {},
+        "lineage_policy": {},
+        "security_profile_ref": "client_confidential",
+        "approved_consumers": ["lotus-idea"],
+        "deprecation_policy": {},
+    }
+
+    entry = generator._build_product_entry(
+        ROOT / "lotus-report-products.v1.json",
+        producer_repository="lotus-report",
+        product=product,
+    )
+
+    assert entry["conditional_trust_metadata"] == {
+        "tenant_id": "Present only when tenant admission establishes it."
+    }
+
 def test_domain_product_source_manifest_promotes_repo_native_sources_to_catalog() -> (
     None
 ):

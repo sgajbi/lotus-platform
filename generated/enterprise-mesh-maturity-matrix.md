@@ -6,8 +6,8 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 - Source catalog: `generated/domain-product-catalog.json`
 - Repository count: `11`
 - Product count: `85`
-- Certified first-wave products: `8`
-- Candidate products: `1`
+- Certified first-wave products: `7`
+- Candidate products: `2`
 - Ambiguous repositories: `0`
 
 ## Repository Maturity
@@ -19,7 +19,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-performance` | `certified_first_wave` | `producer` | `8` | `10` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-risk` | `certified_first_wave` | `producer` | `8` | `6` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-advise` | `certified_first_wave` | `producer` | `8` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
-| `lotus-report` | `certified_first_wave` | `producer` | `1` | `2` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
+| `lotus-report` | `certification_candidate` | `producer` | `1` | `2` | Define and prove the Report reconciliation policy tracked by lotus-report#283, then pass the blocking mesh gate before restoring first-wave certification. |
 | `lotus-manage` | `certified_first_wave` | `producer` | `3` | `29` | Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture. |
 | `lotus-gateway` | `not_mesh_participant` | `api_face` | `0` | `0` | Publishes catalog, trust, access, and evidence APIs without becoming a product authority. |
 | `lotus-workbench` | `not_mesh_participant` | `discovery_and_operator_ux` | `0` | `0` | Consumes gateway/BFF APIs for discovery and evidence UX; it must not read platform files directly. |
@@ -106,7 +106,7 @@ This file is generated from governed domain-product catalog evidence and RFC-009
 | `lotus-performance:MoneyWeightedReturnAnalytics:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-performance:ReturnsSeriesBundle:v1` | `lotus-performance` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
 | `lotus-performance:TimeWeightedReturnAnalytics:v1` | `lotus-performance` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
-| `lotus-report:ClientReportEvidencePack:v1` | `lotus-report` | `certified_first_wave` | `enterprise_wave_1` | `active` | Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls. |
+| `lotus-report:ClientReportEvidencePack:v1` | `lotus-report` | `certification_candidate` | `enterprise_wave_candidate` | `active` | Define and prove the Report reconciliation policy tracked by lotus-report#283, then pass the blocking mesh gate before restoring first-wave certification. |
 | `lotus-risk:ConcentrationRiskReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:DrawdownAnalyticsReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |
 | `lotus-risk:HistoricalRiskAttributionReport:v1` | `lotus-risk` | `deferred` | `future_wave` | `active` | Keep outside blocking maturity gate until explicitly promoted. |

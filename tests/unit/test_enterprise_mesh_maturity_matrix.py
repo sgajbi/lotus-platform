@@ -43,7 +43,7 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
     assert matrix["ambiguous_repositories"] == []
     assert matrix["implementation_boundary"][
         "certification_candidate_repositories"
-    ] == ["lotus-idea"]
+    ] == ["lotus-report", "lotus-idea"]
     assert matrix["implementation_boundary"]["future_wave_catalog_repositories"] == [
         "lotus-idea"
     ]
@@ -53,7 +53,6 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
         "lotus-performance",
         "lotus-risk",
         "lotus-advise",
-        "lotus-report",
         "lotus-manage",
     ):
         assert repositories[repository]["classification"] == "certified_first_wave"
@@ -64,12 +63,15 @@ def test_enterprise_mesh_maturity_matrix_classifies_every_lotus_repo() -> None:
     for repository in (
         "lotus-performance",
         "lotus-risk",
-        "lotus-report",
         "lotus-manage",
     ):
         assert repositories[repository]["first_wave_product_count"] == 1
 
     assert repositories["lotus-ai"]["classification"] == "not_mesh_participant"
+    assert repositories["lotus-report"]["classification"] == "certification_candidate"
+    assert repositories["lotus-report"]["first_wave_product_count"] == 0
+    assert repositories["lotus-report"]["certification_candidate_product_count"] == 1
+    assert "lotus-report#283" in repositories["lotus-report"]["required_next_step"]
     assert repositories["lotus-idea"]["classification"] == "certification_candidate"
     assert repositories["lotus-idea"]["mesh_role"] == "producer"
     assert repositories["lotus-idea"]["produced_product_count"] == 9
@@ -94,13 +96,13 @@ def test_enterprise_mesh_maturity_matrix_defines_candidate_products() -> None:
 
     assert (
         products["lotus-report:ClientReportEvidencePack:v1"]["classification"]
-        == "certified_first_wave"
+        == "certification_candidate"
     )
     assert (
         products["lotus-manage:PortfolioActionRegister:v1"]["classification"]
         == "certified_first_wave"
     )
-    assert matrix["summary"]["candidate_product_count"] == 1
+    assert matrix["summary"]["candidate_product_count"] == 2
     assert (
         products["lotus-idea:IdeaCandidate:v1"]["classification"]
         == "certification_candidate"

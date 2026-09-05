@@ -477,11 +477,14 @@ RFC-0091 maturity-wave scope now includes six required products:
 - `lotus-performance:ReturnsSeriesBundle:v1`
 - `lotus-risk:RiskMetricsReport:v1`
 - `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
-- `lotus-report:ClientReportEvidencePack:v1`
 - `lotus-manage:PortfolioActionRegister:v1`
 
 The required product scope is centralized in `automation/mesh_maturity_scope.py`. Reuse that module
 for platform automation instead of copying the product list into new scripts.
+
+`lotus-report:ClientReportEvidencePack:v1` remains in telemetry collection as a certification
+candidate until the explicit reconciliation policy tracked by `lotus-report#283` is implemented
+and passes the blocking mesh gate. Candidate findings remain visible as warnings.
 
 Generate RFC-0091 certification history and evidence-pack manifests:
 

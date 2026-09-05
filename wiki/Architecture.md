@@ -138,8 +138,11 @@ Current maturity-wave products:
 2. `lotus-performance:ReturnsSeriesBundle:v1`
 3. `lotus-risk:RiskMetricsReport:v1`
 4. `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
-5. `lotus-report:ClientReportEvidencePack:v1`
-6. `lotus-manage:PortfolioActionRegister:v1`
+5. `lotus-manage:PortfolioActionRegister:v1`
+
+`lotus-report:ClientReportEvidencePack:v1` remains catalogued and monitored as a certification
+candidate. It must not return to this blocking set until `lotus-report#283` supplies an explicit
+reconciliation policy and exact-main telemetry passes the blocking mesh gate.
 
 ## Documentation layering
 

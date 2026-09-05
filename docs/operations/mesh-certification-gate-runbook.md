@@ -220,11 +220,15 @@ Blocking mode applies to:
 4. `lotus-risk:RiskMetricsReport:v1`
 5. `lotus-advise:AdvisoryProposalLifecycleRecord:v1`
 6. `lotus-advise:AdvisoryProposalMemoEvidencePack:v1`
-7. `lotus-report:ClientReportEvidencePack:v1`
-8. `lotus-manage:PortfolioActionRegister:v1`
+7. `lotus-manage:PortfolioActionRegister:v1`
 
 Other catalog products may be reported as advisory posture until they are deliberately promoted into
 the blocking certification set.
+
+`lotus-report:ClientReportEvidencePack:v1` is collected and validated as a certification candidate
+after evidence-truth hardening exposed the absence of a reconciliation policy. Do not waive
+`unknown` reconciliation or relabel it certified. Restore blocking status only after the policy
+owned by `lotus-report#283` is implemented and exact-main telemetry passes this gate.
 
 ## Maturity Check Families
 

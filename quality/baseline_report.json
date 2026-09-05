@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 364755
+    "total_source_lines": 364993
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -91,8 +91,8 @@
       },
       {
         "complexity": 17,
-        "end_line": 1338,
-        "line": 1273,
+        "end_line": 1384,
+        "line": 1319,
         "lines": 66,
         "name": "_validate_dependency_failure_posture_conditions",
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
@@ -261,8 +261,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2391,
-        "line": 2122,
+        "end_line": 2421,
+        "line": 2152,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -349,8 +349,8 @@
       },
       {
         "complexity": 4,
-        "end_line": 2119,
-        "line": 1974,
+        "end_line": 2149,
+        "line": 2004,
         "lines": 146,
         "name": "test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3069
+    "python_function_count": 3074
   },
-  "generated_at_utc": "2026-09-05T00:45:39Z",
+  "generated_at_utc": "2026-09-05T10:31:38Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,12 +398,12 @@
       "suffix": ".json"
     },
     {
-      "lines": 2495,
+      "lines": 2525,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
     {
-      "lines": 1862,
+      "lines": 1908,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -413,7 +413,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1736,
+      "lines": 1739,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -443,7 +443,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1277,
+      "lines": 1279,
       "path": "automation/mesh_certification_gate.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1215,
+    "collected_tests": 1219,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1215 tests collected in 1.01s"
+    "summary": "1219 tests collected in 3.25s"
   }
 }

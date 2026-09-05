@@ -12,11 +12,11 @@
       "lotus-performance",
       "lotus-risk",
       "lotus-advise",
-      "lotus-report",
       "lotus-manage"
     ],
     "candidate_expansion_repositories": [],
     "certification_candidate_repositories": [
+      "lotus-report",
       "lotus-idea"
     ],
     "explicit_posture_decision_repositories": [
@@ -32,8 +32,8 @@
   "summary": {
     "repository_count": 11,
     "product_count": 85,
-    "certified_first_wave_product_count": 8,
-    "candidate_product_count": 1,
+    "certified_first_wave_product_count": 7,
+    "candidate_product_count": 2,
     "ambiguous_repository_count": 0
   },
   "repositories": [
@@ -106,17 +106,17 @@
     },
     {
       "repository": "lotus-report",
-      "classification": "certified_first_wave",
+      "classification": "certification_candidate",
       "mesh_role": "producer",
-      "rationale": "Produces one or more RFC-0089 required products and is included in the first enterprise maturity wave.",
+      "rationale": "Produces one or more implementation-backed certification candidates selected for policy coverage but not blocking maturity enforcement.",
       "produced_product_count": 1,
-      "first_wave_product_count": 1,
-      "certification_candidate_product_count": 0,
+      "first_wave_product_count": 0,
+      "certification_candidate_product_count": 1,
       "consumed_dependency_count": 2,
       "repo_native_status": "implemented",
       "source_mode": "repo_native",
       "ambiguous_participation": false,
-      "required_next_step": "Maintain repo-native declaration, trust telemetry, SLO, access, lifecycle, evidence-pack, and certification-gate posture."
+      "required_next_step": "Define and prove the Report reconciliation policy tracked by lotus-report#283, then pass the blocking mesh gate before restoring first-wave certification."
     },
     {
       "repository": "lotus-manage",
@@ -1022,11 +1022,11 @@
       "product_name": "ClientReportEvidencePack",
       "product_version": "v1",
       "producer_repository": "lotus-report",
-      "classification": "certified_first_wave",
-      "maturity_wave": "enterprise_wave_1",
+      "classification": "certification_candidate",
+      "maturity_wave": "enterprise_wave_candidate",
       "lifecycle_status": "active",
       "source_path": "lotus-report/contracts/domain-data-products/lotus-report-products.v1.json",
-      "required_next_step": "Maintain RFC-0091 runtime, SLO, access, lifecycle, evidence-pack, and certification-gate controls."
+      "required_next_step": "Define and prove the Report reconciliation policy tracked by lotus-report#283, then pass the blocking mesh gate before restoring first-wave certification."
     },
     {
       "product_id": "lotus-risk:ConcentrationRiskReport:v1",

@@ -96,6 +96,36 @@ def test_valid_trust_telemetry_snapshot_references_catalog_and_vocabulary(
     assert validator.validate_trust_telemetry_path(snapshot_path) == []
 
 
+def test_trust_telemetry_accepts_product_declared_conditional_metadata(
+    tmp_path: Path,
+) -> None:
+    validator = _load_validator_module()
+    snapshot = _valid_snapshot()
+    snapshot["observed_trust_metadata"]["tenant_id"] = "tenant-sg-001"
+    snapshot_path = tmp_path / "conditional-metadata.json"
+    snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
+
+    catalog = json.loads(
+        (ROOT / "generated" / "domain-product-catalog.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    product = next(
+        product
+        for product in catalog["products"]
+        if product["product_id"] == snapshot["product_id"]
+    )
+    product["conditional_trust_metadata"] = {
+        "tenant_id": "Present only when tenant admission establishes it."
+    }
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+
+    assert validator.validate_trust_telemetry_path(
+        snapshot_path, catalog_path=catalog_path
+    ) == []
+
+
 def test_trust_telemetry_rejects_unknown_product_and_wrong_identity(
     tmp_path: Path,
 ) -> None:

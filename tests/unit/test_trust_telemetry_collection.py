@@ -276,13 +276,12 @@ def test_trust_telemetry_collection_reports_missing_required_products(
     assert missing_products == {
             "lotus-advise:AdvisoryProposalLifecycleRecord:v1",
             "lotus-advise:AdvisoryProposalMemoEvidencePack:v1",
-            "lotus-report:ClientReportEvidencePack:v1",
             "lotus-manage:PortfolioActionRegister:v1",
             "lotus-core:DpmSourceReadiness:v1",
             "lotus-performance:ReturnsSeriesBundle:v1",
             "lotus-risk:RiskMetricsReport:v1",
         }
-    assert manifest["summary"]["error_count"] == 7
+    assert manifest["summary"]["error_count"] == 6
 
 
 def test_trust_telemetry_collection_cli_writes_manifest(tmp_path: Path) -> None:

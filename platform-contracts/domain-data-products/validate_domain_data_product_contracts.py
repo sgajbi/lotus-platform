@@ -714,6 +714,13 @@ def _validate_product_registry_references(
         product=product,
         trust_metadata_keys=trust_metadata_keys,
     )
+    _validate_product_conditional_trust_metadata(
+        issues,
+        path,
+        index=index,
+        product=product,
+        trust_metadata_keys=trust_metadata_keys,
+    )
     _validate_product_identifier_refs(
         issues,
         path,
@@ -765,6 +772,45 @@ def _validate_product_required_trust_metadata(
                 issues,
                 path,
                 f"products[{index}].required_trust_metadata contains unknown fields: {', '.join(unknown_trust_metadata)}",
+            )
+
+
+def _validate_product_conditional_trust_metadata(
+    issues: list[str],
+    path: Path,
+    *,
+    index: int,
+    product: dict,
+    trust_metadata_keys: set[str] | None,
+) -> None:
+    conditional = product.get("conditional_trust_metadata")
+    if conditional is None:
+        return
+    if not isinstance(conditional, dict) or not conditional:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].conditional_trust_metadata must be a non-empty object",
+        )
+        return
+    invalid_descriptions = sorted(
+        field
+        for field, description in conditional.items()
+        if not isinstance(description, str) or not description.strip()
+    )
+    if invalid_descriptions:
+        _append_issue(
+            issues,
+            path,
+            f"products[{index}].conditional_trust_metadata descriptions must be non-empty strings: {', '.join(invalid_descriptions)}",
+        )
+    if trust_metadata_keys is not None:
+        unknown = sorted(set(conditional) - trust_metadata_keys)
+        if unknown:
+            _append_issue(
+                issues,
+                path,
+                f"products[{index}].conditional_trust_metadata contains unknown fields: {', '.join(unknown)}",
             )
 
 

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-05T00:45:39Z`
+Generated: `2026-09-05T10:31:38Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `903`
-- Total source lines: `364755`
+- Total source lines: `364993`
 - Python files: `234`
 - PowerShell files: `69`
 - Markdown files: `413`
@@ -33,13 +33,13 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/New-Lotus-Service.ps1 | 5950 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2495 | .py |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1862 | .py |
+| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2525 | .py |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1908 | .py |
 | rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md | 1818 | .md |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3069`
+- Python functions: `3074`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -52,7 +52,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 37 | 20 | 69 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1273 | 17 | 66 |
+| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1319 | 17 | 66 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
 | automation/validate_auto_merge_releasability.py | _matrix_dispatch_is_verified | 200 | 16 | 34 |
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1215`
+- Unit tests collected: `1219`
 - Collection command return code: `0`
-- Collection summary: `1215 tests collected in 1.01s`
+- Collection summary: `1219 tests collected in 3.25s`
 
 ## Security Baseline
 

@@ -37,6 +37,13 @@ LOTUS_REPOSITORIES = [
 FIRST_WAVE_PRODUCTS = set(REQUIRED_PRODUCT_IDS)
 CERTIFICATION_CANDIDATE_PRODUCTS = set(CERTIFICATION_CANDIDATE_PRODUCT_IDS)
 
+CERTIFICATION_CANDIDATE_NEXT_STEPS = {
+    "lotus-report:ClientReportEvidencePack:v1": (
+        "Define and prove the Report reconciliation policy tracked by lotus-report#283, "
+        "then pass the blocking mesh gate before restoring first-wave certification."
+    ),
+}
+
 CANDIDATE_PRODUCTS: list[dict[str, str]] = []
 
 SUPPORT_REPOSITORY_POSTURE = {
@@ -148,9 +155,14 @@ def _repository_entry(
     elif certification_candidate_product_count:
         classification = "certification_candidate"
         mesh_role = "producer"
-        required_next_step = (
+        required_next_step = CERTIFICATION_CANDIDATE_NEXT_STEPS.get(
+            next(
+                product["product_id"]
+                for product in products
+                if product["product_id"] in CERTIFICATION_CANDIDATE_PRODUCTS
+            ),
             "Complete runtime telemetry, durable repository, Gateway/Workbench "
-            "discovery, and supported-feature proof before promotion."
+            "discovery, and supported-feature proof before promotion.",
         )
     elif repository in CONSUMER_ONLY_REPOSITORIES:
         classification = "consumer_only"
@@ -225,9 +237,10 @@ def _product_entries(catalog: dict[str, Any]) -> list[dict[str, Any]]:
         elif product_id in CERTIFICATION_CANDIDATE_PRODUCTS:
             classification = "certification_candidate"
             maturity_wave = "enterprise_wave_candidate"
-            required_next_step = (
+            required_next_step = CERTIFICATION_CANDIDATE_NEXT_STEPS.get(
+                product_id,
                 "Keep fail-closed until runtime trust telemetry, durable records, "
-                "Gateway/Workbench discovery, and supported-feature proof are certified."
+                "Gateway/Workbench discovery, and supported-feature proof are certified.",
             )
         else:
             classification = "deferred"
@@ -321,7 +334,6 @@ def build_enterprise_mesh_maturity_matrix(
                 "lotus-performance",
                 "lotus-risk",
                 "lotus-advise",
-                "lotus-report",
                 "lotus-manage",
             ],
             "candidate_expansion_repositories": [],

@@ -201,9 +201,12 @@ For the RFC-0085/RFC-0088 first-wave publication and discovery path:
    Slice 4 provides `platform-contracts/mesh-access/` plus
    `automation/validate_mesh_access_policies.py`. Slice 5 provides
    `platform-contracts/mesh-evidence/` plus `automation/generate_mesh_evidence_pack.py` for
-   certification-history and evidence-pack manifests. Slice 6 promotes
+   certification-history and evidence-pack manifests. Slice 6 originally promoted
    `lotus-report:ClientReportEvidencePack:v1` and
-   `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave.
+   `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Platform issue
+   #780 returns the Report product to certification-candidate posture after evidence-truth
+   hardening proved that no reconciliation policy exists; promotion must wait for the explicit
+   policy and blocking-gate evidence owned by `lotus-report#283`.
    Slice 7 turns mesh certification into an enterprise maturity gate with operator-facing
    telemetry, SLO, access, lifecycle, evidence, catalog, gateway, and Workbench check families,
    evidence-policy validation, lifecycle drift validation, and RFC-0091 `enterprise-mesh-*`

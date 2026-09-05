@@ -277,10 +277,11 @@ Boundary rules:
     `automation/generate_mesh_evidence_pack.py`; certification-history records and evidence-pack
     manifests are generated from derived mesh certification artifacts with audience-based field
     filtering.
-27. RFC-0091 Slice 6 promotes `lotus-report:ClientReportEvidencePack:v1` and
-    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. The later
-    DPM source-readiness expansion promotes `lotus-core:DpmSourceReadiness:v1`, so mesh
-    certification now treats seven products as required.
+27. RFC-0091 Slice 6 originally promoted `lotus-report:ClientReportEvidencePack:v1` and
+    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Platform issue
+    #780 returns the Report product to certification-candidate posture because exact-main evidence
+    proves no reconciliation policy exists. The candidate stays visible in telemetry; promotion
+    requires the policy and blocking-gate proof owned by `lotus-report#283`.
 28. RFC-0091 Slice 7 extends the mesh certification gate into the enterprise maturity gate. The gate
     now reports operator-facing maturity check families for telemetry, SLO, access, lifecycle,
     evidence, catalog, gateway, and Workbench drift; validates evidence-policy and lifecycle drift;
