@@ -135,7 +135,14 @@ example — must extend the central authority to per-repository posture values a
 same change; this is the concrete first step of the federated unification named below. The checker enforces this mechanically, not just editorially: for the
 fields the central authority owns, the candidate table must equal the central declaration, so
 a candidate edited to legitimize already-weakened live protection fails against the central
-authority even though it matches live. What the repo-local pattern adds is only what the
+authority even though it matches live. The central input is obtained by fetching
+`automation/repository-governance-policy.json` from the platform repository at `main` at check
+time (the branch-protection PAT already reads it), failing closed when unreachable — never a
+vendored copy, which would be a second authority going stale, the exact defect this section
+forbids. Floating `main` rather than a pin is deliberate: a central change that reddens open
+sibling PRs is drift detection working, and the bootstrap ordering below (central merges first)
+keeps coordinated changes green. Neither current adopter implements this comparison yet — it is
+a specified extension each adopter owes, not something to claim as enforced before it lands. What the repo-local pattern adds is only what the
 central file does not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
 allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
 An adopter copies the central declaration rather than re-deriving it; folding the two into one
