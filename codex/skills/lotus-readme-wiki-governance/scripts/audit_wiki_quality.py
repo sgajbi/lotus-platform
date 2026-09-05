@@ -79,7 +79,7 @@ def _has_balanced_destination_parentheses(destination: str) -> bool:
             if depth == 0:
                 return False
             depth -= 1
-    return depth == 0 and not escaped
+    return depth == 0
 
 
 def _valid_reference_definition(raw_target: str) -> bool:
