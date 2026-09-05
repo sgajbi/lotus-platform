@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 365572
+    "total_source_lines": 365695
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -131,6 +131,14 @@
       },
       {
         "complexity": 15,
+        "end_line": 165,
+        "line": 106,
+        "lines": 60,
+        "name": "_repository_github_link_failures",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
+        "complexity": 15,
         "end_line": 171,
         "line": 122,
         "lines": 50,
@@ -184,14 +192,6 @@
         "lines": 34,
         "name": "_iter_default_telemetry_paths",
         "path": "automation/mesh_certification_gate.py"
-      },
-      {
-        "complexity": 13,
-        "end_line": 904,
-        "line": 839,
-        "lines": 66,
-        "name": "main",
-        "path": "automation/gate_liveness_audit.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3086
+    "python_function_count": 3090
   },
-  "generated_at_utc": "2026-09-05T14:27:11Z",
+  "generated_at_utc": "2026-09-05T15:03:23Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1229,
+    "collected_tests": 1230,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1229 tests collected in 1.38s"
+    "summary": "1230 tests collected in 1.26s"
   }
 }
