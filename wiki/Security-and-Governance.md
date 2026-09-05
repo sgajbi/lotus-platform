@@ -14,10 +14,11 @@
 - scaffold and validator ownership
 - governed dependency, SBOM, vulnerability-scan, and container-image maturity posture
 - branch-protection policy gate: adopting repositories assert `main` protection as a declarative
-  policy table with documented exceptions, compared field-by-field against live protection in a
-  blocking pre-merge lane (pattern:
-  `codex/skills/lotus-ci-enforcement-governance/references/branch-protection-policy-gate.md`;
-  adopted by `lotus-gateway` and `lotus-render`)
+  policy table with documented exceptions, compared field-by-field against live protection; the
+  target posture is a blocking pre-merge lane — `lotus-gateway` runs it blocking today, while
+  `lotus-render` is in the documented scheduled-only drift-first transition pending operator
+  remediation (pattern:
+  `codex/skills/lotus-ci-enforcement-governance/references/branch-protection-policy-gate.md`)
 - RFC-0084 domain-product registration, trust metadata governance, and consumer compatibility checks
 - RFC-0089 mesh certification gate for first-wave telemetry, live trust certification, gateway
   publication drift, and Workbench discovery consumption drift
