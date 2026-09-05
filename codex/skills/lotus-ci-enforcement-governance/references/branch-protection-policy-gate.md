@@ -88,7 +88,15 @@ a PR-controlled workflow can emit a same-named check on the candidate SHA and sa
 requirement without the trusted job running. In the multi-contributor path, bind the gate to
 workflow identity, not name — a repository ruleset "required workflows" entry pinning the
 specific workflow file (or a check produced by a dedicated GitHub App) — and record that
-binding in the policy table so its removal is also a reported drift.
+binding in the policy table so its removal is also a reported drift. Two mechanics make the
+binding real. First, a `pull_request_target` job's own check suite attaches to the base tip
+(`GITHUB_SHA`), while a required context is evaluated on the PR head, so the trusted job must
+explicitly publish its verdict against the candidate head SHA
+(`github.event.pull_request.head.sha`) through the checks or statuses API — otherwise the
+required context simply never completes. Second, the required-workflow binding lives in the
+rulesets API, not the branch-protection endpoint, so when the policy table records such a
+binding the checker must also read live rulesets and compare it — removing the ruleset rule
+restores the spoofing path while the protection comparison stays green.
 
 ## One authority per field
 
