@@ -29,7 +29,14 @@ input, so a sibling adopts the script and test verbatim and edits the table.
    `required_approving_review_count: 0` are different postures and the output must say `ABSENT`.
    Bypass allowances are asserted (an empty list is an assertion, not an omission). CODEOWNERS is
    checked across all three recognized locations (root, `.github/`, `docs/`).
-3. **Wiring** — the live comparison must run in a **blocking pre-merge lane**: per the Gate
+3. **Self-anchoring and its residual** — name the gate's own status context in the policy's
+   required-contexts list, so removing it is itself a policy violation the comparison reports.
+   That anchor has a residual by construction: once the context is removed from live protection,
+   the job still fails but GitHub no longer requires the failure, so the pre-merge block cannot
+   stop the exact weakening that removes it. The scheduled supplement exists precisely for this
+   residual — it detects the removal within a day — so where this residual matters the
+   supplement is not optional, and the audit log of protection changes is the backstop.
+4. **Wiring** — the live comparison must run in a **blocking pre-merge lane**: per the Gate
    Liveness Standard's ordering rule, a verdict must arrive before the act it governs, and a
    scheduled-only run cannot stop a merge — drift could permit merges for up to a day before
    detection. A scheduled daily run is a useful supplement (it catches drift between PRs) but
@@ -59,8 +66,11 @@ single-accepted-collaborator repositories and must be re-evaluated the moment a 
 exists. In a multi-contributor repository, split the gate while keeping the live comparison
 **pre-merge** — moving it to a push-to-`main` or scheduled lane would recreate the ordering
 defect this reference forbids. The isolated pre-merge shape is a `pull_request_target` job that
-checks out the **base ref's** checker and policy (never the PR's) and holds the PAT, published
-as a required context, with the per-PR lane keeping the tokenless offline shape checks. Adding
+checks out the **base ref's checker code** (never the PR's) and holds the PAT, published as a
+required context, with the per-PR lane keeping the tokenless offline shape checks. The policy
+table, unlike the checker, is read from the **PR head as inert data**: code isolation is about
+execution, and the candidate policy is what the merge would make true — comparing live state
+against the base's old table would let a policy change merge unvalidated in either direction. Adding
 any `pull_request_target` workflow requires the explicit approval that
 `platform-standards/Workflow-Security-and-Permissions-Standard.md` mandates — it is prohibited
 by default and allowed only for approved, narrowly constrained workflow files — so treat that
