@@ -77,8 +77,8 @@ state, and any task-specific gaps.
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature
 ```
 
-Expected result: platform feature-lane contracts and workflow lint pass locally. Use the lane
-summary below when preparing or verifying a merge.
+Expected result: platform feature-lane contract checks pass locally. Workflow lint runs in a
+separate GitHub job. Use the lane summary below when preparing or verifying a merge.
 
 ### 3. Start populated products only when needed
 
