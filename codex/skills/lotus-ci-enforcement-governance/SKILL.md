@@ -85,6 +85,11 @@ ordered before the irreversible act it governs. The first four are indistinguish
 gate; the fifth fails after the artifact ships. See `references/gate-liveness-standard.md`; audit
 with `python automation/gate_liveness_audit.py`.
 
+Branch protection is estate configuration nothing exercises: assert it daily against a documented
+policy table with `references/branch-protection-policy-gate.md` — field-by-field live comparison,
+bidirectional drift failure, `documented_exceptions` with `retires_when`, and a repository PAT
+(never the workflow token, which cannot read protection).
+
 ## Implementation Pattern
 
 For a new enforcement gate:
