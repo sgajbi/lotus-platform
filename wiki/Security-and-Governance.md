@@ -15,9 +15,9 @@
 - governed dependency, SBOM, vulnerability-scan, and container-image maturity posture
 - branch-protection policy gate: adopting repositories assert `main` protection as a declarative
   policy table with documented exceptions, compared field-by-field against live protection; the
-  target posture is a blocking pre-merge lane — `lotus-gateway` runs it blocking today, while
-  `lotus-render` is in the documented scheduled-only drift-first transition pending operator
-  remediation (pattern:
+  target posture is a blocking pre-merge lane — `lotus-gateway` is wired blocking and
+  `lotus-render` scheduled-only, but neither has completed a live comparison yet: the
+  `administration: read` PAT the checker requires is not provisioned in any repository (pattern:
   `codex/skills/lotus-ci-enforcement-governance/references/branch-protection-policy-gate.md`)
 - RFC-0084 domain-product registration, trust metadata governance, and consumer compatibility checks
 - RFC-0089 mesh certification gate for first-wave telemetry, live trust certification, gateway

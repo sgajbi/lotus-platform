@@ -86,7 +86,11 @@ Current assumption:
    into the central JSON is the named prerequisite for enforcing that comparison mechanically,
 2. a lifted checker compares live protection against the candidate policy field by field in a
    blocking pre-merge lane, failing in both drift directions; scheduled runs are a supplement
-   (and the required home only during a documented drift-first adoption transition),
+   (and the required home only during a documented drift-first adoption transition); the
+   checker's exit code must reach the step's exit code (a `| tee` pipe reports `tee`'s status and
+   makes the gate fail-open), and the `administration: read` PAT it needs must be provisioned
+   before the gate can be called live — no Lotus repository held one as of 2026-09-06, so no
+   adoption has yet completed a live comparison,
 3. the checker authenticates with a repository PAT — the workflow token cannot read branch
    protection — inside a stated trust boundary (per-PR execution only where every same-repo
    pusher holds the PAT's authority; otherwise an approved `pull_request_target` job on base-ref

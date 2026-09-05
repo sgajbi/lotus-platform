@@ -73,9 +73,20 @@ anti-spoofing or freshness guarantees until those extensions land.
 
 The workflow `github.token` cannot carry `administration: read`, which the branch-protection
 endpoint requires — a step wired to it fails everywhere or, worse, is skipped into a dead gate.
-Authenticate with a repository PAT secret (the automerge PAT already present in Lotus repos
-qualifies) and fail closed when it is missing or unauthorized; a silent pass without the token is
-the gate-liveness violation this reference exists to prevent.
+Authenticate with a repository PAT secret carrying `administration: read` and fail closed when
+it is missing or unauthorized; a silent pass without the token is the gate-liveness violation
+this reference exists to prevent. **Provisioning that secret is an explicit adoption
+prerequisite, not an assumption**: measured on 2026-09-06, no Lotus repository holds any Actions,
+Dependabot, or environment secret, so an adoption that assumes an existing automerge PAT wires a
+step that can never authenticate. Confirm the secret exists in the adopting repository before
+declaring the gate live.
+
+Wiring the step is itself a gate-liveness surface. The checker's exit code must reach the step's
+exit code: a step written as `python check_branch_protection_policy.py | tee log.txt` reports the
+exit status of `tee`, so the checker can raise on every run while the step stays green. Run the
+checker bare, or capture `${PIPESTATUS[0]}` under `set -o pipefail` and exit with it. This is not
+hypothetical — the reference implementation shipped with the piped form and was fail-open from
+the day it landed until 2026-09-06, its traceback visible in every run beneath a green check.
 
 The PAT defines a trust boundary that must be stated, not assumed: a per-PR lane executes the
 PR's own checkout, so the checker script — and for same-repository PRs the workflow file itself —
@@ -207,12 +218,19 @@ emission while the context is still required would block every PR. The drift-fir
 ## Adoption record
 
 Both adoptions implement the baseline; none of the specified extensions are implemented yet.
+Neither adoption has ever completed a live comparison: the PAT the checker needs exists in no
+Lotus repository (measured 2026-09-06), so the live step cannot authenticate anywhere until an
+operator provisions it.
 
 - `lotus-gateway#737` — reference implementation: policy table, checker
   (`scripts/check_branch_protection_policy.py`), five offline unit tests, Quality Baseline step;
   documents the deliberate zero-approval exception (single accepted collaborator) with its
-  compensating controls and retirement condition.
-- `lotus-render#281` — verbatim lift, wired into the daily coverage-audit workflow; on adoption
-  the gate immediately reported `required_pull_request_reviews block presence: live=ABSENT
-  policy=present` — the exact undetected drift (`render#66`) that motivated the pattern — and
-  stays red by design until an operator applies the remediation.
+  compensating controls and retirement condition. Its Quality Baseline step piped the checker
+  through `tee`, so from landing until the follow-up fix the step reported success while the
+  checker raised `CalledProcessError` on an empty `GH_TOKEN` — wired blocking, but unable to
+  fail. Treat it as the worked example of both defects above, not as a clean template.
+- `lotus-render#281` — verbatim lift, wired into the daily coverage-audit workflow and invoked
+  bare, so its exit code is honest. The drift it reported (`required_pull_request_reviews block
+  presence: live=ABSENT policy=present` — the exact undetected `render#66` drift that motivated
+  the pattern) came from a local run against live protection; the CI step had not yet executed
+  as of 2026-09-06, and will fail closed on the absent PAT when it does.
