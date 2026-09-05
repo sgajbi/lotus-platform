@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-05T23:34:48Z`
+Generated: `2026-09-05T23:44:57Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `906`
-- Total source lines: `366417`
+- Total source lines: `366602`
 - Python files: `237`
 - PowerShell files: `69`
 - Markdown files: `413`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3118`
+- Python functions: `3127`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -51,7 +51,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 37 | 20 | 69 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
-| automation/validate_workflow_pipeline_exit_codes.py | iter_steps | 60 | 18 | 63 |
+| automation/validate_workflow_pipeline_exit_codes.py | iter_steps | 87 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1319 | 17 | 66 |
 | automation/validate_platform_stack.py | _validate_observability | 183 | 16 | 88 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1243`
+- Unit tests collected: `1249`
 - Collection command return code: `0`
-- Collection summary: `1243 tests collected in 1.19s`
+- Collection summary: `1249 tests collected in 1.29s`
 
 ## Security Baseline
 
