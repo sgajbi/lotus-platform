@@ -74,8 +74,13 @@ against the base's old table would let a policy change merge unvalidated in eith
 any `pull_request_target` workflow requires the explicit approval that
 `platform-standards/Workflow-Security-and-Permissions-Standard.md` mandates — it is prohibited
 by default and allowed only for approved, narrowly constrained workflow files — so treat that
-approval as part of the adoption, not an implementation detail. Fork and Dependabot PRs never
-receive the secret either way.
+approval as part of the adoption, not an implementation detail. Two actor classes need explicit
+handling before the secret-backed context becomes required: Dependabot PRs draw from the
+separate Dependabot secrets store, so mirror the PAT there or every dependency update becomes
+unmergeable against the fail-closed check; fork PRs never receive the secret at all, so a
+repository that accepts fork contributions cannot anchor this gate on a secret-backed required
+context and must fall back to the single-trust-boundary or scheduled-plus-audit posture with the
+residual documented.
 
 ## Adoption record
 
