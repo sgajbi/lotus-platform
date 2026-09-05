@@ -86,15 +86,20 @@ base-ref code isolation above is non-negotiable there.
 ## One authority per field
 
 `automation/repository-governance-policy.json` with `validate_repository_governance.py` is the
-existing estate-wide authority for each repository's required checks. The repo-local table does
-not compete with it: for the fields both declare (required contexts, strict), the central estate
-policy is authoritative and the repo-local table must match it — a disagreement between the two
-is itself a finding, whichever file is stale. What the repo-local pattern adds is what the
-central file does not carry: the review-authority prose, `documented_exceptions` with
-`retires_when`, bypass allowances, the blocking per-PR home, and the candidate-policy
-comparison. An adopter copies the central declaration rather than re-deriving it; folding the
-two into one federated authority is legitimate follow-up work, not something to duplicate
-silently in the meantime.
+existing estate-wide authority, and its overlap with the repo-local table is nearly total: its
+`expected_governance()` hardcodes not just per-repo required checks and strictness but
+approvals, stale-review dismissal, conversation resolution, linear history, force-push and
+deletion posture, and merge-method posture estate-wide. For **every** field both declare, the
+central authority is authoritative and the repo-local table must match it — a disagreement
+between the two is itself a finding, whichever file is stale. Any posture change, the
+zero-approval retirement included, therefore updates the central policy or validator **and**
+the repo-local table in one coordinated change; a repo-local edit alone leaves two authorities
+contradicting each other. What the repo-local pattern adds is only what the central file does
+not carry: the review-authority prose, `documented_exceptions` with `retires_when`, bypass
+allowances, CODEOWNERS posture, the blocking per-PR home, and the candidate-policy comparison.
+An adopter copies the central declaration rather than re-deriving it; folding the two into one
+federated authority is legitimate follow-up work, not something to duplicate silently in the
+meantime.
 
 ## Bootstrapping a new or renamed required context
 
