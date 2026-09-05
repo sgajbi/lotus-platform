@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 366417
+    "total_source_lines": 366602
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 122,
-        "line": 60,
+        "end_line": 149,
+        "line": 87,
         "lines": 63,
         "name": "iter_steps",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3118
+    "python_function_count": 3127
   },
-  "generated_at_utc": "2026-09-05T23:34:48Z",
+  "generated_at_utc": "2026-09-05T23:44:57Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1243,
+    "collected_tests": 1249,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1243 tests collected in 1.19s"
+    "summary": "1249 tests collected in 1.29s"
   }
 }

@@ -199,3 +199,58 @@ jobs:
     result = validator.validate_repository("lotus-example", repos_root=tmp_path)
 
     assert [offender.step for offender in result.offenders] == ["(unnamed step)"]
+
+
+def test_second_pipeline_in_a_step_is_judged_on_its_own() -> None:
+    """Guarding one pipeline must not vouch for the next one."""
+    body = """run: |
+          a.py | tee a.log
+          a_status=${PIPESTATUS[0]}
+          b.py | tee b.log
+          exit "$a_status"
+"""
+    offenders = validator.unguarded_pipelines(body)
+    assert offenders == ["b.py | tee b.log"], (
+        "b's failure is discarded whenever a succeeds, so b must be reported"
+    )
+
+
+def test_pipefail_set_after_a_pipeline_does_not_protect_it() -> None:
+    body = """run: |
+          gate.py | tee gate.log
+          set -o pipefail
+          other.py | tee other.log
+"""
+    offenders = validator.unguarded_pipelines(body)
+    assert offenders == ["gate.py | tee gate.log"]
+
+
+def test_pipefail_set_before_protects_following_pipelines() -> None:
+    body = """run: |
+          set -o pipefail
+          gate.py | tee gate.log
+          other.py | tee other.log
+"""
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_sinks_beyond_tee_and_tail_are_detected() -> None:
+    for sink in ("cat", "head", "sed -n 1p", "awk '{print}'", "sort", "wc -l"):
+        body = f"run: gate.py | {sink}\n"
+        assert validator.unguarded_pipelines(body), f"{sink} not detected as a sink"
+
+
+def test_condition_pipelines_are_not_reported() -> None:
+    """`if cmd | grep -q x` consumes the status itself; flagging it is noise."""
+    for line in (
+        'if echo "$output" | grep -qi "already"; then',
+        "while read -r line | true; do",
+        "! cosign version | grep -q v2.4.1",
+    ):
+        assert validator.unguarded_pipelines(f"run: |\n          {line}\n") == [], line
+
+
+def test_assertion_terminal_stages_are_not_reported() -> None:
+    """A terminal grep/jq is usually the assertion, and its failure does fail."""
+    body = "run: pg_dump --version | grep -Eq ' 16[.]'\n"
+    assert validator.unguarded_pipelines(body) == []

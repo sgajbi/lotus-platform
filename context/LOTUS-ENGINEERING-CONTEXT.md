@@ -632,6 +632,31 @@ Expected validation layers include:
 4. platform validation for canonical stack bring-up, ingress, seeded data, and cross-app flows,
 5. CI lane validation with fast feature gates, PR merge gates, main releasability gates, and platform end-to-end validation where applicable.
 
+### Workflow gate wiring
+
+A gate's verdict must reach its step's exit code. A shell pipeline exits with the status of its
+**last** command, so a step written as `gate.py 2>&1 | tee log.txt` reports `tee`'s success
+whatever the gate decided; `bash -e` does not catch it because the pipeline succeeded. Six
+`lotus-gateway` steps carried this shape on 2026-09-06, including `make test-coverage` and
+`make security-audit`, and its branch-protection gate had raised on every run since it landed
+beneath a green check.
+
+`automation/validate_workflow_pipeline_exit_codes.py` enforces this for every repository in
+`automation/repository-governance-policy.json`, and runs in the platform `pr-merge` lane. Scope
+and remediation contract:
+
+1. it reports a pipeline whose terminal stage is a passive sink (`tee`, `tail`, `head`, `cat`,
+   `sed`, `awk`, `sort`, `uniq`, `tr`, `wc`, and peers) and whose status is not propagated,
+2. guards are judged per pipeline in execution order: `set -o pipefail` protects only pipelines
+   after it, and a `${PIPESTATUS[0]}` capture protects only the pipeline it follows,
+3. pipelines inside `if`, `while`, `until`, or `!` conditions are not reported, because the
+   construct consumes the status rather than the step,
+4. a terminal `grep` or `jq` is not treated as a sink, because as a final stage it is usually the
+   assertion and its failure does fail the step,
+5. remediation is to run the gate bare, add `set -o pipefail` before the pipeline, or capture
+   `${PIPESTATUS[0]}` and exit with it,
+6. `--require-local-repos` makes an unavailable repository a failure rather than a skip.
+
 ### Test quality rules
 
 1. test business and contract behavior, not just implementation trivia,

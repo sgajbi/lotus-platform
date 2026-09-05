@@ -26,11 +26,38 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / "automation" / "repository-governance-policy.json"
 
-PIPE_MARKERS = ("| tee", "|tee", "| tail", "|tail")
-GUARDS = ("pipefail", "PIPESTATUS")
+# Commands that report their own success no matter what fed them. A pipeline
+# ending in one of these replaces the gate's status with the sink's, which is
+# how a gate becomes incapable of failing. `grep` and `jq` are deliberately
+# absent: as a terminal stage they are usually the assertion itself.
+PASSIVE_SINKS = frozenset(
+    {
+        "tee",
+        "tail",
+        "head",
+        "cat",
+        "sort",
+        "uniq",
+        "tr",
+        "sed",
+        "awk",
+        "fold",
+        "column",
+        "more",
+        "less",
+        "wc",
+    }
+)
+
+# Constructs that consume a pipeline's status themselves, so the step's exit
+# code never depended on it. Flagging these would be noise, not a finding.
+_CONDITION_PREFIXES = ("if ", "if!", "while ", "until ", "elif ", "! ")
 
 _STEPS_KEY = re.compile(r"^\s*steps:\s*$")
 _NAME = re.compile(r"(?:^|-\s+)name:\s*(?P<name>.+?)\s*$")
+_RUN_KEY = re.compile(r"^\s*(?:-\s+)?run:\s*(?P<inline>.*)$")
+_SET_PIPEFAIL = re.compile(r"^\s*set\s+[-\w\s]*-?o\s+pipefail")
+_QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
 
 
 @dataclass(frozen=True)
@@ -122,11 +149,89 @@ def iter_steps(workflow_text: str):
         yield name_of(current), "\n".join(current)
 
 
+def _run_lines(step_body: str) -> list[str]:
+    """Return the shell lines of a step's run: block, in execution order."""
+    lines: list[str] = []
+    collecting = False
+    block_indent: int | None = None
+    for line in step_body.splitlines():
+        match = _RUN_KEY.match(line)
+        if match:
+            inline = match.group("inline").strip()
+            if inline and inline not in {"|", ">", "|-", ">-", "|+", ">+"}:
+                lines.append(inline)
+                collecting = False
+            else:
+                collecting = True
+                block_indent = None
+            continue
+        if not collecting:
+            continue
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip())
+        if block_indent is None:
+            block_indent = indent
+        if indent < block_indent:
+            collecting = False
+            continue
+        lines.append(line.strip())
+    return lines
+
+
+def _terminal_sink(shell_line: str) -> str | None:
+    """Return the passive sink a top-level pipeline ends in, if any."""
+    stripped = shell_line.strip()
+    if stripped.startswith("#"):
+        return None
+    if any(stripped.startswith(prefix) for prefix in _CONDITION_PREFIXES):
+        return None
+    probe = _QUOTED.sub("", stripped).replace("||", "")
+    if "|" in probe and ("&&" in probe or ";" in probe):
+        # Compound line: judge only the segment the step's status comes from.
+        probe = re.split(r"&&|;", probe)[-1]
+    if "|" not in probe:
+        return None
+    last_stage = probe.rsplit("|", 1)[1].strip()
+    if not last_stage:
+        return None
+    command = last_stage.split()[0].lstrip("$(").split("/")[-1]
+    return command if command in PASSIVE_SINKS else None
+
+
+def unguarded_pipelines(step_body: str) -> list[str]:
+    """Return each pipeline whose gate status never reaches the step.
+
+    Guards are evaluated per pipeline in execution order: ``set -o pipefail``
+    counts only for pipelines that follow it, and a ``${PIPESTATUS[0]}`` capture
+    counts only for the pipeline it immediately follows. A step that guards its
+    first pipeline and not its second is reported, because the second one still
+    cannot fail.
+    """
+    shell = _run_lines(step_body)
+    pipefail_from: int | None = None
+    offenders: list[str] = []
+
+    for index, line in enumerate(shell):
+        if pipefail_from is None and _SET_PIPEFAIL.match(line):
+            pipefail_from = index
+            continue
+        sink = _terminal_sink(line)
+        if sink is None:
+            continue
+        if pipefail_from is not None and index > pipefail_from:
+            continue
+        following = " ".join(shell[index + 1 : index + 3])
+        if "PIPESTATUS" in following:
+            continue
+        offenders.append(line.strip())
+
+    return offenders
+
+
 def step_hides_exit_code(body: str) -> bool:
-    """True when the step pipes a command without propagating its status."""
-    if not any(marker in body for marker in PIPE_MARKERS):
-        return False
-    return not any(guard in body for guard in GUARDS)
+    """True when any pipeline in the step cannot report its gate's failure."""
+    return bool(unguarded_pipelines(body))
 
 
 def validate_repository(repository: str, *, repos_root: Path) -> RepositoryResult:
