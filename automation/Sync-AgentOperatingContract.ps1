@@ -265,7 +265,14 @@ $resolvedSource = (Resolve-Path $sourcePathToUse).ProviderPath
 $sourceRepoRoot = (& git -C (Split-Path -Parent $resolvedSource) rev-parse --show-toplevel 2>$null | Select-Object -First 1)
 $sourceIsOnOriginMain = $false
 if ($LASTEXITCODE -eq 0 -and $sourceRepoRoot) {
-    $sourceRelativePath = [System.IO.Path]::GetRelativePath($sourceRepoRoot, $resolvedSource).Replace("\", "/")
+    # [System.IO.Path]::GetRelativePath exists only in PowerShell 7+. Under Windows
+    # PowerShell 5.1 it throws MethodNotFound, the variable below is never assigned,
+    # and the diff a few lines down runs with an empty pathspec -- comparing the
+    # WHOLE tree against origin/main instead of this one file. That reports
+    # "differs from origin/main" for any unrelated local edit, so the guard blocks
+    # every sync for the wrong reason while appearing to work.
+    $repoRootPrefix = $sourceRepoRoot.TrimEnd("\", "/")
+    $sourceRelativePath = $resolvedSource.Substring($repoRootPrefix.Length).TrimStart("\", "/").Replace("\", "/")
     & git -C $sourceRepoRoot rev-parse --verify origin/main 2>$null | Out-Null
     if ($LASTEXITCODE -eq 0) {
         & git -C $sourceRepoRoot diff --quiet origin/main -- $sourceRelativePath

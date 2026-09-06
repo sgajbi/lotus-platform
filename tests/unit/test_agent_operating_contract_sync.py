@@ -244,3 +244,38 @@ def test_check_only_does_not_leak_failed_git_probe_status(tmp_path: Path) -> Non
 
     assert result.returncode == 0, result.stderr + result.stdout
     assert "Agent operating contract is synchronized for 1 target(s)." in result.stdout
+
+
+def test_sync_script_runs_on_every_installed_powershell_interpreter() -> None:
+    """The script must work under the interpreter that actually invokes it.
+
+    The helpers above prefer `pwsh`, so the suite exercised PowerShell 7 while
+    operators and automation invoke `powershell.exe`, which is Windows
+    PowerShell 5.1. An API present only in 7 therefore passed every test and
+    failed in use: [System.IO.Path]::GetRelativePath threw MethodNotFound, the
+    relative path was never assigned, and the origin/main comparison ran with an
+    empty pathspec -- diffing the whole tree instead of the contract file, so any
+    unrelated local edit made the guard refuse to sync.
+
+    Interpreter-specific failures are silent in output that otherwise looks
+    successful, so this asserts on the diagnostics rather than the exit code.
+    """
+    interpreters = [path for path in (shutil.which("pwsh"), shutil.which("powershell")) if path]
+    assert interpreters, "no PowerShell interpreter available to test"
+
+    script = ROOT / "automation" / "Sync-AgentOperatingContract.ps1"
+    forbidden = ("MethodNotFound", "VariableIsUndefined", "CommandNotFoundException")
+
+    for interpreter in interpreters:
+        command = [interpreter, "-NoProfile"]
+        if "powershell" in Path(interpreter).stem.lower():
+            command += ["-ExecutionPolicy", "Bypass"]
+        result = subprocess.run(
+            command + ["-File", str(script), "-CheckOnly"],
+            capture_output=True,
+            text=True,
+            cwd=str(ROOT),
+        )
+        combined = f"{result.stdout}\n{result.stderr}"
+        for token in forbidden:
+            assert token not in combined, f"{Path(interpreter).name} reported {token}:\n{combined}"
