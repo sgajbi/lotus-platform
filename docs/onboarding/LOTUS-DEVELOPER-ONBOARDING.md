@@ -11,7 +11,7 @@ It does not replace:
 3. [RFC-0073](../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md) for the governed context system,
 4. [RFC-0074](../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md) for the onboarding bootstrap target state,
 5. [Local Development Runbook](../operations/Local%20Development%20Runbook.md) for shared ingress and platform-stack operations,
-6. [Canonical Front-Office Local Runtime](../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md) for populated product-surface bring-up, seeded front-office data, and UI panel validation.
+6. [Canonical Front-Office Local Runtime](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md) for populated product-surface bring-up, seeded front-office data, and UI panel validation.
 
 ## Purpose
 
@@ -143,7 +143,7 @@ These may not block documentation or narrow code work, but they block local stac
 | DSN and environment posture | repo-local `.env` or platform stack `.env` | variables present, secrets not printed |
 | Seeded data | governed front-office seed scripts and runbooks | available when demo or panel validation is required |
 
-Use the [Canonical Front-Office Local Runtime](../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md) when the task requires populated Workbench, Gateway, Manage, Risk, Performance, Advisor Brief, or Evidence product surfaces.
+Use the [Canonical Front-Office Local Runtime](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md) when the task requires populated Workbench, Gateway, Manage, Risk, Performance, Advisor Brief, or Evidence product surfaces.
 
 Use the [Local Development Runbook](../operations/Local%20Development%20Runbook.md) for shared ingress and platform-stack operations rather than as the primary front-office demo bring-up path.
 
@@ -342,7 +342,7 @@ powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.p
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 ```
 
-Use [RFC-0071](../../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md), the [Local Development Runbook](../operations/Local%20Development%20Runbook.md), and the [Canonical Front-Office Local Runtime](../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md) when ingress status is not `ready` or when a front-office surface must be validated end-to-end.
+Use [RFC-0071](../../rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md), the [Local Development Runbook](../operations/Local%20Development%20Runbook.md), and the [Canonical Front-Office Local Runtime](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md) when ingress status is not `ready` or when a front-office surface must be validated end-to-end.
 
 ## DSN And Environment Posture
 

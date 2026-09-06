@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 
@@ -678,6 +680,57 @@ def _validate_repository_context_contracts(
         errors.append("REPOSITORY-ENGINEERING-CONTEXT.md: missing Context Maintenance Rule heading")
 
 
+# A same-page anchor, an external URL, and a GitHub wiki page name are all
+# valid links that are not repository paths. Treating them as paths reported
+# 225 false failures across 37 files on a repository whose real count is zero.
+# `[guide](path "Title")` is valid Markdown, and a destination capture that
+# forbade whitespace did not match it at all — so a broken titled link passed
+# the guard silently, which is worse than reporting it wrongly.
+_MARKDOWN_LINK = re.compile(
+    r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
+)
+
+
+def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -> None:
+    """Every relative link in a governed document must resolve inside this repository.
+
+    A route that 404s is a route a new agent cannot follow, which is the whole
+    claim progressive discovery makes. Two things are checked, and both were
+    measured before being made blocking.
+
+    Hrefs are percent-decoded first, because several governed standards have
+    spaces in their filenames and a raw comparison reports every one of them as
+    broken.
+
+    A link that resolves *outside* the repository is reported even when it
+    exists locally. `../../../lotus-workbench/docs/...` works only on a machine
+    that happens to have the sibling checked out beside this one; it is a 404
+    on GitHub and in any single-repository CI checkout. AGENTS.md already
+    prescribes the remedy for cross-repository references: the GitHub URL.
+    """
+    for label, path in sorted(documents.items()):
+        if path.suffix.lower() != ".md" or not path.is_file():
+            continue
+        for match in _MARKDOWN_LINK.finditer(_read_text(path)):
+            href = match.group("href")
+            if not href or href.startswith(("http://", "https://", "mailto:", "#")):
+                continue
+            # A destination may carry a fragment and a query, and neither is
+            # part of the filename. `guide.md?plain=1` names `guide.md`.
+            target_path = href.strip("<>").split("#", 1)[0].split("?", 1)[0]
+            if not target_path:
+                continue
+            target = (path.parent / urllib.parse.unquote(target_path)).resolve()
+            if not target.is_relative_to(ROOT):
+                errors.append(
+                    f"{label} links outside the repository, which resolves only "
+                    f"where a sibling checkout exists; use the GitHub URL "
+                    f"instead: {href}"
+                )
+            elif not target.exists():
+                errors.append(f"{label} links to a path that does not exist: {href}")
+
+
 def validate_engineering_context_system() -> list[str]:
     errors, _warnings = validate_engineering_context_system_with_warnings()
     return errors
@@ -723,6 +776,23 @@ def validate_engineering_context_system_with_warnings() -> tuple[list[str], list
 
     if errors:
         return errors, warnings
+
+    # The mandatory starting set includes the skill routing map, which
+    # `required_files` does not list. A broken route in the document an agent is
+    # told to read fourth is exactly what this check exists to catch, so the
+    # governed set is extended rather than left to whatever happened to be in
+    # the existence map.
+    _validate_document_links(
+        errors=errors,
+        documents={
+            **required_files,
+            "skill routing map": CONTEXT_DIR / "LOTUS-SKILL-ROUTING-MAP.md",
+            "documentation layering standard": ROOT
+            / "docs"
+            / "documentation"
+            / "LOTUS-DOCUMENTATION-LAYERING.md",
+        },
+    )
 
     context_index = _read_text(required_files["context index"])
     quickstart = _read_text(required_files["quickstart"])
