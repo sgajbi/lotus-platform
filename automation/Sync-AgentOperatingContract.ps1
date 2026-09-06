@@ -353,3 +353,8 @@ if ($CheckOnly) {
     }
     Write-Host "Agent operating contract is synchronized for $checkedTargets target(s)."
 }
+
+# Native Git probes are deliberately allowed to fail when a source or target is
+# outside a repository. Once all governed checks and writes have completed,
+# prevent that internal probe status from becoming the script's process status.
+$global:LASTEXITCODE = 0

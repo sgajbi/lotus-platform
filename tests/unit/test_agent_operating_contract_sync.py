@@ -224,3 +224,23 @@ def test_sync_refuses_branch_only_contract_for_a_sibling_worktree(tmp_path: Path
     assert result.returncode == 0
     assert target_agents.read_text(encoding="utf-8") == "# target contract\n"
     assert "differs from or cannot be verified against origin/main" in (result.stdout + result.stderr)
+
+
+def test_check_only_does_not_leak_failed_git_probe_status(tmp_path: Path) -> None:
+    source = tmp_path / "source" / "AGENTS.md"
+    target = tmp_path / "target" / "AGENTS.md"
+    source.parent.mkdir(parents=True)
+    target.parent.mkdir(parents=True)
+    source.write_text("# portable contract\n", encoding="utf-8")
+    target.write_text("# portable contract\n", encoding="utf-8")
+
+    result = _run_sync_result(
+        "-SourcePath",
+        str(source),
+        "-TargetPath",
+        str(target),
+        "-CheckOnly",
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    assert "Agent operating contract is synchronized for 1 target(s)." in result.stdout
