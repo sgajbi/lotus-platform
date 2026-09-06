@@ -123,8 +123,11 @@ python automation/generate_enterprise_backend_quality_baseline.py --check
 # Regenerate only after a healthy test collection
 python automation/generate_enterprise_backend_quality_baseline.py --write --check
 
-# Verify the deployed operating contract without changing it
+# Verify this repository's operating contract without changing it
 powershell -ExecutionPolicy Bypass -File automation/Sync-AgentOperatingContract.ps1 -CheckOnly
+
+# Verify the deployed copy under the Codex home, which must be asked for by name
+powershell -ExecutionPolicy Bypass -File automation/Sync-AgentOperatingContract.ps1 -CheckOnly -IncludeDeployedTarget
 ```
 
 For all automation and specialist commands, use the

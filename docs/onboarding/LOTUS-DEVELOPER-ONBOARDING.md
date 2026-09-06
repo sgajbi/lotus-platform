@@ -243,12 +243,25 @@ Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1 -CheckOnly
 ```
 
+That checks this repository's own `AGENTS.md` against the governed source. The
+deployed copy under the Codex home is a developer-environment check and is
+asked for by name, because it exists only on a workstation that has Codex
+installed and a check that reaches for it elsewhere verifies nothing:
+
+```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
+powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1 -CheckOnly -IncludeDeployedTarget
+```
+
 To synchronize only `AGENTS.md` after reviewing the change:
 
 ```powershell
 Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1
 ```
+
+Add `-IncludeDeployedTarget` to that form as well when the deployed copy should
+be written.
 
 To inspect developer-environment readiness without mutating local files:
 
