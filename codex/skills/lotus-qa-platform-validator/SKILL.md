@@ -12,11 +12,13 @@ Do not use this skill as the primary route when the goal is governed front-offic
 proof, canonical Workbench screenshots, or `PB_SG_GLOBAL_BAL_001` demo evidence. Route those tasks
 to `lotus-front-office-runtime`.
 
-Before substantial QA or validation work, read:
+The common startup set is already loaded, including the target repository's
+`REPOSITORY-ENGINEERING-CONTEXT.md`. Before substantial QA or validation work, add:
 
-1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
-3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
+1. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` for execution method, recovery, and
+   delivery evidence,
+2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the validation crosses a
+   repository boundary or changes shared engineering policy.
 
 Use:
 

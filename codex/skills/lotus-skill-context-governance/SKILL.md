@@ -21,18 +21,16 @@ repo-native commands, and explicit acceptance checks over long prose that every 
 
 ## Required Context
 
-Load the smallest correct working set:
+The common startup set is already loaded: `AGENTS.md`, `context/LOTUS-QUICKSTART-CONTEXT.md`,
+`REPOSITORY-ENGINEERING-CONTEXT.md`, and `context/LOTUS-SKILL-ROUTING-MAP.md`. Add:
 
-1. `AGENTS.md`
-2. `context/LOTUS-QUICKSTART-CONTEXT.md`
-3. `context/LOTUS-ENGINEERING-CONTEXT.md`
-4. `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. `context/CONTEXT-REFERENCE-MAP.md`
-6. `context/PROCEDURAL-MEMORY-INDEX.md`
-7. `context/LOTUS-SKILL-ROUTING-MAP.md`
-8. `codex/skills/README.md`
-9. `codex/skills/lotus-skill-manifest.json`
-10. the target skill `SKILL.md`, `agents/openai.yaml`, references, scripts, and relevant validators
+1. `context/LOTUS-ENGINEERING-CONTEXT.md`, because governing skills, routing, and context spans the
+   estate rather than one repository, which is the case it exists for
+2. `context/CONTEXT-REFERENCE-MAP.md`
+3. `context/PROCEDURAL-MEMORY-INDEX.md`
+4. `codex/skills/README.md`
+5. `codex/skills/lotus-skill-manifest.json`
+6. the target skill `SKILL.md`, `agents/openai.yaml`, references, scripts, and relevant validators
 
 Read `references/skill-context-audit-standard.md` before doing a whole-skill inventory review or
 creating a new skill.

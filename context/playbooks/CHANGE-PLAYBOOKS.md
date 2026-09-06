@@ -2,6 +2,10 @@
 
 Use these playbooks to choose the right implementation path for the task type.
 
+The common startup set is already loaded before a playbook is opened, including the owning
+repository's `REPOSITORY-ENGINEERING-CONTEXT.md`. Each sequence below adds to it and does not
+restart discovery.
+
 ## Backend API And Domain-Service Change Playbook
 
 Use this when the primary change belongs in `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`, `lotus-manage`, `lotus-report`, `lotus-ai`, or the API-composition layer in `lotus-gateway`.
@@ -32,13 +36,13 @@ Sequence:
 
 1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md) only when the change
    crosses a repository boundary or changes shared engineering policy
-2. read [Task Routing Guide](../TASK-ROUTING-GUIDE.md)
-3. read `lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`
-4. identify the backing gateway and upstream capability owners
-5. confirm the UI behavior is genuinely supported by backend truth
-6. implement the smallest clean UI change without page-local hacks
-7. add or update meaningful component, route, and browser coverage
-8. update docs when product behavior, route coverage, or operating assumptions change
+2. read [Task Routing Guide](../TASK-ROUTING-GUIDE.md) only when the owning repository or the
+   backing capability is unclear
+3. identify the backing gateway and upstream capability owners
+4. confirm the UI behavior is genuinely supported by backend truth
+5. implement the smallest clean UI change without page-local hacks
+6. add or update meaningful component, route, and browser coverage
+7. update docs when product behavior, route coverage, or operating assumptions change
 
 Non-negotiables:
 

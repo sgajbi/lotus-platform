@@ -14,16 +14,14 @@ This instruction pack is application-independent. Apply it to the named target a
 
 # 0. Required Lotus References
 
-Before substantial refactoring work, load the smallest correct set of references:
+The common startup set is already loaded: `AGENTS.md`, the quickstart, the target repository's
+`REPOSITORY-ENGINEERING-CONTEXT.md`, and the skill routing map. Before substantial refactoring
+work, add only what the refactor needs:
 
-- `AGENTS.md`
-- `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
-- `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-- the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
 - `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
 - `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
 - `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-- `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md` when skill choice matters
+- `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the refactor crosses a repository boundary or changes shared engineering policy
 - `lotus-platform/docs/standards/Lotus Data Mesh Standard.md` when data products, trust telemetry, lineage, access policy, SLO policy, or evidence packs are touched
 - `lotus-platform/docs/standards/Lotus Client Demo Certification Standard.md` when demo claims, client-facing material, screenshots, or sales/marketing proof are touched
 - `lotus-platform/docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md` when changing scaffolded service structure, generated gates, or generated docs

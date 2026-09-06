@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 371006
+    "total_source_lines": 371005
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -131,8 +131,8 @@
       },
       {
         "complexity": 16,
-        "end_line": 1278,
-        "line": 1239,
+        "end_line": 1283,
+        "line": 1244,
         "lines": 40,
         "name": "_broad_context_policy_errors",
         "path": "tests/unit/test_engineering_context_system_contract.py"
@@ -205,8 +205,8 @@
       },
       {
         "complexity": 1,
-        "end_line": 1081,
-        "line": 608,
+        "end_line": 1080,
+        "line": 607,
         "lines": 474,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3305
+    "python_function_count": 3307
   },
-  "generated_at_utc": "2026-09-06T23:04:46Z",
+  "generated_at_utc": "2026-09-06T23:54:30Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -433,7 +433,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1502,
+      "lines": 1583,
       "path": "tests/unit/test_engineering_context_system_contract.py",
       "suffix": ".py"
     },
@@ -443,7 +443,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1385,
+      "lines": 1320,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
     },
@@ -762,6 +762,11 @@
         "signal": "sensitive-keyword-review"
       },
       {
+        "line": 318,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
         "line": 319,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
@@ -780,21 +785,12 @@
         "line": 322,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 323,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1405,
-    "collected_tests_by_platform": {
-      "linux": 1404,
-      "win32": 1405
-    },
+    "collected_tests": 1408,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -803,8 +799,7 @@
       "-q",
       "tests/unit"
     ],
-    "platform": "win32",
     "returncode": 0,
-    "summary": "1405 tests collected"
+    "summary": "1408 tests collected"
   }
 }
