@@ -19,11 +19,10 @@ Apply it in line with:
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing and `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` when deciding how much proof is required.
 
-Use `lotus-front-office-runtime` as the primary route when the backend change is being validated
-through the governed canonical front-office runtime and populated Workbench product surfaces.
-Use `lotus-ci-enforcement-governance` as the primary route when the backend task is mainly about
-designing, promoting, or hardening CI quality gates, repository-native enforcement targets,
-scorecard-backed regression blockers, or agent-development guardrails.
+Use `lotus-front-office-runtime` when validating through the governed canonical front-office runtime and populated Workbench surfaces.
+Use `lotus-ci-enforcement-governance` as the primary route when the task mainly designs or hardens CI gates,
+repository-native enforcement, scorecards, regression blockers, or agent-development guardrails.
+
 ## Context-First Rule
 
 Before substantive backend work:
@@ -328,14 +327,14 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
 28. Apply `references/untrusted-output-projection-safety.md`; blocked status is not sanitization.
 29. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
 30. Use `references/integration-api-migration-proof.md` for API test migrations and
-    `references/stateful-database-migration-proof.md` for stateful migrations or database-specific
-    persistence, transaction, locking, and concurrency claims; use the `Stateful Cleanup And Readiness Integrity Pattern` for cleanup/reseed/replay/readiness defects.
+    `references/stateful-database-migration-proof.md` for stateful migrations or
+    database-specific persistence, transaction, locking, and concurrency claims; use the `Stateful Cleanup And Readiness Integrity Pattern` for cleanup/reseed/replay/readiness defects.
 31. Use the same lifecycle reference for directly owned database adapters: classify owned versus
     injected shared providers, close only owners, scan construction paths, and require warning-clean proof.
 
 ## Bank-Buyable Default Bar
-Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work,
-even when the user does not explicitly ask for a refactor.
+
+Treat the Lotus Bank-Buyable Engineering Contract as the default quality posture for backend work, even when the user does not explicitly ask for a refactor.
 Every meaningful backend slice should improve or preserve at least one bank-buyable control:
 
 1. architecture and module boundaries,
