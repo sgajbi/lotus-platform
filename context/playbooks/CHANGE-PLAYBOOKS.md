@@ -8,7 +8,8 @@ Use this when the primary change belongs in `lotus-core`, `lotus-performance`, `
 
 Sequence:
 
-1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md)
+1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md) only when the change
+   crosses a repository boundary or changes shared engineering policy
 2. read the owning repository `REPOSITORY-ENGINEERING-CONTEXT.md`
 3. confirm domain authority before changing any contract
 4. identify whether the change affects OpenAPI, vocabulary, migrations, runtime, or cross-app behavior
@@ -29,7 +30,8 @@ Use this when the primary change belongs in `lotus-workbench` or another Lotus U
 
 Sequence:
 
-1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md)
+1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md) only when the change
+   crosses a repository boundary or changes shared engineering policy
 2. read [Task Routing Guide](../TASK-ROUTING-GUIDE.md)
 3. read `lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`
 4. identify the backing gateway and upstream capability owners
@@ -50,7 +52,8 @@ Use this when the slice spans more than one repo or when a user-facing behavior 
 
 Sequence:
 
-1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md)
+1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md), which this playbook is
+   the case for
 2. read [Ecosystem Registries](../ECOSYSTEM-REGISTRIES.md)
 3. confirm authoritative domain ownership and participating services
 4. apply the change in the owning service first
@@ -79,7 +82,8 @@ content cleanly between repo front doors, repo-local wiki, deep docs, and platfo
 
 Sequence:
 
-1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md)
+1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md) only when the change
+   crosses a repository boundary or changes shared engineering policy
 2. read the target repository `REPOSITORY-ENGINEERING-CONTEXT.md`
 3. read [Lotus Documentation Layering](../../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
 4. load the target repo `README.md`, `wiki/`, and only the deeper `docs/` pages needed for truth

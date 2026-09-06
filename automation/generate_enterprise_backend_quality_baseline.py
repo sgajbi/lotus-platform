@@ -1182,7 +1182,17 @@ def _baseline_freshness_differences(
                 platform_name = current_tests.get("platform")
                 platform_counts = accepted_tests.get("collected_tests_by_platform")
                 if isinstance(platform_name, str) and isinstance(platform_counts, dict):
-                    accepted_value = platform_counts.get(platform_name, accepted_value)
+                    if platform_name not in platform_counts:
+                        # No count has been recorded for the platform running
+                        # this check, and another platform's count is not an
+                        # accepted value for it — the lanes run on ubuntu-latest
+                        # while a developer regenerates on Windows, so falling
+                        # back to the stored figure compares 1379 against 1090
+                        # and reports drift that does not exist. An unmeasured
+                        # platform has nothing to disagree with; the first run
+                        # on it records its own.
+                        continue
+                    accepted_value = platform_counts[platform_name]
         tolerance = FRESHNESS_TOLERANCES.get(metric_name, 0)
         if _within_tolerance(accepted_value, current_value, tolerance):
             continue
