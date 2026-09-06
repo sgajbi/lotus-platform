@@ -345,3 +345,22 @@ def test_successful_collection_summary_excludes_volatile_duration(monkeypatch) -
 
     assert result["collected_tests"] == 1293
     assert result["summary"] == "1293 tests collected"
+    assert result["platform"] == baseline_generator.sys.platform
+
+
+def test_collection_freshness_uses_the_current_platform_baseline() -> None:
+    accepted = {
+        "tests": {
+            "collected_tests": 1299,
+            "collected_tests_by_platform": {"linux": 1299, "win32": 1292},
+        }
+    }
+    current = {"tests": {"collected_tests": 1292, "platform": "win32"}}
+
+    assert baseline_generator._baseline_freshness_differences(accepted, current) == []
+
+    current["tests"]["collected_tests"] = 1288
+    assert any(
+        "tests.collected_tests" in error
+        for error in baseline_generator._baseline_freshness_differences(accepted, current)
+    )
