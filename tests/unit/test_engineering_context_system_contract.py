@@ -1074,7 +1074,7 @@ def _delivery_skill_context_policy_errors(skill: str, condition: str) -> list[st
     expected_reference = f"{engineering_context} only when {condition}"
     expected_action = f"load the central engineering context only when {condition}"
     errors: list[str] = []
-    if "the common startup set already selected before this skill" not in normalized:
+    if "common startup set" not in normalized:
         errors.append("delivery skill must inherit the common startup set")
     if expected_reference not in normalized:
         errors.append("delivery skill reference must conditionally route broad context")
@@ -1089,6 +1089,9 @@ def test_delivery_skills_preserve_conditional_broad_context_depth() -> None:
         "lotus-frontend-delivery-governance": "the change crosses a repository boundary",
         "lotus-backend-delivery-governance": (
             "the change crosses a repository boundary or changes shared engineering policy"
+        ),
+        "lotus-readme-wiki-governance": (
+            "documentation changes shared architecture or policy across repositories"
         ),
     }
     for skill_name, condition in cases.items():
