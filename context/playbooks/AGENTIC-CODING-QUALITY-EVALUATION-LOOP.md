@@ -109,6 +109,12 @@ The compact rules in `AGENTS.md` come from observed failures:
    verify the durable record before changing issue state,
 6. per-revision workflow dispatch can reject intermediate commits whose workflow differs from the
    default branch; keep workflow-changing PRs single-commit unless that repository proves otherwise.
+7. a command may print a plausible count and still fail; record the exit status with reported
+   output and treat non-zero results as partial evidence,
+8. broad pattern matching can classify valid code-fence content or exact entity references as
+   defects; inspect representative matches and valid counterexamples before mechanical rewriting,
+9. a precise implementation of a false guard premise is still a false guard; verify the governing
+   syntax, contract, or source behavior before hardening detection.
 
 When a new case changes one of these rules, update this evidence section and its focused guard
 tests. Keep only the mandatory outcome in `AGENTS.md`.
