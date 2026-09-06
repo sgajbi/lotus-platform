@@ -646,16 +646,30 @@ beneath a green check.
 and remediation contract:
 
 1. it reports a pipeline whose terminal stage is a passive sink (`tee`, `tail`, `head`, `cat`,
-   `sed`, `awk`, `sort`, `uniq`, `tr`, `wc`, and peers) and whose status is not propagated,
+   `sed`, `awk`, `sort`, `uniq`, `tr`, `wc`, and peers, including behind a `sudo`/`env` prefix)
+   and whose status is not propagated,
 2. guards are judged per pipeline in execution order: `set -o pipefail` protects only pipelines
-   after it, and a `${PIPESTATUS[0]}` capture protects only the pipeline it follows,
-3. pipelines inside `if`, `while`, `until`, or `!` conditions are not reported, because the
-   construct consumes the status rather than the step,
-4. a terminal `grep` or `jq` is not treated as a sink, because as a final stage it is usually the
-   assertion and its failure does fail the step,
-5. remediation is to run the gate bare, add `set -o pipefail` before the pipeline, or capture
+   after it, and a `${PIPESTATUS[0]}` capture protects only the pipeline it immediately follows
+   and only when that captured value reaches an `exit` or `return` — mentioning `PIPESTATUS`, or
+   capturing `[1]`, is not a guard,
+3. lines Bash joins into one command are joined before analysis, so a pipeline written across
+   two lines after a trailing `|` is still seen whole,
+4. a pipeline used as an `if`/`while`/`until` condition is analysed like any other, because the
+   branch is taken on the sink's status: `if gate.py | tee log; then` runs the success branch
+   whenever `tee` succeeds,
+5. a terminal `grep` or `jq` is not treated as a sink, because as a final stage it is usually the
+   assertion and its failure does fail the step; a pipeline beginning with `echo`, `printf`, or
+   `true` is not reported either, since a producer with no verdict cannot have one hidden
+   (`echo … | sudo tee /etc/apt/x.list` is the ordinary privileged-write idiom),
+6. remediation is to run the gate bare, add `set -o pipefail` before the pipeline, or capture
    `${PIPESTATUS[0]}` and exit with it,
-6. `--require-local-repos` makes an unavailable repository a failure rather than a skip.
+7. `--require-local-repos` makes an unavailable repository a failure rather than a skip.
+
+Its coverage boundary is deliberate and worth knowing: platform lanes check out sibling
+repositories at their **default branches**, so this validator is a standing assertion over each
+repository's `main`, not a pre-merge check on another repository's PR head. Per-repository
+pre-merge enforcement needs a repo-local equivalent in that repository's own PR lane;
+`lotus-gateway` has one in `tests/unit/test_workflow_pipeline_exit_codes.py`.
 
 ### Test quality rules
 

@@ -254,3 +254,54 @@ def test_assertion_terminal_stages_are_not_reported() -> None:
     """A terminal grep/jq is usually the assertion, and its failure does fail."""
     body = "run: pg_dump --version | grep -Eq ' 16[.]'\n"
     assert validator.unguarded_pipelines(body) == []
+
+
+def test_condition_pipeline_into_a_sink_is_reported() -> None:
+    """`if gate.py | tee log; then` enters the success branch on tee's status."""
+    body = "run: |\n          if gate.py | tee gate.log; then\n            echo ok\n          fi\n"
+    assert validator.unguarded_pipelines(body) == ["if gate.py | tee gate.log; then"]
+
+
+def test_condition_pipeline_into_an_assertion_stays_quiet() -> None:
+    body = 'run: |\n          if echo "$out" | grep -qi already; then\n            echo ok\n          fi\n'
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_pipeline_split_across_lines_is_joined() -> None:
+    """Bash continues after a trailing pipe; analysing halves would miss it."""
+    body = "run: |\n          gate.py |\n            tee gate.log\n"
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee gate.log"]
+
+
+def test_mentioning_pipestatus_is_not_a_guard() -> None:
+    body = 'run: |\n          gate.py | tee log\n          status=${PIPESTATUS[0]}\n          echo done\n'
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"], (
+        "capturing the status without ever exiting on it leaves the step green"
+    )
+
+
+def test_capturing_the_wrong_stage_is_not_a_guard() -> None:
+    body = 'run: |\n          gate.py | tee log\n          status=${PIPESTATUS[1]}\n          exit "$status"\n'
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_captured_status_that_reaches_exit_is_a_guard() -> None:
+    body = 'run: |\n          gate.py | tee log\n          status=${PIPESTATUS[0]}\n          exit "$status"\n'
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_direct_exit_on_pipestatus_is_a_guard() -> None:
+    body = "run: |\n          gate.py | tee log\n          exit ${PIPESTATUS[0]}\n"
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_sink_behind_a_runner_prefix_is_detected() -> None:
+    for stage in ("sudo tee out.txt", "env tee out.txt", "LC_ALL=C tee out.txt"):
+        assert validator.unguarded_pipelines(f"run: gate.py | {stage}\n"), stage
+
+
+def test_trivial_producers_are_not_gates() -> None:
+    """`echo ... | sudo tee file` is the privileged-write idiom, not a hidden gate."""
+    for source in ("echo deb-line", 'printf "%s" x', "true"):
+        body = f"run: {source} | sudo tee /etc/apt/x.list > /dev/null\n"
+        assert validator.unguarded_pipelines(body) == [], source
