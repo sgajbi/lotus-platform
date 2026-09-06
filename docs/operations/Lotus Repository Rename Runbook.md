@@ -31,13 +31,13 @@ gh repo edit sgajbi/lotus-workbench --description "Advisor and operations workbe
 ## 3. Local Remote Rewrite
 
 ```powershell
-git -C C:\Users\Sandeep\projects\lotus-platform remote set-url origin https://github.com/sgajbi/lotus-platform.git
-git -C C:\Users\Sandeep\projects\lotus-core remote set-url origin https://github.com/sgajbi/lotus-core.git
-git -C C:\Users\Sandeep\projects\lotus-gateway remote set-url origin https://github.com/sgajbi/lotus-gateway.git
-git -C C:\Users\Sandeep\projects\lotus-performance remote set-url origin https://github.com/sgajbi/lotus-performance.git
-git -C C:\Users\Sandeep\projects\lotus-advise remote set-url origin https://github.com/sgajbi/lotus-advise.git
-git -C C:\Users\Sandeep\projects\lotus-report remote set-url origin https://github.com/sgajbi/lotus-report.git
-git -C C:\Users\Sandeep\projects\lotus-workbench remote set-url origin https://github.com/sgajbi/lotus-workbench.git
+git -C <workspace-root>\lotus-platform remote set-url origin https://github.com/sgajbi/lotus-platform.git
+git -C <workspace-root>\lotus-core remote set-url origin https://github.com/sgajbi/lotus-core.git
+git -C <workspace-root>\lotus-gateway remote set-url origin https://github.com/sgajbi/lotus-gateway.git
+git -C <workspace-root>\lotus-performance remote set-url origin https://github.com/sgajbi/lotus-performance.git
+git -C <workspace-root>\lotus-advise remote set-url origin https://github.com/sgajbi/lotus-advise.git
+git -C <workspace-root>\lotus-report remote set-url origin https://github.com/sgajbi/lotus-report.git
+git -C <workspace-root>\lotus-workbench remote set-url origin https://github.com/sgajbi/lotus-workbench.git
 ```
 
 ## 4. Required Post-Rename Actions

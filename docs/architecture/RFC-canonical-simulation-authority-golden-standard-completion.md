@@ -5,7 +5,7 @@
 - Owners: lotus-platform architecture
 - Requires Approval From: lotus-platform maintainers plus `lotus-core`, `lotus-advise`, and `lotus-risk` maintainers
 - Related:
-  - [canonical-simulation-authority-and-domain-evaluation-pattern.md](C:/Users/Sandeep/projects/lotus-platform/docs/architecture/canonical-simulation-authority-and-domain-evaluation-pattern.md)
+  - [canonical-simulation-authority-and-domain-evaluation-pattern.md](./canonical-simulation-authority-and-domain-evaluation-pattern.md)
   - `lotus-core` RFC 085
   - `lotus-advise` RFC-0014, RFC-0017, RFC-0019
 

@@ -171,7 +171,7 @@ Treat new work as product expansion or operational hardening:
 For a new agent or future session:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 git fetch origin --prune
 git checkout main
 git pull --ff-only origin main

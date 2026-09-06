@@ -55,14 +55,14 @@ DNS / hostname setup rule:
 Preview the managed hosts-file block:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
 ```
 
 Apply the managed block to the Windows hosts file:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
 
@@ -85,7 +85,7 @@ because the stack embeds them in PostgreSQL connection URIs; bootstrap rejects u
 before mutation.
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 .\platform-stack\bootstrap.ps1 -WorkspaceRoot ..
 ```
 
@@ -113,7 +113,7 @@ fails closed until the bootstrap generates them. The generated canonical path va
 Run end-to-end stack (lotus-core, lotus-performance, lotus-manage, lotus-report, lotus-gateway, UI + observability):
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
+cd <workspace-root>\lotus-platform\platform-stack
 docker compose up -d --build
 docker compose ps
 ```
@@ -135,7 +135,7 @@ Key endpoints:
 Run this operator loop in order:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
 powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
 ```
@@ -263,7 +263,7 @@ docker compose ps
 If you explicitly need raw host ports for debugging:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform\platform-stack
+cd <workspace-root>\lotus-platform\platform-stack
 docker compose -f docker-compose.yml -f docker-compose.host-ports.yml up -d --build
 docker compose ps
 ```
@@ -271,14 +271,14 @@ docker compose ps
 Run ingress-first smoke validation:
 
   ```powershell
-  cd C:\Users\Sandeep\projects\lotus-platform
+  cd <workspace-root>\lotus-platform
   powershell -ExecutionPolicy Bypass -File automation/Validate-Dev-Ingress-Smoke.ps1
   ```
 
   Explain the current ingress rollout state and the next required operator step:
 
   ```powershell
-  cd C:\Users\Sandeep\projects\lotus-platform
+  cd <workspace-root>\lotus-platform
   powershell -ExecutionPolicy Bypass -File automation/Explain-Dev-Ingress-Status.ps1
   ```
 
@@ -318,7 +318,7 @@ Advisor Brief local-model note:
   `127.0.0.1:8140`, re-run the managed hosts sync so `ai.dev.lotus` resolves locally:
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
 
@@ -595,7 +595,7 @@ Reference docs:
 ### 14.1 One-Shot Platform Pulse
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation\Platform-Pulse.ps1
 ```
 
@@ -606,7 +606,7 @@ This runs:
 ### 14.2 Continuous Agent Loop
 
 ```powershell
-cd C:\Users\Sandeep\projects\lotus-platform
+cd <workspace-root>\lotus-platform
 powershell -ExecutionPolicy Bypass -File automation\Run-Agent.ps1
 ```
 
@@ -627,13 +627,13 @@ Output artifacts:
 Example for lotus-core:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-core -Services query_service demo_data_loader
+powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -ProjectPath <workspace-root>/lotus-core -Services query_service demo_data_loader
 ```
 
 Changed-files based (recommended):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-core -ChangedOnly -BaseRef origin/main
+powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -ProjectPath <workspace-root>/lotus-core -ChangedOnly -BaseRef origin/main
 ```
 
 Run the same command with `-DryRun` before changing a shared canonical stack. The service map is the

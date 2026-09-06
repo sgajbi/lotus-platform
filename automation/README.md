@@ -609,19 +609,19 @@ powershell -ExecutionPolicy Bypass -File automation/Run-Agent.ps1 -Once
 Targeted lotus-core refresh:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-core -Services query_service demo_data_loader
+powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath <workspace-root>/lotus-core -Services query_service demo_data_loader
 ```
 
 Changed-files based refresh (recommended):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-core -ChangedOnly -BaseRef origin/main
+powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath <workspace-root>/lotus-core -ChangedOnly -BaseRef origin/main
 ```
 
 Dry run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath C:/Users/Sandeep/projects/lotus-gateway -ChangedOnly -DryRun
+powershell -ExecutionPolicy Bypass -File automation/Service-Refresh.ps1 -ProjectPath <workspace-root>/lotus-gateway -ChangedOnly -DryRun
 ```
 
 The dry run reports repository-governed, non-secret Compose environment and expected published
@@ -883,7 +883,7 @@ Write a demo screenshot pack to a caller-provided directory while also producing
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+  -ScreenshotDirectory <temp-dir>\lotus-risk-module-shots
 ```
 
 The screenshot directory receives `live-validation-summary.json`, `SHOT-INDEX.md`, and stable
@@ -924,8 +924,8 @@ python automation\canonical_orphan_retirement.py `
   --container-id <full-container-id> --container-name <exact-container-name> `
   --compose-project <exact-project> --labelled-working-dir <missing-checkout> `
   --expected-working-dir <canonical-repository-root> `
-  --projects-root C:\Users\Sandeep\projects `
-  --workbench-repo-path C:\Users\Sandeep\projects\lotus-workbench `
+  --projects-root <workspace-root> `
+  --workbench-repo-path <workspace-root>\lotus-workbench `
   --output output\front-office-qa\orphan-retirement-dry-run.json
 ```
 
@@ -1308,7 +1308,7 @@ powershell -ExecutionPolicy Bypass -File automation/Preflight-PR.ps1 -Repo lotus
 Validate rebase-safe branch size before PR merge intent:
 
 ```powershell
-python automation/validate_branch_commit_budget.py --repo-root C:/Users/Sandeep/projects/lotus-report --base-ref origin/main --head-ref HEAD
+python automation/validate_branch_commit_budget.py --repo-root <workspace-root>/lotus-report --base-ref origin/main --head-ref HEAD
 ```
 
 `Preflight-PR.ps1` runs the same branch-budget validator unless `-NoGitChecks` is supplied. The
@@ -1345,7 +1345,7 @@ powershell -ExecutionPolicy Bypass -File automation/Enforce-Repository-Governanc
 Validate repository hygiene and dependency authority for a scaffolded or existing backend repo:
 
 ```powershell
-python automation/validate_repository_hygiene.py --repo-root C:/Users/Sandeep/projects/lotus-manage
+python automation/validate_repository_hygiene.py --repo-root <workspace-root>/lotus-manage
 ```
 
 Render the human-readable ecosystem registries from the governed context manifest:
