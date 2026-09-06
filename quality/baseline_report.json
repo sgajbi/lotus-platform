@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 368032
+    "total_source_lines": 368123
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3179
+    "python_function_count": 3183
   },
-  "generated_at_utc": "2026-09-06T10:11:38Z",
+  "generated_at_utc": "2026-09-06T10:31:24Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -438,13 +438,13 @@
       "suffix": ".py"
     },
     {
-      "lines": 1300,
-      "path": "automation/mesh_certification_gate.py",
+      "lines": 1315,
+      "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
     },
     {
-      "lines": 1285,
-      "path": "automation/generate_enterprise_backend_quality_baseline.py",
+      "lines": 1300,
+      "path": "automation/mesh_certification_gate.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1286,
+    "collected_tests": 1289,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1286 tests collected in 1.25s"
+    "summary": "1289 tests collected in 1.18s"
   }
 }
