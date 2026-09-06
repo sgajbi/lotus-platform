@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 EXPECTED_ROOT_MARKDOWN = {
     "AGENTS.md",
+    "CLAUDE.md",
     "README.md",
     "REPOSITORY-ENGINEERING-CONTEXT.md",
 }

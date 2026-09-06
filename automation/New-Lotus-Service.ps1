@@ -2477,7 +2477,7 @@ REQUIRED_SURFACES: tuple[tuple[str, int, tuple[str, ...]], ...] = (
     (
         "AGENTS.md",
         80,
-        ("Mandatory Reading Order", "Wiki Publication Rule", "Context Maintenance Rule"),
+        ("Progressive Context Discovery", "Wiki Publication Rule", "Context Maintenance Rule"),
     ),
     (
         "README.md",

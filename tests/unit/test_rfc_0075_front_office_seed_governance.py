@@ -183,7 +183,7 @@ def test_rfc_0075_slice_seven_demo_screenshot_evidence_is_governed_and_traceable
 
     for required_item in (
         "# RFC-0075 Slice 7 Demo Screenshot Evidence",
-        "C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots",
+        "<temp-dir>/lotus-risk-module-shots",
         "live-validation-summary.json",
         "SHOT-INDEX.md",
         "portfolio-summary-live.png",
@@ -211,7 +211,7 @@ def test_rfc_0075_slice_eight_context_and_runbook_evidence_is_governed_and_trace
         "diagnostic-",
         "context/LOTUS-ENGINEERING-CONTEXT.md",
         "context/AGENTS-OPERATING-CONTRACT.md",
-        "C:\\Users\\Sandeep\\.codex\\AGENTS.md",
+        "<codex-home>/AGENTS.md",
         "Engineering context system validation passed.",
         "10 passed",
         "calculationChecks",
@@ -232,7 +232,7 @@ def test_rfc_0075_final_acceptance_evidence_is_governed_and_traceable() -> None:
         "https://github.com/sgajbi/lotus-core/pull/302",
         "Configuration access guard passed.",
         "Live canonical Workbench validation passed for PB_SG_GLOBAL_BAL_001.",
-        "C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots",
+        "<temp-dir>/lotus-risk-module-shots",
         "PR Merge Gate / E2E Smoke: pass",
         "PR Merge Gate / Playwright Smoke: pass",
         "Cross-App Vocabulary Gate: pass",
