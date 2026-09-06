@@ -69,7 +69,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 - Unit tests collected: `1289`
 - Collection command return code: `0`
-- Collection summary: `1289 tests collected in 1.17s`
+- Collection summary: `1289 tests collected in 5.26s`
 
 ## Security Baseline
 
