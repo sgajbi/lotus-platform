@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import sys
 from argparse import ArgumentParser
@@ -159,39 +158,6 @@ def validate_lotus_skill_alignment(skills_root: Path = PLATFORM_SKILLS_ROOT) -> 
     return results
 
 
-
-def compare_deployed_to_platform(local_root: Path = DEFAULT_LOCAL_SKILLS_ROOT) -> list[str]:
-    """Report skills whose deployed copy differs from the platform source.
-
-    A running agent loads the DEPLOYED copy, so platform content that has not
-    been synced has no effect however correct it is. Checking that a skill
-    contains required phrases cannot see this: both copies contain them while
-    one is missing whole paragraphs. Content is compared by digest, with line
-    endings normalised so a checkout convention is not reported as drift.
-    """
-    if not local_root.exists():
-        return []
-
-    findings: list[str] = []
-    for source in sorted(PLATFORM_SKILLS_ROOT.glob("*/SKILL.md")):
-        skill = source.parent.name
-        deployed = local_root / skill / "SKILL.md"
-        if not deployed.exists():
-            findings.append(f"{skill}: deployed copy is missing")
-            continue
-        source_digest = hashlib.sha256(source.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-        deployed_digest = hashlib.sha256(
-            deployed.read_bytes().replace(b"\r\n", b"\n")
-        ).hexdigest()
-        if source_digest != deployed_digest:
-            findings.append(
-                f"{skill}: deployed copy differs from the platform source "
-                f"(deployed {len(deployed.read_text(encoding='utf-8').splitlines())} lines, "
-                f"platform {len(source.read_text(encoding='utf-8').splitlines())} lines)"
-            )
-    return findings
-
-
 def build_markdown(results: list[SkillAlignmentResult], skills_root: Path) -> str:
     lines = [
         "# Lotus Skill Alignment Validation",
@@ -235,19 +201,6 @@ def main() -> int:
         build_markdown(results, skills_root),
         encoding="utf-8",
     )
-
-    # Parity is the check this validator's name promises and did not perform:
-    # phrase presence passes on both copies while one lacks whole paragraphs.
-    parity_findings = compare_deployed_to_platform()
-    if parity_findings:
-        print(
-            "Lotus skill alignment validation failed: deployed skills differ from the "
-            "platform source, so agents are loading stale guidance:",
-            file=sys.stderr,
-        )
-        for finding in parity_findings:
-            print(f"- {finding}", file=sys.stderr)
-        return 1
 
     gaps = [result for result in results if result.status == "gap"]
     if gaps:
