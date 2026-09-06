@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 368515
+    "total_source_lines": 368542
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3198
+    "python_function_count": 3200
   },
-  "generated_at_utc": "2026-09-06T12:47:35Z",
+  "generated_at_utc": "2026-09-06T13:13:56Z",
   "largest_files": [
     {
       "lines": 79939,

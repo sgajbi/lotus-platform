@@ -1,6 +1,6 @@
 # Enterprise Refactor Quality Scorecard
 
-Generated: `2026-09-06T12:47:35Z`
+Generated: `2026-09-06T13:13:56Z`
 
 This scorecard tracks before/after movement for the enterprise backend refactor. Update it after
 meaningful slices with measured evidence, not narrative-only claims.
