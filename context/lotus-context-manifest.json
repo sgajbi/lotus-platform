@@ -9,6 +9,7 @@
                           "context/LOTUS-SKILL-ROUTING-MAP.md"
                       ],
     "task_routes_extend_reading_order":  true,
+    "conditional_task_routes_extend_task_routes":  true,
     "context_documents":  {
                               "index":  "context/README.md",
                               "agents_operating_contract_source":  "context/AGENTS-OPERATING-CONTRACT.md",
@@ -69,6 +70,33 @@
                                                   "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json"
                                               ]
                     },
+    "conditional_task_routes":  {
+                                    "frontend":  [
+                                                     {
+                                                         "when":  "change_crosses_repository_boundary",
+                                                         "add":  [
+                                                                     "context/LOTUS-ENGINEERING-CONTEXT.md",
+                                                                     "context/CONTEXT-REFERENCE-MAP.md"
+                                                                 ]
+                                                     }
+                                                 ],
+                                    "backend":  [
+                                                    {
+                                                        "when":  "change_crosses_repository_boundary_or_changes_shared_engineering_policy",
+                                                        "add":  [
+                                                                    "context/LOTUS-ENGINEERING-CONTEXT.md"
+                                                                ]
+                                                    }
+                                                ],
+                                    "standards_and_rfc":  [
+                                                            {
+                                                                "when":  "change_sets_policy_across_repositories",
+                                                                "add":  [
+                                                                            "context/LOTUS-ENGINEERING-CONTEXT.md"
+                                                                        ]
+                                                            }
+                                                        ]
+                                },
     "procedural_memory":  {
                               "change_playbooks":  "context/playbooks/CHANGE-PLAYBOOKS.md",
                               "pr_loop_playbook":  "context/playbooks/PR-LOOP-PLAYBOOK.md",

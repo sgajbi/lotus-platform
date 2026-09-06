@@ -107,8 +107,8 @@ file, and names only what its task adds to it. Nothing here restates that set:
 one section defines it so the routes cannot drift away from it again.
 
 1. UI or product-surface work
-   Add the `lotus-workbench` repository context, then the gateway and platform
-   validation references that context names. Only if the change crosses a
+   Use the gateway and platform validation references named by the already-loaded
+   `lotus-workbench` repository context. Only if the change crosses a
    repository boundary, read
    [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 2. Backend API or domain-service work

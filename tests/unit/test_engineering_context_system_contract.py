@@ -82,6 +82,7 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "context/LOTUS-SKILL-ROUTING-MAP.md",
     ]
     assert manifest["task_routes_extend_reading_order"] is True
+    assert manifest["conditional_task_routes_extend_task_routes"] is True
 
     assert manifest["context_documents"]["index"] == "context/README.md"
     assert manifest["context_documents"]["agents_operating_contract_source"] == "context/AGENTS-OPERATING-CONTRACT.md"
@@ -108,6 +109,27 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
         "context/CONTEXT-REFERENCE-MAP.md",
         "context/platform-engineering-ledger.md",
         "context/recent-architectural-decisions-digest.md",
+    ]
+    assert manifest["conditional_task_routes"]["frontend"] == [
+        {
+            "when": "change_crosses_repository_boundary",
+            "add": [
+                "context/LOTUS-ENGINEERING-CONTEXT.md",
+                "context/CONTEXT-REFERENCE-MAP.md",
+            ],
+        }
+    ]
+    assert manifest["conditional_task_routes"]["backend"] == [
+        {
+            "when": "change_crosses_repository_boundary_or_changes_shared_engineering_policy",
+            "add": ["context/LOTUS-ENGINEERING-CONTEXT.md"],
+        }
+    ]
+    assert manifest["conditional_task_routes"]["standards_and_rfc"] == [
+        {
+            "when": "change_sets_policy_across_repositories",
+            "add": ["context/LOTUS-ENGINEERING-CONTEXT.md"],
+        }
     ]
     assert "context/lotus-context-manifest.json" in manifest["task_routes"]["platform_validation"]
 
@@ -954,6 +976,13 @@ def test_task_routing_guide_and_manifest_extend_the_common_startup_set() -> None
     assert manifest["task_routes"]["frontend"] == []
     assert manifest["task_routes"]["backend"] == [
         "context/CONTEXT-REFERENCE-MAP.md"
+    ]
+    assert manifest["conditional_task_routes"]["frontend"][0]["when"] == (
+        "change_crosses_repository_boundary"
+    )
+    assert manifest["conditional_task_routes"]["frontend"][0]["add"] == [
+        "context/LOTUS-ENGINEERING-CONTEXT.md",
+        "context/CONTEXT-REFERENCE-MAP.md",
     ]
     for route in manifest["task_routes"].values():
         assert "REPOSITORY-ENGINEERING-CONTEXT.md" not in route
