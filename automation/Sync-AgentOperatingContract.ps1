@@ -262,21 +262,30 @@ $resolvedSource = (Resolve-Path $sourcePathToUse).ProviderPath
 # codepage, so a UTF-8 em dash is read as three cp1252 characters and written
 # back double-encoded. The check then never converges, because the file this
 # script just wrote does not match the source it wrote it from.
-$sourceRepoRoot = (& git -C (Split-Path -Parent $resolvedSource) rev-parse --show-toplevel 2>$null | Select-Object -First 1)
+$global:LASTEXITCODE = 0
+$sourceRepoRootOutput = @(& git -C (Split-Path -Parent $resolvedSource) rev-parse --show-toplevel 2>$null)
+$sourceRepoRootExitCode = $LASTEXITCODE
+$sourceRepoRoot = $sourceRepoRootOutput | Select-Object -First 1
 $sourceIsOnOriginMain = $false
-if ($LASTEXITCODE -eq 0 -and $sourceRepoRoot) {
-    # [System.IO.Path]::GetRelativePath exists only in PowerShell 7+. Under Windows
-    # PowerShell 5.1 it throws MethodNotFound, the variable below is never assigned,
-    # and the diff a few lines down runs with an empty pathspec -- comparing the
-    # WHOLE tree against origin/main instead of this one file. That reports
-    # "differs from origin/main" for any unrelated local edit, so the guard blocks
-    # every sync for the wrong reason while appearing to work.
-    $repoRootPrefix = $sourceRepoRoot.TrimEnd("\", "/")
-    $sourceRelativePath = $resolvedSource.Substring($repoRootPrefix.Length).TrimStart("\", "/").Replace("\", "/")
-    & git -C $sourceRepoRoot rev-parse --verify origin/main 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        & git -C $sourceRepoRoot diff --quiet origin/main -- $sourceRelativePath
-        $sourceIsOnOriginMain = ($LASTEXITCODE -eq 0)
+if ($sourceRepoRootExitCode -eq 0 -and $sourceRepoRoot) {
+    # Ask Git for the source directory's repository-relative prefix. This works
+    # in Windows PowerShell 5.1 and PowerShell 7 without widening the pathspec.
+    $sourceDirectory = Split-Path -Parent $resolvedSource
+    $sourcePrefixOutput = @(& git -C $sourceDirectory rev-parse --show-prefix 2>$null)
+    $sourcePrefixExitCode = $LASTEXITCODE
+    $sourcePrefix = $sourcePrefixOutput | Select-Object -First 1
+    $sourceRelativePath = if ($sourcePrefixExitCode -eq 0) {
+        ($sourcePrefix + (Split-Path -Leaf $resolvedSource)).Replace("\", "/")
+    }
+    if ($sourceRelativePath) {
+        & git -C $sourceRepoRoot ls-files --error-unmatch -- $sourceRelativePath 2>$null | Out-Null
+    }
+    if ($sourceRelativePath -and $LASTEXITCODE -eq 0) {
+        & git -C $sourceRepoRoot rev-parse --verify origin/main 2>$null | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            & git -C $sourceRepoRoot diff --quiet origin/main -- $sourceRelativePath
+            $sourceIsOnOriginMain = ($LASTEXITCODE -eq 0)
+        }
     }
 }
 
