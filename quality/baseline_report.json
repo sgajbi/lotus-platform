@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 414,
+    "markdown_file_count": 415,
     "powershell_file_count": 69,
     "python_file_count": 239,
-    "source_file_count": 909,
+    "source_file_count": 910,
     "suffix_counts": {
       ".json": 138,
-      ".md": 414,
+      ".md": 415,
       ".ps1": 69,
       ".py": 239,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 369086
+    "total_source_lines": 370380
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -42,11 +42,11 @@
         "path": "automation/gate_liveness_audit.py"
       },
       {
-        "complexity": 27,
-        "end_line": 377,
-        "line": 282,
-        "lines": 96,
-        "name": "unguarded_pipelines",
+        "complexity": 48,
+        "end_line": 551,
+        "line": 366,
+        "lines": 186,
+        "name": "_scan_shell",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
@@ -91,8 +91,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 182,
-        "line": 120,
+        "end_line": 189,
+        "line": 127,
         "lines": 63,
         "name": "iter_steps",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
@@ -292,6 +292,14 @@
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
       {
+        "complexity": 48,
+        "end_line": 551,
+        "line": 366,
+        "lines": 186,
+        "name": "_scan_shell",
+        "path": "automation/validate_workflow_pipeline_exit_codes.py"
+      },
+      {
         "complexity": 1,
         "end_line": 197,
         "line": 25,
@@ -346,21 +354,13 @@
         "lines": 150,
         "name": "_seed_core_data",
         "path": "automation/core_performance_mwr_validation.py"
-      },
-      {
-        "complexity": 4,
-        "end_line": 2149,
-        "line": 2004,
-        "lines": 146,
-        "name": "test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_declarations",
-        "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
       }
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3218
+    "python_function_count": 3270
   },
-  "generated_at_utc": "2026-09-06T15:43:35Z",
+  "generated_at_utc": "2026-09-06T16:14:15Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,10 +790,10 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1317,
+    "collected_tests": 1378,
     "collected_tests_by_platform": {
       "linux": 1301,
-      "win32": 1317
+      "win32": 1378
     },
     "command": [
       "C:\\Python313\\python.exe",
@@ -805,6 +805,6 @@
     ],
     "platform": "win32",
     "returncode": 0,
-    "summary": "1317 tests collected"
+    "summary": "1378 tests collected"
   }
 }
