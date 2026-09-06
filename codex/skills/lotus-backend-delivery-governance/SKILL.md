@@ -7,19 +7,12 @@ description: "Use when implementing or reviewing backend work in Lotus repositor
 
 Use this skill for Lotus backend feature work, cleanup, validation, and PR preparation.
 
-Apply it in line with:
-
-1. the common startup set already selected before this skill,
-2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the change crosses a repository
-   boundary or changes shared engineering policy,
-3. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` only when execution method, recovery, or
-   delivery evidence is central,
-4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-   when CI or release posture is in scope,
-5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
-   when CI or release posture is in scope,
-6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`,
-7. repository-local RFCs and standards already in force.
+Apply it after the common startup set. Load
+`lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the change crosses a repository
+boundary or changes shared engineering policy. Load `PROCEDURAL-MEMORY-INDEX.md` when execution,
+recovery, or delivery evidence is central. For CI or release work, add RFC-0072 and the Continuous
+Integration, Validation, and Release Governance Standard. Always apply the Bank-Buyable Engineering
+Contract and repository-local standards already in force.
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing and `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` when deciding how much proof is required.
 
