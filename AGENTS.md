@@ -56,14 +56,17 @@ Before substantial work:
 
 1. infer the target repository from the user request, active goal, issue, PR, branch, file path, or
    explicit repo name,
-2. if the target is a Lotus repository and the current working directory is a different Lotus
+2. inspect the active branch, worktrees, and existing changes before editing; do not overwrite,
+   relocate, or delete work unless ownership is verified, and allow the designated repository owner
+   to continue scoped work,
+3. if the target is a Lotus repository and the current working directory is a different Lotus
    repository, switch command `workdir` to that target repo before reading repo-local context,
    running tests, inspecting git state, editing files, or creating issues,
-3. use `lotus-platform` only for central context, automation, platform contracts, skill source, and
+4. use `lotus-platform` only for central context, automation, platform contracts, skill source, and
    cross-repo governance unless the task explicitly targets `lotus-platform`,
-4. for multi-repo work, state the active repo for each command group and never let one repo's
+5. for multi-repo work, state the active repo for each command group and never let one repo's
    `AGENTS.md` or `REPOSITORY-ENGINEERING-CONTEXT.md` stand in for another repo's local truth,
-5. when delegating or launching background work, pass the exact repository name, absolute repo root,
+6. when delegating or launching background work, pass the exact repository name, absolute repo root,
    branch, read/write scope, and expected evidence so child agents do not inherit the wrong cwd.
 
 If the inherited cwd conflicts with the named target repo, announce the correction briefly and keep

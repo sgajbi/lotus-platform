@@ -195,6 +195,9 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "CONTEXT-REFERENCE-MAP.md" in agents_contract
     assert "REPOSITORY-ENGINEERING-CONTEXT.md" in agents_contract
     assert "Do not assume the inherited shell working directory is the task repository" in agents_contract
+    assert "inspect the active branch, worktrees, and existing changes before editing" in agents_contract
+    assert "designated repository owner" in agents_contract
+    assert "to continue scoped work" in agents_contract
     assert "VS Code multi-root" in agents_contract
     assert "switch command `workdir` to that target repo" in agents_contract
     assert "child agents do not inherit the wrong cwd" in agents_contract

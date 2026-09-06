@@ -34,6 +34,10 @@ def _is_anchored(reference: str) -> bool:
 
 
 def _resolves(reference: str) -> bool:
+    if reference.startswith("lotus-"):
+        repository = reference.split("/", 1)[0]
+        if not (WORKSPACE / repository).exists():
+            return True
     return any(
         candidate.exists()
         for candidate in (WORKSPACE / reference, REPO_ROOT / reference, CONTEXT / reference)
@@ -82,3 +86,11 @@ def test_the_anchor_rule_separates_claims_from_conventions() -> None:
         assert not _is_anchored(convention), (
             f"{convention} is a per-service convention, not a claim about this repository"
         )
+
+
+def test_external_reference_is_optional_when_sibling_repository_is_absent(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setitem(globals(), "WORKSPACE", tmp_path)
+
+    assert _resolves("lotus-workbench/docs/operations/runtime.md")

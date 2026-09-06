@@ -70,6 +70,8 @@ def _validate_application_agent_contract_sync(
             continue
         repo_context_path = repo_root / application.get("repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md")
         if not repo_context_path.exists():
+            target = errors if repository_name == "lotus-platform" else warnings
+            target.append(f"{repository_name}: missing REPOSITORY-ENGINEERING-CONTEXT.md")
             continue
         _validate_repo_context_shape(
             errors=errors,
