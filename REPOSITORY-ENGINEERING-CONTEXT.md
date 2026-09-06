@@ -102,7 +102,7 @@ Use the [skill routing map](./context/LOTUS-SKILL-ROUTING-MAP.md) first. Common 
 | Backend service scaffold | [Scaffold guide](./docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md), then `lotus-backend-delivery-governance` |
 | Backend refactor instruction rollout | [Canonical instructions](./context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md), then verify app copies with `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly` |
 | Data-mesh delivery or closure | [Lotus Data Mesh Standard](./docs/standards/Lotus%20Data%20Mesh%20Standard.md), then the [enterprise mesh completion handoff](./docs/operations/enterprise-mesh-completion-handoff.md) and its `enterprise-mesh-closure-ledger.json` evidence |
-| Client-demo certification | [Lotus Client Demo Certification Standard](./docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md), then the [Client Demo Pack Template](./docs/templates/client-demo-pack-template.md) |
+| Client-demo certification | [Lotus Client Demo Certification Standard](./docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md), then the [Client Demo Pack Template](./docs/demo/client-demo-pack-template.md) |
 | Wiki publication | [Wiki rule](./AGENTS.md#wiki-publication-rule) |
 | RFC work | [RFC governance standard](./rfcs/RFC-GOVERNANCE-STANDARD.md), then `lotus-rfc-review-loop` when applicable |
 
