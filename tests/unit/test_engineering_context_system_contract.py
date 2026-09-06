@@ -865,3 +865,63 @@ def test_rfc_0074_slice_seven_repository_context_links_are_governed() -> None:
     assert "repo-native `lotus-idea` declarations" in platform_repo_context
     assert "Canonical front-office QA also includes `lotus-idea` by default" in platform_repo_context
     assert "catalog-visible future-wave `lotus-idea`" not in platform_repo_context
+
+
+def _quickstart_task_routes() -> list[str]:
+    """Return each numbered route in the quickstart's Reading Paths By Task section."""
+    quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
+    section = quickstart.split("## Reading Paths By Task", 1)[1].split("\n## ", 1)[0]
+    routes: list[str] = []
+    for line in section.splitlines():
+        stripped = line.strip()
+        if stripped[:2] in {"1.", "2.", "3.", "4."}:
+            routes.append(stripped)
+        elif routes and stripped:
+            routes[-1] += " " + stripped
+    return routes
+
+
+def test_quickstart_task_routes_do_not_precede_the_startup_set() -> None:
+    """A route that opens with the broad context contradicts the contract above it.
+
+    `AGENTS.md` and this file's own opening define the startup set as the
+    repository's `AGENTS.md`, this quickstart, the repository context, and the
+    skill routing map. Four task routes used to begin "Read the engineering
+    context, then ...", so the same document told a fresh reader two different
+    things about the minimal set, and following it literally loaded 1085 lines
+    of cross-repository architecture before the repository's own context.
+    """
+    routes = _quickstart_task_routes()
+
+    assert len(routes) == 4, f"expected four task routes, found {len(routes)}"
+    for route in routes:
+        assert "engineering context, then" not in route.lower(), (
+            "this route restates a startup set that begins with the broad "
+            f"engineering context: {route}"
+        )
+
+
+def test_quickstart_states_the_startup_set_once() -> None:
+    """One section defines it; the others reference it, so they cannot disagree."""
+    quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
+
+    assert quickstart.count("default startup set") == 1, (
+        "the startup set must be defined in exactly one place; a second "
+        "statement is what drifted out of agreement with AGENTS.md"
+    )
+
+
+def test_quickstart_routes_the_broad_context_by_task_not_by_default() -> None:
+    """The broad context stays reachable, but only where a task needs it."""
+    quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
+    raw = quickstart.split("## Reading Paths By Task", 1)[1].split("\n## ", 1)[0]
+    # Markdown wraps prose across lines, so a sentence is matched with its
+    # whitespace collapsed rather than as the bytes that happen to be on disk.
+    section = " ".join(raw.split())
+
+    assert "./LOTUS-ENGINEERING-CONTEXT.md" in section, (
+        "removing the route to the broad context would trade one defect for another"
+    )
+    for qualifier in ("only if the change crosses a repository boundary",
+                      "the case the broad context exists for"):
+        assert qualifier in section, f"missing the reason a route loads it: {qualifier}"
