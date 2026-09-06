@@ -3,9 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from context_reachability import subject_is_reachable
-
-
 ROOT = Path(__file__).resolve().parents[2]
 HANDOFF_PATH = ROOT / "docs" / "operations" / "enterprise-mesh-completion-handoff.md"
 LEDGER_PATH = ROOT / "generated" / "enterprise-mesh-closure-ledger.json"
@@ -102,12 +99,11 @@ def test_enterprise_mesh_status_wiki_is_linked_and_publishable() -> None:
 
 
 def test_platform_context_points_future_agents_to_mesh_handoff() -> None:
-    for path in [ENGINEERING_CONTEXT_PATH, REFERENCE_MAP_PATH]:
+    for path in [
+        ENGINEERING_CONTEXT_PATH,
+        REFERENCE_MAP_PATH,
+        REPOSITORY_CONTEXT_PATH,
+    ]:
         text = _read(path)
         assert "enterprise-mesh-completion-handoff.md" in text
         assert "enterprise-mesh-closure-ledger.json" in text
-
-    # The repository context routes to those documents rather than repeating
-    # them, so what must hold is that an agent starting there arrives.
-    assert subject_is_reachable("enterprise-mesh-completion-handoff.md")
-    assert subject_is_reachable("enterprise-mesh-closure-ledger.json")
