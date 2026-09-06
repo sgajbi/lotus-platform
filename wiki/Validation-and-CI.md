@@ -67,6 +67,12 @@ deployment, client demo readiness, or supported feature promotion.
 - central context and documentation contract integrity
 - workflow and standards drift detection
 - automation and validator correctness
+- workflow gate wiring across every governed repository: a step that pipes a gate into a passive
+  sink (`gate.py | tee log.txt`) exits with the sink's status and cannot fail, so
+  `validate_workflow_pipeline_exit_codes.py` reports any pipeline whose status is not propagated
+  by `set -o pipefail` or a `${PIPESTATUS[0]}` capture that reaches an exit. It asserts over each
+  repository's default branch; pre-merge enforcement in a sibling repository needs a repo-local
+  equivalent there
 - cross-repository governance posture
 - auto-merge releasability convergence: `LOTUS_AUTOMERGE_TOKEN` rebase auto-merge, merged-PR
   `main-releasability.yml` dispatch pinned to either the merge SHA or every ancestry-proven
