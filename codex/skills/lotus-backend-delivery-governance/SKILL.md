@@ -327,10 +327,9 @@ capability-oriented and avoid secret-shaped terms because persisted evidence gat
     commands free of placeholder or nullable scope that exists only for later replacement.
 28. Apply `references/untrusted-output-projection-safety.md`; blocked status is not sanitization.
 29. Govern in-process API clients with `references/integration-test-client-lifecycle.md`.
-30. Govern API test migrations with `references/integration-api-migration-proof.md`; govern
-    stateful migrations and database-specific persistence, transaction, locking, and concurrency
-    claims with `references/stateful-database-migration-proof.md`; and govern
-    cleanup/reseed/replay/readiness defects with the `Stateful Cleanup And Readiness Integrity Pattern`.
+30. Use `references/integration-api-migration-proof.md` for API test migrations and
+    `references/stateful-database-migration-proof.md` for stateful migrations or database-specific
+    persistence, transaction, locking, and concurrency claims; use the `Stateful Cleanup And Readiness Integrity Pattern` for cleanup/reseed/replay/readiness defects.
 31. Use the same lifecycle reference for directly owned database adapters: classify owned versus
     injected shared providers, close only owners, scan construction paths, and require warning-clean proof.
 
