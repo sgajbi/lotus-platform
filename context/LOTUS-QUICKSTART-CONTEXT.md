@@ -112,9 +112,11 @@ one section defines it so the routes cannot drift away from it again.
    repository boundary, read
    [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 2. Backend API or domain-service work
-   Add the owning repository's context, then the standards and contract
-   governance documents that the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
-   lists for the contract being changed. Use the
+   Add the standards and contract governance documents that the
+   [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) lists for the contract
+   being changed. Only when the change crosses a repository boundary or changes
+   shared engineering policy, read the
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md). Use the
    [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when the owner is unclear.
 3. Cross-app integration or validation work
    This is the case the broad context exists for: read

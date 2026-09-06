@@ -30,9 +30,9 @@ Operating rule:
 Use this path for service-side behavior, contracts, domain models, validation logic, and runtime-hardening work.
 
 Start from the common startup set. The owning repository context is already part of that set. Add
-[Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when ownership is unclear, and add
-[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
-repository boundary or changes shared engineering policy.
+[Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when ownership is unclear. Only when the change
+crosses a repository boundary or changes shared engineering policy, add
+[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 
 Then load only what the task needs:
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 
@@ -100,7 +101,9 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert "canonical commands or validation flow changes" in manifest["maintenance"]["update_triggers"]
 
     assert manifest["task_routes"]["frontend"] == []
-    assert manifest["task_routes"]["backend"] == []
+    assert manifest["task_routes"]["backend"] == [
+        "context/CONTEXT-REFERENCE-MAP.md"
+    ]
     assert "context/lotus-context-manifest.json" in manifest["task_routes"]["platform_validation"]
 
     repositories = {entry["repository"] for entry in manifest["applications"]}
@@ -895,8 +898,14 @@ def _broad_context_policy_errors(routes: list[str]) -> list[str]:
         errors.append("frontend route must conditionally link broad context")
     elif frontend_lower.index(condition) > frontend_lower.index(broad_context_lower):
         errors.append("frontend route loads broad context before its condition")
-    if broad_context_lower in backend.lower():
-        errors.append("backend route must not load broad context by default")
+    backend_condition = (
+        "only when the change crosses a repository boundary or changes shared engineering policy"
+    )
+    backend_lower = backend.lower()
+    if backend_condition not in backend_lower or broad_context_lower not in backend_lower:
+        errors.append("backend route must conditionally link broad context")
+    elif backend_lower.index(backend_condition) > backend_lower.index(broad_context_lower):
+        errors.append("backend route loads broad context before its condition")
 
     reason = "This is the case the broad context exists for"
     if reason not in integration or broad_context not in integration:
@@ -920,11 +929,12 @@ def test_quickstart_task_routes_apply_the_broad_context_policy() -> None:
     assert _broad_context_policy_errors(routes) == []
 
     regressed_routes = routes.copy()
-    regressed_routes[1] += (
-        " Read [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) first."
+    regressed_routes[1] = regressed_routes[1].replace(
+        "Only when the change crosses a repository boundary or changes shared engineering policy,",
+        "Always",
     )
     assert _broad_context_policy_errors(regressed_routes) == [
-        "backend route must not load broad context by default"
+        "backend route must conditionally link broad context"
     ]
 
 
@@ -937,10 +947,44 @@ def test_task_routing_guide_and_manifest_extend_the_common_startup_set() -> None
     assert "Read in this order:" not in guide
     assert manifest["task_routes_extend_reading_order"] is True
     assert manifest["task_routes"]["frontend"] == []
-    assert manifest["task_routes"]["backend"] == []
+    assert manifest["task_routes"]["backend"] == [
+        "context/CONTEXT-REFERENCE-MAP.md"
+    ]
     for route in manifest["task_routes"].values():
         assert "REPOSITORY-ENGINEERING-CONTEXT.md" not in route
         assert "context/LOTUS-SKILL-ROUTING-MAP.md" not in route
+
+
+def _routing_guide_broad_context_policy_errors(guide: str) -> list[str]:
+    backend = guide.split("## Backend API And Domain-Service Work", 1)[1].split("\n## ", 1)[0]
+    integration = guide.split("## Cross-App Integration And Platform Validation Work", 1)[1].split("\n## ", 1)[0]
+    broad_context = "[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)"
+    condition = "only when the change crosses a repository boundary or changes shared engineering policy"
+    backend_flat = " ".join(backend.split()).lower()
+    errors: list[str] = []
+    if condition not in backend_flat or broad_context.lower() not in backend_flat:
+        errors.append("backend guide must conditionally link broad context")
+    elif backend_flat.index(condition) > backend_flat.index(broad_context.lower()):
+        errors.append("backend guide loads broad context before its condition")
+    if "for cross-repository architecture" not in integration or broad_context not in integration:
+        errors.append("integration guide must explain and link broad context")
+    return errors
+
+
+def test_task_routing_guide_preserves_conditional_broad_context_policy() -> None:
+    """The longer human guide must preserve the same task conditions as the quickstart."""
+    guide = (CONTEXT_DIR / "TASK-ROUTING-GUIDE.md").read_text(encoding="utf-8")
+    assert _routing_guide_broad_context_policy_errors(guide) == []
+
+    regressed = re.sub(
+        r"Only when the change\s+crosses a repository boundary or changes shared engineering policy",
+        "for every backend task, before other context",
+        guide,
+        count=1,
+    )
+    assert _routing_guide_broad_context_policy_errors(regressed) == [
+        "backend guide must conditionally link broad context"
+    ]
 
 
 def test_quickstart_states_the_startup_set_once() -> None:

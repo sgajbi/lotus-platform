@@ -43,7 +43,9 @@
                     },
     "task_routes":  {
                         "frontend":  [],
-                        "backend":  [],
+                        "backend":  [
+                                        "context/CONTEXT-REFERENCE-MAP.md"
+                                    ],
                         "platform_validation":  [
                                                     "context/LOTUS-ENGINEERING-CONTEXT.md",
                                                     "context/CONTEXT-REFERENCE-MAP.md",
