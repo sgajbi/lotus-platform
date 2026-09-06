@@ -1192,11 +1192,14 @@ def _baseline_freshness_differences(
                         # absence is reported, with the command that fixes it.
                         differences.append(
                             f"`{metric_name}`: no accepted count recorded for "
-                            f"platform {platform_name!r} (recorded: "
+                            f"platform {platform_name!r}; this run collected "
+                            f"{current_value!r} (recorded platforms: "
                             f"{sorted(platform_counts)}). Run "
                             "generate_enterprise_backend_quality_baseline.py "
                             "--write on this platform and commit the result; "
-                            "another platform's count is not a substitute."
+                            "another platform's count is not a substitute, and "
+                            "skipping the comparison would mean this metric is "
+                            "never enforced on this platform at all."
                         )
                         continue
                     accepted_value = platform_counts[platform_name]
