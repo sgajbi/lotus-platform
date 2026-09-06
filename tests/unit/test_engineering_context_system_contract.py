@@ -555,7 +555,8 @@ def test_rfc_0074_slice_two_developer_onboarding_is_governed_and_linked() -> Non
         "../../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md",
         "../../rfcs/RFC-0074-repeatable-developer-and-agent-bootstrap-system.md",
         "../operations/Local%20Development%20Runbook.md",
-        "../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
+        "https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/"
+        "canonical-front-office-local-runtime.md",
         "../../context/LOTUS-QUICKSTART-CONTEXT.md",
         "../../context/CONTEXT-REFERENCE-MAP.md",
         "../../context/AGENTS-OPERATING-CONTRACT.md",
@@ -865,3 +866,192 @@ def test_rfc_0074_slice_seven_repository_context_links_are_governed() -> None:
     assert "repo-native `lotus-idea` declarations" in platform_repo_context
     assert "Canonical front-office QA also includes `lotus-idea` by default" in platform_repo_context
     assert "catalog-visible future-wave `lotus-idea`" not in platform_repo_context
+
+
+# --- The documentation link check --------------------------------------------
+#
+# This suite otherwise reads the validator as source text. These checks execute
+# it, so the module is imported the way the registry renderer is.
+#
+# Every rejection below is paired with an acceptance. Four candidate rules were
+# measured against the estate before one survived: a bare `<placeholder>` inside
+# a shell fence occurs 127 times across 28 files and is a documented convention,
+# a commented-out-command heuristic produced a single estate hit that was a
+# descriptive sentence, and treating anchors and wiki page names as paths
+# reported 225 broken links where the real count is zero. A checker whose false
+# positives outnumber its findings gets switched off, so the acceptances are the
+# point rather than padding.
+
+
+def _load_context_validator():
+    spec = importlib.util.spec_from_file_location(
+        "validate_engineering_context_system",
+        ROOT / "automation" / "validate_engineering_context_system.py",
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+CONTEXT_VALIDATOR = _load_context_validator()
+
+
+def _documents(tmp_path: Path, body: str) -> dict[str, Path]:
+    document = tmp_path / "doc.md"
+    document.write_text(body, encoding="utf-8")
+    return {"example document": document}
+
+
+def _link_errors(tmp_path: Path, body: str, monkeypatch) -> list[str]:
+    """Treat the fixture directory as the repository root for the escape rule."""
+    monkeypatch.setattr(CONTEXT_VALIDATOR, "ROOT", tmp_path.resolve())
+    errors: list[str] = []
+    CONTEXT_VALIDATOR._validate_document_links(
+        errors=errors, documents=_documents(tmp_path, body)
+    )
+    return errors
+
+
+def test_link_check_rejects_a_route_that_does_not_resolve(tmp_path: Path, monkeypatch) -> None:
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body="See [the pack](./docs/absent.md).\n")
+
+    assert len(errors) == 1
+    assert "./docs/absent.md" in errors[0]
+
+
+def test_link_check_rejects_a_link_that_needs_a_sibling_checkout(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """It resolves on a developer machine and 404s everywhere else."""
+    sibling = tmp_path / "lotus-workbench" / "docs"
+    sibling.mkdir(parents=True)
+    (sibling / "runtime.md").write_text("x", encoding="utf-8")
+    repo = tmp_path / "lotus-platform"
+    repo.mkdir()
+    monkeypatch.setattr(CONTEXT_VALIDATOR, "ROOT", repo)
+
+    document = repo / "doc.md"
+    document.write_text(
+        "See [the runtime](../lotus-workbench/docs/runtime.md).\n", encoding="utf-8"
+    )
+    errors: list[str] = []
+    CONTEXT_VALIDATOR._validate_document_links(
+        errors=errors, documents={"example document": document}
+    )
+
+    assert len(errors) == 1, "the target exists locally, which is exactly the trap"
+    assert "sibling checkout" in errors[0]
+
+
+def test_link_check_accepts_a_percent_encoded_path(tmp_path: Path, monkeypatch) -> None:
+    """Governed standards have spaces in their filenames; %20 is not a defect."""
+    standards = tmp_path / "docs" / "standards"
+    standards.mkdir(parents=True)
+    (standards / "Lotus Data Mesh Standard.md").write_text("x", encoding="utf-8")
+
+    assert (
+        _link_errors(
+            tmp_path,
+            monkeypatch=monkeypatch,
+            body="See [it](./docs/standards/Lotus%20Data%20Mesh%20Standard.md).\n",
+        )
+        == []
+    )
+
+
+def test_link_check_accepts_an_anchor_and_an_external_url(tmp_path: Path, monkeypatch) -> None:
+    """Neither is a repository path; reading them as paths produced 225 false failures."""
+    body = (
+        "See [the section](#status-model) and "
+        "[the repo](https://github.com/sgajbi/lotus-platform).\n"
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_keeps_a_fragment_out_of_the_path(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "other.md").write_text("x", encoding="utf-8")
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body="See [it](./other.md#a-heading).\n") == []
+
+
+def test_link_check_rejects_a_broken_titled_link(tmp_path: Path, monkeypatch) -> None:
+    """`[g](missing.md "details")` is valid Markdown the old pattern did not match.
+
+    A destination capture that forbade whitespace skipped titled links
+    entirely, so a broken route passed the guard silently — worse than being
+    reported wrongly, because nothing said so.
+    """
+    errors = _link_errors(
+        tmp_path, monkeypatch=monkeypatch, body='See [g](missing.md "details").\n'
+    )
+
+    assert len(errors) == 1
+    assert "missing.md" in errors[0]
+
+
+def test_link_check_accepts_a_titled_link_to_a_real_file(
+    tmp_path: Path, monkeypatch
+) -> None:
+    (tmp_path / "guide.md").write_text("x", encoding="utf-8")
+
+    assert (
+        _link_errors(
+            tmp_path, monkeypatch=monkeypatch, body='See [g](guide.md "details").\n'
+        )
+        == []
+    )
+
+
+def test_link_check_accepts_a_query_bearing_link(tmp_path: Path, monkeypatch) -> None:
+    """`guide.md?plain=1` names `guide.md`; a query is not part of the filename."""
+    (tmp_path / "guide.md").write_text("x", encoding="utf-8")
+
+    assert (
+        _link_errors(tmp_path, monkeypatch=monkeypatch, body="See [v](guide.md?plain=1).\n")
+        == []
+    )
+    assert (
+        _link_errors(
+            tmp_path, monkeypatch=monkeypatch, body="See [v](guide.md?plain=1#top).\n"
+        )
+        == []
+    )
+
+
+def test_the_skill_routing_map_is_link_checked() -> None:
+    """It is a mandatory starting document, and `required_files` does not list it.
+
+    A broken route in the document an agent is told to read fourth is exactly
+    what this check exists to catch, so the governed set is extended rather than
+    left to whatever happened to be in the existence map.
+    """
+    routing_map = CONTEXT_DIR / "LOTUS-SKILL-ROUTING-MAP.md"
+    original = routing_map.read_text(encoding="utf-8")
+    try:
+        routing_map.write_text(
+            original + "\n[broken](definitely-missing-route.md)\n", encoding="utf-8"
+        )
+        errors = [
+            error
+            for error in CONTEXT_VALIDATOR.validate_engineering_context_system()
+            if "definitely-missing-route.md" in error
+        ]
+    finally:
+        routing_map.write_text(original, encoding="utf-8")
+
+    assert len(errors) == 1, "a broken route in the routing map went unreported"
+
+
+def test_the_governed_documents_have_no_unresolvable_route() -> None:
+    """The rule runs against the real estate, not only against fixtures."""
+    errors = [
+        error
+        for error in CONTEXT_VALIDATOR.validate_engineering_context_system()
+        if "links to a path that does not exist" in error
+        or "links outside the repository" in error
+    ]
+
+    assert errors == [], errors
