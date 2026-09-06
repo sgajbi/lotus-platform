@@ -7,15 +7,13 @@ description: "Use when implementing or reviewing backend work in Lotus repositor
 
 Use this skill for Lotus backend feature work, cleanup, validation, and PR preparation.
 
-Apply it in line with:
-
-1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
-3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
-6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-7. repository-local RFCs and standards already in force
+Apply it after the common startup set. Load `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+only when the change crosses a repository boundary or changes shared engineering policy, and
+`lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` when execution, recovery, or delivery evidence
+is central. For CI or release work add RFC-0072 and
+`lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`.
+Always apply `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` and
+repository-local standards already in force.
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing and `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` when deciding how much proof is required.
 
@@ -27,8 +25,9 @@ repository-native enforcement, scorecards, regression blockers, or agent-develop
 
 Before substantive backend work:
 
-1. load the central engineering context,
-2. load the repo-local context,
+1. rely on the common startup set, which already includes the repo-local context,
+2. load the central engineering context only when the change crosses a repository boundary or
+   changes shared engineering policy,
 3. load only the specific standards or RFCs the task actually needs.
 
 ## Working Model

@@ -11,13 +11,17 @@ Use this skill to prevent merge churn by enforcing a fixed sequence: local verif
 
 Apply it in line with:
 
-1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
-3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
+1. the common startup set already selected before this skill,
+2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the change crosses a repository
+   boundary or changes shared release policy,
+3. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`,
+4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`,
+5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`.
 
 Use `lotus-platform/context/playbooks/PR-LOOP-PLAYBOOK.md` as the operating sequence and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when a required check fails.
+
+Before pre-merge work, rely on the common startup set and load the central engineering context only
+when the change crosses a repository boundary or changes shared release policy.
 
 Use `lotus-ci-enforcement-governance` before this skill when the work changes CI gate design,
 promotes report-only inventories to blocking checks, or updates agent-facing quality enforcement.

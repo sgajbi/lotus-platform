@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 369986
+    "total_source_lines": 370412
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -205,8 +205,8 @@
       },
       {
         "complexity": 1,
-        "end_line": 1080,
-        "line": 607,
+        "end_line": 1081,
+        "line": 608,
         "lines": 474,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3256
+    "python_function_count": 3271
   },
-  "generated_at_utc": "2026-09-06T16:08:11Z",
+  "generated_at_utc": "2026-09-06T16:20:24Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -438,7 +438,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1320,
+      "lines": 1359,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
     },
@@ -762,11 +762,6 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 318,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
         "line": 319,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
@@ -785,12 +780,20 @@
         "line": 322,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 323,
+        "path": "automation/generate_enterprise_backend_quality_baseline.py",
+        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1370,
+    "collected_tests": 1379,
+    "collected_tests_by_platform": {
+      "win32": 1379
+    },
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -799,7 +802,8 @@
       "-q",
       "tests/unit"
     ],
+    "platform": "win32",
     "returncode": 0,
-    "summary": "1370 tests collected"
+    "summary": "1379 tests collected"
   }
 }

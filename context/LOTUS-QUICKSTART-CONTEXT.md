@@ -102,16 +102,35 @@ A Lotus change is not complete unless it is:
 
 ## Reading Paths By Task
 
-Use the smallest correct working set:
+Every route below starts from the same startup set stated at the top of this
+file, and names only what its task adds to it. Nothing here restates that set:
+one section defines it so the routes cannot drift away from it again.
 
 1. UI or product-surface work
-   Read the engineering context, then the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), then `lotus-workbench` repo context, then relevant gateway and platform validation references.
+   Use the gateway and platform validation references named by the already-loaded
+   `lotus-workbench` repository context. Only if the change crosses a
+   repository boundary, read
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 2. Backend API or domain-service work
-   Read the engineering context, then the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), then the owning repo context, then relevant standards and contract governance docs.
+   Add the standards and contract governance documents that the
+   [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) lists for the contract
+   being changed. Only when the change crosses a repository boundary or changes
+   shared engineering policy, read the
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md). Use the
+   [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when the owner is unclear.
 3. Cross-app integration or validation work
-   Read the engineering context, the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), the reference map, and the platform validation/runbook material first.
+   This is the case the broad context exists for: read
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) for the
+   cross-repository architecture, then the
+   [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for the platform
+   validation and runbook material the integration touches.
 4. RFC, standards, or governance work
-   Read the engineering context, the [Task Routing Guide](./TASK-ROUTING-GUIDE.md), the reference map, and the relevant RFC or standard set.
+   Add the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate the RFC
+   or standard, and the [Platform Engineering Ledger](./platform-engineering-ledger.md)
+   with the [Recent Architectural Decisions Digest](./recent-architectural-decisions-digest.md)
+   for what has already been decided. When the change sets policy across
+   repositories rather than inside one, read
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 
 ## Human-Maintained Memory
 
@@ -141,7 +160,15 @@ The governed procedural-memory layer lives in:
 
 ## Next Read
 
-1. Read the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`.
-2. Select the task's skill in the [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md).
-3. Follow only the task-specific links identified by those two sources.
+Work through the startup set named at the top of this file: the target
+repository's `REPOSITORY-ENGINEERING-CONTEXT.md`, then the task's skill in the
+[Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md).
+
+Then follow only the task-specific links those two sources identify, using the
+route above that matches the work. Load
+[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md),
+the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md), the
+[Task Routing Guide](./TASK-ROUTING-GUIDE.md), or the
+[Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) when the route calls for
+it, and not before.
 
