@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+
+import pytest
 from pathlib import Path
 
 
@@ -865,3 +867,249 @@ def test_rfc_0074_slice_seven_repository_context_links_are_governed() -> None:
     assert "repo-native `lotus-idea` declarations" in platform_repo_context
     assert "Canonical front-office QA also includes `lotus-idea` by default" in platform_repo_context
     assert "catalog-visible future-wave `lotus-idea`" not in platform_repo_context
+
+
+# --- The agent contract's path ownership rule --------------------------------
+
+
+def _contract_validator():
+    spec = importlib.util.spec_from_file_location(
+        "validate_engineering_context_system",
+        ROOT / "automation" / "validate_engineering_context_system.py",
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _contract_path_errors(contract: str) -> list[str]:
+    errors: list[str] = []
+    _contract_validator()._validate_agents_contract_paths(
+        errors=errors, agents_contract=contract
+    )
+    return errors
+
+
+def test_a_bare_platform_document_is_rejected() -> None:
+    """This file is deployed byte-identically, so a bare path reads as local.
+
+    A blob-parity check cannot catch this. The contract is identical in all
+    twelve repositories and still wrong in eleven, because correctness depends
+    on where the file sits rather than on what it contains.
+    """
+    errors = _contract_path_errors("Read `LOTUS-ENGINEERING-CONTEXT.md` for architecture.")
+
+    assert len(errors) == 1
+    assert "LOTUS-ENGINEERING-CONTEXT.md" in errors[0]
+
+
+def test_a_qualified_platform_document_is_accepted() -> None:
+    contract = "Read `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` for architecture."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_document_owned_by_each_repository_stays_bare() -> None:
+    """`AGENTS.md` and the repository context are meant to resolve locally."""
+    contract = "Read `AGENTS.md` and `REPOSITORY-ENGINEERING-CONTEXT.md` first."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_sibling_repository_document_is_accepted_when_qualified() -> None:
+    """Ownership, not platform-ness, is the rule."""
+    contract = "See `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_generated_artifact_is_correctly_bare() -> None:
+    """`output/background-runs.json` is produced wherever the automation runs.
+
+    The contract calls it local automation evidence, and Git does not track it
+    here, so qualifying it would assert the opposite of what it means. Tracking
+    is what separates a document a reader must open from an artifact a run
+    produces.
+    """
+    contract = "Treat `output/background-runs.json` as local automation evidence."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_platform_script_the_reader_must_run_is_not_exempt() -> None:
+    """The rule covers anything the contract names, not only documents."""
+    errors = _contract_path_errors("Use `automation/Sync-AgentOperatingContract.ps1`.")
+
+    assert len(errors) == 1
+    assert "Sync-AgentOperatingContract.ps1" in errors[0]
+
+
+def test_a_platform_path_that_does_not_exist_is_rejected() -> None:
+    """Qualifying a path is not the same as the path being real."""
+    errors = _contract_path_errors("Read `lotus-platform/context/NOT-A-REAL-DOCUMENT.md`.")
+
+    assert len(errors) == 1
+    assert "does not track" in errors[0]
+
+
+def test_a_path_with_arguments_after_it_is_still_a_path() -> None:
+    """A backtick span is often a command, not a bare path.
+
+    Requiring the closing backtick straight after the extension skipped
+    `automation/Sync-AgentOperatingContract.ps1 -CheckOnly`, and the contract
+    was shipping exactly that: an unqualified platform script this check could
+    not see, in the pull request written to catch unqualified platform paths.
+    """
+    errors = _contract_path_errors(
+        "Run `automation/Sync-AgentOperatingContract.ps1 -CheckOnly` to verify."
+    )
+
+    assert len(errors) == 1
+    assert "Sync-AgentOperatingContract.ps1" in errors[0]
+
+
+def test_a_qualified_command_span_is_accepted() -> None:
+    contract = "Run `lotus-platform/automation/Sync-AgentOperatingContract.ps1 -CheckOnly`."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_an_unreadable_inventory_is_an_error_not_an_empty_one(monkeypatch) -> None:
+    """An empty inventory makes every bare path look untracked, so nothing is examined."""
+    import subprocess as _subprocess
+
+    validator = _contract_validator()
+
+    def _failing_run(*args, **kwargs):
+        return _subprocess.CompletedProcess(
+            args=[], returncode=128, stdout="", stderr=""
+        )
+
+    monkeypatch.setattr(validator.subprocess, "run", _failing_run)
+    with pytest.raises(RuntimeError, match="unable to read the Git inventory"):
+        validator._tracked_platform_paths()
+
+
+def test_the_shipped_contract_qualifies_every_platform_document() -> None:
+    """The rule runs against the contract that is actually deployed."""
+    contract = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_concrete_skill_path_is_validated(tmp_path: Path) -> None:
+    """Only the `<skill-name>` template is exempt, not every path ending in SKILL.md.
+
+    Exempting the suffix meant a misspelled or invented skill read as correct,
+    which is worse than leaving it bare: the qualification makes it look
+    checked.
+    """
+    errors = _contract_path_errors(
+        "See `lotus-platform/codex/skills/definitely-not-a-skill/SKILL.md`."
+    )
+
+    assert len(errors) == 1
+    assert "definitely-not-a-skill" in errors[0]
+
+
+def test_the_skill_name_template_stays_exempt() -> None:
+    """The template names a shape rather than a document, and must not be resolved."""
+    contract = "Skills live in `lotus-platform/codex/skills/<skill-name>/SKILL.md`."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_real_skill_path_is_accepted() -> None:
+    contract = (
+        "See `lotus-platform/codex/skills/lotus-skill-context-governance/SKILL.md`."
+    )
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_a_markdown_link_target_is_inspected() -> None:
+    """A link destination is a path a reader follows as literally as a code span.
+
+    Checking only inline-code spans left every link unexamined, so a
+    platform-owned document reached through a link kept the defect the spans
+    had been cleared of.
+    """
+    errors = _contract_path_errors(
+        "Read [the layering standard](docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)."
+    )
+
+    assert len(errors) == 1
+    assert "LOTUS-DOCUMENTATION-LAYERING.md" in errors[0]
+
+
+def test_a_qualified_markdown_link_is_accepted() -> None:
+    contract = (
+        "Read [the layering standard]"
+        "(lotus-platform/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)."
+    )
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_an_external_link_is_not_read_as_a_path() -> None:
+    contract = "Read it at [the repository](https://github.com/sgajbi/lotus-platform)."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_an_explicit_relative_prefix_does_not_bypass_ownership() -> None:
+    """`./docs/...` names the same document as `docs/...`.
+
+    Comparing the unnormalized string missed every explicit-relative form,
+    which is the conventional spelling in Markdown — so the most likely way to
+    write the link was the one way that escaped the check.
+    """
+    errors = _contract_path_errors(
+        "See [the standard](./docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)."
+    )
+
+    assert len(errors) == 1
+    assert "LOTUS-DOCUMENTATION-LAYERING.md" in errors[0]
+
+
+def test_a_parent_relative_prefix_does_not_bypass_ownership() -> None:
+    errors = _contract_path_errors(
+        "See [the context](../context/LOTUS-ENGINEERING-CONTEXT.md)."
+    )
+
+    assert len(errors) == 1
+
+
+def test_a_relative_prefix_on_a_qualified_path_is_still_accepted() -> None:
+    """Normalizing must not turn a correctly qualified path into a finding."""
+    contract = (
+        "See [it](./lotus-platform/docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)."
+    )
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_an_unknown_repository_prefix_is_rejected() -> None:
+    """A misspelled repository is qualified-looking and resolves nowhere."""
+    errors = _contract_path_errors("See `lotus-workbenchh/docs/operations/runtime.md`.")
+
+    assert len(errors) == 1
+    assert "the estate does not have" in errors[0]
+
+
+def test_a_governed_repository_prefix_is_accepted() -> None:
+    contract = "See `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`."
+
+    assert _contract_path_errors(contract) == []
+
+
+def test_an_empty_repository_registry_is_an_error(monkeypatch) -> None:
+    """Accepting every prefix unexamined is the failure this check exists to stop."""
+    validator = _contract_validator()
+    monkeypatch.setattr(
+        validator.Path, "read_text", lambda *args, **kwargs: '{"repos": []}'
+    )
+    with pytest.raises(RuntimeError, match="registry is empty"):
+        validator._governed_repositories()

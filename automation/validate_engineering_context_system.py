@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
+import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 
@@ -280,6 +283,166 @@ def _validate_manifest_contract(
         manifest=manifest,
         ecosystem_registries=ecosystem_registries,
     )
+
+
+# Documents each repository owns a copy of. A bare reference to one of these is
+# correct: it is meant to resolve inside whichever repository is reading.
+_REPOSITORY_OWNED_DOCUMENTS = frozenset(
+    {"AGENTS.md", "CLAUDE.md", "README.md", "REPOSITORY-ENGINEERING-CONTEXT.md"}
+)
+# A backtick span is often a command, not a bare path: `automation/x.ps1
+# -CheckOnly` names a file and then its arguments. Requiring the closing
+# backtick straight after the extension skipped exactly those, and the contract
+# was shipping an unqualified script reference that this check could not see.
+# Identical to the definition used by the document link check, so the two
+# branches merge without a conflict.
+_MARKDOWN_LINK = re.compile(
+    r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
+)
+_CODE_SPAN = re.compile(r"`(?P<span>[^`\n]+)`")
+_PATH_TOKEN = re.compile(r"(?<![A-Za-z0-9_./-])(?P<path>[A-Za-z0-9_-][A-Za-z0-9_./-]*\.[A-Za-z0-9]+)")
+
+
+def _governed_repositories() -> frozenset[str]:
+    """The repository names the estate actually has, from the governed registry.
+
+    Accepting any `lotus-` prefix meant a misspelled or invented repository
+    read as a correctly qualified path, which is worse than leaving it bare:
+    the qualification makes it look checked.
+    """
+    payload = json.loads(
+        (ROOT / "automation" / "repository-governance-policy.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    names = frozenset(str(repo["name"]) for repo in payload.get("repos", []))
+    if not names:
+        raise RuntimeError(
+            "the governed repository registry is empty, so every repository "
+            "prefix would be accepted unexamined"
+        )
+    return names
+
+
+def _contract_paths(agents_contract: str):
+    """Yield every path-like token the contract names.
+
+    Inline code spans are the usual form, but a Markdown link destination is a
+    path a reader follows just as literally, and checking only the spans left
+    every link unexamined.
+    """
+    for span in _CODE_SPAN.finditer(agents_contract):
+        for token in _PATH_TOKEN.finditer(span.group("span")):
+            yield token.group("path")
+    for link in _MARKDOWN_LINK.finditer(agents_contract):
+        href = link.group("href")
+        if href.startswith(("http://", "https://", "mailto:", "#")):
+            continue
+        target = href.strip("<>").split("#", 1)[0].split("?", 1)[0]
+        if target:
+            yield urllib.parse.unquote(target)
+
+
+def _tracked_platform_paths() -> frozenset[str]:
+    """Every file Git tracks in lotus-platform, as repository-relative POSIX paths.
+
+    Tracking is what separates a document from an artifact. `output/background-
+    runs.json` is named by the contract and is deliberately not tracked: it is
+    produced wherever the automation runs, and the contract calls it local
+    evidence, so qualifying it would assert the opposite of what it means.
+
+    A failure to read the inventory raises rather than returning an empty set.
+    An empty inventory makes every bare path look untracked, so the check would
+    report nothing and pass — the exact shape of gate this repository has spent
+    the day removing.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            "unable to read the Git inventory for the contract path check: "
+            f"git ls-files exited {result.returncode}"
+        )
+    tracked = frozenset(
+        line.strip() for line in result.stdout.splitlines() if line.strip()
+    )
+    if not tracked:
+        raise RuntimeError(
+            "the Git inventory for the contract path check came back empty, "
+            "which would let every bare path pass unexamined"
+        )
+    return tracked
+
+
+def _validate_agents_contract_paths(*, errors: list[str], agents_contract: str) -> None:
+    """Every platform-owned path in the contract must say which repository owns it.
+
+    This file is deployed byte-identically into every Lotus repository, so a
+    bare `LOTUS-ENGINEERING-CONTEXT.md` resolves inside whichever repository is
+    reading it and finds nothing in eleven of twelve. A blob-parity check cannot
+    see this: the file is identical everywhere and still wrong everywhere but
+    here, because correctness depends on where the file sits rather than on what
+    it contains.
+
+    The rule is ownership. A document `lotus-platform` owns carries the
+    `lotus-platform/` prefix; a document each repository owns for itself stays
+    bare.
+    """
+    tracked = _tracked_platform_paths()
+    governed = _governed_repositories()
+    for raw_path in _contract_paths(agents_contract):
+        # `./docs/...` and `../context/...` name the same documents as their
+        # bare forms, and comparing the unnormalized string missed every one of
+        # them — so the explicit-relative spelling, which is the conventional
+        # one in Markdown, silently bypassed the ownership check.
+        path = raw_path
+        while path.startswith("./") or path.startswith("../"):
+            path = path[2:] if path.startswith("./") else path[3:]
+        if path in _REPOSITORY_OWNED_DOCUMENTS:
+            continue
+        # `codex/skills/<skill-name>/SKILL.md` is a template naming the shape
+        # rather than a document. Exempting every path ending in SKILL.md let a
+        # concrete but misspelled skill through unchecked, which is the case
+        # worth catching.
+        if path.endswith("/SKILL.md") and "<skill-name>" in path:
+            continue
+        # A document owned by another Lotus repository is qualified by that
+        # repository's name for the same reason, and is equally correct — but
+        # only when that repository exists.
+        prefix = path.split("/", 1)[0]
+        if prefix.startswith("lotus-") and prefix != "lotus-platform":
+            if prefix not in governed:
+                errors.append(
+                    "AGENTS operating contract qualifies a path with a "
+                    f"repository the estate does not have: {path}"
+                )
+            continue
+        if path.startswith("lotus-platform/"):
+            if path.removeprefix("lotus-platform/") not in tracked:
+                errors.append(
+                    "AGENTS operating contract references a path that "
+                    f"lotus-platform does not track: {path}"
+                )
+            continue
+        # A bare path is only wrong when it names something this repository
+        # actually owns. A path Git does not track here is either produced at
+        # runtime or owned per-repository, and is correctly bare.
+        # Match the basename too: the contract writes `LOTUS-ENGINEERING-CONTEXT.md`,
+        # while Git tracks it as `context/LOTUS-ENGINEERING-CONTEXT.md`. Comparing
+        # only whole paths silently stopped catching the original defect.
+        owned_here = path in tracked or any(
+            candidate.endswith("/" + path) for candidate in tracked
+        )
+        if owned_here:
+            errors.append(
+                "AGENTS operating contract references a platform-owned file "
+                f"without saying so, which resolves inside the reading "
+                f"repository and finds nothing there: {path}"
+            )
 
 
 def _validate_agents_operating_contract(*, errors: list[str], agents_contract: str) -> None:
@@ -723,6 +886,10 @@ def validate_engineering_context_system_with_warnings() -> tuple[list[str], list
 
     if errors:
         return errors, warnings
+
+    _validate_agents_contract_paths(
+        errors=errors, agents_contract=_read_text(required_files["agents contract"])
+    )
 
     context_index = _read_text(required_files["context index"])
     quickstart = _read_text(required_files["quickstart"])
