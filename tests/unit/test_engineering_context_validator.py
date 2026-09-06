@@ -106,4 +106,3 @@ def test_agents_operating_contract_validator_reports_missing_required_guidance()
         "AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `PB_SG_GLOBAL_BAL_001`"
         in errors
     )
-
