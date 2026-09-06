@@ -233,7 +233,36 @@ def _join_continuations(lines: list[str]) -> list[str]:
     return joined
 
 
-def _terminal_sink(segment: str) -> str | None:
+def _producer_text(raw_line: str) -> str:
+    """Return a line's text up to its first top-level pipe, quotes intact.
+
+    Callers work on a quote-stripped probe, which erases ``"$(gate.py)"``
+    entirely and leaves what looks like a bare ``echo``. Deciding whether a
+    producer is verdict-free needs the original text, and a pipe inside a
+    substitution does not end the producer.
+    """
+    depth = 0
+    quote = ""
+    index = 0
+    while index < len(raw_line):
+        character = raw_line[index]
+        if quote:
+            if character == quote:
+                quote = ""
+        elif character in "'\"":
+            quote = character
+        elif raw_line.startswith("$(", index):
+            depth += 1
+            index += 1
+        elif character == ")" and depth:
+            depth -= 1
+        elif character == "|" and depth == 0:
+            return raw_line[:index]
+        index += 1
+    return raw_line
+
+
+def _terminal_sink(segment: str, raw_line: str | None = None) -> str | None:
     """Return the passive sink this single command segment ends in, if any.
 
     A segment is one command in a shell list; the caller splits on ``&&``,
@@ -255,7 +284,12 @@ def _terminal_sink(segment: str) -> str | None:
     # verdict: `printf x | gate.py | tee log` still hides gate.py's failure.
     upstream = [_command_of(stage) for stage in stages[:-1]]
     if upstream and all(command in _TRIVIAL_SOURCES for command in upstream):
-        return None
+        # `echo "$(gate.py)" | tee log` is NOT verdict-free: a command
+        # substitution discards its exit status, so a gate inside it fails
+        # silently and the pipeline then ends in a sink. Quote stripping hides
+        # the substitution, so this consults the original text.
+        if raw_line is None or "$(" not in _producer_text(raw_line):
+            return None
     return last
 
 
@@ -315,7 +349,7 @@ def unguarded_pipelines(step_body: str) -> list[str]:
         piped = [
             i
             for i, segment in enumerate(segments)
-            if _terminal_sink(segment) is not None
+            if _terminal_sink(segment, line) is not None
         ]
         last_piped = piped[-1] if piped else None
         reported = False
@@ -324,7 +358,7 @@ def unguarded_pipelines(step_body: str) -> list[str]:
         # so nothing but pipefail can guard it.
         for body in _substitution_bodies(line):
             for inner in re.split(r"&&|\|\||;", body):
-                if _terminal_sink(inner) in _SUBSTITUTION_SINKS and not pipefail:
+                if _terminal_sink(inner, body) in _SUBSTITUTION_SINKS and not pipefail:
                     offenders.append(line)
                     reported = True
                     break
@@ -333,7 +367,7 @@ def unguarded_pipelines(step_body: str) -> list[str]:
         piped = [
             i
             for i, segment in enumerate(segments)
-            if _terminal_sink(segment) is not None
+            if _terminal_sink(segment, line) is not None
         ]
         last_piped = piped[-1] if piped else None
         reported = False

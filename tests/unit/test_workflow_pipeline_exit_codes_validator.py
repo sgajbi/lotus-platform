@@ -475,3 +475,24 @@ def test_pipestatus_captured_first_on_the_line_still_guards() -> None:
         '          exit "$s"\n'
     )
     assert validator.unguarded_pipelines(body) == []
+
+
+def test_producer_running_a_command_substitution_is_reported() -> None:
+    """`echo "$(gate.py)" | tee log` discards the gate's status twice over.
+
+    A command substitution throws away its exit status, and the pipeline then
+    ends in a sink. Quote stripping erases the substitution, leaving what looks
+    like a bare `echo`, so the verdict-free exemption fired on a producer that
+    was running a gate.
+    """
+    for line in (
+        'echo "$(python gate.py)" | tee log.txt',
+        'printf "%s" "$(gate.py)" | tee log.txt',
+    ):
+        assert validator.unguarded_pipelines(f"run: {line}\n") == [line], line
+
+
+def test_substitution_on_the_sink_side_stays_quiet() -> None:
+    """The producer is what must be verdict-free; a sink argument is not a gate."""
+    line = 'echo x | tee "$(dirname f)/log"'
+    assert validator.unguarded_pipelines(f"run: {line}\n") == []
