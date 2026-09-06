@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -70,6 +71,12 @@ def _validate_application_agent_contract_sync(
         repo_context_path = repo_root / application.get("repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md")
         if not repo_context_path.exists():
             continue
+        _validate_repo_context_shape(
+            errors=errors,
+            warnings=warnings,
+            repository_name=repository_name,
+            repo_context_path=repo_context_path,
+        )
         repo_agents_path = repo_root / "AGENTS.md"
         if not repo_agents_path.exists():
             target = errors if repository_name == "lotus-platform" else warnings
@@ -81,6 +88,90 @@ def _validate_application_agent_contract_sync(
             target.append(
                 f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md"
             )
+
+
+
+# The contract in context/Repository-Engineering-Context-Contract.md states these
+# in prose. Nothing measured them until now, and three repositories had drifted
+# without anyone seeing it -- the declared-versus-measured gap, in the corpus
+# that describes every other posture surface.
+REQUIRED_REPO_CONTEXT_SECTIONS = (
+    "Repository Role",
+    "Business And Domain Responsibility",
+    "Current-State Summary",
+    "Architecture And Module Map",
+    "Runtime And Integration Boundaries",
+    "Repo-Native Commands",
+    "Validation And CI Expectations",
+    "Standards And RFCs That Govern This Repository",
+    "Known Constraints And Implementation Notes",
+    "Context Maintenance Rule",
+    "Cross-Links",
+)
+
+# Matched by document rather than by one path form: lotus-platform links its own
+# copies as `./context/...` while siblings link `../lotus-platform/context/...`.
+# Requiring the sibling spelling reported the owning repository as non-conformant
+# -- a rule correct about the case that motivated it and wrong about the one
+# nobody checked.
+REQUIRED_REPO_CONTEXT_CROSS_LINKS = (
+    "context/LOTUS-QUICKSTART-CONTEXT.md",
+    "context/LOTUS-ENGINEERING-CONTEXT.md",
+    "context/CONTEXT-REFERENCE-MAP.md",
+)
+
+# A prose line beginning with an issue reference renders as an H1: "#681 was the
+# tracker" becomes a top-level heading in the outline, which a heading-based
+# check reads as structure and a human reads as a section that does not exist.
+_ISSUE_AS_HEADING = re.compile(r"^#[0-9]", re.MULTILINE)
+
+
+
+def _validate_repo_context_shape(
+    *,
+    errors: list[str],
+    warnings: list[str],
+    repository_name: str,
+    repo_context_path: Path,
+) -> None:
+    """Check one repository context document against the contract's required shape.
+
+    A mismatch is an error for lotus-platform and a warning elsewhere, matching
+    how AGENTS.md drift is already treated: this repository owns the contract,
+    and a sibling that has not caught up must not block the lane that publishes
+    the requirement.
+    """
+    text = _read_text(repo_context_path)
+    headings = {
+        line.lstrip("#").strip()
+        for line in text.splitlines()
+        if line.startswith("#")
+    }
+    missing_sections = [
+        section for section in REQUIRED_REPO_CONTEXT_SECTIONS if section not in headings
+    ]
+    missing_links = [
+        link for link in REQUIRED_REPO_CONTEXT_CROSS_LINKS if link not in text
+    ]
+
+    target = errors if repository_name == "lotus-platform" else warnings
+    if missing_sections:
+        target.append(
+            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing "
+            f"{len(missing_sections)} required section(s): {', '.join(missing_sections)}"
+        )
+    if missing_links:
+        target.append(
+            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing required "
+            f"cross-link(s): {', '.join(missing_links)}"
+        )
+    fake_headings = _ISSUE_AS_HEADING.findall(text)
+    if fake_headings:
+        target.append(
+            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md has {len(fake_headings)} "
+            "line(s) starting with an issue reference, which render as top-level headings; "
+            "reflow the line or write 'issue #123'"
+        )
 
 
 def _validate_manifest_path_map(

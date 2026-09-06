@@ -70,6 +70,104 @@ closure, and before moving to the next RFC:
 4. classify each as `must-merge`, `cherry-pick`, `superseded`, `delete`, or `active`,
 5. merge, cherry-pick, explicitly supersede, or delete unique durable truth before claiming closure.
 
+## Evidence And Guard Integrity
+
+Each rule is carried with the case that produced it. A rule without its evidence reads as a
+preference and gets dropped by the next person under time pressure.
+
+### Never write file content through a shell heredoc
+
+The shell rewrites backslash escapes before the interpreter sees the file: `\b` becomes 0x08,
+`\f` 0x0c, `\e` 0x1b, `\t` a tab. Write the file with an editor tool, or write a patch script to
+a file and run it by path.
+
+Prose is the more consequential half, because nothing in Markdown rendering signals a problem. A
+`lotus-report` guard compiled to `'\x08([A-Z][a-z]+)-only\x08'` and passed on the exact defect it
+was written to catch; a `lotus-render` guard against source syntax reaching a client page could
+never fire; and corruptions sit committed on `lotus-core` main where escapes ate the first letter
+of real identifiers, so a review ledger names fields that do not exist.
+
+Byte-scan before pushing. 0x08 renders invisibly, so reading the source cannot find it — only the
+bytes or the compiled form can.
+
+### Never pipe a gate through `tee` or `tail`
+
+A pipeline exits with the status of its **last** command, so the gate's verdict is discarded and
+the step reports success whatever it decided. `bash -e` does not catch it, because the pipeline
+succeeded. Run the gate bare, or set `-o pipefail` before it, or capture `${PIPESTATUS[0]}` and
+exit with it.
+
+Six steps across two `lotus-gateway` workflows carried this shape, including `make test-coverage`
+and `make security-audit`; one had been raising an exception under a green check since the day it
+landed.
+
+### Prove a guard can fail, after every edit
+
+A guard is known-good only on the exact bytes you last proved it failing on. Run it against a
+known-bad input and confirm it fails; passing on good input proves nothing. Cosmetic edits count —
+a refactor or a rename is exactly when nobody re-checks, and that is when the `lotus-report`
+corruption entered, after its original falsification.
+
+### Test a guard against two shapes of its class, and assert what it must accept
+
+A guard naming a class must be proved against at least two different shapes of that class. Three
+separate narrowings in one day left holes of identical shape: a route detector that classified
+`config.get(...)` as a route and exempted its arguments, a `-only` scan that caught the string
+which prompted it and would have missed the same pattern in an adjacent field, and a pipeline
+exclusion that read `echo "$(gate.py)" | tee log` as verdict-free.
+
+Assert both directions. A classifier tested only on what it must reject can be widened until it
+rejects everything — its own cases stay green while every legitimate input fails, broken in the
+direction its tests never look.
+
+### State a rule, then try to break it
+
+Before recording a rule, name a case already in hand that would falsify it, and measure that case.
+Four rules about a single CI failure died this way in one day, each refuted by a repository its
+author had not sampled. Reasoning harder about the repositories already examined produced none of
+those refutations.
+
+### Lifted files are compared by blob SHA on committed refs
+
+A file lifted verbatim between repositories is compared with `git rev-parse <ref>:<path>`, never by
+hashing a working tree: a checkout may normalise line endings, and a tree can be repaired locally
+while the merged state is still stale. Lift only from a canonical's **merged** state, never an open
+pull request, and never edit the file on arrival — if a local formatter or type checker forces an
+edit, fix the canonical instead.
+
+A `lotus-render` checker sat 102 lines behind the canonical after two local annotations, so its
+offline gate would have passed a policy gutted of required fields.
+
+### `gh issue close --comment` discards the comment on an already-closed issue
+
+The command succeeds and the evidence is silently dropped. Use `gh issue comment`, then verify the
+comment count moved. Closure evidence was lost this way on issues in two repositories.
+
+### Workflow-touching pull requests land single-commit
+
+The merged-PR dispatcher creates one tag per revision so each gate run's head SHA is the revision.
+That tag write is refused when the tagged commit's workflow tree differs from the default branch
+tip's, so a multi-commit pull request that edits `.github/workflows` loses per-commit gating on its
+intermediate commits.
+
+Keep such a pull request to one commit, or make every workflow edit in the first commit and never
+touch those files again in that pull request. State of evidence: this is a measured rule with
+prospective confirmations, not a documented API behaviour, and four earlier explanations of the
+same refusal were falsified. Treat it as a working rule, not a settled mechanism.
+
+## Where Repository-Scoped Practice Lives
+
+`AGENTS.md` is deployed identically to every repository from this contract and checked by
+`automation/Sync-AgentOperatingContract.ps1 -CheckOnly`. Nothing repository-specific belongs in it:
+editing one repository's copy forks a governed file.
+
+Repository-scoped working practice — the hazards, conventions and command shapes that are true of
+one repository and not the estate — belongs in that repository's
+`REPOSITORY-ENGINEERING-CONTEXT.md`, under a section that names it as practice rather than
+architecture. Every Lotus repository has that file and each owns its own copy, so it needs no new
+convention and no synchronisation. `CLAUDE.md` is not the home for it: only one repository has one,
+and it is read by a single agent runtime rather than all of them.
+
 ## Delivery Posture
 
 Operate as a banking-grade engineer, not a generic coding assistant.

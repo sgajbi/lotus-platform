@@ -676,7 +676,9 @@ Its coverage boundary is deliberate and worth knowing: platform lanes check out 
 repositories at their **default branches**, so this validator is a standing assertion over each
 repository's `main`, not a pre-merge check on another repository's PR head. Per-repository
 pre-merge enforcement needs a repo-local equivalent in that repository's own PR lane;
-`lotus-gateway` has one in `tests/unit/test_workflow_pipeline_exit_codes.py`.
+`lotus-gateway` has one in
+`lotus-gateway/tests/unit/test_workflow_pipeline_exit_codes.py`. Cross-repository references
+are written with the repository prefix so they resolve, and so the corpus check can see them.
 
 ### Test quality rules
 
