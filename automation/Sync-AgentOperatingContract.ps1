@@ -230,7 +230,11 @@ else {
     Join-Path $PSScriptRoot "..\context\AGENTS-OPERATING-CONTRACT.md"
 }
 $resolvedSource = (Resolve-Path $sourcePathToUse).ProviderPath
-$sourceContent = Get-Content -Raw $resolvedSource
+# -Encoding utf8 is required: without it Get-Content decodes with the system
+# codepage, so a UTF-8 em dash is read as three cp1252 characters and written
+# back double-encoded. The check then never converges, because the file this
+# script just wrote does not match the source it wrote it from.
+$sourceContent = Get-Content -Raw -Encoding utf8 $resolvedSource
 $normalizedSourceContent = Normalize-ContractContent $sourceContent
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -248,7 +252,7 @@ foreach ($target in $targets) {
             continue
         }
 
-        $targetContent = Get-Content -Raw $target.path
+        $targetContent = Get-Content -Raw -Encoding utf8 $target.path
         $normalizedTargetContent = Normalize-ContractContent $targetContent
         if ($normalizedTargetContent -ne $normalizedSourceContent) {
             $hint = Get-RepoRootCheckoutHint -Target $target
