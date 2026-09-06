@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 370910
+    "total_source_lines": 370993
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -131,6 +131,14 @@
       },
       {
         "complexity": 16,
+        "end_line": 1278,
+        "line": 1239,
+        "lines": 40,
+        "name": "_broad_context_policy_errors",
+        "path": "tests/unit/test_engineering_context_system_contract.py"
+      },
+      {
+        "complexity": 16,
         "end_line": 264,
         "line": 231,
         "lines": 34,
@@ -184,14 +192,6 @@
         "lines": 64,
         "name": "_target_can_fail",
         "path": "automation/gate_liveness_audit.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 719,
-        "line": 672,
-        "lines": 48,
-        "name": "_projects_from_contract",
-        "path": "automation/background_task_cancellation.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3304
+    "python_function_count": 3305
   },
-  "generated_at_utc": "2026-09-06T22:43:51Z",
+  "generated_at_utc": "2026-09-06T23:04:46Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -433,13 +433,13 @@
       "suffix": ".md"
     },
     {
-      "lines": 1490,
-      "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
+      "lines": 1502,
+      "path": "tests/unit/test_engineering_context_system_contract.py",
       "suffix": ".py"
     },
     {
-      "lines": 1419,
-      "path": "tests/unit/test_engineering_context_system_contract.py",
+      "lines": 1490,
+      "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
       "suffix": ".py"
     },
     {

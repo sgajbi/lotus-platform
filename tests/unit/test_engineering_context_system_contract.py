@@ -1180,6 +1180,62 @@ def _quickstart_task_routes() -> list[str]:
     return routes
 
 
+# Naming the broad context, in any of the forms the estate writes it.
+_BROAD_CONTEXT_MENTION = re.compile(
+    r"\[[^\]]*lotus engineering context[^\]]*\]\([^)]*\)"
+    r"|lotus-engineering-context\.md"
+    r"|lotus engineering context"
+    # The delivery skills call it "the central engineering context".
+    r"|central engineering context"
+)
+# A mention is acceptable when the same sentence says when it applies, or states
+# that this route is the case it exists for.
+_BROAD_CONTEXT_CONDITIONS = (
+    "only when",
+    "only if",
+    "when the change",
+    "where the change",
+    "the case the broad context exists for",
+    "this playbook is the case for",
+    "the case it exists for",
+    # Naming the cross-repository case *is* the qualification: the integration
+    # route is what the broad context exists for, and saying so inline is how
+    # both the quickstart and the routing guide express it.
+    "for cross-repository architecture",
+    "cross-app integration",
+)
+
+
+def _unconditional_broad_context(text: str) -> list[str]:
+    """Return every sentence that loads the broad context without qualifying it.
+
+    Checking that an approved conditional sentence is *present* accepts a
+    document that also carries an unconditional one — the approved text
+    survives the edit and simply stops describing what the document now says.
+    Counting mentions against conditions is not enough either: one sentence
+    often carries two condition phrases, so an added instruction hides inside
+    the surplus.
+
+    Sentences are split on a full stop only. A condition is frequently written
+    in a clause joined by a colon or a comma — "this is the case the broad
+    context exists for: read ..." — and splitting on those separates a
+    qualification from the mention it qualifies, reporting documents that are
+    already correct.
+    """
+    offenders: list[str] = []
+    for sentence in re.split(r"(?<=\.)\s+", text):
+        lowered = sentence.lower()
+        if not _BROAD_CONTEXT_MENTION.search(lowered):
+            continue
+        if any(condition in lowered for condition in _BROAD_CONTEXT_CONDITIONS):
+            continue
+        offenders.append(
+            "unconditional broad-context instruction: "
+            + " ".join(sentence.split())[:120]
+        )
+    return offenders
+
+
 def _broad_context_policy_errors(routes: list[str]) -> list[str]:
     if len(routes) != 4:
         return [f"expected four task routes, found {len(routes)}"]
@@ -1187,6 +1243,10 @@ def _broad_context_policy_errors(routes: list[str]) -> list[str]:
     broad_context = "[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)"
     broad_context_lower = broad_context.lower()
     errors: list[str] = []
+
+    for index, route in enumerate(routes, start=1):
+        for complaint in _unconditional_broad_context(route):
+            errors.append(f"route {index}: {complaint}")
 
     condition = "only if the change crosses a repository boundary"
     frontend_lower = frontend.lower()
@@ -1235,6 +1295,9 @@ def _routing_guide_broad_context_policy_errors(guide: str) -> list[str]:
     backend_flat = " ".join(backend.split()).lower()
     governance_flat = " ".join(governance.split()).lower()
     errors: list[str] = []
+
+    for sentence in _unconditional_broad_context(guide):
+        errors.append(sentence)
     if frontend_condition not in frontend_flat or broad_context_lower not in frontend_flat:
         errors.append("frontend guide must conditionally link broad context")
     elif frontend_flat.index(frontend_condition) > frontend_flat.index(broad_context_lower):
@@ -1258,6 +1321,9 @@ def _delivery_skill_context_policy_errors(skill: str, condition: str) -> list[st
     expected_reference = f"{engineering_context} only when {condition}"
     expected_action = f"load the central engineering context only when {condition}"
     errors: list[str] = []
+
+    for sentence in _unconditional_broad_context(skill):
+        errors.append(sentence)
     if "common startup set" not in normalized:
         errors.append("delivery skill must inherit the common startup set")
     if expected_reference not in normalized:
@@ -1278,9 +1344,15 @@ def test_quickstart_task_routes_apply_the_broad_context_policy() -> None:
         "Only when the change crosses a repository boundary or changes shared engineering policy,",
         "Always",
     )
-    assert _broad_context_policy_errors(regressed_routes) == [
-        "backend route must conditionally link broad context"
-    ]
+    errors = _broad_context_policy_errors(regressed_routes)
+
+    assert "backend route must conditionally link broad context" in errors
+    # The counting guard catches it independently, which is the point of adding
+    # it: the phrase check passes as soon as approved text is present anywhere,
+    # so an edit that keeps the approved sentence and adds an unconditional one
+    # would otherwise slip through. Both firing here is two guards agreeing,
+    # not a duplicate.
+    assert any("unconditional broad-context" in error for error in errors), errors
 
 
 def test_task_routing_guide_and_manifest_extend_the_common_startup_set() -> None:
@@ -1318,9 +1390,13 @@ def test_task_routing_guide_preserves_conditional_broad_context_policy() -> None
         guide,
         count=1,
     )
-    assert _routing_guide_broad_context_policy_errors(regressed) == [
-        "backend guide must conditionally link broad context"
-    ]
+    errors = _routing_guide_broad_context_policy_errors(regressed)
+
+    assert "backend guide must conditionally link broad context" in errors
+    # The sentence guard catches it independently: the phrase check
+    # passes as soon as approved text appears anywhere, so an edit that
+    # keeps it and adds an unconditional instruction needs the second.
+    assert any("unconditional broad-context" in error for error in errors), errors
 
     frontend_regression = re.sub(
         r"Only when the\s+change crosses a repository boundary",
@@ -1328,18 +1404,20 @@ def test_task_routing_guide_preserves_conditional_broad_context_policy() -> None
         guide,
         count=1,
     )
-    assert _routing_guide_broad_context_policy_errors(frontend_regression) == [
-        "frontend guide must conditionally link broad context"
-    ]
+    errors = _routing_guide_broad_context_policy_errors(frontend_regression)
+
+    assert "frontend guide must conditionally link broad context" in errors
+    assert any("unconditional broad-context" in error for error in errors), errors
 
     governance_regression = guide.replace(
         "when the change sets policy across repositories",
         "for every standards task before other context",
         1,
     )
-    assert _routing_guide_broad_context_policy_errors(governance_regression) == [
-        "governance guide must conditionally link broad context"
-    ]
+    errors = _routing_guide_broad_context_policy_errors(governance_regression)
+
+    assert "governance guide must conditionally link broad context" in errors
+    assert any("unconditional broad-context" in error for error in errors), errors
 
 
 def test_reference_map_routes_without_restarting_context_discovery() -> None:
@@ -1379,18 +1457,23 @@ def test_delivery_skills_preserve_conditional_broad_context_depth() -> None:
             "for every task",
             1,
         )
-        assert _delivery_skill_context_policy_errors(unconditional_reference, condition) == [
-            "delivery skill reference must conditionally route broad context"
-        ]
+        errors = _delivery_skill_context_policy_errors(unconditional_reference, condition)
+
+        assert "delivery skill reference must conditionally route broad context" in errors
+        # The sentence guard catches it independently: the phrase check
+        # passes as soon as approved text appears anywhere, so an edit that
+        # keeps it and adds an unconditional instruction needs the second.
+        assert any("unconditional broad-context" in error for error in errors), errors
 
         unconditional_action = normalized_skill.replace(
             f"load the central engineering context only when {condition}",
             "load the central engineering context for every task",
             1,
         )
-        assert _delivery_skill_context_policy_errors(unconditional_action, condition) == [
-            "delivery skill action must conditionally load broad context"
-        ]
+        errors = _delivery_skill_context_policy_errors(unconditional_action, condition)
+
+        assert "delivery skill action must conditionally load broad context" in errors
+        assert any("unconditional broad-context" in error for error in errors), errors
 
 
 def test_quickstart_states_the_startup_set_once() -> None:
