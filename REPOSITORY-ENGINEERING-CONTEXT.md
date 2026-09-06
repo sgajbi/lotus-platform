@@ -1,635 +1,194 @@
 # Repository Engineering Context
 
-This file provides repository-local engineering context for `lotus-platform`.
+This is the repository-local context for `lotus-platform`. It describes current ownership,
+boundaries, task routes, and completion evidence. Historical delivery belongs in the
+[RFC index](./rfcs/README.md), issue tracker, and generated evidence—not here.
 
-For platform-wide truth, read:
-
-1. [Lotus Quickstart Context](./context/LOTUS-QUICKSTART-CONTEXT.md)
-2. [Lotus Engineering Context](./context/LOTUS-ENGINEERING-CONTEXT.md)
-3. [Context Reference Map](./context/CONTEXT-REFERENCE-MAP.md)
+Start with [AGENTS.md](./AGENTS.md), then read the
+[Lotus quickstart](./context/LOTUS-QUICKSTART-CONTEXT.md) and this file. Use the
+[skill routing map](./context/LOTUS-SKILL-ROUTING-MAP.md) to load specialist procedure only when
+the task requires it.
 
 ## Repository Role
 
-`lotus-platform` owns the shared platform layer for the Lotus ecosystem.
+`lotus-platform` is the shared engineering and operational authority for the Lotus ecosystem. It
+owns:
 
-It is the source of truth for:
+1. platform standards and machine-readable cross-repository contracts;
+2. reusable CI, validation, scaffold, governance, and release automation;
+3. shared ingress, service addressing, and infrastructure support;
+4. central engineering context, onboarding, skill source, and documentation conventions;
+5. cross-repository evidence generation and validation.
 
-1. shared automation,
-2. ingress and service-addressing operations,
-3. cross-repository validation,
-4. platform standards,
-5. governance validators,
-6. CI lane templates and repository governance policy.
+It does not own business-domain APIs or authoritative portfolio, advisory, performance, risk, or
+reporting truth. Those remain with their application repositories.
 
 ## Business And Domain Responsibility
 
-This repository does not own a business-domain API. It owns the engineering and operational system that allows the Lotus ecosystem to be run, validated, standardized, and governed as one platform.
+Platform makes the independently owned Lotus services operable and governable as one ecosystem.
+It provides shared engineering controls and integration foundations without becoming a competing
+source of business or financial truth.
 
 ## Current-State Summary
 
-Current repository posture:
+- The multi-lane CI model, workflow governance, context system, agent onboarding, platform
+  validation, and repository scaffolding are active platform capabilities.
+- `platform-stack/` is the shared infrastructure and local integration baseline. The governed,
+  populated front-office runtime belongs to `lotus-workbench`; Platform supplies shared ingress,
+  validation, and evidence automation around it.
+- Platform contracts govern API vocabulary, domain data products, trust telemetry, service
+  addressing, technology posture, vulnerability exceptions, agent delegation, and bank-readiness
+  controls. Repository-native declarations remain owned by their source repositories.
+- Quality artifacts under `quality/` measure the repository and are checked by the repo-native
+  lanes. They are engineering evidence, not product capability claims.
+- Repo-local `wiki/` is the authored wiki source. Publication to the separate GitHub wiki follows
+  the governed synchronization workflow.
 
-1. RFC-0072 implementation is active and has standardized CI lane, workflow security, container, validation, and repository-governance foundations.
-2. RFC-0073 is implemented and governs the central ecosystem context system.
-3. RFC-0074 is implemented and governs developer onboarding, agent ramp-up, and bootstrap synchronization.
-4. Platform validation, ingress, and local runtime automation are already in active use for canonical stack bring-up and proof.
-5. Front-office product-surface bring-up is governed through `lotus-workbench`; this repository owns the shared ingress and infrastructure support around that flow rather than replacing it.
-6. `platform-stack` is the canonical shared-infrastructure and local integration baseline, not the
-   populated front-office demo runtime. It containerises Core, Manage, Performance, Report, Idea,
-   Gateway, and Workbench plus their required local infrastructure; Risk, Advise, AI, Archive, and
-   Render remain explicit host-run bridges. Bootstrap-generated untracked secrets, loopback-only
-   published ports, authenticated Grafana, optional Caddy local-CA TLS, health/resource bounds,
-   complete shared Prometheus coverage, 24-hour Tempo trace retention, and fail-open application
-   ingress when observability services are unavailable are enforced by
-   `automation/validate_platform_stack.py` in every repository check lane.
-7. The enterprise backend refactor baseline foundation is active. The report-only generator
-   `automation/generate_enterprise_backend_quality_baseline.py` writes measured quality artifacts
-   under `quality/`, including `baseline_report.md`, `baseline_report.json`,
-   `quality_scorecard.md`, `refactor_health_report.md`, architecture/API/CI/security rule pages,
-   and a refactor decision log. `automation/Invoke-PlatformRepoChecks.ps1` validates the quality
-   reporting surface through `--check`.
-8. New FastAPI service scaffolds created by `automation/New-Lotus-Service.ps1` now include
-   bank-buyable quality defaults: service-profile-aware README/repo-context/wiki references,
-   `quality/quality_scorecard.md`, architecture rules, CI-quality-gate notes, refactor decisions,
-   a layered `src/app/api|application|domain|ports|infrastructure|runtime|observability|security|resilience`
-   skeleton, runtime composition boundary protection, caller-context and capability-policy
-   primitives, a downstream JSON client resilience template, profile-gated idempotency/audit
-   models for write-capable services, demo-claims
-   documentation with Lotus status vocabulary, opt-in planned/not-certified mesh placeholders plus
-   an optional `data-mesh-contract-gate` for mesh-capable scaffolds,
-   report-only `architecture-boundary-report` and `quality-baseline` commands where
-   `quality-baseline` depends on architecture evidence, and the
-   existing OpenAPI, supported-features, AST-backed monetary-float,
-   no-sensitive-content, endpoint-certification with code-owned response-example parity, coverage,
-   quality-scorecard truth, observability, health/readiness, and workflow baseline gates. The
-   parity control compares every baseline-certified or certified success example with a safe route
-   invocation or deterministic callable and permits dynamic values only through explicit
-   field-level normalizers. Parseable but stale aliases, blockers, fields, types, or values fail.
-   The generated PR auto-merge helper now warns and skips auto-merge when
-   `LOTUS_AUTOMERGE_TOKEN` is
-   absent, preserving non-`GITHUB_TOKEN` merge semantics without creating a permanent red helper
-   check for repositories that require manual/release-actor rebase merge. Generated services also
-   include `make monetary-float-guard`, which blocks money-like `float` annotations, literals,
-   return annotations, and conversions while allowing operational floats such as timeout seconds.
-   Generated services include a tested `scripts/clean_generated_artifacts.py` utility, `make clean`
-   wiring, and CI-contract protection so cleanup remains safe, prunes `.git`, `.venv`, and
-   `node_modules`, and removes only known local cache/build/coverage artifacts. Generated services
-   also include `make source-observability-contract-gate`, which blocks raw
-   `print()`, direct Python logging, and low-level `log_event` bypasses in `src/app` while the
-   generated request diagnostic helper logs route templates instead of raw URL paths. Generated
-   services also include `make operation-metric-contract-gate`, which protects bounded
-   `*_operation_events_total` metric vocabulary, safe operation labels, and forbidden sensitive
-   operation attribute keys before service-specific business operations are implemented. Detailed
-   usage and generated feature documentation lives in
-   `docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md`. Generated test targets now expose
-   `UNIT_TESTS`, `INTEGRATION_TESTS`, and `E2E_TESTS` path overrides so focused fix-forward
-   validation can stay on the repo-native Makefile surface instead of falling back to ad hoc
-   pytest commands. Generated workflows now consume the same surface with `make test-unit` and
-   `make test-${{ matrix.suite }}-coverage`, and the generated CI contract gate rejects raw
-   workflow-level `pytest` shortcuts or missing suite coverage targets.
-9. `automation/Sync-EnterpriseBackendRefactoringInstructions.ps1` now treats
-   `context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` as the canonical source and
-   supports `-CheckOnly` drift detection for app-local deployed copies under
-   `docs/architecture/ENTERPRISE_BACKEND_REFACTORING_INSTRUCTIONS.md`. Its default backend scope is
-   resolved from `automation/repos.json`; use `-Repositories` only for bounded rollout slices.
-10. `automation/generate_automation_inventory.py` writes `quality/automation_inventory.*` so cleanup
-    work can separate genuinely dead automation from under-documented but maintained scripts.
-11. Durable standards, runbooks, architecture notes, reports, onboarding, and archived legacy mirrors
-    live under `docs/` with [docs/README.md](./docs/README.md) as the index. Repo-root Markdown is
-    intentionally limited to `README.md`, `AGENTS.md`, and `REPOSITORY-ENGINEERING-CONTEXT.md`.
-12. Cross-repository Python policy validators must load each application in an isolated interpreter
-    using its real package import root. Do not load package modules as synthetic top-level files or
-    reuse generic package names such as `app` across repositories in one interpreter.
-13. Canonical DPM command-center seed automation uses the governed local service identity
-    `lotus-platform.canonical-dpm-command-center-seed` with actor
-    `platform-seed-automation`, role `platform-automation`, and `manage.write` capability for
-    protected `lotus-manage` writes. `automation/Invoke-DpmCommandCenterSeed.ps1` must keep the
-    side-effect-free refresh-route authorization preflight before state-changing seed calls and
-    must treat 403 as a seed-authority defect, not as a reason to bypass Manage authorization. After
-    the preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the full seed is a source-readiness
-    dependency, not an auth failure; current canonical evidence links that Core-owned
-    `PB_SG_GLOBAL_BAL_001` DPM readiness gap to `sgajbi/lotus-core#840`.
-14. Canonical mandate-health seeding must resolve portfolio cash from the implementation-backed
-    Gateway overview for the exact requested portfolio and business date, validate the source
-    identity/date/unit before the first persistent seed write, and normalize percentage to ratio
-    once. After health recalculation, both the Manage response and Gateway read must match the
-    requested mandate, portfolio, and valuation date and carry source-owned snapshot identity. The
-    source read must omit unrelated
-    optional Performance and rebalance enrichment while continuing to fail closed on overview
-    warnings or partial failures. Platform automation must never substitute a hard-coded cash
-    weight or persist health after missing, mismatched, malformed, or out-of-range evidence. The
-    default DPM command-center health date must equal the RFC-0076 canonical portfolio valuation
-    date; a separate campaign, approval, or workflow date must not substitute for source-confirmed
-    portfolio valuation evidence.
-15. `automation/gate_liveness_audit.py` provides the report-only static portion of the Gate
-    Liveness Standard. It validates requested repository coverage and detects unreachable gates and
-    blocking targets that cannot propagate a non-zero verdict. Empty-input execution, GitHub run
-    history, and ordering before irreversible publish/sign/tag/deploy steps remain explicit review
-    obligations. The fleet audit reads local working trees, so estate evidence must name every
-    revision or use clean `main` checkouts. `--fail-on-findings` is not a platform lane yet because
-    issue #738 still owns disposition of the measured cross-repository findings.
+Current rollout state and unfinished work live in GitHub issues. Do not copy an execution board or
+PR chronology into this document.
 
 ## Architecture And Module Map
 
-Primary areas:
+| Area | Responsibility | Boundary |
+| --- | --- | --- |
+| `automation/` | Reusable validators, generators, runtime helpers, repo checks, and publication tooling | Automation must preserve producer exit status and fail closed when its claim cannot be proved. |
+| `platform-standards/` | Human-readable shared standards and templates | Application-specific policy stays with the owning repository. |
+| `platform-contracts/` | Versioned machine-readable ecosystem contracts | Consumers validate or reference these contracts; they do not fork their definitions. |
+| `context/` | Central progressive context and task-routing system | Durable platform-wide guidance only; repo-local truth belongs in each repository context. |
+| `codex/skills/` | Authoritative Lotus skill source | Deploy only merged central source through governed synchronization. |
+| `docs/` | Architecture, operations, onboarding, standards, and documentation governance | [Docs index](./docs/README.md) routes to specialist material. |
+| `rfcs/` | Design decisions and bounded delivery specifications | Current implementation claims require code and evidence, not RFC prose alone. |
+| `platform-stack/` | Shared local infrastructure and ingress assets | Not the canonical populated front-office product runtime. |
+| `generated/` | Reproducible derived discovery and certification artifacts | Generated output cannot redefine source ownership. |
+| `quality/` | Measured quality baselines, scorecards, and decision evidence | Baselines must come from healthy collection and must not hide regression. |
+| `tests/unit/` | Contract and regression proof for Platform policy and automation | Tests should falsify the protected defect where proportionate. |
+| `wiki/` | Authored operator-facing wiki source | Never hand-edit publication-only truth in `*.wiki.git`. |
 
-1. `automation/`
-   PowerShell and Python automation for standards validation, platform checks, ingress helpers, governance, and runtime orchestration.
-2. `platform-standards/`
-   Governing standards, templates, and baseline contracts for repositories and workflows.
-3. `platform-contracts/`
-   Machine-readable platform contract families including API vocabulary, domain vocabulary, and
-   RFC-0084 domain-data-product governance, including the RFC-0086 source manifest for repo-native
-   declarations in `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`,
-   `lotus-report`, and `lotus-manage`, plus the governed identifier and temporal semantics registry
-   and trust metadata registry used by those declarations.
-   This area also owns the cross-service cost-attribution schema and decimal methodology.
-   Applications provide bounded resource-observation digests and consume verified evidence; they
-   do not own authoritative billing exports, shared-platform allocation, or official FinOps
-   reconciliation.
-   This area also owns the versioned bank-readiness control catalog. The catalog is the sole
-   machine-readable authority for `BR-NNN` definitions and mappings; standards, skills, context,
-   generated plans, and wiki pages reference it instead of copying it.
-   This area also owns vulnerability exception register contracts under
-   `platform-contracts/vulnerability-exceptions/` so dependency and container-image exceptions
-   remain issue-backed, time-bounded, owner-assigned, and validator-readable before any lane
-   promotion.
-   This area also owns the Lotus technology-governance policy under
-   `platform-contracts/technology-governance/`, the machine-readable authority for mature/default
-   technology posture, beta/experimental exclusion, dependency evidence, container-image evidence,
-   vulnerability severity behavior, issue-discovery lens routing, and report-only to blocking
-   rollout posture.
-4. `generated/`
-   Platform-generated discovery artifacts, including the RFC-0088 domain-product catalog and
-   dependency graph derived from governed domain-data-product declarations.
-5. `platform-stack/`
-   Shared runtime assets, ingress stack material, and environment-level infrastructure definitions.
-6. `rfcs/`
-   Platform and ecosystem RFCs.
-7. `context/`
-   The central context system introduced by RFC-0073.
-8. `docs/`
-   Durable standards, architecture notes, operations runbooks, onboarding, reports, documentation
-   governance, and archived legacy mirrors.
-9. `tests/unit/`
-   Contract tests for platform validators, automation, standards, and documentation governance.
-10. `wiki/`
-   canonical authored source for GitHub wiki publication and platform-level onboarding summaries.
-11. `docs/documentation/`
-   deep documentation governance and layering guidance for Lotus documentation surfaces.
-12. `thought-leadership/`
-   non-product personal-brand content workflows, including LinkedIn thought-leadership drafts,
-   ledgers, themes, and voice guidance. This area preserves drafting memory for authentic,
-   non-confidential, Lotus-adjacent professional content and must not be treated as product truth,
-   customer evidence, or platform marketing material.
-13. `quality/`
-   enterprise backend refactor baseline, scorecard, quality gate rules, security findings tracker,
-   and refactor decision log. This is measured refactor evidence and planning truth, not generated
-   product output.
+`thought-leadership/` is non-product personal-brand content. It is not customer evidence, platform
+marketing truth, or engineering authority.
 
 ## Runtime And Integration Boundaries
 
-Runtime model:
+1. Define platform-wide policy once in Platform and link to it from applications.
+2. Keep repository purpose, architecture, ownership, commands, and constraints in that
+   repository's `REPOSITORY-ENGINEERING-CONTEXT.md`.
+3. Treat generated catalogs and reports as derived evidence; source contracts remain authoritative.
+4. Run cross-repository Python validation in isolated interpreters with each repository's real
+   package root. Never combine unrelated generic packages such as `app` in one interpreter.
+5. Preserve authenticated ownership and server-owned scope. Platform automation must not bypass a
+   domain service's authorization or compensate for missing authoritative data.
+6. Keep unverified runtime behavior unclaimed. A thin tool adapter may route to shared guidance,
+   but runtime-specific discovery or deployment requires independent executable proof.
+7. Synchronize central agent contracts or skills to sibling worktrees only from content present on
+   `origin/main`; a feature branch is not durable authority.
+8. For long-running work, designate one active branch/worktree owner and record exact revision and
+   task identity as required by the
+   [agent task ledger](./context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md).
 
-1. platform automation is executed through Python and PowerShell tooling,
-2. local validation and stack control interact with many Lotus repositories,
-3. this repository governs but does not replace repository-local quality ownership.
+## Task Routes
 
-Boundary rules:
+Use the [skill routing map](./context/LOTUS-SKILL-ROUTING-MAP.md) first. Common routes are:
 
-1. platform-wide truth belongs here,
-2. repository-local truth must remain in the owning repository,
-3. cross-repo validation should be encoded once here rather than reimplemented ad hoc elsewhere,
-4. `platform-stack` is not the primary front-office product bring-up path when `lotus-workbench` already owns the governed populated UI runtime,
-5. cross-domain data-product governance contracts now live under `platform-contracts/` and should be
-   treated as platform contract infrastructure rather than repository-local metadata.
-6. generated domain-product discovery artifacts are derived platform outputs and should not redefine
-   ownership or dependency truth by hand.
-7. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json` records which
-   repositories are included from repo-native sibling declarations and which, if any, still need
-   temporary platform mirrors.
-8. `automation/generate_domain_product_discovery.py` validates the included repo-native declaration
-   set as one federated source before writing generated catalog and graph artifacts.
-9. `automation/query_domain_product_discovery.py` is the platform-owned self-serve query surface
-   for generated catalog and graph artifacts; it must remain read-only and must not replace contract
-   validation or gateway-facing discovery APIs.
-10. `generated/domain-product-certification-report.json` and `.md` are derived RFC-0087 trust
-   certification artifacts over the generated catalog and dependency graph.
-11. `platform-contracts/trust-telemetry/` and `automation/validate_trust_telemetry.py` define the
-   RFC-0087 runtime telemetry contract that producer and consumer repos should target before their
-   telemetry can be certified.
-12. `automation/generate_live_trust_certification.py` turns validated RFC-0087 telemetry snapshots
-   into deterministic live trust certification artifacts under `output/trust-certification/`.
-13. First-wave RFC-0087 producer telemetry snapshots now live in repo-native
-   `contracts/trust-telemetry/` directories in `lotus-core`, `lotus-performance`, `lotus-risk`, and
-   `lotus-advise`; platform validation accepts those snapshots and combined live trust generation
-   certifies all four without issues.
-14. RFC-0086 is implemented for the first-wave repo-native rollout. `lotus-ai` is consciously not
-   included as a first-wave producer or consumer declaration participant until it owns a stable
-   governed product or catalog-consuming capability. Transitional platform mirror declarations are
-   retained only as compatibility evidence and must not be active source paths in generated catalog
-   artifacts.
-15. RFC-0085 is implemented/proven for the first-wave gateway read-only publication path:
-   `lotus-gateway` exposes catalog, detail, dependency graph, and live trust certification APIs
-   under `/api/v1/domain-products` while reading platform-generated artifacts rather than owning
-   product truth.
-16. RFC-0088 is implemented/proven for first-wave self-serve discovery:
-   `lotus-workbench` exposes `/data-products`, consumes gateway through the BFF only, and renders
-   real catalog, dependency, lifecycle, approved-consumer, certification, trust, unavailable,
-   loading, empty, stale/attention, and error states.
-17. Gateway PR #136 and Workbench PR #97 are merged, so RFC-0085, RFC-0087, and RFC-0088 are now
-   implemented and merged for the first-wave mesh surface across platform, gateway, and Workbench.
-18. `rfcs/RFC-GOVERNANCE-STANDARD.md` is the durable rule for new and reopened
-   implementation-bearing RFCs: include the second-last code-review/governance slice and the final
-   documentation/context/wiki/skills/branch-hygiene slice.
-19. RFC-0089 is implemented for first-wave mesh certification enforcement. The platform-owned gate
-    lives in `automation/mesh_certification_gate.py`, writes operator artifacts to
-    `output/mesh-certification/`, runs as an advisory platform repo-check smoke, and supports local
-    blocking proof with sibling producer, gateway, and Workbench repositories.
-20. RFC-0090 is implemented for GitHub cross-repo mesh certification enforcement. The workflow
-    `.github/workflows/mesh-certification-gate.yml` checks out `lotus-platform`, first-wave
-    producer repositories, `lotus-gateway`, and `lotus-workbench` in sibling layout, runs
-    `automation/mesh_certification_gate.py` in blocking mode, uploads
-    `output/mesh-certification/` artifacts, and remains read-only.
-21. RFC-0091 is implemented. Slice 0 adds the enterprise mesh maturity matrix generator and
-    generated matrix artifacts that classify every Lotus repository, first-wave product,
-    candidate expansion product, and explicit non-participant posture before maturity
-    implementation continues.
-22. RFC-0091 Slice 1 adds `automation/generate_domain_product_onboarding.py`, a self-service
-    scaffold-and-check tool for repo-native product onboarding bundles. The tool writes product
-    declaration, telemetry, SLO, access, evidence, README, and checklist files to a caller-directed
-    output directory; generated bundles are onboarding aids, not platform-owned product truth.
-23. RFC-0091 Slice 2 adds `automation/collect_trust_telemetry.py`, a collection step that prefers
-    runtime snapshots from sibling repository `output/trust-telemetry/runtime/` directories and
-    records static fixture fallback explicitly in `output/trust-telemetry/collection/`. Default
-    collection includes both required maturity producers and platform-tracked certification
-    candidates such as `lotus-idea`; candidates remain non-required until promotion, but their
-    runtime/static telemetry must be visible to platform evidence. Adjacent aggregate/proof JSON
-    in telemetry directories is recorded as info-level non-snapshot evidence and does not block
-    collection.
-24. RFC-0091 Slice 3 adds `platform-contracts/mesh-slo/` and
-    `automation/validate_mesh_slo_policies.py`; the mesh certification gate now evaluates
-    telemetry against first-wave SLO policies and reports policy drift as certification issues.
-25. RFC-0091 Slice 4 adds `platform-contracts/mesh-access/` and
-    `automation/validate_mesh_access_policies.py`; the mesh certification gate validates access
-    policy presence and shape before gateway or Workbench can present entitled discovery.
-26. RFC-0091 Slice 5 adds `platform-contracts/mesh-evidence/` and
-    `automation/generate_mesh_evidence_pack.py`; certification-history records and evidence-pack
-    manifests are generated from derived mesh certification artifacts with audience-based field
-    filtering.
-27. RFC-0091 Slice 6 originally promoted `lotus-report:ClientReportEvidencePack:v1` and
-    `lotus-manage:PortfolioActionRegister:v1` into the enterprise maturity wave. Platform issue
-    #780 returns the Report product to certification-candidate posture because exact-main evidence
-    proves no reconciliation policy exists. The candidate stays visible in telemetry; promotion
-    requires the policy and blocking-gate proof owned by `lotus-report#283`.
-28. RFC-0091 Slice 7 extends the mesh certification gate into the enterprise maturity gate. The gate
-    now reports operator-facing maturity check families for telemetry, SLO, access, lifecycle,
-    evidence, catalog, gateway, and Workbench drift; validates evidence-policy and lifecycle drift;
-    and writes both RFC-0089 `mesh-*` artifacts and RFC-0091 `enterprise-mesh-*` artifacts.
-29. RFC-0091 Slice 8 centralizes the maturity-wave scope in
-    `automation/mesh_maturity_scope.py`; platform automation must import that module rather than
-    copying required-product lists into new validators or generators.
-30. RFC-0091 Slice 9 completes final documentation, agent context, wiki, skills-routing, and
-    branch-hygiene readiness updates. The durable skills decision is to tighten
-    `context/LOTUS-SKILL-ROUTING-MAP.md` instead of creating a new dedicated mesh skill.
-31. `platform-contracts/lifecycle-authority/` owns the cross-repository signed-decision and key
-    discovery interface for bank lifecycle authority integrations. Platform governs schemas and
-    producer certification evidence but cannot issue legal, records, privacy, erasure, or purge
-    decisions. `automation/validate_lifecycle_authority_contracts.py` blocks semantic drift and
-    evidence-free production promotion.
-32. `platform-contracts/bff-principal-session/` owns the versioned authenticated BFF principal
-    session contract for Workbench/Gateway/domain-service interoperability. It defines trusted
-    issuer/audience/session-binding requirements, least-privilege route projection, hostile browser
-    authority-header rejection, and non-certifying local/dev fixture posture. It does not select or
-    deploy a bank IdP, certify production token claims, or promote Lotus Idea RFC-0002 supported
-    features. `automation/validate_bff_principal_session_contracts.py` blocks contract drift and
-    evidence-free production identity promotion.
-33. RFC-0092 is implemented. `automation/generate_enterprise_mesh_operating_report.py` builds the
-    production mesh operating report from current enterprise certification status and optional
-    certification-history records. `automation/mesh_certification_gate.py` writes
-    `enterprise-mesh-operating-report.json` and `.md` on every gate run so operators can see
-    production-ready versus limited-history posture, drift trends, regressions, product operating
-    posture, escalation owners, and state-specific guidance.
-34. The final durable mesh handoff is `docs/operations/enterprise-mesh-completion-handoff.md`.
-    The machine-readable closure ledger is `generated/enterprise-mesh-closure-ledger.json`, and
-    the published wiki landing page is `wiki/Enterprise-Mesh-Status.md`.
-35. RFC-0095 is implemented for first-wave heartbeat-driven monitoring and attention surfacing.
-    `automation/Run-Heartbeat.ps1` and `automation/run_heartbeat.py` generate advisory derived
-    heartbeat artifacts under `output/heartbeat/`; `automation/heartbeat_sources.py` consumes
-    configured source artifacts for GitHub PR monitor, RFC-0094 background-run ledger, wiki
-    publication posture, agent-context validation, enterprise mesh operating posture, and bounded
-    `lotus-ai` workflow-pack runtime status; `automation/heartbeat_state.py` preserves first-seen
-    posture and explicit non-blocking suppressions. `automation/validate_heartbeat_contracts.py`
-    certifies the contract, examples, runner config, and suppression policy in the platform repo
-    check lane. Heartbeat output remains advisory and does not replace source truth.
-36. RFC-0096 is implemented for governed multi-agent delegation. The platform owns the delegation
-    policy contract, delegated task ledger helper, return-envelope and main-agent review discipline,
-    optional heartbeat attention adapter for delegated task posture, and future-agent AGENTS/context
-    guidance. Delegated work remains evidence for the accountable main agent; it is not review, PR
-    approval, wiki publication, or merge authority.
-37. RFC-0104 is implemented for first-wave scope. Platform-owned evidence now tracks durable batch
-    materialization/status/control, scheduler identity, dispatch/recovery, internal execution,
-    bounded worker/runtime/scheduler processes, gateway batch APIs, scheduler selectors, and
-    gateway scheduler administration plus Workbench gateway-backed explicit single-portfolio batch
-    operation across the sibling repos. RFC-0105 observability/replay, RFC-0106 security
-    certification, and RFC-0107 production certification remain pending.
-38. RFC-0105 implementation has completed Slice 0 platform scaffold hardening, Slice 1
-    `lotus-report` observability structure cleanup, and Slice 2 cross-service trace and structured
-    logging proof after RFC-0104 closure. Platform truth now says RFC-0105 may consume RFC-0104
-    batch, gateway, Workbench, and scheduler-admin identifiers as source-backed observability
-    inputs; future FastAPI service scaffolds now default to correlation-id plus trace-id
-    propagation, `lotus-report` now owns runtime correlation, request, trace, structured-log, and
-    safe operator lookup vocabulary in `src/app/observability.py`, and gateway/report/render/archive
-    now preserve caller correlation and trace identifiers through live batch-to-archive proof while
-    suppressing malformed `traceparent` headers for non-W3C trace IDs. The next implementation wave
-    must continue with operator status and diagnostics APIs before mutating rerender/regenerate/
-    replay commands.
-39. `docs/demo/canonical-dpm-demo-story.md` and `wiki/Canonical-DPM-Demo-Story.md` are the
-    governed cross-app canonical DPM demo story for `PB_SG_GLOBAL_BAL_001`. They must stay tied to
-    the canonical demo-data contract, Workbench panel registry, platform QA wrapper, and merged
-    owning-repository evidence; they must not promote external OMS execution, PM scoring,
-    client-communication lineage, autonomous AI decisioning, or other unsupported target-state
-    claims.
-40. The canonical front-office contract and Workbench panel registry now include RFC-0027
-    advisory-copilot proof as `advisory.advisory_copilot`, with Gateway-backed route
-    `/api/v1/advisory-copilot/actions`, source-owned `lotus-advise` supportability, and explicit
-    boundaries from client-ready publication, autonomous advice, external client communication,
-    and OMS/order/fill/settlement posture.
-41. `docs/standards/Lotus Data Mesh Standard.md` and `wiki/Data-Mesh-Standard.md` are the durable
-    platform standard and wiki entry point for Lotus data mesh meaning, ecosystem app roles,
-    certification controls, automation, onboarding workflow, and anti-patterns. Future app agents
-    should use this standard before promoting a product as mesh certified.
-42. `docs/standards/Lotus Client Demo Certification Standard.md` and
-    `wiki/Client-Demo-Certification.md` are the durable platform standard and wiki entry point for
-    client-demo claim states, evidence requirements, demo pack structure, canonical front-office
-    proof, and explicit boundaries. Future client-demo material must distinguish
-    implementation-backed, bounded-preview, diagnostic, planned, and unsupported claims.
-    `docs/demo/client-demo-pack-template.md` and `wiki/Client-Demo-Pack-Template.md` provide the
-    complete client-demo pack structure for the client brief, business story, demo sequence, claim
-    table, evidence map, boundary register, rehearsal plan, and follow-up register.
-43. Platform repo-contract workflows now checkout and sibling-link `lotus-idea` with the other
-    governed source repositories because the domain-product source manifest includes
-    repo-native `lotus-idea` declarations. Do not remove that checkout unless the manifest is
-    changed at the same time. Canonical front-office QA also includes `lotus-idea` by default; do
-    not restore an opt-in flag or skip readiness/teardown evidence as a shortcut.
-    `lotus-idea:IdeaCandidate:v1` is now a platform-tracked certification candidate in the
-    enterprise mesh maturity matrix with platform-owned SLO, access, and evidence-pack policies.
-    It remains outside the blocking required-product set and must stay fail-closed until runtime
-    records, durable repository proof, Gateway/Workbench discovery, and supported-feature promotion
-    evidence are implementation-backed. RFC-0002 platform proof consumption is guarded by
-    `context/contracts/lotus-idea-rfc0002-platform-proof-consumption.json` and
-    `automation/validate_lotus_idea_rfc0002_platform_proof_consumption.py`; outbox broker runtime
-    proof may clear only the external broker runtime dependency marker, downstream-consumer
-    runtime proof may clear only the Advise/Manage/Report consumer runtime dependency marker,
-    cost-attribution proof may clear only the contract-consumable marker, and deployment-promotion
-    readiness may clear only the pending-manifest-consumable marker. Mesh readiness may clear only
-    the candidate catalog/policy-consumable marker for platform source-manifest, SLO, access,
-    evidence-policy, and telemetry-collection coverage. The validator deliberately retains
-    platform mesh event publication, Gateway/Workbench live journey, protected FinOps execution,
-    attested cost verification, live deployed-digest observation, protected migration execution,
-    data-product certification, supported-feature promotion, required-product promotion, and
-    production-certification blockers.
-42. `codex/skills/lotus-endpoint-certification-loop/references/named-success-family-closure.md`
-    is the governed workflow for multi-shape caller/source endpoint-family closure. It requires
-    goal re-read checkpoints, issue-first ownership, deterministic inventory, application-backed
-    and DTO-serialized named examples, source-port-only fakes, non-candidate no-write proof, exact
-    OpenAPI/ledger parity, durable context evidence, and PR-to-main release/wiki/branch hygiene.
-    Central engineering context, procedural memory, and skill routing link to this source; the
-    skill manifest is unchanged because no skill was added, moved, renamed, or reclassified.
-43. `automation/Invoke-Canonical-FrontOffice-QA.ps1` uses
-    `automation/canonical_docker_ownership.py` to produce a read-only, provenance-bearing cleanup
-    plan before mutation. A resource is in scope only when its exact canonical Compose project and
-    working-directory labels match the declared runtime roots (or it is the exact direct-ingress
-    singleton). Cleanup delegates to repository-scoped Workbench Compose teardown; daemon-wide
-    Lotus/PBWM/performance prefix deletion is prohibited. A reused project name from a different
-    working directory, including a nested Git worktree under that directory, is a blocking
-    ownership conflict. A residual image may prove its exact checkout through the immutable
-    `com.lotus.repository.checkout` build label; missing or non-exact image provenance remains
-    ambiguous, while residual volumes still require live-container proof. Use `-CleanPlanOnly` to
-    review `output/front-office-qa/cleanup-plan-latest.json` without mutation. The plan classifies
-    active foreign owners, missing labelled checkouts, and unproven resource-only owners. Recovery
-    is a separate, explicit `canonical_orphan_retirement.py` action limited to one fresh,
-    SHA-256-bound `missing_labelled_checkout` container. It must recheck exact live labels,
-    filesystem absence, and registered Git worktrees; it never broadens normal cleanup or removes
-    volumes, images, networks, projects, active paths, or ambiguous resources.
-44. `automation/validate_repository_governance.py` validates both live protected-branch posture and
-    whether every required status context is emitted by current default-branch workflow source.
-    Matrix job names are expanded before comparison; truly external checks require an explicit
-    provider declaration. Use repeatable `--repository` selectors for bounded proof and
-    `--source-only` for non-mutating policy preflight. `automation/Enforce-Repository-Governance.ps1`
-    runs that source preflight before plan or apply, supports the same bounded repository posture,
-    and must not reconcile a stale context into protected-main policy.
+| Task | Read next |
+| --- | --- |
+| Context, skills, AGENTS, or agent onboarding | [Context system](./context/README.md), then `lotus-skill-context-governance` |
+| README, docs, or wiki organization | [Documentation layering](./docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md), then `lotus-readme-wiki-governance` |
+| CI or quality gates | [CI standard](./docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md), then `lotus-ci-enforcement-governance` |
+| Platform runtime or integration | [Integration architecture](./docs/architecture/Platform%20Integration%20Architecture%20Bible.md) |
+| Canonical Workbench runtime | [Front-office runtime route](./AGENTS.md#front-office-runtime-routing-rule), then `lotus-front-office-runtime` |
+| Backend service scaffold | [Scaffold guide](./docs/onboarding/LOTUS-BACKEND-SERVICE-SCAFFOLD-GUIDE.md), then `lotus-backend-delivery-governance` |
+| Wiki publication | [Wiki rule](./AGENTS.md#wiki-publication-rule) |
+| RFC work | [RFC governance standard](./rfcs/RFC-GOVERNANCE-STANDARD.md), then `lotus-rfc-review-loop` when applicable |
 
 ## Repo-Native Commands
 
-Use these commands as the primary local contract:
+Run commands from the `lotus-platform` repository root.
 
-1. feature-lane repo checks
-   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane feature`
-2. PR-merge repo checks
-   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge`
-3. main-releasability repo checks
-   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
-4. platform validation lane
-   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
-5. platform demo-readiness certification, report-only in CI until governance promotion
-   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed`
-6. targeted unit contract tests
-   `python -m pytest tests/unit -q`
-7. domain-product discovery artifact generation
-   `python automation/generate_domain_product_discovery.py --generated-at-utc 2026-04-19T00:00:00Z`
-8. domain-product discovery self-serve query
-   `python automation/query_domain_product_discovery.py list-products --approved-consumer lotus-risk`
-9. domain-product trust certification artifact generation
-   `python automation/generate_domain_product_certification.py --generated-at-utc 2026-04-19T00:00:00Z`
-10. trust telemetry snapshot validation
-   `python automation/validate_trust_telemetry.py <snapshot-file-or-directory>`
-   Validation fails closed when `observed_trust_metadata` omits any catalogue-required producer
-   field; collection, live certification, and the blocking mesh gate preserve that failure.
-11. live trust certification generation
-   `python automation/generate_live_trust_certification.py <snapshot-file-or-directory> --generated-at-utc <UTC timestamp>`
-12. mesh certification gate, platform-only advisory smoke
-   `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --skip-publication-checks`
-13. mesh certification gate, branch-current repo-native declaration preview
-   `python automation/mesh_certification_gate.py --mode advisory --generated-at-utc 2026-04-20T00:00:00Z --catalog-source current-repo-native --skip-publication-checks`
-14. mesh certification gate, local blocking proof with sibling repos
-   `python automation/mesh_certification_gate.py --mode blocking --generated-at-utc 2026-04-20T00:00:00Z --require-sibling-repos`
-15. GitHub cross-repo mesh certification gate
-   `.github/workflows/mesh-certification-gate.yml`
-16. enterprise mesh maturity matrix generation
-   `python automation/generate_enterprise_mesh_maturity_matrix.py --generated-at-utc 2026-04-20T00:00:00Z`
-17. enterprise mesh maturity matrix freshness check
-   `python automation/generate_enterprise_mesh_maturity_matrix.py --check --generated-at-utc 2026-04-20T00:00:00Z`
-18. domain-product onboarding bundle scaffold
-   `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --authoritative-domain reporting --product-family client_reporting --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack`
-19. domain-product onboarding bundle check
-   `python automation/generate_domain_product_onboarding.py --repository lotus-report --product-name ClientReportEvidencePack --product-version v1 --output-directory output/domain-product-onboarding/lotus-report-client-report-evidence-pack --check`
-20. trust telemetry collection for RFC-0091 runtime-vs-fixture proof
-   `python automation/collect_trust_telemetry.py --generated-at-utc 2026-04-20T00:00:00Z`
-21. mesh SLO policy validation
-   `python automation/validate_mesh_slo_policies.py`
-22. mesh access policy validation
-   `python automation/validate_mesh_access_policies.py`
-23. mesh evidence pack generation
-   `python automation/generate_mesh_evidence_pack.py --generated-at-utc 2026-04-20T00:00:00Z --audience customer-authorized`
-24. enterprise mesh operating report generation
-   `python automation/generate_enterprise_mesh_operating_report.py --generated-at-utc 2026-04-20T00:00:00Z`
-25. agent engineering contract validation
-   `python automation/validate_agent_engineering_contracts.py`
-26. delegated task ledger create/update/review helper
-   `python automation/delegation_task_ledger.py --help`
-27. heartbeat contract validation
-   `python automation/validate_heartbeat_contracts.py`
-28. enterprise backend quality baseline generation and surface validation
-   `python automation/generate_enterprise_backend_quality_baseline.py --write --check`
-29. enterprise backend refactoring instruction copy drift check
-   `powershell -ExecutionPolicy Bypass -File automation/Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly`
-30. automation discoverability inventory generation and surface validation
-   `python automation/generate_automation_inventory.py --write --check`
-31. supported-claim register validation
-   `python automation/validate_supported_claim_register.py --path platform-contracts/supported-claims/examples/rfc0028-advisory-bank-demo-supported-claims.valid.json`
-32. digest-based deployment promotion manifest validation
-   `python automation/validate_deployment_promotion_manifest.py`
-   The validator now distinguishes same-digest deployment proof from release-bound
-   `deployment_pending` manifests. `lotus-idea` uses the pending posture while it has current
-   mainline release evidence but no approved staging or production deployed-digest observation.
-   Pending manifests preserve blockers; they must not be cited as live deployment or production
-   certification.
-33. dependency and container vulnerability exception register validation
-   `python automation/validate_vulnerability_exception_register.py`
-   Use `--report-only` before lane promotion while dependency/security and release-image baselines,
-   false-positive policy, and exception workflow are being measured. The validator consumes
-   `platform-contracts/vulnerability-exceptions/` and enforces package/image/layer identity,
-   owner, severity, exposure, exploitability, compensating controls, rollback, expiry, planned fix,
-   approval, scanner-availability, and remediation-proof semantics.
-34. technology maturity and vulnerability posture policy validation
-   `python automation/validate_technology_governance_policy.py`
-   This validates `platform-contracts/technology-governance/`, including mature/default technology
-   criteria, beta/experimental/prohibited posture, dependency evidence, container-image identity and
-   proof artifacts, vulnerability severity behavior, exception policy, lens routing, and rollout
-   promotion requirements.
-35. authenticated BFF principal session contract validation
-   `python automation/validate_bff_principal_session_contracts.py`
-   This validates the platform-owned session-to-principal contract, hostile fixture coverage,
-   source-safe route projection, and non-certifying production identity posture for Workbench and
-   Gateway consumers.
-36. rounding governance compliance matrix generation
-   `powershell -ExecutionPolicy Bypass -File automation/Validate-Rounding-Governance.ps1`
-37. platform mesh and demo standard documentation contract tests
-   `python -m pytest tests/unit/test_lotus_platform_standards_docs.py -q`
-38. validated repository-native detached task
-    `powershell -ExecutionPolicy Bypass -File automation/Start-Background-Run.ps1 -Repository <repo> -TargetType <make|npm|python|powershell> -Target <target> -ExpectedHead <sha> -RequireClean -RequiredArtifact <repo-relative-pattern>`
-    with PID plus culture-independent process-start identity reconciliation; PowerShell
-    JSON-deserialized timestamps must be normalized by type rather than locale-formatted and parsed
-    back.
-39. governed exact background-task cancellation
-    `powershell -ExecutionPolicy Bypass -File automation/Cancel-Background-Run.ps1 -EngineeringTaskId <engineering_task_id> -Reason <reason> -Actor <operator>`
-    with PID/start ownership verification, owned-tree termination, launch-declared exact Compose
-    cleanup, atomic receipt evidence, `LOST` preservation, and fail-closed cleanup posture.
-40. report-only gate-liveness audit for a repository or the registered fleet
-    `python automation/gate_liveness_audit.py --repo-path <repository-root>`
-    `python automation/gate_liveness_audit.py --repos-json automation/repos.json`
-    Add `--fail-on-findings` only for focused blocking proof after the findings in scope are
-    dispositioned; a missing Makefile or a repository declaring no gate targets always fails.
+```powershell
+# Fast targeted context validation
+python automation/validate_engineering_context_system.py
+
+# Feature-lane repository proof
+powershell -ExecutionPolicy Bypass -File automation/Invoke-PlatformRepoChecks.ps1 -Lane feature
+
+# Validate the measured quality surface
+python automation/generate_enterprise_backend_quality_baseline.py --check
+
+# Regenerate only after a healthy test collection
+python automation/generate_enterprise_backend_quality_baseline.py --write --check
+
+# Verify the deployed operating contract without changing it
+powershell -ExecutionPolicy Bypass -File automation/Sync-AgentOperatingContract.ps1 -CheckOnly
+```
+
+For all automation and specialist commands, use the
+[automation inventory](./quality/automation_inventory.md) and [docs index](./docs/README.md).
+Do not create ad hoc substitutes for an existing repo-native entrypoint.
 
 ## Validation And CI Expectations
 
-`lotus-platform` uses explicit CI lanes:
+Platform uses these GitHub lanes:
 
-1. `Remote Feature Lane`
-2. `Pull Request Merge Gate`
-3. `Main Releasability Gate`
-4. `Platform End-to-End Validation`
+1. Remote Feature Lane;
+2. Pull Request Merge Gate;
+3. Main Releasability Gate;
+4. Platform End-to-End Validation.
 
-The platform repo checks entrypoint is the local truth for most repository validation. Keep it aligned with workflow reality.
+A change is complete only when the evidence matches its claim:
 
-Use `automation/Detect-Stalled-PR-Checks.ps1` for queued or in-progress PR check-runs. Use
-`automation/Detect-Stalled-Workflow-Runs.ps1` for scheduled/manual workflow runs on `main`, such as
-the self-hosted `Platform End-to-End Validation` lane; a queued protected runner lane is release
-evidence debt and must be issue-backed, not treated as a green mainline signal.
+- targeted tests prove the corrected behavior and important failure path;
+- the applicable repository lane passes at the exact implementation head;
+- required review findings are resolved after that head;
+- durable docs, context, contracts, and wiki source are included in the owning PR;
+- post-merge wiki publication and strict parity are complete when wiki truth changed;
+- exact `origin/main` is validated and the working tree, branches, and worktrees are clean;
+- completed or superseded GitHub execution state is reconciled.
 
-`automation/generate_enterprise_backend_quality_baseline.py --check` is a freshness gate for stable
-material quality metrics. After a slice changes source files, Python function count, max
-complexity, max function length, or materially changes unit test collection count, regenerate the
-accepted baseline with `--write --check` instead of leaving stale report-only evidence checked in.
-Exact total source-line count is context-only because it proved too noisy for deterministic
-freshness gating. Unit test collection count is checked with a small tolerance because GitHub and
-local environments can differ by one or two collected tests due environment-specific collection
-behavior.
+The quality baseline must record a successful pytest collection (`returncode: 0`). A collected test
+count from a non-zero collection is partial evidence and must never overwrite the accepted
+baseline. Small environment-driven count variance may be tolerated only by the existing gate; do
+not weaken it to make a run green.
 
-`automation/validate_auto_merge_releasability.py` validates the registered Lotus repositories'
-auto-merge and exact-main releasability workflow posture. It requires `LOTUS_AUTOMERGE_TOKEN`
-auto-merge, rebase merge intent, and immutable exact-SHA `main-releasability.yml` dispatch. The
-dispatcher may certify the merge SHA once or enumerate every rebase-added revision from the
-source-bound merge SHA and PR commit count, provided it proves main ancestry and carries the same
-revision through tag creation, dispatch ref, and `expected_sha`. Main Releasability must expose
-`workflow_dispatch` and assert the exact revision when `expected_sha` is supplied. This preserves
-manual operator dispatch while failing closed if an automated dispatcher would validate a later
-`main` head. Temporary rollout gaps must be explicit in
-`platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json` with owner, reason,
-issue URL, exact violations, and expiry.
+For queued or stalled evidence, use:
 
-`automation/validate_mainline_commit_provenance.py` validates GitHub or local Git verification for
-the exact commit under validation. Mainline releasability must fail on unsigned or otherwise
-unverified commits unless
-`platform-contracts/ci-governance/mainline-commit-provenance-exceptions.v1.json` contains an exact
-repository, commit SHA, verification reason, owner, issue URL, and unexpired exception.
+```powershell
+powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1
+powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-Workflow-Runs.ps1
+```
 
-Important documentation expectations:
-
-1. platform README and wiki work is partially governed by unit-level documentation contract tests,
-2. central context, onboarding, automation, and standards docs should stay cross-linked rather than
-   being rewritten as parallel prose silos,
-3. repo-local `wiki/` content should summarize platform role, operator flows, and ecosystem
-   boundaries without duplicating the entire RFC or `context/` tree,
-4. common targeted documentation contract packs include
-   `tests/unit/test_engineering_context_system_contract.py`,
-   `tests/unit/test_dev_ingress_status_automation_contract.py`, and
-   `tests/unit/test_front_office_runtime_automation_contract.py`.
+A queued protected-runner lane is evidence debt, not a passing result.
 
 ## Standards And RFCs That Govern This Repository
 
-Most relevant current governance:
-
-1. [RFC-0071](./rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md)
-2. [RFC-0072](./rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md)
-3. [RFC-0073](./rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md)
-4. [Continuous Integration, Validation, and Release Governance Standard](./docs/standards/Continuous%20Integration%2C%20Validation%2C%20and%20Release%20Governance%20Standard.md)
-5. [Platform Integration Architecture Bible](./docs/architecture/Platform%20Integration%20Architecture%20Bible.md)
+The current governing entrypoints are the
+[RFC governance standard](./rfcs/RFC-GOVERNANCE-STANDARD.md),
+[RFC-0071 service-addressing and ingress governance](./rfcs/RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md),
+[RFC-0072 CI and release governance](./rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md),
+and [RFC-0073 context governance](./rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md).
+Use the RFC index for deeper or historical decisions.
 
 ## Known Constraints And Implementation Notes
 
-1. This repository often references or validates other repositories, so stale repository inventory is a real drift risk.
-2. Standards-only changes are not complete unless scaffold, validator, or runbook impact is considered.
-3. Avoid duplicating platform-wide policy across many files; prefer one central source of truth plus contract tests.
-4. Use GitHub for the expensive validation matrix when practical, and use targeted local proof for faster fix-forward work.
-5. when harvesting legacy strategy or wiki material, reclassify it against current Lotus ownership
-   boundaries before reusing it in `lotus-platform`; old ecosystem narrative can still help, but
-   repo docs must speak in current Lotus vocabulary and current architecture.
-6. New-service scaffold changes should be centralized in `automation/New-Lotus-Service.ps1` and
-   protected by scaffold contract tests rather than copied into individual service repositories.
-7. Enterprise refactor quality artifacts under `quality/` must remain synchronized with README,
-   wiki, repo context, central context, and skill guidance whenever a quality signal moves from
-   report-only to a blocking gate or the baseline measurement scope changes.
-8. New-service scaffold changes should keep the bank-buyable defaults current so new Lotus apps do
-   not start below the enterprise quality bar.
-9. Certified endpoint examples require code-owned runtime parity evidence. A second documentation
-   literal or schema-only assertion does not prove current response truth.
-10. Targeted service refreshes must resolve repository-governed non-secret Compose environment and
-    service verification from `automation/service-map.json`. Shared-stack Manage refreshes preserve
-    host port 8001 plus canonical Core source/workflow settings, restore the caller environment, and
-    fail unless Compose proves running, healthy, correctly published service state.
+- Repository inventory drift changes cross-repo validation scope; update `automation/repos.json`
+  deliberately and test the resulting discovery behavior.
+- Scaffold changes belong in `automation/New-Lotus-Service.ps1` with generated-output contract
+  tests, not hand-copied into applications.
+- A standard is not implemented merely because prose exists. Consider its contract, validator,
+  scaffold, adoption, and release-evidence boundaries.
+- Certified endpoint examples need code-owned runtime parity; schema-only or duplicated literals
+  do not prove response truth.
+- Stateful PostgreSQL claims require real PostgreSQL evidence when correctness depends on its SQL,
+  types, constraints, locking, transaction, or persistence semantics.
+- Cleanup and targeted refresh automation must resolve declared resources, preserve the caller
+  environment, affect only owned runtime state, and verify final health.
+- Avoid repeating shared policy in README, wiki, context, and skills. Keep one authority and route
+  readers to it.
 
 ## Context Maintenance Rule
 
-Update this document when:
-
-1. platform-owned repository responsibilities change,
-2. repo-native commands or lane entrypoints change,
-3. validation or ingress automation changes materially,
-4. the repository's current RFC rollout posture changes,
-5. dominant local patterns or key directories change.
-6. documentation layering or publication posture changes materially.
+Update this file only when Platform's current ownership, architecture, boundaries, task routes,
+canonical commands, or completion evidence changes. Put temporary status in GitHub and historical
+decisions in RFCs or durable evidence.
 
 ## Cross-Links
 
@@ -637,5 +196,7 @@ Update this document when:
 2. [Lotus Engineering Context](./context/LOTUS-ENGINEERING-CONTEXT.md)
 3. [Context Reference Map](./context/CONTEXT-REFERENCE-MAP.md)
 4. [Repository Engineering Context Contract](./context/Repository-Engineering-Context-Contract.md)
-5. [Lotus Developer Onboarding](./docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
-6. [Lotus Agent Ramp-Up](./docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
+5. [Procedural Memory Index](./context/PROCEDURAL-MEMORY-INDEX.md)
+6. [Lotus Developer Onboarding](./docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
+7. [Lotus Agent Ramp-Up](./docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
+8. [Documentation Index](./docs/README.md)
