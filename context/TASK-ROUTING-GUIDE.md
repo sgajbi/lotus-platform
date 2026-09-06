@@ -9,10 +9,10 @@ This guide is intentionally task-first. Use it after the [Lotus Quickstart Conte
 Use this path for `lotus-workbench` UI, user journeys, product interaction quality, and browser-facing validation.
 
 Start from the common startup set. The `lotus-workbench` repository context then names the
-product contract, validation guide, and source boundaries needed for the surface. Add
-[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
-repository boundary, and use the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate a
-specific cross-repository contract.
+product contract, validation guide, and source boundaries needed for the surface. Only when the
+change crosses a repository boundary, add
+[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md), and use the
+[Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate a specific cross-repository contract.
 
 Then load only what the task needs:
 
@@ -73,7 +73,7 @@ Use this path for platform standards, rollout governance, RFC implementation, do
 Add these sources after the common startup set:
 
 1. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate the specific authority
-2. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) when the change sets policy across repositories
+2. when the change sets policy across repositories, add [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
 3. [Platform Engineering Ledger](./platform-engineering-ledger.md)
 4. [Recent Architectural Decisions Digest](./recent-architectural-decisions-digest.md)
 

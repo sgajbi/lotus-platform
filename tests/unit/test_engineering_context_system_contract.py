@@ -961,18 +961,36 @@ def test_task_routing_guide_and_manifest_extend_the_common_startup_set() -> None
 
 
 def _routing_guide_broad_context_policy_errors(guide: str) -> list[str]:
-    backend = guide.split("## Backend API And Domain-Service Work", 1)[1].split("\n## ", 1)[0]
-    integration = guide.split("## Cross-App Integration And Platform Validation Work", 1)[1].split("\n## ", 1)[0]
+    def section(heading: str) -> str:
+        return guide.split(f"## {heading}", 1)[1].split("\n## ", 1)[0]
+
+    frontend = section("Frontend And Product-Surface Work")
+    backend = section("Backend API And Domain-Service Work")
+    integration = section("Cross-App Integration And Platform Validation Work")
+    governance = section("Standards, RFC, And Governance Work")
     broad_context = "[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)"
-    condition = "only when the change crosses a repository boundary or changes shared engineering policy"
+    broad_context_lower = broad_context.lower()
+    frontend_condition = "only when the change crosses a repository boundary"
+    backend_condition = "only when the change crosses a repository boundary or changes shared engineering policy"
+    governance_condition = "when the change sets policy across repositories"
+    frontend_flat = " ".join(frontend.split()).lower()
     backend_flat = " ".join(backend.split()).lower()
+    governance_flat = " ".join(governance.split()).lower()
     errors: list[str] = []
-    if condition not in backend_flat or broad_context.lower() not in backend_flat:
+    if frontend_condition not in frontend_flat or broad_context_lower not in frontend_flat:
+        errors.append("frontend guide must conditionally link broad context")
+    elif frontend_flat.index(frontend_condition) > frontend_flat.index(broad_context_lower):
+        errors.append("frontend guide loads broad context before its condition")
+    if backend_condition not in backend_flat or broad_context_lower not in backend_flat:
         errors.append("backend guide must conditionally link broad context")
-    elif backend_flat.index(condition) > backend_flat.index(broad_context.lower()):
+    elif backend_flat.index(backend_condition) > backend_flat.index(broad_context_lower):
         errors.append("backend guide loads broad context before its condition")
     if "for cross-repository architecture" not in integration or broad_context not in integration:
         errors.append("integration guide must explain and link broad context")
+    if governance_condition not in governance_flat or broad_context_lower not in governance_flat:
+        errors.append("governance guide must conditionally link broad context")
+    elif governance_flat.index(governance_condition) > governance_flat.index(broad_context_lower):
+        errors.append("governance guide loads broad context before its condition")
     return errors
 
 
@@ -990,6 +1008,35 @@ def test_task_routing_guide_preserves_conditional_broad_context_policy() -> None
     assert _routing_guide_broad_context_policy_errors(regressed) == [
         "backend guide must conditionally link broad context"
     ]
+
+    frontend_regression = re.sub(
+        r"Only when the\s+change crosses a repository boundary",
+        "for every frontend task before other context",
+        guide,
+        count=1,
+    )
+    assert _routing_guide_broad_context_policy_errors(frontend_regression) == [
+        "frontend guide must conditionally link broad context"
+    ]
+
+    governance_regression = guide.replace(
+        "when the change sets policy across repositories",
+        "for every standards task before other context",
+        1,
+    )
+    assert _routing_guide_broad_context_policy_errors(governance_regression) == [
+        "governance guide must conditionally link broad context"
+    ]
+
+
+def test_reference_map_routes_without_restarting_context_discovery() -> None:
+    """A task route may open the map without reopening the broad default context."""
+    reference_map = (CONTEXT_DIR / "CONTEXT-REFERENCE-MAP.md").read_text(encoding="utf-8")
+    introduction = reference_map.split("\n## ", 1)[0]
+
+    assert "after the common startup set is complete" in introduction
+    assert "do not restart discovery" in introduction
+    assert "LOTUS-ENGINEERING-CONTEXT.md" not in introduction
 
 
 def test_quickstart_states_the_startup_set_once() -> None:
