@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 413,
+    "markdown_file_count": 414,
     "powershell_file_count": 69,
     "python_file_count": 237,
-    "source_file_count": 906,
+    "source_file_count": 907,
     "suffix_counts": {
       ".json": 138,
-      ".md": 413,
+      ".md": 414,
       ".ps1": 69,
       ".py": 237,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 366902
+    "total_source_lines": 367300
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -48,6 +48,14 @@
         "lines": 72,
         "name": "_validate_controls",
         "path": "automation/validate_bank_readiness_control_catalog.py"
+      },
+      {
+        "complexity": 22,
+        "end_line": 355,
+        "line": 279,
+        "lines": 77,
+        "name": "unguarded_pipelines",
+        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
         "complexity": 22,
@@ -83,8 +91,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 173,
-        "line": 111,
+        "end_line": 179,
+        "line": 117,
         "lines": 63,
         "name": "iter_steps",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
@@ -120,14 +128,6 @@
         "lines": 68,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
-      },
-      {
-        "complexity": 16,
-        "end_line": 321,
-        "line": 263,
-        "lines": 59,
-        "name": "unguarded_pipelines",
-        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
         "complexity": 16,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3152
+    "python_function_count": 3158
   },
-  "generated_at_utc": "2026-09-06T00:42:13Z",
+  "generated_at_utc": "2026-09-06T00:54:09Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1269,
+    "collected_tests": 1273,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1269 tests collected in 1.20s"
+    "summary": "1273 tests collected in 1.83s"
   }
 }
