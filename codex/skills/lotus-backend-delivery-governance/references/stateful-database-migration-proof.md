@@ -57,6 +57,21 @@ Seed representative pre-upgrade rows and execute the real migration technology. 
 Use generated-SQL assertions as a guard, not as the sole proof. Include a real database test for
 changes whose correctness depends on locking, partial indexes, null semantics, or concurrent rows.
 
+## Database-Specific And Concurrency Claims
+
+SQLite is useful for portable domain and repository feedback, but it does not prove
+PostgreSQL-specific SQL, types, constraints, locking, transactions, or persistence behavior. Use a
+real PostgreSQL test whenever the acceptance claim depends on those semantics.
+
+A call-entry barrier proves only that two callers reached a point. It does not prove overlapping
+database transactions, lock acquisition order, or a serialization retry. Force the ordering the
+test claims, then assert the governing database observation. For PostgreSQL serialization behavior,
+that includes SQLSTATE `40001` before asserting the retry and final durable state.
+
+For any regression guard, demonstrate that the focused check fails when the protected correction is
+removed or the representative defect is injected. Passing corrected code alone is not evidence that
+the guard can prevent recurrence.
+
 ## Closure Evidence
 
 Record the prior schema/version, seeded legacy state matrix, migration command, post-upgrade row
