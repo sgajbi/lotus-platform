@@ -246,36 +246,69 @@ def test_check_only_does_not_leak_failed_git_probe_status(tmp_path: Path) -> Non
     assert "Agent operating contract is synchronized for 1 target(s)." in result.stdout
 
 
-def test_sync_script_runs_on_every_installed_powershell_interpreter() -> None:
-    """The script must work under the interpreter that actually invokes it.
-
-    The helpers above prefer `pwsh`, so the suite exercised PowerShell 7 while
-    operators and automation invoke `powershell.exe`, which is Windows
-    PowerShell 5.1. An API present only in 7 therefore passed every test and
-    failed in use: [System.IO.Path]::GetRelativePath threw MethodNotFound, the
-    relative path was never assigned, and the origin/main comparison ran with an
-    empty pathspec -- diffing the whole tree instead of the contract file, so any
-    unrelated local edit made the guard refuse to sync.
-
-    Interpreter-specific failures are silent in output that otherwise looks
-    successful, so this asserts on the diagnostics rather than the exit code.
-    """
-    interpreters = [path for path in (shutil.which("pwsh"), shutil.which("powershell")) if path]
+def test_unrelated_source_edit_does_not_change_contract_provenance_by_interpreter(
+    tmp_path: Path,
+) -> None:
+    interpreters = list(
+        dict.fromkeys(path for path in (shutil.which("pwsh"), shutil.which("powershell")) if path)
+    )
     assert interpreters, "no PowerShell interpreter available to test"
 
     script = ROOT / "automation" / "Sync-AgentOperatingContract.ps1"
-    forbidden = ("MethodNotFound", "VariableIsUndefined", "CommandNotFoundException")
+    for index, interpreter in enumerate(interpreters):
+        case_root = tmp_path / f"case-{index}"
+        source_origin = case_root / "source-origin.git"
+        source_repo = case_root / "source"
+        source_contract = source_repo / "context" / "AGENTS-OPERATING-CONTRACT.md"
+        unrelated = source_repo / "unrelated.txt"
+        workspace_root = case_root / "workspace"
+        target_repo = workspace_root / "lotus-ai"
+        target_agents = target_repo / "AGENTS.md"
 
-    for interpreter in interpreters:
+        subprocess.run(["git", "init", "--bare", str(source_origin)], check=True, capture_output=True)
+        source_contract.parent.mkdir(parents=True)
+        subprocess.run(["git", "init", str(source_repo)], check=True, capture_output=True)
+        _run_git(source_repo, "checkout", "-b", "main")
+        _run_git(source_repo, "config", "user.email", "test@example.com")
+        _run_git(source_repo, "config", "user.name", "Test User")
+        _run_git(source_repo, "remote", "add", "origin", str(source_origin))
+        source_contract.write_text("# governed contract\n", encoding="utf-8")
+        unrelated.write_text("committed\n", encoding="utf-8")
+        _run_git(source_repo, "add", ".")
+        _run_git(source_repo, "commit", "-m", "seed source")
+        _run_git(source_repo, "push", "-u", "origin", "main")
+        unrelated.write_text("uncommitted but unrelated\n", encoding="utf-8")
+
+        target_repo.mkdir(parents=True)
+        subprocess.run(["git", "init", str(target_repo)], check=True, capture_output=True)
+        _run_git(target_repo, "config", "user.email", "test@example.com")
+        _run_git(target_repo, "config", "user.name", "Test User")
+        target_agents.write_text("# old contract\n", encoding="utf-8")
+        _run_git(target_repo, "add", ".")
+        _run_git(target_repo, "commit", "-m", "seed target")
+
         command = [interpreter, "-NoProfile"]
         if "powershell" in Path(interpreter).stem.lower():
             command += ["-ExecutionPolicy", "Bypass"]
         result = subprocess.run(
-            command + ["-File", str(script), "-CheckOnly"],
+            command
+            + [
+                "-File",
+                str(script),
+                "-SourcePath",
+                str(source_contract),
+                "-WorkspaceRoot",
+                str(workspace_root),
+                "-Repository",
+                "lotus-ai",
+            ],
             capture_output=True,
             text=True,
             cwd=str(ROOT),
         )
-        combined = f"{result.stdout}\n{result.stderr}"
-        for token in forbidden:
-            assert token not in combined, f"{Path(interpreter).name} reported {token}:\n{combined}"
+
+        assert result.returncode == 0, result.stderr + result.stdout
+        assert target_agents.read_text(encoding="utf-8") == "# governed contract\n", (
+            result.stderr + result.stdout
+        )
+        assert "Synchronized AGENTS operating contract" in result.stdout
