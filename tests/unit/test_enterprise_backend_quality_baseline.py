@@ -327,3 +327,21 @@ def test_quality_write_refuses_partial_test_collection(monkeypatch, capsys) -> N
     assert baseline_generator.main() == 1
     assert write_attempted is False
     assert "partial run" in capsys.readouterr().err
+
+
+def test_successful_collection_summary_excludes_volatile_duration(monkeypatch) -> None:
+    monkeypatch.setattr(
+        baseline_generator,
+        "_run_command",
+        lambda _args: {
+            "available": True,
+            "command": ["pytest"],
+            "returncode": 0,
+            "summary": "1293 tests collected in 1.29s",
+        },
+    )
+
+    result = baseline_generator._count_pytest_tests()
+
+    assert result["collected_tests"] == 1293
+    assert result["summary"] == "1293 tests collected"
