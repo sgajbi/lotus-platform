@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 414,
     "powershell_file_count": 69,
-    "python_file_count": 238,
-    "source_file_count": 908,
+    "python_file_count": 239,
+    "source_file_count": 909,
     "suffix_counts": {
       ".json": 138,
       ".md": 414,
       ".ps1": 69,
-      ".py": 238,
+      ".py": 239,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 368228
+    "total_source_lines": 368334
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3185
+    "python_function_count": 3190
   },
-  "generated_at_utc": "2026-09-06T10:58:17Z",
+  "generated_at_utc": "2026-09-06T11:08:17Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1291,
+    "collected_tests": 1294,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1291 tests collected"
+    "summary": "1294 tests collected"
   }
 }
