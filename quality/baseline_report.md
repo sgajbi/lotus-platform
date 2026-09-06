@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-06T23:54:30Z`
+Generated: `2026-09-07T00:43:15Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `910`
-- Total source lines: `371005`
-- Python files: `239`
+- Source files: `912`
+- Total source lines: `371549`
+- Python files: `241`
 - PowerShell files: `69`
 - Markdown files: `415`
 
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3307`
+- Python functions: `3328`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -47,6 +47,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | --- | --- | --- | --- | --- |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 366 | 48 | 186 |
+| automation/check_branch_protection_policy.py | validate_policy_document | 79 | 35 | 75 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
@@ -54,7 +55,6 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
 | automation/validate_workflow_pipeline_exit_codes.py | iter_steps | 127 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1319 | 17 | 66 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1408`
+- Unit tests collected: `1421`
 - Collection command return code: `0`
-- Collection summary: `1408 tests collected`
+- Collection summary: `1421 tests collected`
 
 ## Security Baseline
 

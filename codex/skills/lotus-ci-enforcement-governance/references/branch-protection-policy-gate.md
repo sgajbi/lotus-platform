@@ -21,9 +21,46 @@ input, so a sibling adopts the script and test verbatim and edits the table. A l
 and copies drift: the canonical implementation lives with the reference adopter
 (`lotus-gateway`'s `scripts/check_branch_protection_policy.py` and its unit tests) until the
 checker moves into `lotus-platform` with the federated unification named below, and each
-adopter's scheduled supplement performs a parity check — fetch the canonical file at `main`,
-compare content hashes, fail on divergence — so a checker fix propagates deliberately to every
-adopter instead of silently forking an estate-wide control. The lift delivers
+adopter's scheduled supplement performs a parity check against the canonical file at `main`, so a
+checker fix propagates deliberately instead of silently forking an estate-wide control.
+
+Parity needs both halves, because each alone has a hole.
+
+1. **Behaviour is the primary detector.** The lifted test suite states what the checker must
+   enforce, so a copy that lost the nested-field validation fails it immediately. This is
+   formatting-immune and needs no cross-repository comparison at run time.
+2. **The test file's currency must be asserted by content.** A checker and its test suite lifted
+   together at the same old revision are *self-consistent and green*: the stale tests pass against
+   the stale checker, and behaviour parity alone reports nothing. Compare the adopter's test file
+   against the canonical to know it is current — which is a byte comparison, unavoidably.
+
+Two rules make the byte comparison trustworthy.
+
+- **Hash the git object, never the working tree.** A checkout may normalise line endings, so a
+  working-tree hash reports drift between identical files and, worse, can read a copy that a
+  local fix has already repaired while the merged state is still stale. Measured 2026-09-06:
+  reading working trees said `lotus-render` matched the canonical; reading `origin/main` objects
+  showed 173 lines against the canonical 275, raw and normalised hashes identical, so the
+  difference was 102 lines of absent content — the bypass-allowance assertions, the nested-field
+  validation, and the CODEOWNERS precedence resolution. Its offline gate would have passed a
+  policy gutted of `required_status_checks.strict`. Object hashing is how that drift was found,
+  before any test ran.
+- **Exempt lifted files from local formatters**, so bytes stay canonical. An adopter whose
+  formatter differs from the reference repository's rewrites the file on arrival and reports drift
+  forever after. Where a repository does not lint the lifted path at all, nothing is needed; where
+  it does, the exemption is part of the adoption.
+- **Lift only from the canonical's merged state, never from an open pull request.** A branch under
+  review is a moving target: this pattern's own PRs have absorbed between fourteen and forty-one
+  findings each, so a copy taken from an open head is stale the moment the next wave lands, and
+  the adopter re-drifts through no fault of its own. It is the same error as reading a working
+  tree — both read a state that is not yet canonical. When a hardening change to the canonical is
+  in flight, an adopter still merges against today's merged canonical and re-lifts afterwards:
+  two small changes from settled states beat one change racing a review.
+
+Keeping the copy strictly liftable is what makes both halves cheap, so the canonical is typed to
+satisfy `mypy --strict` with no `type: ignore` and no config exemption: an adopter that must edit
+the file to satisfy its own type checker has already forked it, which is precisely how the render
+drift began. The lift delivers
 the **implemented baseline** only: the table, the live field-by-field comparison, the offline
 shape tests, and the wiring and token rules below. The central-comparison, re-evaluation,
 ruleset-binding, and checker-parity mechanics in this reference are **specified extensions**
@@ -245,6 +282,14 @@ structure from these repositories; do not cite either as evidence that the contr
   through `tee`, so from landing until the follow-up fix the step reported success while the
   checker raised `CalledProcessError` on an empty `GH_TOKEN` — wired blocking, but unable to
   fail. Treat it as the worked example of both defects above, not as a clean template.
+- `lotus-ai#359` — lifted byte-identical to the canonical, the property the parity check depends
+  on.
+- `lotus-platform` — adopter where the estate-wide guards and the policy gate sit in the same
+  repository. Offline document checks run blocking in the `pr-merge` lane;
+  the live comparison runs in a dedicated daily `branch-protection-audit.yml`, invoked bare and
+  failing closed on the absent PAT. Its live comparison passes when run locally with an
+  admin-scoped token, which is the first confirmation that a policy table matches real protection
+  field for field.
 - `lotus-render#281` — verbatim lift, wired into the daily coverage-audit workflow and invoked
   bare, so its exit code is honest. The drift it reported (`required_pull_request_reviews block
   presence: live=ABSENT policy=present` — the exact undetected `render#66` drift that motivated

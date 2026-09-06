@@ -1,0 +1,31 @@
+name: Branch Protection Audit
+
+on:
+  schedule:
+    - cron: "40 2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Audit / Live Protection Matches Policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Compare live branch protection against policy (fail closed)
+        env:
+          # github.token cannot carry administration:read, which the branch
+          # protection endpoint requires. This secret is not provisioned in any
+          # Lotus repository yet, so this step fails closed until an operator
+          # creates it. A blocking pre-merge step before then would deadlock
+          # every pull request on that operator action.
+          GH_TOKEN: ${{ secrets.LOTUS_AUTOMERGE_TOKEN }}
+        # Invoked bare on purpose: piping through tee reports tee's exit code
+        # and would make this gate incapable of failing.
+        run: python automation/check_branch_protection_policy.py
