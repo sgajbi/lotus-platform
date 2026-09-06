@@ -383,8 +383,15 @@ def test_a_regeneration_records_only_the_platform_it_collected_on() -> None:
     tests = baseline["tests"]
     by_platform = tests["collected_tests_by_platform"]
 
-    assert list(by_platform) == [tests["platform"]], (
-        "a platform this run did not collect on must not carry an accepted "
-        f"count: {by_platform}"
+    assert tests["platform"] in by_platform, (
+        "this run's own platform must carry a recorded count"
     )
     assert by_platform[tests["platform"]] == tests["collected_tests"]
+    # Other platforms keep their recorded counts. Dropping them looks tidy and
+    # removes real drift detection: a count that no longer matches that
+    # platform's collection is exactly what this metric reports, and the remedy
+    # is to regenerate there rather than to forget the number.
+    assert "linux" in by_platform, (
+        "the Linux lanes must have a baseline to compare against, or the metric "
+        "is never enforced where CI actually runs"
+    )
