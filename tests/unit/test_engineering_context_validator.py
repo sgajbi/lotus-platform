@@ -56,6 +56,26 @@ def test_application_agent_contract_sync_warns_for_external_repo_drift() -> None
     assert any("lotus-core: repo-root AGENTS.md is not synchronized" in warning for warning in warnings)
 
 
+def test_application_context_sync_warns_when_registered_context_is_missing(
+    tmp_path: Path, monkeypatch
+) -> None:
+    validator = _load_validator_module()
+    monkeypatch.setattr(validator, "WORKSPACE_ROOT", tmp_path)
+    (tmp_path / "lotus-core").mkdir()
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    validator._validate_application_agent_contract_sync(
+        errors=errors,
+        warnings=warnings,
+        applications=[{"repository": "lotus-core"}],
+        normalized_agents_contract="contract",
+    )
+
+    assert errors == []
+    assert warnings == ["lotus-core: missing REPOSITORY-ENGINEERING-CONTEXT.md"]
+
+
 def test_agents_operating_contract_validator_reports_missing_required_guidance() -> None:
     validator = _load_validator_module()
     errors: list[str] = []

@@ -19,13 +19,26 @@ Governed sources:
 Start with the smallest correct working set:
 
 1. repo-root `AGENTS.md`,
-2. central quickstart and engineering context,
+2. central quickstart,
 3. repo-local engineering context for the repository being changed,
-4. the active RFC and directly referenced contracts or runbooks,
-5. failing check output or PR comments only when they are part of the current task.
+4. the skill-routing map and selected skill,
+5. the active RFC and directly referenced contracts or runbooks,
+6. failing check output or PR comments only when they are part of the current task.
 
 Do not load broad historical chat or unrelated RFCs as default context. Promote durable lessons into
 governed artifacts instead of relying on conversation memory.
+
+## Active Workspace Ownership
+
+Before editing, inspect `git status`, the active branch, registered worktrees, and existing changes.
+Classify work as owned by the current task, owned by another active session, or unowned only when
+repository and Git evidence support that conclusion.
+
+Do not restore, stash, move, delete, stage, or commit another owner's work. When the active checkout
+contains unrelated changes, either keep the current task read-only, use a verified isolated
+worktree, or coordinate with the owner. A designated repository owner may continue a bounded slice
+in its checkout after explicitly excluding unrelated paths. Record any temporary worktree and
+remove it after its exact clean state and resolved path are verified.
 
 ## Identifier Preservation
 

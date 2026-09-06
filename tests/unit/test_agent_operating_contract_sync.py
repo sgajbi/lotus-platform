@@ -175,3 +175,52 @@ def test_sync_agent_operating_contract_check_only_reports_stale_repo_root_hint(t
     output = result.stderr + result.stdout
     assert str(target_path) in output
     assert "checkout hint: main is behind origin/main by 1 commit(s)" in output
+
+
+def test_sync_refuses_branch_only_contract_for_a_sibling_worktree(tmp_path: Path) -> None:
+    git = shutil.which("git")
+    assert git is not None
+
+    source_origin = tmp_path / "source-origin.git"
+    source_repo = tmp_path / "source"
+    source_contract = source_repo / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    workspace_root = tmp_path / "workspace"
+    target_repo = workspace_root / "lotus-ai"
+
+    subprocess.run([git, "init", "--bare", str(source_origin)], check=True, capture_output=True)
+    source_contract.parent.mkdir(parents=True)
+    subprocess.run([git, "init", str(source_repo)], check=True, capture_output=True)
+    _run_git(source_repo, "checkout", "-b", "main")
+    _run_git(source_repo, "config", "user.email", "test@example.com")
+    _run_git(source_repo, "config", "user.name", "Test User")
+    _run_git(source_repo, "remote", "add", "origin", str(source_origin))
+    source_contract.write_text("# main contract\n", encoding="utf-8")
+    _run_git(source_repo, "add", ".")
+    _run_git(source_repo, "commit", "-m", "main contract")
+    _run_git(source_repo, "push", "-u", "origin", "main")
+    _run_git(source_repo, "checkout", "-b", "topic")
+    source_contract.write_text("# branch-only contract\n", encoding="utf-8")
+    _run_git(source_repo, "add", ".")
+    _run_git(source_repo, "commit", "-m", "branch contract")
+
+    target_repo.mkdir(parents=True)
+    subprocess.run([git, "init", str(target_repo)], check=True, capture_output=True)
+    _run_git(target_repo, "config", "user.email", "test@example.com")
+    _run_git(target_repo, "config", "user.name", "Test User")
+    target_agents = target_repo / "AGENTS.md"
+    target_agents.write_text("# target contract\n", encoding="utf-8")
+    _run_git(target_repo, "add", ".")
+    _run_git(target_repo, "commit", "-m", "target contract")
+
+    result = _run_sync_result(
+        "-SourcePath",
+        str(source_contract),
+        "-WorkspaceRoot",
+        str(workspace_root),
+        "-Repository",
+        "lotus-ai",
+    )
+
+    assert result.returncode == 0
+    assert target_agents.read_text(encoding="utf-8") == "# target contract\n"
+    assert "differs from or cannot be verified against origin/main" in (result.stdout + result.stderr)
