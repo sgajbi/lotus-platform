@@ -296,3 +296,18 @@ RFC's linked evidence.
   scheduler administration, and Workbench gateway-backed explicit single-portfolio batch operation.
   RFC-0105 observability/operations, RFC-0106 security, and RFC-0107 production certification remain
   pending.
+
+## RFC-0109: Lotus Production Principal And Capability Resolution
+
+Draft. Resolves #563 and #775 into one principal design. The authenticated BFF session contract
+already ships as `platform-contracts/bff-principal-session/`; the downstream half — how a service
+resolves what a caller may do, in which tenant — is specified here and unimplemented.
+
+Grants are resolved from a store rather than carried in the credential, so an entitlement withdrawn
+during a session takes effect without waiting for expiry; the cost, accepted explicitly, is that a
+request is denied when the grant store is unavailable. Three principal kinds are defined — user,
+service, and an application acting on behalf of a user — and a delegated call receives the
+intersection of both grant sets, so a broadly trusted application never widens a user's entitlement.
+
+Contract and fixture availability is not authentication: `certification-posture.v1.json` keeps all
+ten required controls `false` until each is separately evidenced.
