@@ -267,9 +267,18 @@ def test_rfc_0073_slice_two_a_repo_root_agents_are_synchronized_and_validated() 
         "[switch]$IncludeDeployedTarget",
         "Resolve-RequestedTargets",
         "Resolve-RepoRootTargetPath",
-        "default deployed target",
+        # The deployed copy is still supported, but it is no longer the target a
+        # bare check falls back to: on a runner that file does not exist, so the
+        # check skipped its only target and reported success having compared
+        # nothing. A bare check now defaults to this repository's own copy.
+        "deployed target",
+        "lotus-platform repo-root target",
     ):
         assert required_item in sync_script
+
+    assert "default deployed target" not in sync_script, (
+        "a bare -CheckOnly must not fall back to the machine-local deployed file"
+    )
 
     assert 'Sync-AgentOperatingContract.ps1") -CheckOnly -TargetPath (Join-Path $repoRoot "AGENTS.md")' not in repo_checks
     assert "platform repo agents" in validator
