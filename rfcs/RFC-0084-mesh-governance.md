@@ -7,7 +7,7 @@
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; lotus-platform governance |
 | Depends On | RFC-0067; RFC-0071; RFC-0072; RFC-0073; RFC-0082; RFC-0083 |
-| Related Standards | `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`; `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0083-lotus-core-system-of-record-target-architecture.md`; `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`; `C:/Users/Sandeep/projects/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`; `C:/Users/Sandeep/projects/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`; `C:/Users/Sandeep/projects/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`; `C:/Users/Sandeep/projects/lotus-manage/docs/standards/RFC-0082-upstream-contract-family-map.md` |
+| Related Standards | `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`; `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0083-lotus-core-system-of-record-target-architecture.md`; `<workspace-root>/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`; `<workspace-root>/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`; `<workspace-root>/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`; `<workspace-root>/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`; `<workspace-root>/lotus-manage/docs/standards/RFC-0082-upstream-contract-family-map.md` |
 | Scope | Cross-repo |
 
 ## Executive Summary
@@ -140,9 +140,9 @@ Lotus is not starting from zero. It already has several strong building blocks.
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-platform/context/lotus-context-manifest.json`
-2. `C:/Users/Sandeep/projects/lotus-platform/context/ECOSYSTEM-REGISTRIES.md`
-3. `C:/Users/Sandeep/projects/lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+1. `<workspace-root>/lotus-platform/context/lotus-context-manifest.json`
+2. `<workspace-root>/lotus-platform/context/ECOSYSTEM-REGISTRIES.md`
+3. `<workspace-root>/lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
 
 Assessment:
 
@@ -152,10 +152,10 @@ Strong foundation for ownership and boundary clarity, but not yet a domain-produ
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-platform/platform-contracts/api-vocabulary/README.md`
-2. `C:/Users/Sandeep/projects/lotus-platform/platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py`
-3. `C:/Users/Sandeep/projects/lotus-platform/platform-contracts/domain-vocabulary/canonical-performance-periods.v1.json`
-4. `C:/Users/Sandeep/projects/lotus-platform/rfcs/RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`
+1. `<workspace-root>/lotus-platform/platform-contracts/api-vocabulary/README.md`
+2. `<workspace-root>/lotus-platform/platform-contracts/api-vocabulary/validate_api_vocabulary_catalog.py`
+3. `<workspace-root>/lotus-platform/platform-contracts/domain-vocabulary/canonical-performance-periods.v1.json`
+4. `<workspace-root>/lotus-platform/rfcs/RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`
 
 Assessment:
 
@@ -165,11 +165,11 @@ This is already a real mesh-grade semantic control plane. RFC-0084 should extend
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-platform/automation/Invoke-PlatformValidationLane.ps1`
-2. `C:/Users/Sandeep/projects/lotus-platform/automation/platform-validation-profiles.json`
-3. `C:/Users/Sandeep/projects/lotus-platform/automation/core_performance_cross_app_validation.py`
-4. `C:/Users/Sandeep/projects/lotus-platform/automation/validate_repository_governance.py`
-5. `C:/Users/Sandeep/projects/lotus-platform/automation/validate_platform_validation_coverage.py`
+1. `<workspace-root>/lotus-platform/automation/Invoke-PlatformValidationLane.ps1`
+2. `<workspace-root>/lotus-platform/automation/platform-validation-profiles.json`
+3. `<workspace-root>/lotus-platform/automation/core_performance_cross_app_validation.py`
+4. `<workspace-root>/lotus-platform/automation/validate_repository_governance.py`
+5. `<workspace-root>/lotus-platform/automation/validate_platform_validation_coverage.py`
 
 Assessment:
 
@@ -180,10 +180,10 @@ the same rigor.
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-platform/context/contracts/README.md`
-2. `C:/Users/Sandeep/projects/lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json`
-3. `C:/Users/Sandeep/projects/lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json`
-4. `C:/Users/Sandeep/projects/lotus-platform/context/contracts/workbench-panel-registry.json`
+1. `<workspace-root>/lotus-platform/context/contracts/README.md`
+2. `<workspace-root>/lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json`
+3. `<workspace-root>/lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json`
+4. `<workspace-root>/lotus-platform/context/contracts/workbench-panel-registry.json`
 
 Assessment:
 
@@ -193,12 +193,12 @@ Lotus already knows how to operationalize machine-readable cross-repo truth.
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-core/src/libs/portfolio-common/portfolio_common/source_data_products.py`
-2. `C:/Users/Sandeep/projects/lotus-core/src/libs/portfolio-common/portfolio_common/source_data_security.py`
-3. `C:/Users/Sandeep/projects/lotus-core/scripts/quality/source_data_product_contract_guard.py`
-4. `C:/Users/Sandeep/projects/lotus-core/scripts/quality/analytics_input_consumer_contract_guard.py`
-5. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
-6. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-downstream-endpoint-consumer-and-test-coverage-audit.md`
+1. `<workspace-root>/lotus-core/src/libs/portfolio-common/portfolio_common/source_data_products.py`
+2. `<workspace-root>/lotus-core/src/libs/portfolio-common/portfolio_common/source_data_security.py`
+3. `<workspace-root>/lotus-core/scripts/quality/source_data_product_contract_guard.py`
+4. `<workspace-root>/lotus-core/scripts/quality/analytics_input_consumer_contract_guard.py`
+5. `<workspace-root>/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
+6. `<workspace-root>/lotus-core/docs/architecture/RFC-0082-downstream-endpoint-consumer-and-test-coverage-audit.md`
 
 Assessment:
 
@@ -209,10 +209,10 @@ be treated as the first producer reference model.
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
-2. `C:/Users/Sandeep/projects/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
-3. `C:/Users/Sandeep/projects/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`
-4. `C:/Users/Sandeep/projects/lotus-manage/docs/standards/RFC-0082-upstream-contract-family-map.md`
+1. `<workspace-root>/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
+2. `<workspace-root>/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
+3. `<workspace-root>/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`
+4. `<workspace-root>/lotus-manage/docs/standards/RFC-0082-upstream-contract-family-map.md`
 
 Assessment:
 

@@ -230,10 +230,16 @@ Canonical DPM command-center seed authority:
 
 ## 3. One-Time Pull
 
+Set the parent directory that contains the Lotus checkouts:
+
 ```bash
-cd /c/Users/sande/dev/lotus-advise && git checkout main && git pull --ff-only
-cd /c/Users/sande/dev/lotus-gateway && git checkout main && git pull --ff-only
-cd /c/Users/sande/dev/lotus-workbench && git checkout main && git pull --ff-only
+export LOTUS_WORKSPACE_ROOT="<workspace-root>"
+```
+
+```bash
+cd "$LOTUS_WORKSPACE_ROOT/lotus-advise" && git checkout main && git pull --ff-only
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway" && git checkout main && git pull --ff-only
+cd "$LOTUS_WORKSPACE_ROOT/lotus-workbench" && git checkout main && git pull --ff-only
 ```
 
 ## 4. Start All 3 Apps (Docker)
@@ -243,7 +249,7 @@ Run these in 3 separate Git Bash terminals.
 ## 4.1 Start lotus-manage (+ Postgres)
 
 ```bash
-cd /c/Users/sande/dev/lotus-advise
+cd "$LOTUS_WORKSPACE_ROOT/lotus-advise"
 docker compose up -d --build
 docker compose ps
 ```
@@ -251,7 +257,7 @@ docker compose ps
 ## 4.2 Start lotus-gateway
 
 ```bash
-cd /c/Users/sande/dev/lotus-gateway
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway"
 export DECISIONING_SERVICE_BASE_URL="http://manage.dev.lotus"
 export PORTFOLIO_DATA_INGESTION_BASE_URL="http://core-ingestion.dev.lotus"
 export PORTFOLIO_DATA_QUERY_BASE_URL="http://core-query.dev.lotus"
@@ -296,7 +302,7 @@ Important:
 ## 4.3 Start UI
 
 ```bash
-cd /c/Users/sande/dev/lotus-workbench
+cd "$LOTUS_WORKSPACE_ROOT/lotus-workbench"
 export BFF_BASE_URL="http://gateway.dev.lotus"
 docker compose up -d --build
 docker compose ps
@@ -344,15 +350,15 @@ Manual UI checks:
 Tail logs:
 
 ```bash
-cd /c/Users/sande/dev/lotus-advise && docker compose logs -f --tail=200
-cd /c/Users/sande/dev/lotus-gateway && docker compose logs -f --tail=200
-cd /c/Users/sande/dev/lotus-workbench && docker compose logs -f --tail=200
+cd "$LOTUS_WORKSPACE_ROOT/lotus-advise" && docker compose logs -f --tail=200
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway" && docker compose logs -f --tail=200
+cd "$LOTUS_WORKSPACE_ROOT/lotus-workbench" && docker compose logs -f --tail=200
 ```
 
 Restart a single stack:
 
 ```bash
-cd /c/Users/sande/dev/lotus-gateway
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway"
 docker compose down
 docker compose up -d --build
 ```
@@ -360,15 +366,15 @@ docker compose up -d --build
 ## 7. Stop All
 
 ```bash
-cd /c/Users/sande/dev/lotus-workbench && docker compose down
-cd /c/Users/sande/dev/lotus-gateway && docker compose down
-cd /c/Users/sande/dev/lotus-advise && docker compose down
+cd "$LOTUS_WORKSPACE_ROOT/lotus-workbench" && docker compose down
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway" && docker compose down
+cd "$LOTUS_WORKSPACE_ROOT/lotus-advise" && docker compose down
 ```
 
 If you need clean volumes (destructive for local DB data):
 
 ```bash
-cd /c/Users/sande/dev/lotus-advise && docker compose down -v
+cd "$LOTUS_WORKSPACE_ROOT/lotus-advise" && docker compose down -v
 ```
 
 ## 8. Common Failure Cases
@@ -411,7 +417,7 @@ lotus-core canonical local identities:
 ### 10.1 Pull Latest
 
 ```bash
-cd /c/Users/sande/dev/lotus-core
+cd "$LOTUS_WORKSPACE_ROOT/lotus-core"
 git checkout main
 git pull --ff-only
 ```
@@ -419,7 +425,7 @@ git pull --ff-only
 ### 10.2 Start lotus-core
 
 ```bash
-cd /c/Users/sande/dev/lotus-core
+cd "$LOTUS_WORKSPACE_ROOT/lotus-core"
 docker compose up -d --build
 docker compose ps
 ```
@@ -428,7 +434,7 @@ lotus-core startup now includes automated demo dataset bootstrap (`demo_data_loa
 Validate bootstrap completion:
 
 ```bash
-cd /c/Users/sande/dev/lotus-core
+cd "$LOTUS_WORKSPACE_ROOT/lotus-core"
 docker compose logs --tail=200 demo_data_loader
 ```
 
@@ -452,7 +458,7 @@ curl -s "http://core-control.dev.lotus/lineage/portfolios/PORT001/securities/SEC
 ### 10.4 Stop lotus-core
 
 ```bash
-cd /c/Users/sande/dev/lotus-core
+cd "$LOTUS_WORKSPACE_ROOT/lotus-core"
 docker compose down
 ```
 
@@ -462,18 +468,18 @@ Do not restart the full platform by default. Rebuild only changed services:
 
 ```bash
 # lotus-core: refresh only ingestion service after ingestion changes
-cd /c/Users/sande/dev/lotus-core
+cd "$LOTUS_WORKSPACE_ROOT/lotus-core"
 docker compose up -d --build ingestion_service
 
 # lotus-core: refresh only demo loader after demo pack script changes
 docker compose up -d --build demo_data_loader
 
 # lotus-gateway/UI targeted refresh examples
-cd /c/Users/sande/dev/lotus-gateway && docker compose up -d --build lotus-gateway
-cd /c/Users/sande/dev/lotus-workbench && docker compose up -d --build lotus-workbench
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway" && docker compose up -d --build lotus-gateway
+cd "$LOTUS_WORKSPACE_ROOT/lotus-workbench" && docker compose up -d --build lotus-workbench
 
 # lotus-report targeted refresh example
-cd /c/Users/sande/dev/lotus-report && docker compose up -d --build
+cd "$LOTUS_WORKSPACE_ROOT/lotus-report" && docker compose up -d --build
 ```
 
 Use container logs first for debugging:
@@ -493,26 +499,26 @@ This path validates `lotus-gateway` aggregation endpoint against live upstream c
 ### 11.1 Pull Latest
 
 ```bash
-cd /c/Users/sande/dev/lotus-advise && git checkout main && git pull --ff-only
-cd /c/Users/sande/dev/lotus-core && git checkout main && git pull --ff-only
-cd /c/Users/sande/dev/lotus-performance && git checkout main && git pull --ff-only
-cd /c/Users/sande/dev/lotus-gateway && git checkout main && git pull --ff-only
+cd "$LOTUS_WORKSPACE_ROOT/lotus-advise" && git checkout main && git pull --ff-only
+cd "$LOTUS_WORKSPACE_ROOT/lotus-core" && git checkout main && git pull --ff-only
+cd "$LOTUS_WORKSPACE_ROOT/lotus-performance" && git checkout main && git pull --ff-only
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway" && git checkout main && git pull --ff-only
 ```
 
 ### 11.2 Start Stack From lotus-gateway Repo
 
 ```bash
-cd /c/Users/sande/dev/lotus-gateway
-export DPM_REPO_PATH=/c/Users/sande/dev/lotus-advise
-export PAS_REPO_PATH=/c/Users/sande/dev/lotus-core
-export PA_REPO_PATH=/c/Users/sande/dev/lotus-performance
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway"
+export DPM_REPO_PATH="$LOTUS_WORKSPACE_ROOT/lotus-advise"
+export PAS_REPO_PATH="$LOTUS_WORKSPACE_ROOT/lotus-core"
+export PA_REPO_PATH="$LOTUS_WORKSPACE_ROOT/lotus-performance"
 make e2e-up
 ```
 
 ### 11.3 Run Live E2E Assertion
 
 ```bash
-cd /c/Users/sande/dev/lotus-gateway
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway"
 make test-e2e-live
 ```
 
@@ -535,7 +541,7 @@ Response should include:
 ### 11.5 Teardown
 
 ```bash
-cd /c/Users/sande/dev/lotus-gateway
+cd "$LOTUS_WORKSPACE_ROOT/lotus-gateway"
 make e2e-down
 ```
 
@@ -546,7 +552,7 @@ Repository: `lotus-performance`
 ### 12.1 Setup
 
 ```bash
-cd /c/Users/sande/dev/lotus-performance
+cd "$LOTUS_WORKSPACE_ROOT/lotus-performance"
 python -m venv .venv
 source .venv/Scripts/activate
 make install

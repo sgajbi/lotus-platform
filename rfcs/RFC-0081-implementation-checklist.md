@@ -54,10 +54,10 @@ and are part of PR #83 unless noted.
 
 ### Active Implementation Evidence (Workbench)
 
-- Repo: `C:\Users\Sandeep\projects\lotus-workbench`
+- Repo: `<workspace-root>/lotus-workbench`
 - PR: `#83` (branch `codex/rfc-0081-slice-1-portfolio-foundation`)
 - Implemented slices (workbench-local): 1–14 (UI uplift only, scoped to portfolio/performance)
-- Screenshot evidence root: `C:\Users\Sandeep\projects\lotus-workbench\output\playwright`
+- Screenshot evidence root: `<workspace-root>/lotus-workbench/output/playwright`
 
 Latest evidence folders:
 - `rfc-0081-slice-3-review`

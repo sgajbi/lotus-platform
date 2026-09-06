@@ -28,13 +28,13 @@ pass but still needs final cross-surface consistency review.
 
 ### `lotus-workbench`
 
-1. Repo: `C:\Users\Sandeep\projects\lotus-workbench`
+1. Repo: `<workspace-root>/lotus-workbench`
 2. Branch: `codex/rfc-0081-slice-1-portfolio-foundation`
 3. PR: `#83`
 
 ### `lotus-platform`
 
-1. Repo: `C:\Users\Sandeep\projects\lotus-platform`
+1. Repo: `<workspace-root>/lotus-platform`
 2. Branch: `codex/rfc-0081-ui-uplift-hardening-20260411`
 3. This document and `RFC-0081-implementation-checklist.md` carry the implementation ledger.
 

@@ -51,8 +51,8 @@ Result:
 
 ```text
 Live canonical Workbench validation passed for PB_SG_GLOBAL_BAL_001.
-Wrote C:\Users\Sandeep\projects\lotus-platform\output\front-office-qa\canonical-front-office-qa-20260411-184944.json
-Wrote C:\Users\Sandeep\projects\lotus-platform\output\front-office-qa\canonical-front-office-qa-20260411-184944.md
+Wrote <workspace-root>/lotus-platform/output/front-office-qa/canonical-front-office-qa-20260411-184944.json
+Wrote <workspace-root>/lotus-platform/output/front-office-qa/canonical-front-office-qa-20260411-184944.md
 ```
 
 ## Panel Classification Evidence

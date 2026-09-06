@@ -2,7 +2,7 @@
 
 This directory is the platform-owned source for Lotus-specific Codex skills introduced by RFC-0074.
 
-The local Codex profile, normally `C:\Users\<user>\.codex\skills`, is a consumer of these artifacts. It is not the source of truth for Lotus skills.
+The local Codex profile, normally `<codex-home>/skills`, is a consumer of these artifacts. It is not the source of truth for Lotus skills.
 
 ## Scope
 

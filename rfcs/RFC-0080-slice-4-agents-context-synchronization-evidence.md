@@ -4,7 +4,7 @@
 - Date: `2026-04-11`
 - Scope:
   - `lotus-platform`
-  - deployed `C:\Users\Sandeep\.codex\AGENTS.md`
+  - deployed `<codex-home>/AGENTS.md`
 
 ## What changed
 
@@ -14,7 +14,7 @@ future agent behavior:
 1. `context/AGENTS-OPERATING-CONTRACT.md`
 2. `context/LOTUS-ENGINEERING-CONTEXT.md`
 3. `docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
-4. `C:\Users\Sandeep\.codex\AGENTS.md`
+4. `<codex-home>/AGENTS.md`
 
 ## Synchronization outcomes
 
@@ -49,7 +49,7 @@ The ramp-up guide now:
 
 ### Deployed AGENTS copy
 
-The deployed `C:\Users\Sandeep\.codex\AGENTS.md` copy was updated in the same slice so future
+The deployed `<codex-home>/AGENTS.md` copy was updated in the same slice so future
 sessions pick up the new routing rule immediately instead of waiting for a later manual sync.
 
 ## Why this slice is in the right shape

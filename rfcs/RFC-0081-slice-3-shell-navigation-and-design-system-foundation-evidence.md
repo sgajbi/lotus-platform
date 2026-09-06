@@ -156,7 +156,7 @@ Result:
 Shell top bar and workspace tab evidence was captured from the canonical populated workbench using
 `PB_SG_GLOBAL_BAL_001` under:
 
-`C:\Users\Sandeep\projects\lotus-workbench\output\playwright\rfc-0081-slice-3-review`
+`<workspace-root>/lotus-workbench/output/playwright/rfc-0081-slice-3-review`
 
 Files:
 

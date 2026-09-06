@@ -30,18 +30,19 @@ improved in-place using their repository-native commands, contracts, tests, docs
 Basic local scaffold:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+$env:LOTUS_WORKSPACE_ROOT = "<workspace-root>"
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceName lotus-example `
   -Description "Example Lotus backend service" `
   -ServiceProfile domain-service `
-  -DestinationRoot C:\Users\<user>\projects
+  -DestinationRoot $env:LOTUS_WORKSPACE_ROOT
 ```
 
 Full governed bootstrap with GitHub provisioning:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceName lotus-example `
   -Description "Example Lotus backend service" `
@@ -404,7 +405,7 @@ manifest.
 After generation:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-example
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-example"
 make install
 make ci-contract-gate
 make maintainability-gate

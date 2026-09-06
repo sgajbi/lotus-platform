@@ -9,7 +9,7 @@ initial RFC ledger entry overstated the report-to-archive trace propagation.
 - Slice: `Slice 2 trace and structured logging`
 - Repair repository: `lotus-report`
 - Evidence repository: `lotus-platform`
-- Evidence directory: `C:\Users\Sandeep\projects\lotus-report\output\rfc-0105-slice2-live-evidence-20260427-055407`
+- Evidence directory: `<workspace-root>/lotus-report/output/rfc-0105-slice2-live-evidence-20260427-055407`
 
 ## Repair
 

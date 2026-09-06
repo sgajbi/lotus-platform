@@ -6,7 +6,7 @@
 - Date: 2026-04-11
 - Canonical portfolio: `PB_SG_GLOBAL_BAL_001`
 - Canonical benchmark: `BMK_PB_GLOBAL_BALANCED_60_40`
-- Screenshot directory: `C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots`
+- Screenshot directory: `<temp-dir>/lotus-risk-module-shots`
 
 ## Summary
 
@@ -48,15 +48,15 @@ Canonical platform validation with explicit screenshot directory:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+  -ScreenshotDirectory <temp-dir>/lotus-risk-module-shots
 ```
 
 Result:
 
 ```text
 Live canonical Workbench validation passed for PB_SG_GLOBAL_BAL_001.
-Wrote C:\Users\Sandeep\projects\lotus-platform\output\front-office-qa\canonical-front-office-qa-20260411-190254.json
-Wrote C:\Users\Sandeep\projects\lotus-platform\output\front-office-qa\canonical-front-office-qa-20260411-190254.md
+Wrote <workspace-root>/lotus-platform/output/front-office-qa/canonical-front-office-qa-20260411-190254.json
+Wrote <workspace-root>/lotus-platform/output/front-office-qa/canonical-front-office-qa-20260411-190254.md
 ```
 
 ## Captured Product Surfaces

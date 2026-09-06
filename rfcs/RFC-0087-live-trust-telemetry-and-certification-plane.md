@@ -70,10 +70,10 @@ certification against that vocabulary.
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
-2. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
-3. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
-4. `C:/Users/Sandeep/projects/lotus-gateway/tests/integration/test_workbench_router.py`
+1. `<workspace-root>/lotus-gateway/src/app/services/platform_capabilities_service.py`
+2. `<workspace-root>/lotus-gateway/src/app/services/performance_workspace_service.py`
+3. `<workspace-root>/lotus-gateway/src/app/services/risk_workspace_service.py`
+4. `<workspace-root>/lotus-gateway/tests/integration/test_workbench_router.py`
 
 Assessment:
 
@@ -324,13 +324,13 @@ Reviewed evidence includes:
 4. `automation/generate_live_trust_certification.py`
 5. `tests/unit/test_trust_telemetry_contracts.py`
 6. `tests/unit/test_live_trust_certification.py`
-7. `C:/Users/Sandeep/projects/lotus-core/contracts/trust-telemetry/portfolio-state-snapshot.telemetry.v1.json`
-8. `C:/Users/Sandeep/projects/lotus-performance/contracts/trust-telemetry/returns-series-bundle.telemetry.v1.json`
-9. `C:/Users/Sandeep/projects/lotus-risk/contracts/trust-telemetry/risk-metrics-report.telemetry.v1.json`
-10. `C:/Users/Sandeep/projects/lotus-advise/contracts/trust-telemetry/advisory-proposal-lifecycle-record.telemetry.v1.json`
-11. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
-12. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
-13. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
+7. `<workspace-root>/lotus-core/contracts/trust-telemetry/portfolio-state-snapshot.telemetry.v1.json`
+8. `<workspace-root>/lotus-performance/contracts/trust-telemetry/returns-series-bundle.telemetry.v1.json`
+9. `<workspace-root>/lotus-risk/contracts/trust-telemetry/risk-metrics-report.telemetry.v1.json`
+10. `<workspace-root>/lotus-advise/contracts/trust-telemetry/advisory-proposal-lifecycle-record.telemetry.v1.json`
+11. `<workspace-root>/lotus-gateway/src/app/services/platform_capabilities_service.py`
+12. `<workspace-root>/lotus-gateway/src/app/services/performance_workspace_service.py`
+13. `<workspace-root>/lotus-gateway/src/app/services/risk_workspace_service.py`
 14. `docs/standards/Platform Observability Standards.md`
 15. `rfcs/RFC-0079-gateway-evidence-and-lineage-contract.md`
 

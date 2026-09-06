@@ -116,7 +116,7 @@ When changing skills or agent context:
 9. Run the validation proof pack.
 10. Record explicit no-wiki-change unless repo-local wiki source changed.
 
-Do not hand-edit `C:\Users\<user>\.codex\skills` as authoritative source. Use bootstrap sync after
+Do not hand-edit `<codex-home>/skills` as authoritative source. Use bootstrap sync after
 platform-owned source changes.
 
 ## Validation Proof Pack

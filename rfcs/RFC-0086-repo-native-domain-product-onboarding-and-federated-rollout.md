@@ -7,7 +7,7 @@
 | Last Updated | 2026-07-23 |
 | Owners | lotus-platform architecture; domain repository maintainers |
 | Depends On | RFC-0072; RFC-0073; RFC-0082; RFC-0084 |
-| Related Standards | `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0084-mesh-governance.md`; `C:/Users/Sandeep/projects/lotus-core/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-manage/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-advise/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md` |
+| Related Standards | `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0084-mesh-governance.md`; `<workspace-root>/lotus-core/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-manage/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-advise/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-report/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-ai/REPOSITORY-ENGINEERING-CONTEXT.md` |
 | Scope | Cross-repo |
 
 ## Executive Summary
@@ -336,15 +336,15 @@ Reviewed evidence includes:
 
 1. `platform-contracts/domain-data-products/validate_domain_data_product_contracts.py`
 2. `platform-contracts/domain-data-products/domain-product-source-manifest.v1.json`
-3. `C:/Users/Sandeep/projects/lotus-core/contracts/domain-data-products/lotus-core-products.v1.json`
-4. `C:/Users/Sandeep/projects/lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json`
-5. `C:/Users/Sandeep/projects/lotus-performance/contracts/domain-data-products/lotus-performance-consumers.v1.json`
-6. `C:/Users/Sandeep/projects/lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json`
-7. `C:/Users/Sandeep/projects/lotus-risk/contracts/domain-data-products/lotus-risk-consumers.v1.json`
-8. `C:/Users/Sandeep/projects/lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json`
-9. `C:/Users/Sandeep/projects/lotus-advise/contracts/domain-data-products/lotus-advise-consumers.v1.json`
-10. `C:/Users/Sandeep/projects/lotus-report/contracts/domain-data-products/lotus-report-consumers.v1.json`
-11. `C:/Users/Sandeep/projects/lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json`
+3. `<workspace-root>/lotus-core/contracts/domain-data-products/lotus-core-products.v1.json`
+4. `<workspace-root>/lotus-performance/contracts/domain-data-products/lotus-performance-products.v1.json`
+5. `<workspace-root>/lotus-performance/contracts/domain-data-products/lotus-performance-consumers.v1.json`
+6. `<workspace-root>/lotus-risk/contracts/domain-data-products/lotus-risk-products.v1.json`
+7. `<workspace-root>/lotus-risk/contracts/domain-data-products/lotus-risk-consumers.v1.json`
+8. `<workspace-root>/lotus-advise/contracts/domain-data-products/lotus-advise-products.v1.json`
+9. `<workspace-root>/lotus-advise/contracts/domain-data-products/lotus-advise-consumers.v1.json`
+10. `<workspace-root>/lotus-report/contracts/domain-data-products/lotus-report-consumers.v1.json`
+11. `<workspace-root>/lotus-manage/contracts/domain-data-products/lotus-manage-consumers.v1.json`
 12. `generated/domain-product-catalog.json`
 13. `generated/domain-product-dependency-graph.json`
 14. `generated/domain-product-certification-report.json`

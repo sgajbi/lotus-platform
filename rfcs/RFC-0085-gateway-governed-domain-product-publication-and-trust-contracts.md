@@ -7,7 +7,7 @@
 | Last Updated | 2026-04-19 |
 | Owners | lotus-platform architecture; lotus-gateway maintainers; lotus-workbench maintainers |
 | Depends On | RFC-0067; RFC-0071; RFC-0072; RFC-0079; RFC-0081; RFC-0082; RFC-0084 |
-| Related Standards | `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`; `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0079-gateway-evidence-and-lineage-contract.md`; `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0084-mesh-governance.md`; `C:/Users/Sandeep/projects/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`; `C:/Users/Sandeep/projects/lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`; `C:/Users/Sandeep/projects/lotus-gateway/REPOSITORY-ENGINEERING-CONTEXT.md` |
+| Related Standards | `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`; `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`; `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`; `RFC-0079-gateway-evidence-and-lineage-contract.md`; `RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md`; `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`; `RFC-0084-mesh-governance.md`; `<workspace-root>/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`; `<workspace-root>/lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`; `<workspace-root>/lotus-gateway/REPOSITORY-ENGINEERING-CONTEXT.md` |
 | Scope | Cross-repo |
 
 ## Executive Summary
@@ -94,11 +94,11 @@ consume and operationalize that foundation rather than create another parallel g
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
-2. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
-3. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
-4. `C:/Users/Sandeep/projects/lotus-gateway/tests/contract/test_platform_capabilities_contract.py`
-5. `C:/Users/Sandeep/projects/lotus-gateway/tests/integration/test_workbench_router.py`
+1. `<workspace-root>/lotus-gateway/src/app/services/platform_capabilities_service.py`
+2. `<workspace-root>/lotus-gateway/src/app/services/performance_workspace_service.py`
+3. `<workspace-root>/lotus-gateway/src/app/services/risk_workspace_service.py`
+4. `<workspace-root>/lotus-gateway/tests/contract/test_platform_capabilities_contract.py`
+5. `<workspace-root>/lotus-gateway/tests/integration/test_workbench_router.py`
 
 Assessment:
 
@@ -110,11 +110,11 @@ platform-governed publication model that binds those contracts back to registere
 
 Evidence:
 
-1. `C:/Users/Sandeep/projects/lotus-workbench/src/shell/app-switcher-nav.tsx`
-2. `C:/Users/Sandeep/projects/lotus-workbench/src/apps/performance/capabilities.ts`
-3. `C:/Users/Sandeep/projects/lotus-workbench/src/apps/performance/components/performance-evidence-mode.tsx`
-4. `C:/Users/Sandeep/projects/lotus-workbench/tests/unit/app-switcher-nav.test.tsx`
-5. `C:/Users/Sandeep/projects/lotus-workbench/tests/e2e/performance-workbench.smoke.spec.ts`
+1. `<workspace-root>/lotus-workbench/src/shell/app-switcher-nav.tsx`
+2. `<workspace-root>/lotus-workbench/src/apps/performance/capabilities.ts`
+3. `<workspace-root>/lotus-workbench/src/apps/performance/components/performance-evidence-mode.tsx`
+4. `<workspace-root>/lotus-workbench/tests/unit/app-switcher-nav.test.tsx`
+5. `<workspace-root>/lotus-workbench/tests/e2e/performance-workbench.smoke.spec.ts`
 
 Assessment:
 
@@ -369,7 +369,7 @@ families.
 
 Recommended locations:
 
-1. `C:/Users/Sandeep/projects/lotus-gateway/contracts/publication/*.json`
+1. `<workspace-root>/lotus-gateway/contracts/publication/*.json`
 2. `platform-contracts/gateway-publication.schema.json`
 3. `automation/validate_gateway_publications.py`
 
@@ -489,16 +489,16 @@ This RFC is grounded in current implementation evidence rather than blank-sheet 
 Reviewed evidence includes:
 
 1. `platform-contracts/domain-data-products/validate_domain_data_product_contracts.py`
-2. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/platform_capabilities_service.py`
-3. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/performance_workspace_service.py`
-4. `C:/Users/Sandeep/projects/lotus-gateway/src/app/services/risk_workspace_service.py`
-5. `C:/Users/Sandeep/projects/lotus-gateway/tests/contract/test_platform_capabilities_contract.py`
-6. `C:/Users/Sandeep/projects/lotus-gateway/tests/integration/test_workbench_router.py`
-7. `C:/Users/Sandeep/projects/lotus-workbench/src/shell/app-switcher-nav.tsx`
-8. `C:/Users/Sandeep/projects/lotus-workbench/src/apps/performance/capabilities.ts`
-9. `C:/Users/Sandeep/projects/lotus-workbench/src/apps/performance/components/performance-evidence-mode.tsx`
-10. `C:/Users/Sandeep/projects/lotus-workbench/tests/unit/app-switcher-nav.test.tsx`
-11. `C:/Users/Sandeep/projects/lotus-workbench/tests/e2e/performance-workbench.smoke.spec.ts`
+2. `<workspace-root>/lotus-gateway/src/app/services/platform_capabilities_service.py`
+3. `<workspace-root>/lotus-gateway/src/app/services/performance_workspace_service.py`
+4. `<workspace-root>/lotus-gateway/src/app/services/risk_workspace_service.py`
+5. `<workspace-root>/lotus-gateway/tests/contract/test_platform_capabilities_contract.py`
+6. `<workspace-root>/lotus-gateway/tests/integration/test_workbench_router.py`
+7. `<workspace-root>/lotus-workbench/src/shell/app-switcher-nav.tsx`
+8. `<workspace-root>/lotus-workbench/src/apps/performance/capabilities.ts`
+9. `<workspace-root>/lotus-workbench/src/apps/performance/components/performance-evidence-mode.tsx`
+10. `<workspace-root>/lotus-workbench/tests/unit/app-switcher-nav.test.tsx`
+11. `<workspace-root>/lotus-workbench/tests/e2e/performance-workbench.smoke.spec.ts`
 
 First-wave implementation evidence:
 
