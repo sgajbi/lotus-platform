@@ -8,12 +8,11 @@ This guide is intentionally task-first. Use it after the [Lotus Quickstart Conte
 
 Use this path for `lotus-workbench` UI, user journeys, product interaction quality, and browser-facing validation.
 
-Read in this order:
-
-1. [Lotus Quickstart Context](./LOTUS-QUICKSTART-CONTEXT.md)
-2. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-3. `lotus-workbench/REPOSITORY-ENGINEERING-CONTEXT.md`
-4. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
+Start from the common startup set. The `lotus-workbench` repository context then names the
+product contract, validation guide, and source boundaries needed for the surface. Add
+[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
+repository boundary, and use the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate a
+specific cross-repository contract.
 
 Then load only what the task needs:
 
@@ -30,11 +29,10 @@ Operating rule:
 
 Use this path for service-side behavior, contracts, domain models, validation logic, and runtime-hardening work.
 
-Read in this order:
-
-1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-2. the owning repository `REPOSITORY-ENGINEERING-CONTEXT.md`
-3. [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md)
+Start from the common startup set. The owning repository context is already part of that set. Add
+[Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) when ownership is unclear, and add
+[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
+repository boundary or changes shared engineering policy.
 
 Then load only what the task needs:
 
@@ -50,9 +48,9 @@ Operating rule:
 
 Use this path for ingress, canonical runtime, seeded data, gateway aggregation, cross-app payload consistency, and demo-readiness validation.
 
-Read in this order:
+Add these sources after the common startup set:
 
-1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
+1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) for cross-repository architecture
 2. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
 3. [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md)
 4. [lotus-context-manifest.json](./lotus-context-manifest.json)
@@ -72,10 +70,10 @@ Operating rule:
 
 Use this path for platform standards, rollout governance, RFC implementation, documentation-system work, and quality-contract changes.
 
-Read in this order:
+Add these sources after the common startup set:
 
-1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-2. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
+1. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate the specific authority
+2. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) when the change sets policy across repositories
 3. [Platform Engineering Ledger](./platform-engineering-ledger.md)
 4. [Recent Architectural Decisions Digest](./recent-architectural-decisions-digest.md)
 
@@ -97,12 +95,11 @@ Use this path when the task is specifically about repository front-door docs, re
 structure, documentation layering, or moving content cleanly between `README.md`, `wiki/`, deep
 `docs/`, and platform `context/`.
 
-Read in this order:
-
-1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-2. the target repository `REPOSITORY-ENGINEERING-CONTEXT.md`
-3. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
-4. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md)
+Start from the common startup set, which already includes the target repository context and skill
+routing map. Add [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md)
+for document responsibilities and portability. Add
+[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when documentation changes shared
+architecture or policy across repositories.
 
 Then load only what the task needs:
 

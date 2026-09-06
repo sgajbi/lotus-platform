@@ -5,10 +5,10 @@
     "reading_order":  [
                           "AGENTS.md",
                           "context/LOTUS-QUICKSTART-CONTEXT.md",
-                          "context/LOTUS-ENGINEERING-CONTEXT.md",
                           "REPOSITORY-ENGINEERING-CONTEXT.md",
-                          "context/CONTEXT-REFERENCE-MAP.md"
+                          "context/LOTUS-SKILL-ROUTING-MAP.md"
                       ],
+    "task_routes_extend_reading_order":  true,
     "context_documents":  {
                               "index":  "context/README.md",
                               "agents_operating_contract_source":  "context/AGENTS-OPERATING-CONTRACT.md",
@@ -42,17 +42,8 @@
                                             ]
                     },
     "task_routes":  {
-                        "frontend":  [
-                                         "context/LOTUS-QUICKSTART-CONTEXT.md",
-                                         "context/LOTUS-ENGINEERING-CONTEXT.md",
-                                         "REPOSITORY-ENGINEERING-CONTEXT.md",
-                                         "context/CONTEXT-REFERENCE-MAP.md"
-                                     ],
-                        "backend":  [
-                                        "context/LOTUS-ENGINEERING-CONTEXT.md",
-                                        "REPOSITORY-ENGINEERING-CONTEXT.md",
-                                        "context/CONTEXT-REFERENCE-MAP.md"
-                                    ],
+                        "frontend":  [],
+                        "backend":  [],
                         "platform_validation":  [
                                                     "context/LOTUS-ENGINEERING-CONTEXT.md",
                                                     "context/CONTEXT-REFERENCE-MAP.md",
@@ -66,17 +57,13 @@
                                               ],
                         "business_app_rfc_implementation":  [
                                                   "context/LOTUS-ENGINEERING-CONTEXT.md",
-                                                  "REPOSITORY-ENGINEERING-CONTEXT.md",
                                                   "context/CONTEXT-REFERENCE-MAP.md",
                                                   "context/PROCEDURAL-MEMORY-INDEX.md",
-                                                  "context/LOTUS-SKILL-ROUTING-MAP.md",
                                                   "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
                                                   "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md"
                                               ],
                         "bank_readiness_assessment":  [
                                                   "context/LOTUS-ENGINEERING-CONTEXT.md",
-                                                  "REPOSITORY-ENGINEERING-CONTEXT.md",
-                                                  "context/LOTUS-SKILL-ROUTING-MAP.md",
                                                   "platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md",
                                                   "platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json"
                                               ]

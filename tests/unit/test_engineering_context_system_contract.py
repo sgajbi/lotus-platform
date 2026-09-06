@@ -77,10 +77,10 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert manifest["reading_order"] == [
         "AGENTS.md",
         "context/LOTUS-QUICKSTART-CONTEXT.md",
-        "context/LOTUS-ENGINEERING-CONTEXT.md",
         "REPOSITORY-ENGINEERING-CONTEXT.md",
-        "context/CONTEXT-REFERENCE-MAP.md",
+        "context/LOTUS-SKILL-ROUTING-MAP.md",
     ]
+    assert manifest["task_routes_extend_reading_order"] is True
 
     assert manifest["context_documents"]["index"] == "context/README.md"
     assert manifest["context_documents"]["agents_operating_contract_source"] == "context/AGENTS-OPERATING-CONTRACT.md"
@@ -99,8 +99,8 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert manifest["maintenance"]["repository_local_context_pattern"] == "REPOSITORY-ENGINEERING-CONTEXT.md"
     assert "canonical commands or validation flow changes" in manifest["maintenance"]["update_triggers"]
 
-    assert manifest["task_routes"]["frontend"][0] == "context/LOTUS-QUICKSTART-CONTEXT.md"
-    assert "REPOSITORY-ENGINEERING-CONTEXT.md" in manifest["task_routes"]["backend"]
+    assert manifest["task_routes"]["frontend"] == []
+    assert manifest["task_routes"]["backend"] == []
     assert "context/lotus-context-manifest.json" in manifest["task_routes"]["platform_validation"]
 
     repositories = {entry["repository"] for entry in manifest["applications"]}
@@ -881,24 +881,66 @@ def _quickstart_task_routes() -> list[str]:
     return routes
 
 
-def test_quickstart_task_routes_do_not_precede_the_startup_set() -> None:
-    """A route that opens with the broad context contradicts the contract above it.
+def _broad_context_policy_errors(routes: list[str]) -> list[str]:
+    if len(routes) != 4:
+        return [f"expected four task routes, found {len(routes)}"]
+    frontend, backend, integration, governance = routes
+    broad_context = "[Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)"
+    broad_context_lower = broad_context.lower()
+    errors: list[str] = []
 
-    `AGENTS.md` and this file's own opening define the startup set as the
-    repository's `AGENTS.md`, this quickstart, the repository context, and the
-    skill routing map. Four task routes used to begin "Read the engineering
-    context, then ...", so the same document told a fresh reader two different
-    things about the minimal set, and following it literally loaded 1085 lines
-    of cross-repository architecture before the repository's own context.
-    """
+    condition = "only if the change crosses a repository boundary"
+    frontend_lower = frontend.lower()
+    if condition not in frontend_lower or broad_context_lower not in frontend_lower:
+        errors.append("frontend route must conditionally link broad context")
+    elif frontend_lower.index(condition) > frontend_lower.index(broad_context_lower):
+        errors.append("frontend route loads broad context before its condition")
+    if broad_context_lower in backend.lower():
+        errors.append("backend route must not load broad context by default")
+
+    reason = "This is the case the broad context exists for"
+    if reason not in integration or broad_context not in integration:
+        errors.append("integration route must explain and link broad context")
+    elif integration.index(reason) > integration.index(broad_context):
+        errors.append("integration route loads broad context before its reason")
+
+    condition = "when the change sets policy across repositories"
+    governance_lower = governance.lower()
+    if condition not in governance_lower or broad_context_lower not in governance_lower:
+        errors.append("governance route must conditionally link broad context")
+    elif governance_lower.index(condition) > governance_lower.index(broad_context_lower):
+        errors.append("governance route loads broad context before its condition")
+    return errors
+
+
+def test_quickstart_task_routes_apply_the_broad_context_policy() -> None:
+    """Local routes may reach broad context only through an explicit condition."""
     routes = _quickstart_task_routes()
 
-    assert len(routes) == 4, f"expected four task routes, found {len(routes)}"
-    for route in routes:
-        assert "engineering context, then" not in route.lower(), (
-            "this route restates a startup set that begins with the broad "
-            f"engineering context: {route}"
-        )
+    assert _broad_context_policy_errors(routes) == []
+
+    regressed_routes = routes.copy()
+    regressed_routes[1] += (
+        " Read [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) first."
+    )
+    assert _broad_context_policy_errors(regressed_routes) == [
+        "backend route must not load broad context by default"
+    ]
+
+
+def test_task_routing_guide_and_manifest_extend_the_common_startup_set() -> None:
+    """Human and machine routes must not restate an obsolete default order."""
+    guide = (CONTEXT_DIR / "TASK-ROUTING-GUIDE.md").read_text(encoding="utf-8")
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+
+    assert guide.count("common startup set") == 5
+    assert "Read in this order:" not in guide
+    assert manifest["task_routes_extend_reading_order"] is True
+    assert manifest["task_routes"]["frontend"] == []
+    assert manifest["task_routes"]["backend"] == []
+    for route in manifest["task_routes"].values():
+        assert "REPOSITORY-ENGINEERING-CONTEXT.md" not in route
+        assert "context/LOTUS-SKILL-ROUTING-MAP.md" not in route
 
 
 def test_quickstart_states_the_startup_set_once() -> None:
@@ -917,9 +959,9 @@ def test_quickstart_routes_the_broad_context_by_task_not_by_default() -> None:
     raw = quickstart.split("## Reading Paths By Task", 1)[1].split("\n## ", 1)[0]
     # Markdown wraps prose across lines, so a sentence is matched with its
     # whitespace collapsed rather than as the bytes that happen to be on disk.
-    section = " ".join(raw.split())
+    section = " ".join(raw.split()).lower()
 
-    assert "./LOTUS-ENGINEERING-CONTEXT.md" in section, (
+    assert "./lotus-engineering-context.md" in section, (
         "removing the route to the broad context would trade one defect for another"
     )
     for qualifier in ("only if the change crosses a repository boundary",

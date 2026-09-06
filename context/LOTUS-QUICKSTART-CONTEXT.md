@@ -108,9 +108,9 @@ one section defines it so the routes cannot drift away from it again.
 
 1. UI or product-surface work
    Add the `lotus-workbench` repository context, then the gateway and platform
-   validation references that context names. Read
-   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only if the change
-   crosses a repository boundary.
+   validation references that context names. Only if the change crosses a
+   repository boundary, read
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 2. Backend API or domain-service work
    Add the owning repository's context, then the standards and contract
    governance documents that the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
@@ -124,8 +124,9 @@ one section defines it so the routes cannot drift away from it again.
    validation and runbook material the integration touches.
 4. RFC, standards, or governance work
    Add the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate the RFC
-   or standard, and read [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-   when the change sets policy across repositories rather than inside one.
+   or standard. When the change sets policy across repositories rather than
+   inside one, read
+   [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 
 ## Human-Maintained Memory
 
