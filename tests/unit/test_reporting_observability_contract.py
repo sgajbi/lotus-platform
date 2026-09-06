@@ -4,6 +4,8 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 REPORT_REPO = ROOT.parent / "lotus-report"
@@ -12,14 +14,29 @@ ARCHIVE_REPO = ROOT.parent / "lotus-archive"
 DASHBOARD_PATH = (
     ROOT / "platform-stack" / "grafana" / "dashboards" / "reporting-observability-overview.json"
 )
+# Resolved at import time, so an absent sibling checkout must skip rather than
+# raise: a bare next() over an empty generator raises StopIteration during
+# collection, and pytest treats a collection error as fatal for the whole run.
+# One optional sibling missing then hides all of tests/unit, which is what a
+# fresh clone looks like before any sibling is checked out.
 RENDER_METRICS_PATH = next(
-    path
-    for path in (
-        RENDER_REPO / "src" / "app" / "observability" / "render_metrics.py",
-        RENDER_REPO / "src" / "app" / "render_metrics.py",
-    )
-    if path.exists()
+    (
+        path
+        for path in (
+            RENDER_REPO / "src" / "app" / "observability" / "render_metrics.py",
+            RENDER_REPO / "src" / "app" / "render_metrics.py",
+        )
+        if path.exists()
+    ),
+    None,
 )
+
+if RENDER_METRICS_PATH is None:
+    pytest.skip(
+        "lotus-render is not checked out beside lotus-platform; this cross-repo "
+        "metric contract is verified where both checkouts are present.",
+        allow_module_level=True,
+    )
 
 
 def _load_json(relative_path: str) -> dict:
