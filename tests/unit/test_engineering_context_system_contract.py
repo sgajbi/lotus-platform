@@ -1068,6 +1068,53 @@ def test_reference_map_routes_without_restarting_context_discovery() -> None:
     assert "LOTUS-ENGINEERING-CONTEXT.md" not in introduction
 
 
+def _delivery_skill_context_policy_errors(skill: str, condition: str) -> list[str]:
+    normalized = " ".join(skill.split()).lower()
+    engineering_context = "`lotus-platform/context/lotus-engineering-context.md`"
+    expected_reference = f"{engineering_context} only when {condition}"
+    expected_action = f"load the central engineering context only when {condition}"
+    errors: list[str] = []
+    if "the common startup set already selected before this skill" not in normalized:
+        errors.append("delivery skill must inherit the common startup set")
+    if expected_reference not in normalized:
+        errors.append("delivery skill reference must conditionally route broad context")
+    if expected_action not in normalized:
+        errors.append("delivery skill action must conditionally load broad context")
+    return errors
+
+
+def test_delivery_skills_preserve_conditional_broad_context_depth() -> None:
+    """Selecting a delivery skill must not reopen broad context for a local task."""
+    cases = {
+        "lotus-frontend-delivery-governance": "the change crosses a repository boundary",
+        "lotus-backend-delivery-governance": (
+            "the change crosses a repository boundary or changes shared engineering policy"
+        ),
+    }
+    for skill_name, condition in cases.items():
+        skill = (ROOT / "codex" / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
+        normalized_skill = " ".join(skill.split())
+        assert _delivery_skill_context_policy_errors(normalized_skill, condition) == []
+
+        unconditional_reference = normalized_skill.replace(
+            f"only when {condition}",
+            "for every task",
+            1,
+        )
+        assert _delivery_skill_context_policy_errors(unconditional_reference, condition) == [
+            "delivery skill reference must conditionally route broad context"
+        ]
+
+        unconditional_action = normalized_skill.replace(
+            f"load the central engineering context only when {condition}",
+            "load the central engineering context for every task",
+            1,
+        )
+        assert _delivery_skill_context_policy_errors(unconditional_action, condition) == [
+            "delivery skill action must conditionally load broad context"
+        ]
+
+
 def test_quickstart_states_the_startup_set_once() -> None:
     """One section defines it; the others reference it, so they cannot disagree."""
     quickstart = (CONTEXT_DIR / "LOTUS-QUICKSTART-CONTEXT.md").read_text(encoding="utf-8")
