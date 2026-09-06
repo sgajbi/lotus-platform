@@ -307,6 +307,11 @@ def _count_pytest_tests() -> dict[str, object]:
             collected = int(token)
             break
     result["collected_tests"] = collected
+    if result["returncode"] == 0:
+        # Pytest appends wall-clock duration to successful collection output.
+        # Duration is not a quality signal and made a no-change regeneration
+        # dirty the repository on every run.
+        result["summary"] = f"{collected} tests collected"
     return result
 
 
