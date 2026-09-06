@@ -146,9 +146,22 @@ def _step_run(step: dict[str, Any]) -> str:
 # Recognising only the first rejected a dispatcher that had moved to the
 # second, which is the hazard in asserting a command's spelling rather than
 # what it enumerates: the check reports a defect when a repository improves.
+# Each form carries its own bound, and the bound is only trustworthy when it
+# comes from the merge event. A hard-coded `COMMIT_COUNT` enumerates too few
+# revisions; a `BASE_SHA` from anywhere else enumerates unrelated ones. Either
+# way commits reach main without an individual releasability verdict, so the
+# pattern and the source of its bound are checked together rather than apart.
 _REVISION_ENUMERATIONS = (
-    r'revisions="\$\(git rev-list -n "\$COMMIT_COUNT" "\$MERGE_COMMIT_SHA"(?:\s*\|\s*tac)?\)"',
-    r'revisions="\$\(git rev-list --reverse "\$BASE_SHA\.\.\$MERGE_COMMIT_SHA"\)"',
+    (
+        r'revisions="\$\(git rev-list -n "\$COMMIT_COUNT" "\$MERGE_COMMIT_SHA"(?:\s*\|\s*tac)?\)"',
+        "COMMIT_COUNT",
+        "github.event.pull_request.commits",
+    ),
+    (
+        r'revisions="\$\(git rev-list --reverse "\$BASE_SHA\.\.\$MERGE_COMMIT_SHA"\)"',
+        "BASE_SHA",
+        "github.event.pull_request.base.sha",
+    ),
 )
 
 
@@ -156,7 +169,9 @@ def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
     merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
     run = _step_run(step)
     enumerates = any(
-        re.search(pattern, run) is not None for pattern in _REVISION_ENUMERATIONS
+        re.search(pattern, run) is not None
+        and expected_source in _step_env_value(step, bound)
+        for pattern, bound, expected_source in _REVISION_ENUMERATIONS
     )
     return (
         "github.event.pull_request.merge_commit_sha" in merge_commit_sha
