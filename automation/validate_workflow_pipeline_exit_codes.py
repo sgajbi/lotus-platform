@@ -82,6 +82,9 @@ _STEPS_KEY = re.compile(r"^\s*steps:\s*$")
 _NAME = re.compile(r"(?:^|-\s+)name:\s*(?P<name>.+?)\s*$")
 _RUN_KEY = re.compile(r"^\s*(?:-\s+)?run:\s*(?P<inline>.*)$")
 _PIPEFAIL_OFF = re.compile(r"^\s*set\s+(?:[-+]\w+\s+)*\+\w*o\s+pipefail\b")
+_FUNCTION_DEF = re.compile(
+    r"^\s*(?:function\s+)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\(\)\s*\{?"
+)
 _PIPEFAIL_ON = re.compile(r"^\s*set\s+(?:[-+]\w+\s+)*-\w*o\s+pipefail\b")
 _QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
 _PIPESTATUS_CAPTURE = re.compile(
@@ -289,6 +292,13 @@ def unguarded_pipelines(step_body: str) -> list[str]:
     unconditional one — at the top level of the block — is honoured.
     """
     shell = _run_lines(step_body)
+    # A `set -o pipefail` inside a function body or a `( subshell )` does not
+    # change the outer shell: the function's body has not run yet, and the
+    # subshell's options die with it. Only a call to a function that enables it,
+    # or a top-level `set`, establishes the outer state.
+    function_bodies = _function_bodies(shell)
+    enabling_functions = _pipefail_enabling_functions(shell)
+    function_lines = {id(line) for body in function_bodies.values() for line in body}
     pipefail = False
     depth = 0
     offenders: list[str] = []
@@ -296,6 +306,9 @@ def unguarded_pipelines(step_body: str) -> list[str]:
     for index, line in enumerate(shell):
         probe = _QUOTED.sub("", line)
         if probe.strip().startswith("#"):
+            continue
+        if id(line) in function_lines:
+            # Inside a function definition: not executed here.
             continue
 
         segments = re.split(r"&&|\|\||;", probe)
@@ -334,6 +347,15 @@ def unguarded_pipelines(step_body: str) -> list[str]:
                     depth = max(0, depth - 1)
 
             command = _strip_control_words(segment)
+            if (
+                command.split()[:1]
+                and command.split()[0] in enabling_functions
+                and depth == 0
+            ):
+                pipefail = True
+                continue
+            if _is_subshell(segment):
+                continue
             if _PIPEFAIL_OFF.match(command):
                 # A disable inside a branch may well execute, so it always
                 # invalidates the guard; only enabling requires certainty.
@@ -363,14 +385,15 @@ def _status_is_propagated(shell: list[str], index: int) -> bool:
     it must start a command segment rather than merely appear in the text.
     """
     following = _strip_comment(shell[index + 1]) if index + 1 < len(shell) else ""
+    # PIPESTATUS describes the most recently executed pipeline, so any command
+    # run before the capture replaces it. The capture must therefore be the
+    # FIRST command on the next line, not merely present somewhere on it.
+    first_command = _unconditional_segments(following)[0] if following.strip() else ""
 
-    if any(
-        _PIPESTATUS_DIRECT.match(segment.strip())
-        for segment in _unconditional_segments(following)
-    ):
+    if _PIPESTATUS_DIRECT.match(first_command.strip()):
         return True
 
-    capture = _PIPESTATUS_CAPTURE.search(following)
+    capture = _PIPESTATUS_CAPTURE.match(first_command.strip())
     if capture is None:
         return False
 
@@ -426,6 +449,59 @@ def _unconditional_segments(line: str) -> list[str]:
     part before the first ``&&`` or ``||`` is certain to run.
     """
     return [re.split(r"&&|\|\|", part)[0] for part in line.split(";")]
+
+
+def _function_bodies(shell: list[str]) -> dict[str, list[str]]:
+    """Map each `name() { ... }` to the lines of its body.
+
+    A function body does not execute where it is written, so a `set -o
+    pipefail` inside one establishes nothing until the function is called.
+    """
+    bodies: dict[str, list[str]] = {}
+    current: str | None = None
+    depth = 0
+    for line in shell:
+        if current is None:
+            match = _FUNCTION_DEF.match(line)
+            if match:
+                current = match.group("name")
+                bodies[current] = []
+                depth = line.count("{") - line.count("}")
+                if depth <= 0:
+                    bodies[current].append(line)
+                    current = None
+                else:
+                    bodies[current].append(line)
+            continue
+        bodies[current].append(line)
+        depth += line.count("{") - line.count("}")
+        if depth <= 0:
+            current = None
+    return bodies
+
+
+def _pipefail_enabling_functions(shell: list[str]) -> set[str]:
+    """Functions whose body unconditionally enables pipefail."""
+    enabling: set[str] = set()
+    for name, body in _function_bodies(shell).items():
+        for line in body:
+            # `name() { set -o pipefail; }` puts the definition and the body on
+            # one line; the body starts after the opening brace.
+            text = (
+                line.split("{", 1)[1]
+                if _FUNCTION_DEF.match(line) and "{" in line
+                else line
+            )
+            for segment in re.split(r"&&|\|\||;", text):
+                candidate = _strip_control_words(segment.strip().lstrip("{}").strip())
+                if _PIPEFAIL_ON.match(candidate):
+                    enabling.add(name)
+    return enabling
+
+
+def _is_subshell(segment: str) -> bool:
+    """True when the segment runs inside `( ... )`, whose options do not escape."""
+    return segment.strip().startswith("(")
 
 
 def _strip_comment(line: str) -> str:

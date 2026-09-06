@@ -425,3 +425,53 @@ def test_conditional_exit_is_not_propagation() -> None:
         "          true\n"
     )
     assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_pipefail_in_an_uncalled_function_does_not_guard() -> None:
+    """A function body does not run until called; its `set` never took effect."""
+    body = (
+        "run: |\n"
+        "          enable_strict() { set -o pipefail; }\n"
+        "          gate.py | tee log\n"
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_pipefail_in_a_subshell_does_not_escape_it() -> None:
+    """`( set -o pipefail )` changes the subshell only; the outer shell is unchanged."""
+    body = "run: |\n          ( set -o pipefail )\n          gate.py | tee log\n"
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_pipefail_in_a_called_function_still_guards() -> None:
+    """The scope rule must not reject a function that actually runs."""
+    body = (
+        "run: |\n"
+        "          enable_strict() { set -o pipefail; }\n"
+        "          enable_strict\n"
+        "          gate.py | tee log\n"
+    )
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_pipestatus_clobbered_before_capture_does_not_guard() -> None:
+    """PIPESTATUS describes the last pipeline; any command in between replaces it."""
+    body = (
+        "run: |\n"
+        "          gate.py | tee log\n"
+        "          echo done; s=${PIPESTATUS[0]}\n"
+        '          exit "$s"\n'
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"], (
+        "echo runs first, so PIPESTATUS reports echo's status, not the gate's"
+    )
+
+
+def test_pipestatus_captured_first_on_the_line_still_guards() -> None:
+    body = (
+        "run: |\n"
+        "          gate.py | tee log\n"
+        "          s=${PIPESTATUS[0]}; echo done\n"
+        '          exit "$s"\n'
+    )
+    assert validator.unguarded_pipelines(body) == []
