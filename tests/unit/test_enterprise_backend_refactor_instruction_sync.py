@@ -3,8 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 
-from context_reachability import subject_is_reachable
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -28,13 +26,10 @@ def test_enterprise_backend_refactor_instruction_sync_uses_platform_source() -> 
 
 def test_enterprise_backend_refactor_sync_is_documented_for_operators() -> None:
     automation_readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    repo_context = (ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
 
     assert "Sync-EnterpriseBackendRefactoringInstructions.ps1 -CheckOnly" in automation_readme
-    # Reachable rather than inlined: automation/README.md owns operator
-    # procedure, and the repository context routes to it through the reference
-    # map. Requiring the context itself to name the script would put a second
-    # copy of that ownership in the file whose job is to point at the first.
-    assert subject_is_reachable("Sync-EnterpriseBackendRefactoringInstructions.ps1")
+    assert "Sync-EnterpriseBackendRefactoringInstructions.ps1" in repo_context
 
 
 def test_enterprise_backend_refactor_instructions_pin_proof_artifact_guardrails() -> None:
