@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-06T15:25:14Z`
+Generated: `2026-09-06T15:56:45Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `909`
-- Total source lines: `368692`
+- Total source lines: `369739`
 - Python files: `239`
 - PowerShell files: `69`
 - Markdown files: `414`
@@ -39,20 +39,20 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3204`
+- Python functions: `3259`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
-| automation/validate_workflow_pipeline_exit_codes.py | unguarded_pipelines | 282 | 27 | 96 |
+| automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 366 | 51 | 199 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 37 | 20 | 69 |
 | automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
-| automation/validate_workflow_pipeline_exit_codes.py | iter_steps | 120 | 18 | 63 |
+| automation/validate_workflow_pipeline_exit_codes.py | iter_steps | 127 | 18 | 63 |
 | codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py | render_results | 466 | 18 | 43 |
 | platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | _validate_dependency_failure_posture_conditions | 1319 | 17 | 66 |
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1309`
+- Unit tests collected: `1373`
 - Collection command return code: `0`
-- Collection summary: `1309 tests collected`
+- Collection summary: `1373 tests collected`
 
 ## Security Baseline
 
