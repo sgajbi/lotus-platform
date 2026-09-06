@@ -72,6 +72,19 @@ Before substantial work:
 If the inherited cwd conflicts with the named target repo, announce the correction briefly and keep
 all subsequent repo-local commands anchored to the target repo.
 
+Assume another agent may be working in the same checkout, and that every session commits under one
+identity:
+
+1. verify the active branch in the same command that commits, so a working directory that silently
+   did not change is caught at write time instead of in history,
+2. stage explicit paths; never `git add -A`, and never `git stash` in a shared checkout, because
+   both take another session's in-flight work with them and leave no record of where it went,
+3. establish provenance from the pull request and branch, never from the commit author, which is
+   identical across sessions and therefore cannot attribute anything,
+4. before reverting, reconstruct why the change was made and record the reason in the revert; a
+   bare "This reverts commit …" leaves the next reader unable to tell abandoned from deferred, and
+   a revert aimed at one file takes every other file in that commit with it.
+
 ## Mandatory Operating Rules
 
 Always:
@@ -110,7 +123,15 @@ Always:
 4. compare synchronized files by committed blob SHA, not working-tree bytes,
 5. post issue evidence before closing and verify the comment exists,
 6. keep workflow-changing PRs single-commit unless the repository's per-revision dispatcher is
-   proven to evaluate every intermediate workflow tree.
+   proven to evaluate every intermediate workflow tree,
+7. treat a reported number as evidence only when the exit status agrees with it; a count printed by
+   a command that also failed describes a partial run, and reads as a healthy one,
+8. classify each pattern match as a real defect before rewriting it, and state what the
+   classification found; a match inside a code fence is working content, and a reference that
+   merely wrapped onto a new line is corrupted rather than repaired by a bulk fix,
+9. check that the premise of a guard is true before hardening it; refining how a check behaves
+   answers a narrower question than whether the thing it detects is real, and the source that
+   defines the behaviour usually settles it in one query.
 
 The evidence and failure cases behind these rules live in the
 `Agentic Coding Quality Evaluation Loop` linked from `PROCEDURAL-MEMORY-INDEX.md`; they do not
@@ -250,6 +271,20 @@ If the change is repository-local:
 If both changed:
 
 1. update both in the same slice.
+
+Documented steps must run on a machine that is not yours:
+
+1. state the working directory a command block assumes, then write its paths relative to that
+   directory; "make paths relative" is unsafe on its own, because a bare relative path resolves
+   against whatever directory the reader's shell is in, which is often another repository,
+2. give each operating system its own runnable block; a variant commented out beside another one is
+   not a documented command, since `#` opens a comment in both bash and PowerShell and the reader
+   who needs that line silently skips it,
+3. write cross-repository paths as `<workspace-root>/<repo>/…`, and carry no personal usernames,
+   drive letters, home directories, or assumptions about how a workspace is laid out,
+4. verify a documented setup path by following it in a fresh checkout, not by reading it; a suite
+   that passes only because sibling repositories happen to sit beside it is a machine dependency
+   that no amount of review will reveal.
 
 ## Cross-Links
 
