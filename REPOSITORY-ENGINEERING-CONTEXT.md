@@ -84,6 +84,9 @@ marketing truth, or engineering authority.
 8. For long-running work, designate one active branch/worktree owner and record exact revision and
    task identity as required by the
    [agent task ledger](./context/playbooks/AGENT-CONTEXT-AND-TASK-LEDGER.md).
+9. Canonical front-office QA also includes `lotus-idea` by default and consumes
+   repo-native `lotus-idea` declarations; do not make that evidence path opt-in or replace source
+   ownership in Platform.
 
 ## Task Routes
 
