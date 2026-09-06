@@ -52,7 +52,6 @@
                                                     "context/lotus-context-manifest.json"
                                                 ],
                         "standards_and_rfc":  [
-                                                  "context/LOTUS-ENGINEERING-CONTEXT.md",
                                                   "context/CONTEXT-REFERENCE-MAP.md",
                                                   "context/platform-engineering-ledger.md",
                                                   "context/recent-architectural-decisions-digest.md"

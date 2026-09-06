@@ -104,6 +104,11 @@ def test_lotus_context_manifest_has_full_ecosystem_inventory_and_required_regist
     assert manifest["task_routes"]["backend"] == [
         "context/CONTEXT-REFERENCE-MAP.md"
     ]
+    assert manifest["task_routes"]["standards_and_rfc"] == [
+        "context/CONTEXT-REFERENCE-MAP.md",
+        "context/platform-engineering-ledger.md",
+        "context/recent-architectural-decisions-digest.md",
+    ]
     assert "context/lotus-context-manifest.json" in manifest["task_routes"]["platform_validation"]
 
     repositories = {entry["repository"] for entry in manifest["applications"]}
