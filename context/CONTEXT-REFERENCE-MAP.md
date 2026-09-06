@@ -431,59 +431,68 @@ Use [rfcs/README.md](../rfcs/README.md) for the full RFC inventory.
 
 ## Task Routing Guidance
 
+These routes list what a task **adds** to the startup set already loaded before this map is opened.
+They do not repeat it, and they do not restart discovery. `LOTUS-ENGINEERING-CONTEXT.md` appears
+only where a task genuinely needs cross-repository architecture, on the same condition the
+quickstart and `lotus-context-manifest.json` use.
+
 ### For frontend and product-surface work
 
-Read:
+Add:
 
-1. the quickstart context,
-2. the engineering context,
-3. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
-4. the `lotus-workbench` repository context,
-5. RFC-0070 and RFC-0072 where delivery or UI-platform governance matters,
-6. the platform validation references when end-to-end proof is required.
+1. the `lotus-workbench` repository context,
+2. RFC-0070 and RFC-0072 where delivery or UI-platform governance matters,
+3. the platform validation references when end-to-end proof is required,
+4. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
+   repository boundary or changes shared engineering policy.
 
 ### For backend API or domain-service work
 
-Read:
+Add:
 
-1. the engineering context,
-2. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
-3. the owning repo context,
-4. RFC-0067 and related vocabulary or contract standards,
-5. RFC-0072 for CI and validation expectations.
+1. the owning repo context,
+2. RFC-0067 and related vocabulary or contract standards,
+3. RFC-0072 for CI and validation expectations,
+4. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
+   repository boundary or changes shared engineering policy.
 
 ### For cross-app runtime and validation work
 
-Read:
+Add:
 
-1. the engineering context,
-2. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
-3. RFC-0071,
-4. RFC-0072,
-5. the local development and ingress runbooks,
-6. the manifest and [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) to identify participating services and canonical paths.
+1. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) — this is the case it exists for,
+2. RFC-0071,
+3. RFC-0072,
+4. the local development and ingress runbooks,
+5. the manifest and [Ecosystem Registries](./ECOSYSTEM-REGISTRIES.md) to identify participating
+   services and canonical paths.
 
 ### For platform standards and governance work
 
-Read:
+Add:
 
-1. the engineering context,
-2. the [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
-3. RFC-0072,
-4. RFC-0073,
-5. the relevant standard documents under `platform-standards/`,
-6. the platform engineering ledger and recent architectural decisions digest.
+1. RFC-0072,
+2. RFC-0073,
+3. the relevant standard documents under `platform-standards/`,
+4. the platform engineering ledger and recent architectural decisions digest,
+5. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) when the change sets policy across
+   repositories rather than inside one.
 
 ### For README, wiki, and documentation-system work
 
-Read:
+Add:
 
-1. the engineering context,
-2. the target repo context,
-3. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md),
-4. [Task Routing Guide](./TASK-ROUTING-GUIDE.md),
-5. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md) when a documentation skill boundary matters,
-6. only the target repo `README.md`, `wiki/`, and deeper `docs/` pages needed to keep the docs truthful.
+1. the target repo context,
+2. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md),
+3. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md) when a documentation skill boundary
+   matters,
+4. only the target repo `README.md`, `wiki/`, and deeper `docs/` pages needed to keep the docs
+   truthful,
+5. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the documentation change
+   crosses a repository boundary or changes shared engineering policy.
+
+Use the [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when ownership or the correct context set is
+unclear; it is a fallback rather than a step in every route.
 
 ## Runbooks And Operations
 
