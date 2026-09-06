@@ -14,12 +14,17 @@ from this repository's root — a claim about something specific.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE = REPO_ROOT.parent
 CONTEXT = REPO_ROOT / "context"
+REGISTERED_REPOSITORIES = {
+    entry["name"]
+    for entry in json.loads((REPO_ROOT / "automation" / "repos.json").read_text(encoding="utf-8"))
+}
 
 # Backtick-quoted paths ending in a source or document suffix.
 _REFERENCE = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./-]*\.(?:md|py|ps1|json|yml|yaml))`")
@@ -36,7 +41,7 @@ def _is_anchored(reference: str) -> bool:
 def _resolves(reference: str) -> bool:
     if reference.startswith("lotus-"):
         repository = reference.split("/", 1)[0]
-        if not (WORKSPACE / repository).exists():
+        if repository in REGISTERED_REPOSITORIES and not (WORKSPACE / repository).exists():
             return True
     return any(
         candidate.exists()
@@ -94,3 +99,4 @@ def test_external_reference_is_optional_when_sibling_repository_is_absent(
     monkeypatch.setitem(globals(), "WORKSPACE", tmp_path)
 
     assert _resolves("lotus-workbench/docs/operations/runtime.md")
+    assert not _resolves("lotus-wokrbench/docs/operations/runtime.md")
