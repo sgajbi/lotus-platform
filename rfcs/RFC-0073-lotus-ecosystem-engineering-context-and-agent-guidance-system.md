@@ -222,7 +222,7 @@ Distribution model:
 1. the canonical authored contract lives in `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`,
 2. every Lotus repository should contain a repo-root `AGENTS.md` synchronized from that governed
    source,
-3. deployed local runtime copies such as `C:\Users\Sandeep\.codex\AGENTS.md` are valid execution
+3. deployed local runtime copies such as `<codex-home>/AGENTS.md` are valid execution
    targets but do not replace repo-root bootstrap visibility,
 4. repository-specific truth belongs in `REPOSITORY-ENGINEERING-CONTEXT.md`, not in divergent
    per-repo `AGENTS.md` policy bodies,

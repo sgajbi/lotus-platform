@@ -1116,7 +1116,7 @@ Validation evidence:
    postgresql://lotus_report:lotus_report@localhost:5439/lotus_report` produced
    `{"batch_status": "running", "dispatched_count": 1, "job_count": 1}`.
 6. `powershell -ExecutionPolicy Bypass -File
-   C:\Users\Sandeep\projects\lotus-workbench\scripts\live\Start-LotusFrontOfficeCanonical.ps1
+   <workspace-root>/lotus-workbench/scripts/live/Start-LotusFrontOfficeCanonical.ps1
    -CleanCoreState -BuildImages -RunValidation` passed against the canonical Docker front-office
    topology with `lotus-report` backed by `lotus-report-postgres`.
 7. `make security-audit` passed with no known vulnerabilities.

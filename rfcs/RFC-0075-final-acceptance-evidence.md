@@ -77,21 +77,21 @@ Canonical validation with caller-provided screenshot directory:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+  -ScreenshotDirectory <temp-dir>/lotus-risk-module-shots
 ```
 
 Result:
 
 ```text
 Live canonical Workbench validation passed for PB_SG_GLOBAL_BAL_001.
-Wrote C:\Users\Sandeep\projects\lotus-platform\output\front-office-qa\canonical-front-office-qa-20260411-190254.json
-Wrote C:\Users\Sandeep\projects\lotus-platform\output\front-office-qa\canonical-front-office-qa-20260411-190254.md
+Wrote <workspace-root>/lotus-platform/output/front-office-qa/canonical-front-office-qa-20260411-190254.json
+Wrote <workspace-root>/lotus-platform/output/front-office-qa/canonical-front-office-qa-20260411-190254.md
 ```
 
 Screenshot pack:
 
 ```text
-C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+<temp-dir>/lotus-risk-module-shots
 ```
 
 The pack contains `SHOT-INDEX.md`, `live-validation-summary.json`, and seven validated product

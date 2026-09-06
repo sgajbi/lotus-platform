@@ -20,10 +20,10 @@
   - `RFC-0067-centralized-api-vocabulary-inventory-and-openapi-documentation-governance.md`
   - `RFC-0071-centralized-environment-scoped-service-addressing-and-ingress-governance.md`
   - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
-  - `C:/Users/Sandeep/projects/lotus-core/docs/RFCs/RFC 035 - Lotus Core Responsibility and Integration Contract (lotus-performance and lotus-manage).md`
-  - `C:/Users/Sandeep/projects/lotus-core/docs/RFCs/RFC 049 - Lotus Core Snapshot Analytics De-Ownership and lotus-performance Input Contract.md`
-  - `C:/Users/Sandeep/projects/lotus-core/docs/RFCs/RFC 063 - Stateful Analytics Input Contracts for lotus-performance APIs.md`
-  - `C:/Users/Sandeep/projects/lotus-core/docs/RFCs/RFC 081 - Lotus Core Microservice Boundary Optimization and Event-Orchestration Hardening.md`
+  - `<workspace-root>/lotus-core/docs/RFCs/RFC 035 - Lotus Core Responsibility and Integration Contract (lotus-performance and lotus-manage).md`
+  - `<workspace-root>/lotus-core/docs/RFCs/RFC 049 - Lotus Core Snapshot Analytics De-Ownership and lotus-performance Input Contract.md`
+  - `<workspace-root>/lotus-core/docs/RFCs/RFC 063 - Stateful Analytics Input Contracts for lotus-performance APIs.md`
+  - `<workspace-root>/lotus-core/docs/RFCs/RFC 081 - Lotus Core Microservice Boundary Optimization and Event-Orchestration Hardening.md`
 
 ## Summary
 
@@ -238,13 +238,13 @@ Observed current evidence:
 
 Representative evidence paths:
 
-1. `C:/Users/Sandeep/projects/lotus-core/README.md`
-2. `C:/Users/Sandeep/projects/lotus-core/src/services/query_control_plane_service/app/routers/analytics_inputs.py`
-3. `C:/Users/Sandeep/projects/lotus-core/src/services/query_control_plane_service/app/routers/integration.py`
-4. `C:/Users/Sandeep/projects/lotus-performance/app/services/core_integration_service.py`
-5. `C:/Users/Sandeep/projects/lotus-performance/app/services/stateful_input_service.py`
-6. `C:/Users/Sandeep/projects/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`
-7. `C:/Users/Sandeep/projects/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`
+1. `<workspace-root>/lotus-core/README.md`
+2. `<workspace-root>/lotus-core/src/services/query_control_plane_service/app/routers/analytics_inputs.py`
+3. `<workspace-root>/lotus-core/src/services/query_control_plane_service/app/routers/integration.py`
+4. `<workspace-root>/lotus-performance/app/services/core_integration_service.py`
+5. `<workspace-root>/lotus-performance/app/services/stateful_input_service.py`
+6. `<workspace-root>/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`
+7. `<workspace-root>/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`
 
 ### What is already directionally correct
 
@@ -848,7 +848,7 @@ The following checklist is the minimum execution baseline for early RFC-0082 sli
 
 Current Slice 1 artifact:
 
-1. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
+1. `<workspace-root>/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
 
 Current Slice 1 classification result:
 
@@ -868,10 +868,10 @@ Current Slice 1 classification result:
 
 Current Slice 2 documentation normalization artifacts:
 
-1. `C:/Users/Sandeep/projects/lotus-core/README.md`
-2. `C:/Users/Sandeep/projects/lotus-core/REPOSITORY-ENGINEERING-CONTEXT.md`
-3. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/lotus-core-target-architecture.md`
-4. `C:/Users/Sandeep/projects/lotus-core/docs/architecture/QUERY-SERVICE-AND-CONTROL-PLANE-BOUNDARY.md`
+1. `<workspace-root>/lotus-core/README.md`
+2. `<workspace-root>/lotus-core/REPOSITORY-ENGINEERING-CONTEXT.md`
+3. `<workspace-root>/lotus-core/docs/architecture/lotus-core-target-architecture.md`
+4. `<workspace-root>/lotus-core/docs/architecture/QUERY-SERVICE-AND-CONTROL-PLANE-BOUNDARY.md`
 
 Current Slice 2 result:
 
@@ -888,16 +888,16 @@ Current Slice 2 result:
 
 Current Slice 3 consumer-conformance artifacts:
 
-1. `C:/Users/Sandeep/projects/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
-2. `C:/Users/Sandeep/projects/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`
-3. `C:/Users/Sandeep/projects/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
-4. `C:/Users/Sandeep/projects/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`
-5. `C:/Users/Sandeep/projects/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`
-6. `C:/Users/Sandeep/projects/lotus-gateway/REPOSITORY-ENGINEERING-CONTEXT.md`
-7. `C:/Users/Sandeep/projects/lotus-advise/docs/architecture/RFC-0082-upstream-contract-family-map.md`
-8. `C:/Users/Sandeep/projects/lotus-advise/REPOSITORY-ENGINEERING-CONTEXT.md`
-9. `C:/Users/Sandeep/projects/lotus-manage/docs/standards/RFC-0082-upstream-contract-family-map.md`
-10. `C:/Users/Sandeep/projects/lotus-manage/REPOSITORY-ENGINEERING-CONTEXT.md`
+1. `<workspace-root>/lotus-performance/docs/technical/RFC-0082-upstream-contract-family-map.md`
+2. `<workspace-root>/lotus-performance/REPOSITORY-ENGINEERING-CONTEXT.md`
+3. `<workspace-root>/lotus-risk/docs/domain-apis/RFC-0082-upstream-contract-family-map.md`
+4. `<workspace-root>/lotus-risk/REPOSITORY-ENGINEERING-CONTEXT.md`
+5. `<workspace-root>/lotus-gateway/docs/standards/RFC-0082-upstream-contract-family-map.md`
+6. `<workspace-root>/lotus-gateway/REPOSITORY-ENGINEERING-CONTEXT.md`
+7. `<workspace-root>/lotus-advise/docs/architecture/RFC-0082-upstream-contract-family-map.md`
+8. `<workspace-root>/lotus-advise/REPOSITORY-ENGINEERING-CONTEXT.md`
+9. `<workspace-root>/lotus-manage/docs/standards/RFC-0082-upstream-contract-family-map.md`
+10. `<workspace-root>/lotus-manage/REPOSITORY-ENGINEERING-CONTEXT.md`
 
 Current Slice 3 result:
 
@@ -917,10 +917,10 @@ Current Slice 3 result:
 
 Current Slice 4 retrieval-performance artifacts:
 
-1. `C:/Users/Sandeep/projects/lotus-performance/docs/technical/RFC-0082-retrieval-performance-hardening.md`
-2. `C:/Users/Sandeep/projects/lotus-performance/docs/technical/performance_characterization.md`
-3. `C:/Users/Sandeep/projects/lotus-performance/tests/benchmarks/test_stateful_input_performance.py`
-4. `C:/Users/Sandeep/projects/lotus-performance/tests/benchmarks/test_returns_series_orchestration_performance.py`
+1. `<workspace-root>/lotus-performance/docs/technical/RFC-0082-retrieval-performance-hardening.md`
+2. `<workspace-root>/lotus-performance/docs/technical/performance_characterization.md`
+3. `<workspace-root>/lotus-performance/tests/benchmarks/test_stateful_input_performance.py`
+4. `<workspace-root>/lotus-performance/tests/benchmarks/test_returns_series_orchestration_performance.py`
 
 Current Slice 4 result:
 

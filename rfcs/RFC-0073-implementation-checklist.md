@@ -58,7 +58,7 @@ Implemented:
 1. add synchronized repo-root `AGENTS.md` to every Lotus repository,
 2. extend `automation/Sync-AgentOperatingContract.ps1` so it can target repo roots as well as the
    deployed local runtime copy,
-3. extend drift visibility so repo-root copies are checked in addition to `C:\Users\Sandeep\.codex\AGENTS.md`,
+3. extend drift visibility so repo-root copies are checked in addition to `<codex-home>/AGENTS.md`,
 4. add or update contract tests for repo-root presence and synchronization.
 
 Scope guardrails:

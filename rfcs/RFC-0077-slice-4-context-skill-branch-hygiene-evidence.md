@@ -15,8 +15,8 @@ Updated artifacts:
 
 1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
 2. `lotus-platform/docs/onboarding/LOTUS-AGENT-RAMP-UP.md`
-3. `C:/Users/Sandeep/.codex/skills/lotus-qa-platform-validator/SKILL.md`
-4. `C:/Users/Sandeep/.codex/skills/lotus-frontend-delivery-governance/SKILL.md`
+3. `<codex-home>/skills/lotus-qa-platform-validator/SKILL.md`
+4. `<codex-home>/skills/lotus-frontend-delivery-governance/SKILL.md`
 5. `lotus-platform/rfcs/RFC-0077-implementation-checklist.md`
 6. `lotus-platform/rfcs/RFC-0077-slice-4-context-skill-branch-hygiene-evidence.md`
 

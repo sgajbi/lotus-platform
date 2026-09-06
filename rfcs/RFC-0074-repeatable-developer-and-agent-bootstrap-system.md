@@ -129,8 +129,8 @@ The source-of-truth model is:
 | --- | --- | --- | --- |
 | Platform context | `lotus-platform/context/` | new chat context loading | validated by context-system validator |
 | Repository context | `<repo>/REPOSITORY-ENGINEERING-CONTEXT.md` | target repo task execution | validated by repository context contract where available |
-| Agent operating contract | `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md` | `C:\Users\<user>\.codex\AGENTS.md` | synchronized by platform automation |
-| Lotus Codex skills | `lotus-platform/codex/skills/` | `C:\Users\<user>\.codex\skills\` | inspected and synchronized by bootstrap automation |
+| Agent operating contract | `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md` | `<codex-home>/AGENTS.md` | synchronized by platform automation |
+| Lotus Codex skills | `lotus-platform/codex/skills/` | `<codex-home>/skills/` | inspected and synchronized by bootstrap automation |
 | Onboarding docs | `lotus-platform/docs/onboarding/` | human and agent startup workflow | protected by documentation contract tests |
 | Runtime prerequisites | local machine | bootstrap readiness report | inspected, never silently installed unless explicitly supported |
 | CI and release truth | GitHub Actions and RFC-0072 lanes | PR and main validation | monitored asynchronously, not replaced by bootstrap |
@@ -235,7 +235,7 @@ Target location:
 
 Bootstrap automation should synchronize these skills into the local Codex skill directory, normally:
 
-1. `C:\Users\<user>\.codex\skills`
+1. `<codex-home>/skills`
 
 The source of truth must be the platform repository, not one developer's local profile.
 
@@ -272,7 +272,7 @@ The agent ramp-up guide must publish the standard first prompt.
 Proposed baseline prompt:
 
 ```text
-Read the Lotus context entrypoint at C:\Users\Sandeep\projects\lotus-platform\context\LOTUS-QUICKSTART-CONTEXT.md, then the context reference map, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
+Read the Lotus context entrypoint at <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md, then the context reference map, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, and validation lane before making changes. Keep context lean, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
 ```
 
 The guide may provide a path-agnostic template for other machines:

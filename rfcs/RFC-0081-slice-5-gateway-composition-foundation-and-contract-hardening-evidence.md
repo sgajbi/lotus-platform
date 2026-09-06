@@ -94,7 +94,7 @@ No `lotus-workbench` change was required in slice 5 because:
 
 ## Validation commands run
 
-In `C:\Users\Sandeep\projects\lotus-gateway`:
+In `<workspace-root>/lotus-gateway`:
 
 1. `python -m pytest tests/unit/test_platform_capabilities_service.py tests/integration/test_platform_capabilities_router.py tests/contract/test_platform_capabilities_contract.py`
 2. `python -m mypy src`

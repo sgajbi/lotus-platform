@@ -128,12 +128,13 @@ Detailed guide:
 Common command:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+$env:LOTUS_WORKSPACE_ROOT = "<workspace-root>"
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation/New-Lotus-Service.ps1 `
   -ServiceName lotus-example `
   -Description "Example Lotus backend service" `
   -ServiceProfile domain-service `
-  -DestinationRoot C:\Users\<user>\projects
+  -DestinationRoot $env:LOTUS_WORKSPACE_ROOT
 ```
 
 ## Promotion Boundaries

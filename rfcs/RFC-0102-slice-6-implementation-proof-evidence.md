@@ -6,7 +6,7 @@
   - `lotus-render`
   - `lotus-report`
 - Clean evidence directory:
-  - `C:\Users\Sandeep\projects\lotus-report\output\rfc-0102-live-evidence-20260423-155229`
+  - `<workspace-root>/lotus-report/output/rfc-0102-live-evidence-20260423-155229`
 
 ## What Was Run
 

@@ -374,7 +374,7 @@ When a quality signal changes repo organization, gate posture, or future-agent w
 README, repo-local wiki source, `REPOSITORY-ENGINEERING-CONTEXT.md`, central context, and this skill
 source in the same slice so the next agent starts from current truth.
 
-Do not hand-edit local `C:\Users\<user>\.codex\skills` as the source of truth. Sync it from
+Do not hand-edit local `<codex-home>/skills` as the source of truth. Sync it from
 `lotus-platform`.
 
 When changing an existing Lotus skill, keep the change proportional to the repeated failure mode.

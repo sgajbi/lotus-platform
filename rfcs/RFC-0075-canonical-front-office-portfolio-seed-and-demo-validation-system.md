@@ -376,7 +376,7 @@ UI validation must check sub-screens and panels, not only the top-level route. A
 Screenshots must be stored in a caller-provided directory, with the demo default:
 
 ```text
-C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+<temp-dir>/lotus-risk-module-shots
 ```
 
 Screenshot file names must be descriptive and stable, for example:

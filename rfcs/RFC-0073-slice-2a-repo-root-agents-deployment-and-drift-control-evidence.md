@@ -13,7 +13,7 @@
   - `lotus-manage`
   - `lotus-report`
   - `lotus-ai`
-  - deployed `C:\Users\Sandeep\.codex\AGENTS.md`
+  - deployed `<codex-home>/AGENTS.md`
 
 ## What changed
 
@@ -23,7 +23,7 @@ The governed operating contract now has three synchronized entrypoint forms:
 
 1. canonical authored source in `lotus-platform/context/AGENTS-OPERATING-CONTRACT.md`,
 2. repo-root `AGENTS.md` copies across the in-scope Lotus repositories,
-3. the deployed local runtime copy at `C:\Users\Sandeep\.codex\AGENTS.md`.
+3. the deployed local runtime copy at `<codex-home>/AGENTS.md`.
 
 ## Implementation outcomes
 

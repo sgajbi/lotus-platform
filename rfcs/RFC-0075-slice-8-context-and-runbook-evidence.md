@@ -46,7 +46,7 @@ automation/validate_engineering_context_system.py
 Deployed agent contract:
 
 ```text
-C:\Users\Sandeep\.codex\AGENTS.md
+<codex-home>/AGENTS.md
 ```
 
 ## Validation Evidence
@@ -87,7 +87,7 @@ Screenshot pack:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+  -ScreenshotDirectory <temp-dir>/lotus-risk-module-shots
 ```
 
 Troubleshooting categories now direct operators to:

@@ -21,7 +21,7 @@
   - `RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
   - `RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md`
   - `RFC-0082-lotus-core-domain-authority-and-analytics-serving-boundary-hardening.md`
-  - `C:/Users/Sandeep/projects/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
+  - `<workspace-root>/lotus-core/docs/architecture/RFC-0082-contract-family-inventory.md`
 
 ## Summary
 
