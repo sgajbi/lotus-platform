@@ -364,3 +364,27 @@ def test_collection_freshness_uses_the_current_platform_baseline() -> None:
         "tests.collected_tests" in error
         for error in baseline_generator._baseline_freshness_differences(accepted, current)
     )
+
+
+def test_a_regeneration_records_only_the_platform_it_collected_on() -> None:
+    """Carrying another platform's previous count forward is staleness, not breadth.
+
+    Regenerating on one operating system used to leave the others holding
+    numbers measured before the change, so the next check on one of those
+    compared its own increased count against a figure nobody had collected and
+    failed the tolerance — a failure describing the recording rather than the
+    tree.
+    """
+    import json as _json
+
+    baseline = _json.loads(
+        (ROOT / "quality" / "baseline_report.json").read_text(encoding="utf-8")
+    )
+    tests = baseline["tests"]
+    by_platform = tests["collected_tests_by_platform"]
+
+    assert list(by_platform) == [tests["platform"]], (
+        "a platform this run did not collect on must not carry an accepted "
+        f"count: {by_platform}"
+    )
+    assert by_platform[tests["platform"]] == tests["collected_tests"]

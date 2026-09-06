@@ -126,8 +126,10 @@ one section defines it so the routes cannot drift away from it again.
    validation and runbook material the integration touches.
 4. RFC, standards, or governance work
    Add the [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) to locate the RFC
-   or standard. When the change sets policy across repositories rather than
-   inside one, read
+   or standard, and the [Platform Engineering Ledger](./platform-engineering-ledger.md)
+   with the [Recent Architectural Decisions Digest](./recent-architectural-decisions-digest.md)
+   for what has already been decided. When the change sets policy across
+   repositories rather than inside one, read
    [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md).
 
 ## Human-Maintained Memory
