@@ -1,9 +1,55 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
+import pytest
+
 from automation import validate_workflow_pipeline_exit_codes as validator
+
+# A gate that fails, defined as a shell function so the observation needs no
+# file on disk, no executable bit, and no working directory the shell can reach.
+_GATE = "gate() { printf 'gate ran\\n'; return 7; }\n"
+
+
+def _usable_bash() -> str | None:
+    """The first bash that demonstrably reports exit statuses, or None.
+
+    `shutil.which("bash")` on Windows finds `C:\\Windows\\system32\\bash.exe`
+    first: the WSL launcher, which exits 1 for every script when no distribution
+    is installed. Trusting it inverted every verdict in these tests while they
+    still ran and reported. So the interpreter is asked to prove it can return a
+    known failure and a known success before any observation is believed.
+    """
+    candidates = [
+        shutil.which("bash"),
+        r"C:\Program Files\Git\bin\bash.exe",
+        r"C:\Program Files\Git\usr\bin\bash.exe",
+        "/bin/bash",
+        "/usr/bin/bash",
+    ]
+    for candidate in candidates:
+        if not candidate or not Path(candidate).is_file():
+            continue
+        try:
+            fails = subprocess.run(
+                [candidate, "-c", _GATE + "gate"], capture_output=True, timeout=60
+            )
+            passes = subprocess.run(
+                [candidate, "-c", "true | tee /dev/null"],
+                capture_output=True,
+                timeout=60,
+            )
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if fails.returncode == 7 and passes.returncode == 0:
+            return candidate
+    return None
+
+
+_BASH = _usable_bash()
 
 UNGUARDED = """\
 name: Example
@@ -405,6 +451,38 @@ def test_gate_inside_a_command_substitution_is_reported() -> None:
     assert validator.unguarded_pipelines(f"run: {line}\n") == [line]
 
 
+def test_an_earlier_disable_reaches_a_substitution_on_the_same_line() -> None:
+    """A substitution inherits the option state where it runs, not where the line starts.
+
+    `set +o pipefail; result=$(gate | tee log)` returns 0. Seeding the
+    substitution scan from the line's incoming state, before the outer segments
+    applied the disable, let it pass — and masking the substitution then stopped
+    the line-level scan from correcting the verdict.
+    """
+    body = _step(
+        """
+        set -o pipefail
+        set +o pipefail; result=$(gate.py | tee log)
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == [
+        "set +o pipefail; result=$(gate.py | tee log)"
+    ]
+
+
+def test_a_nested_substitution_is_scanned(tmp_path=None) -> None:
+    """`$(echo $(gate | tee log))` hides the gate one level down.
+
+    Read as a single body, the outer substitution's upstream is `echo`, which
+    has no verdict to lose. The nested one runs on its own and drops the gate's
+    status exactly as the outer would.
+    """
+    body = _step("result=$(echo $(gate.py | tee log))")
+
+    assert validator.unguarded_pipelines(body) == ["result=$(echo $(gate.py | tee log))"]
+
+
 def test_value_producing_substitution_pipelines_stay_quiet() -> None:
     """`test "$(find … | wc -l)" -gt 0` asserts on the value; wc is doing its job."""
     line = 'test "$(find coverage-data -type f | wc -l)" -gt 0'
@@ -475,3 +553,553 @@ def test_pipestatus_captured_first_on_the_line_still_guards() -> None:
         '          exit "$s"\n'
     )
     assert validator.unguarded_pipelines(body) == []
+
+
+def _step(body: str) -> str:
+    """Wrap shell lines as a workflow step's run: block."""
+    indented = "\n".join(f"          {line}" for line in body.strip().splitlines())
+    return f"run: |\n{indented}\n"
+
+
+def test_subshell_pipeline_still_hides_its_gate() -> None:
+    """`( gate | tee )` exits with tee's status; the parens change nothing."""
+    assert validator.unguarded_pipelines(_step("( gate.py | tee log )")) == [
+        "( gate.py | tee log )"
+    ]
+
+
+def test_subshell_that_enables_pipefail_inside_itself_is_accepted() -> None:
+    """The option is scoped to the subshell, and the pipeline is inside it too."""
+    assert validator.unguarded_pipelines(_step("( set -o pipefail; gate.py | tee log )")) == []
+
+
+def test_subshell_inherits_an_outer_guard() -> None:
+    """pipefail set outside applies inside; reporting this would over-reject."""
+    body = _step(
+        """
+        set -o pipefail
+        ( gate.py | tee log )
+        """
+    )
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_subshell_propagating_pipestatus_is_accepted() -> None:
+    body = _step("( gate.py | tee log; exit ${PIPESTATUS[0]} )")
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_conditionally_called_enabling_function_does_not_guard() -> None:
+    """`cond && enable_strict` may never call it, so the guard is not certain."""
+    body = _step(
+        """
+        enable_strict() { set -o pipefail; }
+        [ -n "$STRICT" ] && enable_strict
+        gate.py | tee log
+        """
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_conditional_pipefail_inside_a_function_does_not_guard() -> None:
+    """Calling the function is certain; the `set` inside its `if` is not."""
+    body = _step(
+        """
+        enable_strict() {
+        if [ -n "$STRICT" ]; then
+        set -o pipefail
+        fi
+        }
+        enable_strict
+        gate.py | tee log
+        """
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_function_that_disables_pipefail_invalidates_the_guard() -> None:
+    """Losing the guard needs no certainty: a call that may disable it is enough."""
+    body = _step(
+        """
+        set -o pipefail
+        relax() { set +o pipefail; }
+        relax
+        gate.py | tee log
+        """
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_conditional_literal_pipefail_does_not_guard() -> None:
+    """The certainty rule is about position, not only about block depth."""
+    body = _step(
+        """
+        [ -n "$STRICT" ] && set -o pipefail
+        gate.py | tee log
+        """
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_an_offending_line_is_reported_once() -> None:
+    """A substitution pipeline and its segment are the same defect, not two."""
+    body = _step("result=$(gate.py | tee log)")
+    assert validator.unguarded_pipelines(body) == ["result=$(gate.py | tee log)"]
+
+
+# --- Fidelity: the validator's verdict against real shell behaviour ----------
+#
+# Every rule above is a claim about what Bash does. Two estate rules were
+# recently found to be false because nobody ran the thing they described, so
+# these shapes are executed rather than argued: a shape is only called a defect
+# if a gate that exits 7 really does produce a step status of 0.
+
+_HIDES_THE_STATUS = {
+    "plain pipeline": "gate | tee /dev/null",
+    "subshell pipeline": "( gate | tee /dev/null )",
+    "conditionally called enabler": (
+        "enable_strict() { set -o pipefail; }\n"
+        'STRICT=""\n'
+        '[ -n "$STRICT" ] && enable_strict\n'
+        "gate | tee /dev/null"
+    ),
+    "conditional pipefail in a function": (
+        'enable_strict() { if [ -n "$STRICT" ]; then set -o pipefail; fi; }\n'
+        'STRICT=""\n'
+        "enable_strict\n"
+        "gate | tee /dev/null"
+    ),
+    "function that disables pipefail": (
+        "set -o pipefail\n"
+        "relax() { set +o pipefail; }\n"
+        "relax\n"
+        "gate | tee /dev/null"
+    ),
+    "conditional literal pipefail": (
+        'STRICT=""\n[ -n "$STRICT" ] && set -o pipefail\ngate | tee /dev/null'
+    ),
+    "enabler called inside a subshell": (
+        "enable_strict() { set -o pipefail; }\n"
+        "( enable_strict )\n"
+        "gate | tee /dev/null"
+    ),
+    "guarded subshell piped into a sink": (
+        "( set -o pipefail; gate | tee /dev/null ) | tee /dev/null"
+    ),
+    "function whose last act disables": (
+        "both() { set -o pipefail; set +o pipefail; }\nboth\ngate | tee /dev/null"
+    ),
+    "multiline subshell enabling for itself only": (
+        "(\n  set -o pipefail\n)\ngate | tee /dev/null"
+    ),
+    "multiline subshell piped onward": (
+        "(\n  set -o pipefail\n  gate | tee /dev/null\n) | tee /dev/null"
+    ),
+    "parenthesis inside a comment": (
+        "# phase (\ngate | tee /dev/null\n# )"
+    ),
+    "outer disabling function called in a subshell": (
+        "set -o pipefail\n"
+        "relax() { set +o pipefail; }\n"
+        "( relax; gate | tee /dev/null )"
+    ),
+    "failure consumed by a recovery operator": (
+        "set -o pipefail\ngate | tee /dev/null || true"
+    ),
+    "conditional guard inside a substitution": (
+        "result=$(if false; then set -o pipefail; fi; gate | tee /dev/null)\n"
+        "exit 0"
+    ),
+}
+
+_PROPAGATES_THE_STATUS = {
+    "top-level pipefail": "set -o pipefail\ngate | tee /dev/null",
+    "called enabler": (
+        "enable_strict() { set -o pipefail; }\nenable_strict\ngate | tee /dev/null"
+    ),
+    "pipestatus capture": (
+        'gate | tee /dev/null\nstatus=${PIPESTATUS[0]}\nexit "$status"'
+    ),
+    "subshell guarding itself": "( set -o pipefail; gate | tee /dev/null )",
+    "subshell inheriting the guard": "set -o pipefail\n( gate | tee /dev/null )",
+    "subshell propagating pipestatus": "( gate | tee /dev/null; exit ${PIPESTATUS[0]} )",
+    "function that restores what it disabled": (
+        "set -o pipefail\n"
+        "reset() { set +o pipefail; set -o pipefail; }\n"
+        "reset\n"
+        "gate | tee /dev/null"
+    ),
+    "outer pipefail reaches inside a piped subshell": (
+        "set -o pipefail\n( gate | tee /dev/null ) | tee /dev/null"
+    ),
+    "multiline subshell guarding its own pipeline": (
+        "(\n  set -o pipefail\n  gate | tee /dev/null\n)"
+    ),
+    "outer enabling function called in a subshell": (
+        "enable_strict() { set -o pipefail; }\n"
+        "( enable_strict; gate | tee /dev/null )"
+    ),
+    "recovery operator that propagates": (
+        "set -o pipefail\ngate | tee /dev/null || exit 7"
+    ),
+}
+
+
+def _observed_status(script: str) -> int:
+    """Run the shape with a failing `gate` and report what the shell exits with."""
+    assert _BASH is not None
+    return subprocess.run(
+        [_BASH, "-c", _GATE + script], capture_output=True, timeout=60
+    ).returncode
+
+
+@pytest.mark.skipif(
+    _BASH is None, reason="no bash on this machine could report a known exit status"
+)
+@pytest.mark.parametrize("label", sorted(_HIDES_THE_STATUS))
+def test_reported_shapes_really_do_hide_a_failing_gate(label: str) -> None:
+    """A shape is only a defect if a failing gate really yields a passing step."""
+    script = _HIDES_THE_STATUS[label]
+    assert _observed_status(script) == 0, (
+        f"{label}: bash propagated the failure, so this shape is not a defect "
+        "and the validator must not report it"
+    )
+    assert validator.unguarded_pipelines(_step(script)), (
+        f"{label}: a gate exiting 7 produced a step status of 0 and the "
+        "validator stayed silent"
+    )
+
+
+@pytest.mark.skipif(
+    _BASH is None, reason="no bash on this machine could report a known exit status"
+)
+@pytest.mark.parametrize("label", sorted(_PROPAGATES_THE_STATUS))
+def test_accepted_shapes_really_do_propagate_a_failing_gate(label: str) -> None:
+    """The other direction: a gate that rejects correct work is a gate people switch off."""
+    script = _PROPAGATES_THE_STATUS[label]
+    assert _observed_status(script) == 7, (
+        f"{label}: bash swallowed the failure, so this shape should be reported"
+    )
+    assert validator.unguarded_pipelines(_step(script)) == [], (
+        f"{label}: bash reported the gate's failure, but the validator "
+        "rejected the step anyway"
+    )
+
+
+def test_the_shell_fidelity_harness_found_a_usable_interpreter() -> None:
+    """Skipping every fidelity case would be invisible; say so out loud.
+
+    This is a report, not a gate: a machine with no usable bash is a legitimate
+    state. What is not legitimate is discovering months later that the fidelity
+    evidence has been skipped the whole time.
+    """
+    if _BASH is None:  # pragma: no cover - depends on the machine
+        pytest.skip(
+            "no bash on this machine could report a known exit status, so the "
+            "shell-fidelity evidence is NOT being collected here"
+        )
+    assert _observed_status("gate") == 7
+
+
+def test_a_subshell_piped_into_a_sink_loses_its_own_status() -> None:
+    """Guarding the inside does not save the subshell's own exit status.
+
+    `( set -o pipefail; gate | tee a ) | tee b` propagates the gate inside the
+    parentheses and then hands the whole subshell's status to the outer `tee`,
+    which reports 0. Judging only the interior accepted a step that cannot fail.
+    """
+    body = _step("( set -o pipefail; gate.py | tee inner ) | tee outer")
+
+    assert validator.unguarded_pipelines(body) == [
+        "( set -o pipefail; gate.py | tee inner ) | tee outer"
+    ]
+
+
+def test_a_subshell_not_piped_onwards_is_judged_only_on_its_inside() -> None:
+    """The acceptance that stops the rule above from over-rejecting."""
+    body = _step("( set -o pipefail; gate.py | tee inner )")
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_an_outer_guard_covers_a_piped_subshell() -> None:
+    body = _step(
+        """
+        set -o pipefail
+        ( gate.py | tee inner ) | tee outer
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_a_function_that_restores_pipefail_still_guards() -> None:
+    """What reaches the caller is the state the function leaves, not every state it passes."""
+    body = _step(
+        """
+        set -o pipefail
+        reset() { set +o pipefail; set -o pipefail; }
+        reset
+        gate.py | tee log
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_a_function_whose_last_act_disables_pipefail_loses_the_guard() -> None:
+    """The other direction, so restoring is read as ordering rather than as leniency."""
+    body = _step(
+        """
+        both() { set -o pipefail; set +o pipefail; }
+        both
+        gate.py | tee log
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_a_conditional_restore_does_not_bring_the_guard_back() -> None:
+    """Turning the guard back on still requires certainty; turning it off never does."""
+    body = _step(
+        """
+        set -o pipefail
+        risky() { set +o pipefail; if [ -n "$STRICT" ]; then set -o pipefail; fi; }
+        risky
+        gate.py | tee log
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_a_multiline_subshell_does_not_guard_the_lines_after_it() -> None:
+    """Read line by line, `(` alone is an empty subshell and the `set` looks top-level.
+
+    The option was then credited to every pipeline after the closing paren, so
+    a gate exiting 7 produced a step status of 0 and nothing was reported. An
+    earlier revision of this module documented that limitation as one that could
+    only over-report; it could miss.
+    """
+    body = _step(
+        """
+        (
+        set -o pipefail
+        )
+        gate.py | tee log
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_a_multiline_subshell_still_guards_its_own_pipeline() -> None:
+    """The acceptance: folding the block must not cost it the guard it really has."""
+    body = _step(
+        """
+        (
+        set -o pipefail
+        gate.py | tee log
+        )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_unbalanced_parentheses_are_not_guessed_at() -> None:
+    """A quoted paren is not a subshell, and the pipeline after it is still judged."""
+    body = _step(
+        """
+        echo "("
+        gate.py | tee log
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_a_parenthesis_in_a_comment_does_not_open_a_subshell() -> None:
+    """Comments used as visual delimiters must not swallow the commands between them.
+
+    Folding a multiline subshell counts parentheses. Counting them inside
+    comments too meant `# phase (` began a fold that ran to `# )`, joining every
+    command between into one line starting with `#`, which the scanner skips
+    wholesale. The pipeline it was meant to judge disappeared.
+    """
+    body = _step(
+        """
+        # phase (
+        gate.py | tee log
+        # )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_a_subshell_of_trivial_producers_is_still_trivial() -> None:
+    """`( printf x ) | tee log` hides no verdict, exactly as `printf x | tee log` does.
+
+    Standing the subshell in as a synthetic producer discarded what it
+    contained, so wrapping a harmless producer in parentheses turned it into a
+    reported gate.
+    """
+    assert validator.unguarded_pipelines(_step("( printf x ) | tee out.txt")) == []
+    assert validator.unguarded_pipelines(_step("printf x | tee out.txt")) == []
+
+
+def test_a_subshell_containing_a_real_gate_is_still_reported() -> None:
+    """The acceptance above must not become a way to hide a gate in parentheses."""
+    body = _step("( gate.py ) | tee out.txt")
+
+    assert validator.unguarded_pipelines(body) == ["( gate.py ) | tee out.txt"]
+
+
+def test_a_subshell_inherits_the_functions_defined_outside_it() -> None:
+    """A subshell can call a function defined by its caller.
+
+    Recomputing the function tables from the subshell body alone made `relax`
+    invisible inside `( relax; gate | tee log )`, so a subshell that really does
+    turn the guard off was accepted while Bash returned 0 for a gate exiting 7.
+    """
+    body = _step(
+        """
+        set -o pipefail
+        relax() { set +o pipefail; }
+        ( relax; gate.py | tee log )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["( relax; gate.py | tee log )"]
+
+
+def test_an_inherited_enabling_function_still_guards_inside_a_subshell() -> None:
+    """The acceptance: inheriting functions must work in both directions."""
+    body = _step(
+        """
+        enable_strict() { set -o pipefail; }
+        ( enable_strict; gate.py | tee log )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_a_command_substitution_can_guard_its_own_pipeline() -> None:
+    """`$( )` is a scope, not just text: a `set -o pipefail` inside one applies.
+
+    Judging the inside against the outer option state reported a substitution
+    whose failure Bash propagates correctly, which is the direction that gets a
+    gate switched off.
+    """
+    body = _step(
+        """
+        result=$(
+        set -o pipefail
+        gate.py | tee log
+        )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_an_unguarded_command_substitution_is_still_reported() -> None:
+    """The opposite direction, so the scope rule is not a way to hide a gate."""
+    body = _step("result=$(gate.py | tee log)")
+
+    assert validator.unguarded_pipelines(body) == ["result=$(gate.py | tee log)"]
+
+
+def test_a_pipeline_beside_a_substitution_is_judged_on_its_own() -> None:
+    """Masking the substitution must not blind the scan to the rest of the line."""
+    body = _step(
+        """
+        x=$(echo hi)
+        gate.py | tee log
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_a_failure_consumed_by_a_recovery_operator_is_reported() -> None:
+    """pipefail delivers the status to something that throws it away.
+
+    `gate | tee log || true` reaches the step with the gate's verdict and then
+    discards it, so the step passes whatever the gate decided. Reported
+    regardless of pipefail, because pipefail is working correctly here — it is
+    the operator after it that removes the failure.
+    """
+    body = _step(
+        """
+        set -o pipefail
+        gate.py | tee log || true
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log || true"]
+
+
+def test_a_recovery_operator_that_propagates_is_accepted() -> None:
+    """`|| exit 1` is how a step reports a failure before failing."""
+    body = _step(
+        """
+        set -o pipefail
+        gate.py | tee log || exit 1
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_a_conditional_guard_inside_a_substitution_does_not_count() -> None:
+    """A substitution has blocks exactly as the outer shell does.
+
+    Following a `;` makes a command certain to be *reached*, not certain to be
+    *executed*, and the substitution-local scan tracked the first without the
+    second.
+    """
+    body = _step("result=$(if false; then set -o pipefail; fi; gate.py | tee log)")
+
+    assert validator.unguarded_pipelines(body) == [
+        "result=$(if false; then set -o pipefail; fi; gate.py | tee log)"
+    ]
+
+
+def test_an_unconditional_guard_inside_a_substitution_still_counts() -> None:
+    body = _step("result=$(set -o pipefail; gate.py | tee log)")
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_a_local_definition_shadows_an_inherited_function() -> None:
+    """Bash resolves a call to the most recent definition, not to both.
+
+    Keeping the inherited summary let a redefined `relax` go on disabling a
+    guard it no longer touches, rejecting a pipeline Bash propagates correctly.
+    """
+    body = _step(
+        """
+        set -o pipefail
+        relax() { set +o pipefail; }
+        ( relax() { :; }; relax; gate.py | tee log )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_an_inherited_function_still_applies_when_not_redefined() -> None:
+    """The acceptance above must not stop inheritance working at all."""
+    body = _step(
+        """
+        set -o pipefail
+        relax() { set +o pipefail; }
+        ( relax; gate.py | tee log )
+        """
+    )
+
+    assert validator.unguarded_pipelines(body) == ["( relax; gate.py | tee log )"]
