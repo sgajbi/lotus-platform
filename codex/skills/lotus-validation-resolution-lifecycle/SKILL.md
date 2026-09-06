@@ -5,11 +5,13 @@ description: End-to-end Lotus application validation and issue-resolution lifecy
 
 # Lotus Validation Resolution Lifecycle
 
-Before substantial lifecycle work, read:
+The common startup set is already loaded, including the target repository's
+`REPOSITORY-ENGINEERING-CONTEXT.md`. Before substantial lifecycle work, add:
 
-1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
-3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
+1. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` for execution method, recovery, and
+   delivery evidence,
+2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the lifecycle change crosses a
+   repository boundary or changes shared engineering policy.
 
 Use:
 

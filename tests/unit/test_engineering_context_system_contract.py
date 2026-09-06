@@ -1207,32 +1207,37 @@ _BROAD_CONTEXT_CONDITIONS = (
 
 
 def _unconditional_broad_context(text: str) -> list[str]:
-    """Return every sentence that loads the broad context without qualifying it.
+    """Return every load clause that reaches the broad context without qualifying it.
 
     Checking that an approved conditional sentence is *present* accepts a
-    document that also carries an unconditional one — the approved text
-    survives the edit and simply stops describing what the document now says.
-    Counting mentions against conditions is not enough either: one sentence
-    often carries two condition phrases, so an added instruction hides inside
-    the surplus.
+    document that also carries an unconditional one: the approved text survives
+    the edit and simply stops describing what the document now says.
 
-    Sentences are split on a full stop only. A condition is frequently written
-    in a clause joined by a colon or a comma — "this is the case the broad
-    context exists for: read ..." — and splitting on those separates a
-    qualification from the mention it qualifies, reporting documents that are
-    already correct.
+    Whitespace is normalized first. The estate wraps Markdown at 100 columns, so
+    a condition and the mention it qualifies routinely sit on different physical
+    lines. Matching raw text made the verdict depend on where a line happened to
+    wrap and reported documents that were already correct.
+
+    Sentences are then split into clauses on semicolons. A qualification carried
+    by a comma or a colon belongs to the mention it introduces -- "this is the
+    case the broad context exists for: read ..." -- and splitting there would
+    separate a condition from what it qualifies. A semicolon joins an
+    independent instruction, which must carry its own condition: without this
+    split, appending "; nevertheless always load the central engineering
+    context" to an approved sentence passed, because the approved condition was
+    still somewhere in the same sentence.
     """
     offenders: list[str] = []
-    for sentence in re.split(r"(?<=\.)\s+", text):
-        lowered = sentence.lower()
-        if not _BROAD_CONTEXT_MENTION.search(lowered):
-            continue
-        if any(condition in lowered for condition in _BROAD_CONTEXT_CONDITIONS):
-            continue
-        offenders.append(
-            "unconditional broad-context instruction: "
-            + " ".join(sentence.split())[:120]
-        )
+    for sentence in re.split(r"(?<=\.)\s+", " ".join(text.split())):
+        for clause in sentence.split(";"):
+            lowered = clause.lower()
+            if not _BROAD_CONTEXT_MENTION.search(lowered):
+                continue
+            if any(condition in lowered for condition in _BROAD_CONTEXT_CONDITIONS):
+                continue
+            offenders.append(
+                "unconditional broad-context instruction: " + clause.strip()[:120]
+            )
     return offenders
 
 
@@ -1500,3 +1505,79 @@ def test_quickstart_routes_the_broad_context_by_task_not_by_default() -> None:
     for qualifier in ("only if the change crosses a repository boundary",
                       "the case the broad context exists for"):
         assert qualifier in section, f"missing the reason a route loads it: {qualifier}"
+
+_ADDITIVE_ROUTED_DOCUMENTS = (
+    "codex/skills/lotus-qa-platform-validator/SKILL.md",
+    "codex/skills/lotus-validation-resolution-lifecycle/SKILL.md",
+    "codex/skills/lotus-skill-context-governance/SKILL.md",
+    "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+    "context/playbooks/CHANGE-PLAYBOOKS.md",
+)
+
+
+def test_routed_documents_extend_the_startup_set_rather_than_reopening_it() -> None:
+    """A route that reloads the broad context defeats the condition that selected it.
+
+    The skill-routing map and the manifest send ordinary single-repository work
+    into these documents. Conditioning only the quickstart routes left the
+    documents those routes lead to still requiring the broad context
+    unconditionally, so a consumer that followed the complete route bypassed the
+    condition entirely and read exactly what the policy exists to avoid.
+    """
+    for relative in _ADDITIVE_ROUTED_DOCUMENTS:
+        document = (ROOT / relative).read_text(encoding="utf-8")
+        assert _unconditional_broad_context(document) == [], relative
+        assert "already loaded" in document, (
+            f"{relative} must state that the startup set is already loaded, or a "
+            "consumer rereads what it is holding"
+        )
+
+
+def test_the_additive_guard_rejects_a_reinstated_unconditional_load() -> None:
+    """The guard must fail on the text it exists to reject, not merely pass today."""
+    reinstated = """
+The common startup set is already loaded. Before substantial work, add:
+
+1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
+2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
+"""
+    assert _unconditional_broad_context(reinstated), (
+        "restoring the unconditional bullet must be reported"
+    )
+
+
+def test_an_added_clause_cannot_hide_behind_an_approved_condition() -> None:
+    """A semicolon joins an independent instruction, which needs its own condition.
+
+    Accepting a whole sentence as soon as any approved condition appeared let an
+    additive unconditional directive ride along inside qualified text: the
+    phrase checks stayed satisfied because the approved wording was still there.
+    """
+    approved = (
+        "Read `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the "
+        "change crosses a repository boundary."
+    )
+    assert _unconditional_broad_context(approved) == []
+
+    contradicted = (
+        approved[:-1] + "; nevertheless always load the central engineering context."
+    )
+    offenders = _unconditional_broad_context(contradicted)
+    assert offenders, (
+        "an appended unconditional clause must not inherit the approved condition"
+    )
+    assert "nevertheless" in offenders[0]
+
+
+def test_a_condition_that_wraps_still_qualifies_its_mention() -> None:
+    """The estate wraps Markdown at 100 columns; a verdict must not depend on where.
+
+    Matching raw text made a correctly written playbook fail purely because its
+    condition continued on the next physical line.
+    """
+    wrapped = """
+1. read [Lotus Engineering Context](../LOTUS-ENGINEERING-CONTEXT.md), which this
+   playbook is the case for
+"""
+    assert _unconditional_broad_context(wrapped) == []
+

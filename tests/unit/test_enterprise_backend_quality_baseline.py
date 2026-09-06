@@ -345,53 +345,25 @@ def test_successful_collection_summary_excludes_volatile_duration(monkeypatch) -
 
     assert result["collected_tests"] == 1293
     assert result["summary"] == "1293 tests collected"
-    assert result["platform"] == baseline_generator.sys.platform
 
 
-def test_collection_freshness_uses_the_current_platform_baseline() -> None:
-    accepted = {
-        "tests": {
-            "collected_tests": 1299,
-            "collected_tests_by_platform": {"linux": 1299, "win32": 1292},
-        }
-    }
-    current = {"tests": {"collected_tests": 1292, "platform": "win32"}}
+def test_collection_freshness_compares_one_count_on_every_runner() -> None:
+    """The collected-test count is a property of the tree, not of the host.
 
-    assert baseline_generator._baseline_freshness_differences(accepted, current) == []
-
-    current["tests"]["collected_tests"] = 1288
-    assert any(
-        "tests.collected_tests" in error
-        for error in baseline_generator._baseline_freshness_differences(accepted, current)
-    )
-
-
-def test_a_regeneration_records_only_the_platform_it_collected_on() -> None:
-    """Carrying another platform's previous count forward is staleness, not breadth.
-
-    Regenerating on one operating system used to leave the others holding
-    numbers measured before the change, so the next check on one of those
-    compared its own increased count against a figure nobody had collected and
-    failed the tolerance — a failure describing the recording rather than the
-    tree.
+    A per-platform record cannot be maintained from a single machine: the other
+    runner's number can only be transcribed from a log, and that log was written
+    against a different tree. One number compared everywhere is both simpler and
+    the only form this repository can keep honest.
     """
-    import json as _json
+    accepted = {"tests": {"collected_tests": 1299}}
 
-    baseline = _json.loads(
-        (ROOT / "quality" / "baseline_report.json").read_text(encoding="utf-8")
-    )
-    tests = baseline["tests"]
-    by_platform = tests["collected_tests_by_platform"]
+    within = {"tests": {"collected_tests": 1298}}
+    assert baseline_generator._baseline_freshness_differences(accepted, within) == []
 
-    assert tests["platform"] in by_platform, (
-        "this run's own platform must carry a recorded count"
-    )
-    assert by_platform[tests["platform"]] == tests["collected_tests"]
-    # Other platforms keep their recorded counts. Dropping them looks tidy and
-    # removes real drift detection: a count that no longer matches that
-    # platform's collection is exactly what this metric reports, and the remedy
-    # is to regenerate there rather than to forget the number.
-    assert "linux" in by_platform, (
-        "the Linux lanes must have a baseline to compare against, or the metric "
-        "is never enforced where CI actually runs"
-    )
+    drifted = {"tests": {"collected_tests": 1288}}
+    assert any(
+        "tests.collected_tests" in difference
+        for difference in baseline_generator._baseline_freshness_differences(
+            accepted, drifted
+        )
+    ), "a count that has moved beyond the tolerance must be reported"
