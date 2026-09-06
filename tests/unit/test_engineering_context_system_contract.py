@@ -1093,6 +1093,12 @@ def test_delivery_skills_preserve_conditional_broad_context_depth() -> None:
         "lotus-readme-wiki-governance": (
             "documentation changes shared architecture or policy across repositories"
         ),
+        "lotus-app-issue-discovery": (
+            "the review crosses a repository boundary or evaluates shared engineering policy"
+        ),
+        "lotus-pr-premerge-gate": (
+            "the change crosses a repository boundary or changes shared release policy"
+        ),
     }
     for skill_name, condition in cases.items():
         skill = (ROOT / "codex" / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")

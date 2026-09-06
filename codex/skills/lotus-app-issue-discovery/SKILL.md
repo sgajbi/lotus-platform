@@ -25,21 +25,23 @@ For the lens catalog, read `references/review-lenses.md`.
 
 ## Load Order
 
-For substantial review work, load the smallest correct context set in this order:
+For substantial review work, inherit the common startup set and add only the depth the campaign
+requires:
 
-1. target repo `AGENTS.md`
-2. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
-3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-4. target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
-6. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` for multi-turn or resumed campaigns
-7. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`
-8. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend lenses
-9. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-10. `lotus-platform/platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md`
+The inherited set includes `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md` and the target
+repo `REPOSITORY-ENGINEERING-CONTEXT.md`; this skill does not restate or reorder that set.
+
+1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the review crosses a repository
+   boundary or evaluates shared engineering policy,
+2. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md` only to locate a specific standard, contract,
+   or runbook,
+3. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` for multi-turn or resumed campaigns,
+4. `lotus-platform/context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md` for backend lenses,
+5. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`,
+6. `lotus-platform/platform-standards/LOTUS_BANK_READY_ENGINEERING_IMPLEMENTATION_PLAYBOOK.md`
     and `lotus-platform/platform-contracts/bank-readiness/bank-ready-control-catalog.v1.json` when
-    bank readiness, procurement evidence, production posture, or enterprise-wide controls are in scope
-11. relevant sibling `docs` repo knowledge-base pages, target repo RFCs, README, wiki source,
+    bank readiness, procurement evidence, production posture, or enterprise-wide controls are in scope,
+7. relevant sibling `docs` repo knowledge-base pages, target repo RFCs, README, wiki source,
     supported-feature material, OpenAPI output, contracts, tests, or runtime evidence for the lens
 
 Use repo-local truth for ownership. Use platform standards and the docs knowledge base for the
@@ -47,6 +49,9 @@ expected banking-grade posture. If a required docs source is absent, record that
 ledger and do not claim a docs-backed review.
 Treat the sibling docs repo knowledge base as the reusable Lotus product, domain, and technical
 standard library when it is present in the workspace.
+
+Before beginning the review, rely on the common startup set and load the central engineering
+context only when the review crosses a repository boundary or evaluates shared engineering policy.
 
 ## Required References
 
