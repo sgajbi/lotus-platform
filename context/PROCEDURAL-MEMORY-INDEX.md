@@ -34,14 +34,8 @@ These playbooks turn recurring delivery practice into durable operating guidance
     How to assess a bounded bank-readiness control slice without confusing source, CI, deployment,
     runtime, or independent-verification evidence.
 
-11. [Evidence And Guard Integrity](./AGENTS-OPERATING-CONTRACT.md)
-    Mandatory rules for writing guards that can actually fail: never write file content through a
-    shell heredoc, never pipe a gate through `tee` or `tail`, prove a guard fails on known-bad
-    input after every edit, test a classifier on two shapes of its class and on what it must
-    accept, name a falsifying case before recording a rule, and post issue evidence with
-    `gh issue comment` rather than `close --comment`. Carried in the operating contract because
-    they are prohibitions rather than optional guidance; indexed here because they are about how
-    work is executed.
+11. [Evidence And Guard Integrity](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md#evidence-and-guard-integrity)
+    Failure cases and verification practice behind the compact mandatory rules in `AGENTS.md`.
 
 ## When To Use This Layer
 

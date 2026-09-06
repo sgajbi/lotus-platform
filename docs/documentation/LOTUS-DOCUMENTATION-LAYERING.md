@@ -22,6 +22,18 @@ for `lotus-platform`.
 
 ## Documentation Surface Model
 
+Each subject has one authoritative home. Other surfaces summarize and link.
+
+| Surface | Responsibility | Must not become |
+| --- | --- | --- |
+| `README.md` | Product introduction, capability summary, one quickstart, and reader navigation | An operating manual or implementation diary |
+| `AGENTS.md` | Tool-neutral mandatory operating rules and progressive discovery entry | Repository-specific architecture or incident history |
+| `CLAUDE.md` | Thin Claude adapter pointing to `AGENTS.md` and repository context | A second policy or context source |
+| `REPOSITORY-ENGINEERING-CONTEXT.md` | Current local ownership, architecture, boundaries, commands, constraints, and task routes | A changelog, PR ledger, or duplicate documentation tree |
+| `docs/` | Detailed contracts, architecture, methodology, standards, and procedures | A collection of uncategorized status notes |
+| `wiki/` | Concise onboarding and operator navigation derived from repo-authored source | Hand-edited publication-only truth |
+| GitHub issues and task ledgers | Active work, temporary blockers, PR state, and execution evidence | Durable architecture or operating policy |
+
 ### `README.md`
 
 Use the README as the fast truthful front door.
@@ -84,6 +96,50 @@ That includes:
 
 `context/` is not a generic document dump. It is the governed memory layer for reusable Lotus
 engineering truth.
+
+## Progressive Loading
+
+Every repository should make the smallest safe path obvious:
+
+1. read `AGENTS.md`, the Lotus quickstart, the repository context, and the skill-routing map,
+2. identify the repository's purpose, owning boundary, applicable skill, and default validation,
+3. follow repository-context task routes to only the relevant contract, standard, RFC, or runbook,
+4. load broad ecosystem history only when ownership, architecture, or recovery genuinely requires it.
+
+Essential controls remain explicit in `AGENTS.md`; progressive loading must never hide a mandatory
+security, financial-correctness, review, or release rule in an optional document.
+
+## Portable Discovery
+
+Use repository-relative paths inside a repository. Cross-repository references should use either:
+
+1. `<workspace-root>/lotus-platform/...` when describing a local sibling checkout, or
+2. a canonical `https://github.com/sgajbi/<repository>/blob/main/...` link when the document must
+   work without sibling repositories.
+
+Define placeholders such as `<workspace-root>` and `<temp-dir>` before using them. Do not publish
+personal usernames, drive letters, checkout directories, or local temporary paths as reusable
+instructions. Immutable historical evidence may name the environment in which it ran only when
+that provenance is material; provide a portable repository-relative or canonical link alongside it.
+
+`AGENTS.md` is the shared, tool-neutral entry. A repository may add a thin `CLAUDE.md` that points
+to `AGENTS.md` and local context, but it must not copy policy. Tool/runtime instruction precedence
+is controlled by that runtime; Lotus documentation defines its own authority without claiming to
+override system, organization, or user instructions.
+
+## Fresh-Start Check
+
+Before adopting a changed convention, start with only the documented repository entry and verify
+that a new reader can identify:
+
+1. product purpose and ownership,
+2. mandatory Lotus rules and instruction precedence,
+3. the applicable skill and task-specific source,
+4. the default local validation and required GitHub evidence,
+5. merge, wiki-publication, and hygiene completion requirements.
+
+Record the checked paths and any genuinely unverified tool behavior in the PR. Do not fill gaps
+with assumptions about a particular agent or workstation.
 
 ## Layering Rules
 

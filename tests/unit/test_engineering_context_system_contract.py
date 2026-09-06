@@ -182,7 +182,9 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "Slice 2 | AGENTS.md modernization | Complete" in checklist
     assert "AGENTS-OPERATING-CONTRACT.md" in context_index
 
-    assert "Mandatory Reading Order" in agents_contract
+    assert "Progressive Context Discovery" in agents_contract
+    assert "Before substantial work, load this small starting set" in agents_contract
+    assert "Do not load the complete context estate by default" in agents_contract
     assert "Target Repository Root Rule" in agents_contract
     assert "Mandatory Operating Rules" in agents_contract
     assert "Context Maintenance Rule" in agents_contract
@@ -203,6 +205,23 @@ def test_rfc_0073_slice_two_agents_operating_contract_is_governed_and_cross_link
     assert "PB_SG_GLOBAL_BAL_001" in agents_contract
     assert "Canonical platform QA includes `lotus-idea` by default" in agents_contract
     assert "Do not reintroduce an opt-in flag" in agents_contract
+
+
+def test_agent_entry_points_share_one_authoritative_contract() -> None:
+    agents_contract = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    governed_contract = (CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md").read_text(
+        encoding="utf-8"
+    )
+    claude_adapter = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+    sync_script = (ROOT / "automation" / "Sync-AgentOperatingContract.ps1").read_text(
+        encoding="utf-8"
+    )
+
+    assert agents_contract == governed_contract
+    assert "[AGENTS.md](AGENTS.md)" in claude_adapter
+    assert "[REPOSITORY-ENGINEERING-CONTEXT.md](REPOSITORY-ENGINEERING-CONTEXT.md)" in claude_adapter
+    assert "adapter, not a second policy source" in claude_adapter
+    assert "## Mandatory Operating Rules" not in claude_adapter
     assert '[switch]$CheckOnly' in sync_script
     assert "Normalize-ContractContent" in sync_script
     assert "Resolve-DefaultTargetPath" in sync_script
@@ -629,8 +648,8 @@ def test_rfc_0074_slice_three_agent_ramp_up_is_governed_and_linked() -> None:
         assert heading in ramp_up
 
     for required_phrase in (
-        "Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md",
-        "Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md",
+        "Read the target repository's AGENTS.md, <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md",
+        "Read the target repository's AGENTS.md, <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md",
         "Do not start with Tier 3 by default.",
         "lotus-backend-delivery-governance",
         "lotus-frontend-delivery-governance",

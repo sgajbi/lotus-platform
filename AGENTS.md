@@ -7,20 +7,25 @@ remain synchronized copies of this file.
 
 Use `automation/Sync-AgentOperatingContract.ps1` to synchronize or verify that deployed copy.
 
-## Mandatory Reading Order
+## Progressive Context Discovery
 
-Before doing substantial work, load context in this order:
+Before substantial work, load this small starting set:
 
-1. `AGENTS.md`
-2. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
-3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-4. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`, to find whether a skill already covers the
-   task, **before** starting it
-6. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
-7. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` when the task is primarily about how work should be executed
+1. the target repository's `AGENTS.md` for mandatory operating rules,
+2. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md` for ecosystem identity and ownership,
+3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md` for local architecture, boundaries,
+   commands, and constraints,
+4. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md` to select an applicable skill before acting.
 
-Use the smallest correct working set. Do not load broad context blindly if the task is narrow.
+Then load only task-relevant depth:
+
+1. `LOTUS-ENGINEERING-CONTEXT.md` for cross-repository architecture or shared engineering policy,
+2. `CONTEXT-REFERENCE-MAP.md` to locate a specific standard, RFC, contract, or runbook,
+3. `TASK-ROUTING-GUIDE.md` when ownership or the correct context set is unclear,
+4. `PROCEDURAL-MEMORY-INDEX.md` when execution method, recovery, or delivery evidence is central.
+
+Do not load the complete context estate by default. Essential controls in `AGENTS.md` remain
+mandatory even when the rest of the task needs only repository-local context.
 
 Skills live in `lotus-platform/codex/skills/<skill-name>/SKILL.md` and the routing map is keyed by
 task rather than by repository, so an agent in any repository reaches the right skill through the
@@ -93,88 +98,20 @@ closure, and before moving to the next RFC:
 
 ## Evidence And Guard Integrity
 
-Each rule is carried with the case that produced it. A rule without its evidence reads as a
-preference and gets dropped by the next person under time pressure.
+Always:
 
-### Never write file content through a shell heredoc
+1. write file content with the editing/patch mechanism, never a shell heredoc that may interpret
+   escapes,
+2. run a gate bare or explicitly preserve its exit status; do not hide it behind `tee` or `tail`,
+3. prove every new or changed guard fails on representative bad inputs and accepts valid inputs,
+4. compare synchronized files by committed blob SHA, not working-tree bytes,
+5. post issue evidence before closing and verify the comment exists,
+6. keep workflow-changing PRs single-commit unless the repository's per-revision dispatcher is
+   proven to evaluate every intermediate workflow tree.
 
-The shell rewrites backslash escapes before the interpreter sees the file: `\b` becomes 0x08,
-`\f` 0x0c, `\e` 0x1b, `\t` a tab. Write the file with an editor tool, or write a patch script to
-a file and run it by path.
-
-Prose is the more consequential half, because nothing in Markdown rendering signals a problem. A
-`lotus-report` guard compiled to `'\x08([A-Z][a-z]+)-only\x08'` and passed on the exact defect it
-was written to catch; a `lotus-render` guard against source syntax reaching a client page could
-never fire; and corruptions sit committed on `lotus-core` main where escapes ate the first letter
-of real identifiers, so a review ledger names fields that do not exist.
-
-Byte-scan before pushing. 0x08 renders invisibly, so reading the source cannot find it — only the
-bytes or the compiled form can.
-
-### Never pipe a gate through `tee` or `tail`
-
-A pipeline exits with the status of its **last** command, so the gate's verdict is discarded and
-the step reports success whatever it decided. `bash -e` does not catch it, because the pipeline
-succeeded. Run the gate bare, or set `-o pipefail` before it, or capture `${PIPESTATUS[0]}` and
-exit with it.
-
-Six steps across two `lotus-gateway` workflows carried this shape, including `make test-coverage`
-and `make security-audit`; one had been raising an exception under a green check since the day it
-landed.
-
-### Prove a guard can fail, after every edit
-
-A guard is known-good only on the exact bytes you last proved it failing on. Run it against a
-known-bad input and confirm it fails; passing on good input proves nothing. Cosmetic edits count —
-a refactor or a rename is exactly when nobody re-checks, and that is when the `lotus-report`
-corruption entered, after its original falsification.
-
-### Test a guard against two shapes of its class, and assert what it must accept
-
-A guard naming a class must be proved against at least two different shapes of that class. Three
-separate narrowings in one day left holes of identical shape: a route detector that classified
-`config.get(...)` as a route and exempted its arguments, a `-only` scan that caught the string
-which prompted it and would have missed the same pattern in an adjacent field, and a pipeline
-exclusion that read `echo "$(gate.py)" | tee log` as verdict-free.
-
-Assert both directions. A classifier tested only on what it must reject can be widened until it
-rejects everything — its own cases stay green while every legitimate input fails, broken in the
-direction its tests never look.
-
-### State a rule, then try to break it
-
-Before recording a rule, name a case already in hand that would falsify it, and measure that case.
-Four rules about a single CI failure died this way in one day, each refuted by a repository its
-author had not sampled. Reasoning harder about the repositories already examined produced none of
-those refutations.
-
-### Lifted files are compared by blob SHA on committed refs
-
-A file lifted verbatim between repositories is compared with `git rev-parse <ref>:<path>`, never by
-hashing a working tree: a checkout may normalise line endings, and a tree can be repaired locally
-while the merged state is still stale. Lift only from a canonical's **merged** state, never an open
-pull request, and never edit the file on arrival — if a local formatter or type checker forces an
-edit, fix the canonical instead.
-
-A `lotus-render` checker sat 102 lines behind the canonical after two local annotations, so its
-offline gate would have passed a policy gutted of required fields.
-
-### `gh issue close --comment` discards the comment on an already-closed issue
-
-The command succeeds and the evidence is silently dropped. Use `gh issue comment`, then verify the
-comment count moved. Closure evidence was lost this way on issues in two repositories.
-
-### Workflow-touching pull requests land single-commit
-
-The merged-PR dispatcher creates one tag per revision so each gate run's head SHA is the revision.
-That tag write is refused when the tagged commit's workflow tree differs from the default branch
-tip's, so a multi-commit pull request that edits `.github/workflows` loses per-commit gating on its
-intermediate commits.
-
-Keep such a pull request to one commit, or make every workflow edit in the first commit and never
-touch those files again in that pull request. State of evidence: this is a measured rule with
-prospective confirmations, not a documented API behaviour, and four earlier explanations of the
-same refusal were falsified. Treat it as a working rule, not a settled mechanism.
+The evidence and failure cases behind these rules live in the
+`Agentic Coding Quality Evaluation Loop` linked from `PROCEDURAL-MEMORY-INDEX.md`; they do not
+belong in this mandatory entry contract.
 
 ## Where Repository-Scoped Practice Lives
 

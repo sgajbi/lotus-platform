@@ -62,7 +62,7 @@ def test_agents_operating_contract_validator_reports_missing_required_guidance()
 
     validator._validate_agents_operating_contract(
         errors=errors,
-        agents_contract="Mandatory Reading Order\nMandatory Operating Rules",
+        agents_contract="Progressive Context Discovery\nMandatory Operating Rules",
     )
 
     assert "AGENTS-OPERATING-CONTRACT.md: missing section `Context Maintenance Rule`" in errors
@@ -86,3 +86,21 @@ def test_agents_operating_contract_validator_reports_missing_required_guidance()
         "AGENTS-OPERATING-CONTRACT.md: missing front-office runtime routing `PB_SG_GLOBAL_BAL_001`"
         in errors
     )
+
+
+def test_issue_heading_detection_ignores_fenced_command_comments() -> None:
+    validator = _load_validator_module()
+    document = """# Current State
+
+#123 is accidental prose
+
+```bash
+#456 is a valid shell comment
+```
+
+~~~text
+#789 is literal evidence
+~~~
+"""
+
+    assert validator._issue_reference_headings(document) == ["#123 is accidental prose"]

@@ -36,13 +36,13 @@ The agent should not load every Lotus document by default.
 Use this path-agnostic prompt on a new machine:
 
 ```text
-Read <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md, then <lotus-platform>/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, validation lane, existing owner/package pattern, and file-naming decision before making changes. Keep context lean, avoid flat dump folders, use durable capability names instead of RFC/issue/PR names for implementation files, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
+Read the target repository's AGENTS.md, <lotus-platform>/context/LOTUS-QUICKSTART-CONTEXT.md, the target repository's REPOSITORY-ENGINEERING-CONTEXT.md, and <lotus-platform>/context/LOTUS-SKILL-ROUTING-MAP.md. Load only the task-specific RFC, contract, playbook, or standard selected by those sources. Summarize the repo, branch, task intent, owner, applicable skill, validation lane, and completion evidence before changing files.
 ```
 
 Use this workspace-root prompt when the Lotus workspace path is known:
 
 ```text
-Read <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md, then <workspace-root>/lotus-platform/context/CONTEXT-REFERENCE-MAP.md, then the target repository's REPOSITORY-ENGINEERING-CONTEXT.md if present. Load only the RFC, skill, playbook, or standard needed for this task. Summarize the repo, branch, task intent, applicable standards, validation lane, existing owner/package pattern, and file-naming decision before making changes. Keep context lean, avoid flat dump folders, use durable capability names instead of RFC/issue/PR names for implementation files, use GitHub asynchronously for long-running checks, and update durable context docs when platform or repo reality changes.
+Read the target repository's AGENTS.md, <workspace-root>/lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md, the target repository's REPOSITORY-ENGINEERING-CONTEXT.md, and <workspace-root>/lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md. Load only the task-specific RFC, contract, playbook, or standard selected by those sources. Summarize the repo, branch, task intent, owner, applicable skill, validation lane, and completion evidence before changing files.
 ```
 
 ## First-Turn Checklist
@@ -73,10 +73,10 @@ Default for most tasks.
 
 Load:
 
-1. [Lotus Quickstart Context](../../context/LOTUS-QUICKSTART-CONTEXT.md)
-2. [Context Reference Map](../../context/CONTEXT-REFERENCE-MAP.md)
-3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. task-specific skill instructions when a skill matches the work
+1. the target repository's `AGENTS.md`,
+2. [Lotus Quickstart Context](../../context/LOTUS-QUICKSTART-CONTEXT.md),
+3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`,
+4. [Lotus Skill Routing Map](../../context/LOTUS-SKILL-ROUTING-MAP.md) and the selected skill.
 
 Use Tier 1 for:
 
@@ -132,6 +132,21 @@ Use Tier 3 for:
 5. repeated failures where the underlying pattern must be codified.
 
 Do not start with Tier 3 by default.
+
+## Fresh-Start Walkthrough
+
+Test an onboarding change without prior chat context:
+
+1. Start at the repository README and `AGENTS.md`; identify product purpose and mandatory rules.
+2. Follow the quickstart and repository context; identify the owning component and its boundaries.
+3. Use the skill-routing map; name the skill and why it applies.
+4. Follow one representative task route to its specialist contract or runbook.
+5. Find the smallest local validation and the required PR, exact-main, wiki, and hygiene evidence.
+6. Repeat without a sibling Platform checkout by using the canonical GitHub links.
+
+Record the paths followed and any tool-specific behavior that was not actually verified. A
+successful walkthrough must not depend on a personal directory, remembered issue state, or an
+undocumented command.
 
 ## Skill Selection
 
