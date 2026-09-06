@@ -55,8 +55,16 @@ PASSIVE_SINKS = frozenset(
 # normally an assertion (grep, jq, test), which is not a passive sink.
 _CONDITION_KEYWORDS = ("if", "elif", "while", "until")
 
+# Bash block structure: a `set -o pipefail` inside one of these may never
+# execute, so only an unconditional setting is honoured.
+_BLOCK_OPENERS = frozenset({"if", "while", "until", "for", "case"})
+_BLOCK_CLOSERS = frozenset({"fi", "done", "esac"})
+_CONTROL_WORDS = frozenset({"then", "do", "else", "elif", "if", "while", "until"})
+
 # Wrappers that run another command; the sink is what follows them.
-_STAGE_PREFIXES = frozenset({"sudo", "env", "command", "exec", "nohup", "time", "stdbuf"})
+_STAGE_PREFIXES = frozenset(
+    {"sudo", "env", "command", "exec", "nohup", "time", "stdbuf"}
+)
 
 # Producers with no verdict to lose. `echo "line" | sudo tee /etc/apt/x.list` is
 # the ordinary privileged-write idiom: there is no gate upstream of the sink, so
@@ -64,15 +72,22 @@ _STAGE_PREFIXES = frozenset({"sudo", "env", "command", "exec", "nohup", "time", 
 # fail meaningfully are reported.
 _TRIVIAL_SOURCES = frozenset({"echo", "printf", "true", ":", "yes"})
 
+# Inside `$( )` the pipeline produces a value the caller then judges, so a
+# transforming stage such as `wc` in `test "$(find … | wc -l)" -gt 0` is
+# doing its job. `tee` is different: it passes data through while writing a
+# log, so a gate piped into it inside a substitution has its status dropped.
+_SUBSTITUTION_SINKS = frozenset({"tee"})
+
 _STEPS_KEY = re.compile(r"^\s*steps:\s*$")
 _NAME = re.compile(r"(?:^|-\s+)name:\s*(?P<name>.+?)\s*$")
 _RUN_KEY = re.compile(r"^\s*(?:-\s+)?run:\s*(?P<inline>.*)$")
-_SET_PIPEFAIL = re.compile(r"^\s*set\s+[-\w\s]*-?o\s+pipefail")
+_PIPEFAIL_OFF = re.compile(r"^\s*set\s+(?:[-+]\w+\s+)*\+\w*o\s+pipefail\b")
+_PIPEFAIL_ON = re.compile(r"^\s*set\s+(?:[-+]\w+\s+)*-\w*o\s+pipefail\b")
 _QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
 _PIPESTATUS_CAPTURE = re.compile(
     r"(?P<var>[A-Za-z_][A-Za-z0-9_]*)=[\"']?\$\{PIPESTATUS\[0\]\}"
 )
-_PIPESTATUS_DIRECT = re.compile(r"(?:exit|return)\s+\"?\$\{PIPESTATUS\[0\]\}")
+_PIPESTATUS_DIRECT = re.compile(r"^(?:exit|return)\s+\"?\$\{PIPESTATUS\[0\]\}")
 
 
 @dataclass(frozen=True)
@@ -215,83 +230,144 @@ def _join_continuations(lines: list[str]) -> list[str]:
     return joined
 
 
-def _terminal_sink(shell_line: str) -> str | None:
-    """Return the passive sink a top-level pipeline ends in, if any."""
-    stripped = shell_line.strip()
-    if stripped.startswith("#"):
-        return None
-    probe = _QUOTED.sub("", stripped).replace("||", "")
-    # Strip a leading condition keyword and any negation so the pipeline inside
-    # `if gate.py | tee log; then` is judged on its own terminal stage.
-    words = probe.split()
+def _terminal_sink(segment: str) -> str | None:
+    """Return the passive sink this single command segment ends in, if any.
+
+    A segment is one command in a shell list; the caller splits on ``&&``,
+    ``||`` and ``;``. ``|&`` is Bash shorthand for ``2>&1 |`` and is normalised
+    first, or the ``&`` would be read as the sink's command name.
+    """
+    words = segment.replace("|&", "|").split()
     while words and (words[0] in _CONDITION_KEYWORDS or words[0] == "!"):
         words = words[1:]
-    probe = " ".join(words)
-    probe = re.split(r";\s*(?:then|do)\b", probe)[0]
-    if "|" in probe and ("&&" in probe or ";" in probe):
-        # Compound line: judge only the segment the step's status comes from.
-        probe = re.split(r"&&|;", probe)[-1]
-    if "|" not in probe:
+    text = re.split(r"\b(?:then|do)\b", " ".join(words))[0]
+    if "|" not in text:
         return None
-    first_stage = probe.split("|", 1)[0].strip().split()
-    while first_stage and (first_stage[0] in _STAGE_PREFIXES or "=" in first_stage[0]):
-        first_stage = first_stage[1:]
-    if first_stage and first_stage[0].split("/")[-1] in _TRIVIAL_SOURCES:
+
+    stages = [stage.strip() for stage in text.split("|")]
+    last = _command_of(stages[-1])
+    if last not in PASSIVE_SINKS:
         return None
-    last_stage = probe.rsplit("|", 1)[1].strip()
-    if not last_stage:
+    # Only harmless when *every* stage feeding the sink is a producer with no
+    # verdict: `printf x | gate.py | tee log` still hides gate.py's failure.
+    upstream = [_command_of(stage) for stage in stages[:-1]]
+    if upstream and all(command in _TRIVIAL_SOURCES for command in upstream):
         return None
-    words = last_stage.split()
-    # Step past runner prefixes and inline assignments: `sudo tee`, `env tee`,
-    # and `LC_ALL=C tee` all end in the same passive sink.
-    while words and (words[0] in _STAGE_PREFIXES or "=" in words[0]):
-        words = words[1:]
+    return last
+
+
+def _command_of(stage: str) -> str:
+    """Return the command a pipeline stage runs, past prefixes and assignments."""
+    words = stage.split()
+    saw_prefix = False
+    while words:
+        head = words[0]
+        if head in _STAGE_PREFIXES or "=" in head:
+            saw_prefix = True
+            words = words[1:]
+            continue
+        # `sudo -n tee log` and `sudo -- tee log` both run tee.
+        if saw_prefix and (head == "--" or head.startswith("-")):
+            words = words[1:]
+            continue
+        break
     if not words:
-        return None
-    command = words[0].lstrip("$(").split("/")[-1]
-    return command if command in PASSIVE_SINKS else None
+        return ""
+    return words[0].lstrip("$(").split("/")[-1]
 
 
 def unguarded_pipelines(step_body: str) -> list[str]:
     """Return each pipeline whose gate status never reaches the step.
 
-    Guards are evaluated per pipeline in execution order: ``set -o pipefail``
-    counts only for pipelines that follow it, and a ``${PIPESTATUS[0]}`` capture
-    counts only for the pipeline it immediately follows. A step that guards its
-    first pipeline and not its second is reported, because the second one still
-    cannot fail.
+    The step is read as command segments in execution order, so a ``set`` and a
+    pipeline on the same line are handled in the order Bash runs them.
+
+    Two Bash facts shape the guard rules. ``PIPESTATUS`` describes only the most
+    recently executed pipeline, so a capture on the next line vouches for the
+    **last** pipeline of the previous line and no earlier one. And a ``set -o
+    pipefail`` inside a conditional or loop body may never execute, so only an
+    unconditional one — at the top level of the block — is honoured.
     """
     shell = _run_lines(step_body)
-    pipefail_from: int | None = None
+    pipefail = False
+    depth = 0
     offenders: list[str] = []
 
     for index, line in enumerate(shell):
-        if pipefail_from is None and _SET_PIPEFAIL.match(line):
-            pipefail_from = index
+        probe = _QUOTED.sub("", line)
+        if probe.strip().startswith("#"):
             continue
-        sink = _terminal_sink(line)
-        if sink is None:
-            continue
-        if pipefail_from is not None and index > pipefail_from:
-            continue
-        if _status_is_propagated(shell, index):
-            continue
-        offenders.append(line.strip())
+
+        segments = re.split(r"&&|\|\||;", probe)
+        piped = [
+            i
+            for i, segment in enumerate(segments)
+            if _terminal_sink(segment) is not None
+        ]
+        last_piped = piped[-1] if piped else None
+        reported = False
+        # A pipeline inside $( ) runs too, and its status reaches only the
+        # assignment; a later PIPESTATUS capture describes the outer command,
+        # so nothing but pipefail can guard it.
+        for body in _substitution_bodies(line):
+            for inner in re.split(r"&&|\|\||;", body):
+                if _terminal_sink(inner) in _SUBSTITUTION_SINKS and not pipefail:
+                    offenders.append(line)
+                    reported = True
+                    break
+            if reported:
+                break
+        piped = [
+            i
+            for i, segment in enumerate(segments)
+            if _terminal_sink(segment) is not None
+        ]
+        last_piped = piped[-1] if piped else None
+        reported = False
+
+        for position, segment in enumerate(segments):
+            words = segment.split()
+            for word in words:
+                if word in _BLOCK_OPENERS:
+                    depth += 1
+                elif word in _BLOCK_CLOSERS:
+                    depth = max(0, depth - 1)
+
+            command = _strip_control_words(segment)
+            if _PIPEFAIL_OFF.match(command):
+                # A disable inside a branch may well execute, so it always
+                # invalidates the guard; only enabling requires certainty.
+                pipefail = False
+                continue
+            if _PIPEFAIL_ON.match(command):
+                if depth == 0:
+                    pipefail = True
+                continue
+            if position not in piped or reported:
+                continue
+            if pipefail:
+                continue
+            if position == last_piped and _status_is_propagated(shell, index):
+                continue
+            offenders.append(line)
+            reported = True
 
     return offenders
 
 
 def _status_is_propagated(shell: list[str], index: int) -> bool:
-    """True when the pipeline's own stage-0 status reaches an exit or return.
+    """True when this pipeline's stage-0 status reaches an executed exit or return.
 
-    Mentioning ``PIPESTATUS`` is not a guard. The gate's stage must be captured
-    (``${PIPESTATUS[0]}``, not ``[1]``) on the line immediately after the
-    pipeline, and that value must reach an ``exit`` or ``return`` later in the
-    block; otherwise the step still ends on someone else's status.
+    Comments are stripped first: ``# exit ${PIPESTATUS[0]}`` propagates nothing.
+    The capture must be a real command, and the ``exit``/``return`` that consumes
+    it must start a command segment rather than merely appear in the text.
     """
-    following = shell[index + 1] if index + 1 < len(shell) else ""
+    following = _strip_comment(shell[index + 1]) if index + 1 < len(shell) else ""
 
-    if _PIPESTATUS_DIRECT.search(following):
+    if any(
+        _PIPESTATUS_DIRECT.match(segment.strip())
+        for segment in _unconditional_segments(following)
+    ):
         return True
 
     capture = _PIPESTATUS_CAPTURE.search(following)
@@ -299,8 +375,64 @@ def _status_is_propagated(shell: list[str], index: int) -> bool:
         return False
 
     variable = capture.group("var")
-    exits = re.compile(rf"(?:exit|return)\s+\"?\$\{{?{re.escape(variable)}\}}?")
-    return any(exits.search(line) for line in shell[index + 2 :])
+    exits = re.compile(rf"^(?:exit|return)\s+\"?\$\{{?{re.escape(variable)}\}}?")
+    return any(
+        exits.match(segment.strip())
+        for line in shell[index + 2 :]
+        for segment in _unconditional_segments(_strip_comment(line))
+    )
+
+
+def _strip_control_words(segment: str) -> str:
+    """Drop leading `then`/`do`/`else` so `; then set +o pipefail` is seen as a set."""
+    words = segment.split()
+    while words and words[0] in _CONTROL_WORDS:
+        words = words[1:]
+    return " ".join(words)
+
+
+def _substitution_bodies(line: str) -> list[str]:
+    """Return the contents of each ``$( ... )`` command substitution.
+
+    Quote stripping would otherwise hide them: ``result="$(gate.py | tee log)"``
+    still executes the pipeline, and without pipefail the assignment takes
+    ``tee``'s status.
+    """
+    bodies: list[str] = []
+    index = 0
+    while True:
+        start = line.find("$(", index)
+        if start == -1:
+            return bodies
+        depth = 0
+        for position in range(start + 1, len(line)):
+            if line[position] == "(":
+                depth += 1
+            elif line[position] == ")":
+                depth -= 1
+                if depth == 0:
+                    bodies.append(line[start + 2 : position])
+                    index = position + 1
+                    break
+        else:
+            return bodies
+
+
+def _unconditional_segments(line: str) -> list[str]:
+    """Return only the segments Bash always runs on this line.
+
+    ``false && exit ${{PIPESTATUS[0]}}`` never executes its exit, so a guard
+    found there is not a guard. Within each ``;``-separated command, only the
+    part before the first ``&&`` or ``||`` is certain to run.
+    """
+    return [re.split(r"&&|\|\|", part)[0] for part in line.split(";")]
+
+
+def _strip_comment(line: str) -> str:
+    """Drop a trailing comment, leaving quoted `#` characters alone."""
+    masked = _QUOTED.sub(lambda match: "\x00" * len(match.group()), line)
+    position = masked.find("#")
+    return line if position == -1 else line[:position]
 
 
 def step_hides_exit_code(body: str) -> bool:
@@ -324,7 +456,9 @@ def validate_repository(repository: str, *, repos_root: Path) -> RepositoryResul
                 offenders.append(Offender(repository, workflow.name, name))
 
     status = "drift" if offenders else "clean"
-    return RepositoryResult(repository, status, len(workflows), steps_scanned, tuple(offenders))
+    return RepositoryResult(
+        repository, status, len(workflows), steps_scanned, tuple(offenders)
+    )
 
 
 def validate_repositories(
@@ -333,7 +467,9 @@ def validate_repositories(
     repos_root: Path,
     require_local_repos: bool,
 ) -> tuple[list[RepositoryResult], list[str]]:
-    results = [validate_repository(repo, repos_root=repos_root) for repo in repositories]
+    results = [
+        validate_repository(repo, repos_root=repos_root) for repo in repositories
+    ]
     failures = [str(offender) for result in results for offender in result.offenders]
     if require_local_repos:
         failures.extend(
