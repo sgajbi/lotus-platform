@@ -215,9 +215,25 @@ def test_every_template_the_scaffold_copies_is_scanned() -> None:
     """A template outside the governed set corrupts every repository generated next."""
     templates = scaffold_template_sources()
 
-    assert len(templates) >= 10, (
-        f"only {len(templates)} templates parsed from {SCAFFOLD.name}; the "
-        "assertion would be hollow if the copy syntax changed"
+    # Count the copies loosely, then require the strict parser to have found
+    # every one. A fixed floor would still pass if a template were added in a
+    # form the parser does not recognise, which is the same silent gap this
+    # test exists to close one level down.
+    scaffold_text = SCAFFOLD.read_text(encoding="utf-8")
+    copy_statements = [
+        line
+        for line in scaffold_text.splitlines()
+        if "Copy-Item" in line and "$templateRoot" in line
+    ]
+
+    assert len(copy_statements) >= 10, (
+        f"only {len(copy_statements)} template copies found in {SCAFFOLD.name}; "
+        "the assertion would be hollow"
+    )
+    assert len(templates) == len(copy_statements), (
+        f"{len(copy_statements)} template copies exist but the parser recognised "
+        f"{len(templates)}; a copy written in an unrecognised form is a template "
+        "that silently leaves the governed scan"
     )
     missing = [
         path.relative_to(REPO_ROOT).as_posix()
