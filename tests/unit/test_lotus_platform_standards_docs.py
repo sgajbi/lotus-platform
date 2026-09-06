@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 
+from context_reachability import subject_is_reachable
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -45,8 +47,11 @@ def test_data_mesh_standard_is_contextual_and_certification_backed() -> None:
     ):
         assert repository in standard
 
-    for content in (docs_index, sidebar, home, engineering_context, reference_map, repo_context):
+    for content in (docs_index, sidebar, home, engineering_context, reference_map):
         assert "Lotus Data Mesh Standard" in content or "Data Mesh Standard" in content
+
+    # The repository context reaches the standard through the indexes above.
+    assert subject_is_reachable("Data Mesh Standard")
 
 
 def test_client_demo_certification_standard_is_audience_ready_and_evidence_backed() -> None:
@@ -117,9 +122,14 @@ def test_client_demo_certification_standard_is_audience_ready_and_evidence_backe
     assert "client-demo-pack-template.md" in demo_skill
     assert "client-ready acceptance" in demo_skill.lower()
 
-    for content in (sidebar, home, canonical_demo, engineering_context, reference_map, repo_context):
+    for content in (sidebar, home, canonical_demo, engineering_context, reference_map):
         assert (
             "Lotus Client Demo Certification Standard" in content
             or "Client Demo Certification" in content
         )
         assert "Client Demo Pack Template" in content or "client-demo-pack-template.md" in content
+
+    # Reached from the repository context through the indexes above rather than
+    # repeated in it.
+    assert subject_is_reachable("Client Demo Certification")
+    assert subject_is_reachable("Client Demo Pack Template")

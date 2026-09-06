@@ -491,7 +491,7 @@ Read:
 1. [Lotus Developer Onboarding](../docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md)
 2. [Lotus Agent Ramp-Up](../docs/onboarding/LOTUS-AGENT-RAMP-UP.md)
 3. [Local Development Runbook](../docs/operations/Local%20Development%20Runbook.md)
-4. `docs/` and `automation/README.md` in `lotus-platform`
+4. [Automation Reference](../automation/README.md) and `docs/` in `lotus-platform`
 5. platform validation and ingress automation under `automation/`
 
 ## Enterprise Backend Refactor Quality
