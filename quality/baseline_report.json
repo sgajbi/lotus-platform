@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 368269
+    "total_source_lines": 368291
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -205,8 +205,8 @@
       },
       {
         "complexity": 1,
-        "end_line": 1075,
-        "line": 602,
+        "end_line": 1080,
+        "line": 607,
         "lines": 474,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3190
+    "python_function_count": 3191
   },
-  "generated_at_utc": "2026-09-06T10:46:16Z",
+  "generated_at_utc": "2026-09-06T10:48:13Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -438,7 +438,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1315,
+      "lines": 1320,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
     },
@@ -762,27 +762,27 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 313,
+        "line": 318,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 314,
+        "line": 319,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 315,
+        "line": 320,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 316,
+        "line": 321,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 317,
+        "line": 322,
         "path": "automation/generate_enterprise_backend_quality_baseline.py",
         "signal": "sensitive-keyword-review"
       }
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1293,
+    "collected_tests": 1294,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1293 tests collected in 1.41s"
+    "summary": "1294 tests collected"
   }
 }
