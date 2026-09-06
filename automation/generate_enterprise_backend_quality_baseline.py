@@ -1183,14 +1183,21 @@ def _baseline_freshness_differences(
                 platform_counts = accepted_tests.get("collected_tests_by_platform")
                 if isinstance(platform_name, str) and isinstance(platform_counts, dict):
                     if platform_name not in platform_counts:
-                        # No count has been recorded for the platform running
-                        # this check, and another platform's count is not an
-                        # accepted value for it — the lanes run on ubuntu-latest
-                        # while a developer regenerates on Windows, so falling
-                        # back to the stored figure compares 1379 against 1090
-                        # and reports drift that does not exist. An unmeasured
-                        # platform has nothing to disagree with; the first run
-                        # on it records its own.
+                        # Skipping here would be a zero-input pass: the lanes run
+                        # on ubuntu-latest, so a missing Linux baseline would mean
+                        # the test-count metric is never compared in CI at all,
+                        # and a collection of zero tests would raise no
+                        # difference. Comparing against another platform's count
+                        # is equally wrong — the counts genuinely differ. So the
+                        # absence is reported, with the command that fixes it.
+                        differences.append(
+                            f"`{metric_name}`: no accepted count recorded for "
+                            f"platform {platform_name!r} (recorded: "
+                            f"{sorted(platform_counts)}). Run "
+                            "generate_enterprise_backend_quality_baseline.py "
+                            "--write on this platform and commit the result; "
+                            "another platform's count is not a substitute."
+                        )
                         continue
                     accepted_value = platform_counts[platform_name]
         tolerance = FRESHNESS_TOLERANCES.get(metric_name, 0)
