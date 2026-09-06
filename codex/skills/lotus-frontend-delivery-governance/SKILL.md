@@ -9,13 +9,17 @@ Use this skill for Lotus frontend implementation, UI hardening, validation, and 
 
 Apply it in line with:
 
-1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-2. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md`
-3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
+1. the common startup set already selected before this skill,
+2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when the change crosses a repository
+   boundary,
+3. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` only when execution method, recovery, or
+   delivery evidence is central,
 4. `lotus-platform/rfcs/RFC-0072-platform-wide-multi-lane-ci-validation-and-release-governance.md`
+   when CI or release posture is in scope,
 5. `lotus-platform/docs/standards/Continuous Integration, Validation, and Release Governance Standard.md`
-6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`
-7. Lotus UI and gateway ownership rules already established in platform RFCs
+   when CI or release posture is in scope,
+6. `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md`,
+7. Lotus UI and gateway ownership rules already established in platform RFCs.
 
 Use `lotus-platform/context/playbooks/CHANGE-PLAYBOOKS.md` for task sequencing, `lotus-platform/context/playbooks/VALIDATION-PLAYBOOK.md` for proof selection, and `lotus-platform/context/playbooks/FIX-FORWARD-PATTERNS.md` when GitHub or runtime evidence surfaces a real defect.
 
@@ -32,8 +36,8 @@ private banking architecture without making generic design-system generation the
 
 Before substantive frontend work:
 
-1. load the central engineering context,
-2. load the repo-local context,
+1. rely on the common startup set, which already includes the repo-local context,
+2. load the central engineering context only when the change crosses a repository boundary,
 3. load only the platform RFCs and standards the task actually needs.
 
 ## Traceability Before Mutation

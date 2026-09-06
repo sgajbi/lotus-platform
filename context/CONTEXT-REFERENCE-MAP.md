@@ -2,12 +2,11 @@
 
 Use this file to route quickly to the right Lotus context source without loading unnecessary material.
 
-Start with:
-
-1. [Lotus Quickstart Context](./LOTUS-QUICKSTART-CONTEXT.md)
-2. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-3. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
-4. [lotus-context-manifest.json](./lotus-context-manifest.json)
+Open this map only after the common startup set is complete. Select the authority required by the
+task; do not restart discovery or load broad engineering context merely because this map was
+opened. Use the [Task Routing Guide](./TASK-ROUTING-GUIDE.md) only when the correct task route or
+ownership is unclear, and use [lotus-context-manifest.json](./lotus-context-manifest.json) when a
+machine-readable route is required.
 
 ## Central Memory Layer
 
