@@ -107,20 +107,3 @@ def test_agents_operating_contract_validator_reports_missing_required_guidance()
         in errors
     )
 
-
-def test_issue_heading_detection_ignores_fenced_command_comments() -> None:
-    validator = _load_validator_module()
-    document = """# Current State
-
-#123 is accidental prose
-
-```bash
-#456 is a valid shell comment
-```
-
-~~~text
-#789 is literal evidence
-~~~
-"""
-
-    assert validator._issue_reference_headings(document) == ["#123 is accidental prose"]

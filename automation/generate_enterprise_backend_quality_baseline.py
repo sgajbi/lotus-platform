@@ -1239,7 +1239,24 @@ def validate_quality_surface() -> list[str]:
     if not errors:
         _validate_baseline_freshness(errors, baseline)
     _validate_repo_check_wiring(errors)
+    # An already-accepted baseline can carry a failed collection from before
+    # this was enforced; --check must surface that rather than trusting it.
+    recorded = _collection_returncode(baseline) if isinstance(baseline, dict) else None
+    if recorded not in (0, None):
+        errors.append(
+            f"quality/baseline_report.json records pytest collection returncode {recorded}: "
+            "the accepted test count describes a partial collection"
+        )
     return errors
+
+
+
+def _collection_returncode(baseline: dict[str, object]) -> object:
+    """The pytest collection exit status recorded in a baseline payload."""
+    tests = baseline.get("tests")
+    if not isinstance(tests, dict):
+        return None
+    return tests.get("returncode")
 
 
 def main() -> int:
@@ -1260,6 +1277,19 @@ def main() -> int:
 
     if args.write:
         baseline = build_baseline()
+        collection_status = _collection_returncode(baseline)
+        if collection_status != 0:
+            # pytest prints a count AND exits nonzero when a module fails to
+            # import, so the count alone looks like a healthy run. Writing here
+            # would canonize a partial test set as the accepted baseline and
+            # every later comparison would be made against it.
+            print(
+                "Enterprise backend quality baseline not written: pytest "
+                f"collection returned {collection_status}, so the collected "
+                "count describes a partial run. Fix collection first.",
+                file=sys.stderr,
+            )
+            return 1
         write_quality_artifacts(baseline)
         print("Enterprise backend quality baseline generated.")
 

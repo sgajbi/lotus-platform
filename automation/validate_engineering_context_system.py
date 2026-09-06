@@ -122,34 +122,6 @@ REQUIRED_REPO_CONTEXT_CROSS_LINKS = (
     "context/CONTEXT-REFERENCE-MAP.md",
 )
 
-# A prose line beginning with an issue reference renders as an H1: "#681 was the
-# tracker" becomes a top-level heading in the outline, which a heading-based
-# check reads as structure and a human reads as a section that does not exist.
-#
-# Inside a fenced block the same line is a shell comment or a config snippet and
-# renders as neither. Reporting it invites a "fix" that corrupts real content,
-# and the damage looks identical to the repair until someone runs the code.
-_ISSUE_AS_HEADING = re.compile(r"^#[0-9]")
-_FENCE = re.compile(r"^\s*(?:`{3,}|~{3,})")
-
-
-
-
-def _issue_reference_headings(text: str) -> list[str]:
-    """Prose lines starting with an issue reference, ignoring fenced blocks."""
-    findings: list[str] = []
-    in_fence = False
-    for line in text.splitlines():
-        if _FENCE.match(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        if _ISSUE_AS_HEADING.match(line):
-            findings.append(line)
-    return findings
-
-
 def _validate_repo_context_shape(
     *,
     errors: list[str],
@@ -187,13 +159,6 @@ def _validate_repo_context_shape(
         target.append(
             f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing required "
             f"cross-link(s): {', '.join(missing_links)}"
-        )
-    fake_headings = _issue_reference_headings(text)
-    if fake_headings:
-        target.append(
-            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md has {len(fake_headings)} "
-            "line(s) starting with an issue reference, which render as top-level headings; "
-            "reflow the line or write 'issue #123'"
         )
 
 

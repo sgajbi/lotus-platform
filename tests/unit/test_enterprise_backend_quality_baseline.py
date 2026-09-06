@@ -273,3 +273,57 @@ def test_quality_foundation_is_discoverable_from_docs_context_wiki_and_skill() -
 
     sidebar = (ROOT / "wiki" / "_Sidebar.md").read_text(encoding="utf-8")
     assert "Enterprise-Backend-Refactor-Quality" in sidebar
+
+
+def test_recorded_failed_collection_is_reported_by_the_quality_surface(monkeypatch) -> None:
+    """A baseline carrying a failed collection must not validate as accepted.
+
+    pytest prints a collected count and exits nonzero when a module fails to
+    import, so the count alone cannot distinguish a full run from a partial one.
+    A baseline accepted before this was enforced would otherwise remain the
+    reference for every later comparison.
+    """
+    accepted = json.loads(
+        (ROOT / "quality" / "baseline_report.json").read_text(encoding="utf-8")
+    )
+    assert accepted["tests"]["returncode"] == 0, "committed baseline is a healthy run"
+
+    partial = json.loads(json.dumps(accepted))
+    partial["tests"]["returncode"] = 2
+
+    monkeypatch.setattr(
+        baseline_generator, "_load_baseline_report", lambda errors: partial
+    )
+    errors = validate_quality_surface()
+
+    assert any("returncode 2" in error for error in errors), errors
+
+
+def test_healthy_collection_is_not_reported_as_partial(monkeypatch) -> None:
+    """The guard must accept the shape it is supposed to accept."""
+    accepted = json.loads(
+        (ROOT / "quality" / "baseline_report.json").read_text(encoding="utf-8")
+    )
+    monkeypatch.setattr(
+        baseline_generator, "_load_baseline_report", lambda errors: accepted
+    )
+
+    assert not [error for error in validate_quality_surface() if "returncode" in error]
+
+
+def test_quality_write_refuses_partial_test_collection(monkeypatch, capsys) -> None:
+    """A failed collection cannot overwrite the accepted quality artifacts."""
+    partial = {"tests": {"collected_tests": 12, "returncode": 2}}
+    write_attempted = False
+
+    def record_write(_baseline: dict[str, object]) -> None:
+        nonlocal write_attempted
+        write_attempted = True
+
+    monkeypatch.setattr(baseline_generator, "build_baseline", lambda: partial)
+    monkeypatch.setattr(baseline_generator, "write_quality_artifacts", record_write)
+    monkeypatch.setattr(baseline_generator.sys, "argv", ["quality-baseline", "--write"])
+
+    assert baseline_generator.main() == 1
+    assert write_attempted is False
+    assert "partial run" in capsys.readouterr().err
