@@ -2,13 +2,15 @@
 
 This is the fastest safe orientation layer for a new Lotus engineering session.
 
-Read this file first, then continue to:
+After this file, read the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md` and the
+[Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md). That is the default startup set together
+with the repository's mandatory `AGENTS.md`.
 
-1. [LOTUS Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-2. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md)
-3. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
-4. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) when the task is mainly about execution method
-5. the repository-local `REPOSITORY-ENGINEERING-CONTEXT.md` for the repository you are changing
+Use the [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when the correct owner or deeper context is
+unclear. Load [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md), the
+[Context Reference Map](./CONTEXT-REFERENCE-MAP.md), or the
+[Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) only when the task needs cross-repository
+architecture, a specialist source, or execution guidance.
 
 ## What Lotus Is
 
@@ -139,11 +141,7 @@ The governed procedural-memory layer lives in:
 
 ## Next Read
 
-Continue in this order:
-
-1. [LOTUS Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md)
-2. [Task Routing Guide](./TASK-ROUTING-GUIDE.md)
-3. [Procedural Memory Index](./PROCEDURAL-MEMORY-INDEX.md) when execution guidance matters
-4. the target repository’s `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. [Context Reference Map](./CONTEXT-REFERENCE-MAP.md) for standards, RFCs, runbooks, and registries
+1. Read the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`.
+2. Select the task's skill in the [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md).
+3. Follow only the task-specific links identified by those two sources.
 

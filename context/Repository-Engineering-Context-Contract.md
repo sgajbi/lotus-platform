@@ -13,6 +13,10 @@ It should help a new agent understand:
 3. what commands and validations matter,
 4. what current-state realities and constraints matter now.
 
+It is part of the small startup set, so it must be concise enough to load routinely. Detailed
+contracts and procedures belong in purpose-owned documents; active tasks and delivery history
+belong in GitHub issues or the governed task ledger.
+
 ## Required Sections
 
 Each `REPOSITORY-ENGINEERING-CONTEXT.md` must include:
@@ -46,6 +50,13 @@ Repository-local documents should:
 3. describe established local patterns and real commands,
 4. avoid restating broad platform policy unless local interpretation is needed,
 5. be updated when repository behavior, ownership, commands, or dominant patterns change.
+6. route task-specific reading by explaining when and why a deeper source is needed,
+7. summarize current posture without enumerating implementation chronology,
+8. use repository-relative or canonical links and defined placeholders instead of personal paths.
+
+They should not contain PR timelines, completed-issue diaries, transient CI status, repeated
+service inventories, or detailed standards already authoritative elsewhere. Git history preserves
+removed historical context when obsolete entries are consolidated.
 
 ## Maintenance Rule
 

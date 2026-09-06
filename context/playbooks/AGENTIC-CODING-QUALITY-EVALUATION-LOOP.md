@@ -93,6 +93,26 @@ For each meaningful agent-authored slice:
 Do not self-grade with prose such as "production-ready" or "enterprise-grade". Use executable
 evidence and reviewable artifacts.
 
+## Evidence And Guard Integrity
+
+The compact rules in `AGENTS.md` come from observed failures:
+
+1. shell heredocs interpreted backslash escapes and committed invisible control bytes into source
+   and Markdown; use the editing/patch mechanism and scan bytes where this class is relevant,
+2. pipelines ending in `tee` or `tail` returned the consumer's success instead of the gate's
+   failure; run gates bare or explicitly preserve and propagate the producer status,
+3. guards that were tested only on good input or one motivating defect passed while missing the
+   broader class; test multiple bad shapes and valid counterexamples after every guard edit,
+4. working-tree hashes gave false parity under line-ending normalization and uncommitted repairs;
+   compare committed blob SHAs for synchronized canonical files,
+5. `gh issue close --comment` can omit evidence when an issue is already closed; comment first and
+   verify the durable record before changing issue state,
+6. per-revision workflow dispatch can reject intermediate commits whose workflow differs from the
+   default branch; keep workflow-changing PRs single-commit unless that repository proves otherwise.
+
+When a new case changes one of these rules, update this evidence section and its focused guard
+tests. Keep only the mandatory outcome in `AGENTS.md`.
+
 ## Skill And Context Promotion
 
 Promote a lesson into a skill or context update when it changes how future agents should approach a

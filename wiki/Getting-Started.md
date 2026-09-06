@@ -14,7 +14,7 @@ the owning repository's runbook.
 ## Recommended workspace layout
 
 ```text
-C:\Users\<user>\projects\
+<workspace-root>/
   lotus-platform\
   lotus-core\
   lotus-performance\
@@ -41,23 +41,27 @@ $PSVersionTable.PSVersion
 ## Platform readiness inspection
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+$env:LOTUS_WORKSPACE_ROOT = "<workspace-root>"
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
 ```
 
 ## Sync governed local Codex guidance
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast
 ```
 
 ## Context reading order
 
-1. [Lotus Quickstart Context](https://github.com/sgajbi/lotus-platform/blob/main/context/LOTUS-QUICKSTART-CONTEXT.md)
-2. [Lotus Engineering Context](https://github.com/sgajbi/lotus-platform/blob/main/context/LOTUS-ENGINEERING-CONTEXT.md)
-3. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. [Context Reference Map](https://github.com/sgajbi/lotus-platform/blob/main/context/CONTEXT-REFERENCE-MAP.md)
+1. the target repository's `AGENTS.md`
+2. [Lotus Quickstart Context](https://github.com/sgajbi/lotus-platform/blob/main/context/LOTUS-QUICKSTART-CONTEXT.md)
+3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
+4. [Lotus Skill Routing Map](https://github.com/sgajbi/lotus-platform/blob/main/context/LOTUS-SKILL-ROUTING-MAP.md)
+
+Load the engineering context, reference map, procedural memory, and specialist documentation only
+when the task route calls for them.
 
 ## Documentation work path
 
@@ -77,12 +81,12 @@ tree.
 Use the platform scaffold when creating a new Lotus backend repository:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\New-Lotus-Service.ps1 `
   -ServiceName lotus-example `
   -Description "Example Lotus backend service" `
   -ServiceProfile domain-service `
-  -DestinationRoot C:\Users\<user>\projects
+  -DestinationRoot $env:LOTUS_WORKSPACE_ROOT
 ```
 
 See [New Backend Service Scaffold](New-Backend-Service-Scaffold) for the wiki summary and
@@ -94,7 +98,7 @@ for the detailed generated-feature and usage guide.
 For canonical populated front-office validation, use `lotus-workbench`:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-workbench
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-workbench"
 npm run live:stack:up
 npm run live:validate
 ```

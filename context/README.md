@@ -2,16 +2,18 @@
 
 This directory contains the platform-owned central context system defined by [RFC-0073](../rfcs/RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md).
 
-## Reading Order
+## Start Small
 
-Use the files in this order:
+The repository's `AGENTS.md` is the mandatory operating entry. Then read:
 
-1. [LOTUS-QUICKSTART-CONTEXT.md](./LOTUS-QUICKSTART-CONTEXT.md)
-2. [LOTUS-ENGINEERING-CONTEXT.md](./LOTUS-ENGINEERING-CONTEXT.md)
-3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. [CONTEXT-REFERENCE-MAP.md](./CONTEXT-REFERENCE-MAP.md)
-5. [PROCEDURAL-MEMORY-INDEX.md](./PROCEDURAL-MEMORY-INDEX.md) when the task is primarily about execution method
-6. [AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md) for the governed short-form agent contract
+1. [LOTUS-QUICKSTART-CONTEXT.md](./LOTUS-QUICKSTART-CONTEXT.md),
+2. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`,
+3. [LOTUS-SKILL-ROUTING-MAP.md](./LOTUS-SKILL-ROUTING-MAP.md).
+
+Use [TASK-ROUTING-GUIDE.md](./TASK-ROUTING-GUIDE.md) when ownership is unclear. Load engineering
+context, reference maps, playbooks, RFCs, and standards only when the selected task route requires
+them. The source copy of the shared `AGENTS.md` is
+[AGENTS-OPERATING-CONTRACT.md](./AGENTS-OPERATING-CONTRACT.md).
 
 ## Central Ownership
 

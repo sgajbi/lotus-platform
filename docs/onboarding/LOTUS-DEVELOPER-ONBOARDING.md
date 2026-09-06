@@ -29,10 +29,16 @@ Onboarding should not silently start Docker stacks, mutate repositories, overwri
 
 Use one parent folder for the Lotus repositories.
 
-Recommended Windows layout:
+Set a workspace-root variable once, then use it in the commands below:
+
+```powershell
+$env:LOTUS_WORKSPACE_ROOT = "<workspace-root>"
+```
+
+Recommended layout:
 
 ```text
-C:\Users\<user>\projects\
+<workspace-root>/
   lotus-platform\
   lotus-core\
   lotus-performance\
@@ -61,7 +67,7 @@ Do not treat that path as the only supported layout. Platform automation and doc
 Start with `lotus-platform` because it owns the central context, onboarding, standards, runbooks, ingress guidance, and platform automation.
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 git checkout main
 git pull --ff-only
 ```
@@ -85,7 +91,7 @@ $repos = @(
 )
 
 foreach ($repo in $repos) {
-  Push-Location "C:\Users\<user>\projects\$repo"
+  Push-Location "$env:LOTUS_WORKSPACE_ROOT/$repo"
   git checkout main
   git pull --ff-only
   Pop-Location
@@ -148,7 +154,7 @@ For front-office product validation, demo preparation, screenshot capture, and p
 Use:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-workbench
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-workbench"
 npm run live:stack:up
 npm run live:validate
 ```
@@ -191,12 +197,14 @@ After pulling `lotus-platform`, read context in the smallest useful order.
 
 For normal development:
 
-1. [Lotus Quickstart Context](../../context/LOTUS-QUICKSTART-CONTEXT.md)
-2. [Context Reference Map](../../context/CONTEXT-REFERENCE-MAP.md)
+1. the target repository's `AGENTS.md`
+2. [Lotus Quickstart Context](../../context/LOTUS-QUICKSTART-CONTEXT.md)
 3. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
-4. the relevant RFC, standard, playbook, or skill for the task
+4. [Lotus Skill Routing Map](../../context/LOTUS-SKILL-ROUTING-MAP.md)
 
 Use the full [Lotus Engineering Context](../../context/LOTUS-ENGINEERING-CONTEXT.md) when the task affects architecture, standards, cross-repo ownership, or governance.
+Use the [Context Reference Map](../../context/CONTEXT-REFERENCE-MAP.md) when you need to locate a
+specific standard, RFC, contract, or runbook.
 
 When the task is specifically about README, wiki, or documentation structure, also load:
 
@@ -211,10 +219,10 @@ The governed operating contract source is:
 
 1. [AGENTS Operating Contract](../../context/AGENTS-OPERATING-CONTRACT.md)
 
-The deployed local copy normally lives at:
+The deployed local copy normally lives under the agent's configured profile:
 
 ```text
-C:\Users\<user>\.codex\AGENTS.md
+<codex-home>/AGENTS.md
 ```
 
 The platform-owned Lotus skill source is:
@@ -231,28 +239,28 @@ Treat the local Codex profile as a consumer of platform guidance, not the source
 To check global `AGENTS.md` drift from the governed source:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1 -CheckOnly
 ```
 
 To synchronize only `AGENTS.md` after reviewing the change:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Sync-AgentOperatingContract.ps1
 ```
 
 To inspect developer-environment readiness without mutating local files:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Validate-LotusDeveloperEnvironment.ps1 -Mode Inspect -Profile fast
 ```
 
 To bootstrap governed Lotus Codex skills and `AGENTS.md` into the local Codex profile:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Bootstrap-LotusDeveloperEnvironment.ps1 -Profile fast
 ```
 
@@ -315,21 +323,21 @@ Host mapping source of truth:
 Preview host mapping:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Sync-Dev-Ingress-Hosts.ps1
 ```
 
 Apply host mapping from an elevated shell:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Sync-Dev-Ingress-Hosts.ps1 -Apply
 ```
 
 Verify ingress after the stack is expected to be running:
 
 ```powershell
-cd C:\Users\<user>\projects\lotus-platform
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Validate-Dev-Ingress-Smoke.ps1
 powershell -ExecutionPolicy Bypass -File automation\Explain-Dev-Ingress-Status.ps1
 ```
