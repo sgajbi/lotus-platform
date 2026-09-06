@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 367306
+    "total_source_lines": 367432
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -42,20 +42,20 @@
         "path": "automation/gate_liveness_audit.py"
       },
       {
+        "complexity": 27,
+        "end_line": 377,
+        "line": 282,
+        "lines": 96,
+        "name": "unguarded_pipelines",
+        "path": "automation/validate_workflow_pipeline_exit_codes.py"
+      },
+      {
         "complexity": 24,
         "end_line": 321,
         "line": 250,
         "lines": 72,
         "name": "_validate_controls",
         "path": "automation/validate_bank_readiness_control_catalog.py"
-      },
-      {
-        "complexity": 22,
-        "end_line": 355,
-        "line": 279,
-        "lines": 77,
-        "name": "unguarded_pipelines",
-        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
         "complexity": 22,
@@ -91,8 +91,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 179,
-        "line": 117,
+        "end_line": 182,
+        "line": 120,
         "lines": 63,
         "name": "iter_steps",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3158
+    "python_function_count": 3166
   },
-  "generated_at_utc": "2026-09-06T00:54:09Z",
+  "generated_at_utc": "2026-09-06T07:31:40Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1273,
+    "collected_tests": 1278,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1273 tests collected in 1.24s"
+    "summary": "1278 tests collected in 0.99s"
   }
 }
