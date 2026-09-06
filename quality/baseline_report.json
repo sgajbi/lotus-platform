@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 414,
     "powershell_file_count": 69,
-    "python_file_count": 237,
-    "source_file_count": 907,
+    "python_file_count": 239,
+    "source_file_count": 909,
     "suffix_counts": {
       ".json": 138,
       ".md": 414,
       ".ps1": 69,
-      ".py": 237,
+      ".py": 239,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 367306
+    "total_source_lines": 367850
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -40,6 +40,14 @@
         "lines": 142,
         "name": "_make_invoked_targets",
         "path": "automation/gate_liveness_audit.py"
+      },
+      {
+        "complexity": 35,
+        "end_line": 153,
+        "line": 79,
+        "lines": 75,
+        "name": "validate_policy_document",
+        "path": "automation/check_branch_protection_policy.py"
       },
       {
         "complexity": 24,
@@ -131,6 +139,14 @@
       },
       {
         "complexity": 16,
+        "end_line": 250,
+        "line": 184,
+        "lines": 67,
+        "name": "compare_live_to_policy",
+        "path": "automation/check_branch_protection_policy.py"
+      },
+      {
+        "complexity": 16,
         "end_line": 233,
         "line": 200,
         "lines": 34,
@@ -176,22 +192,6 @@
         "lines": 64,
         "name": "_target_can_fail",
         "path": "automation/gate_liveness_audit.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 719,
-        "line": 672,
-        "lines": 48,
-        "name": "_projects_from_contract",
-        "path": "automation/background_task_cancellation.py"
-      },
-      {
-        "complexity": 14,
-        "end_line": 220,
-        "line": 174,
-        "lines": 47,
-        "name": "_validate_included_environment",
-        "path": "automation/validate_deployment_promotion_manifest.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3158
+    "python_function_count": 3179
   },
-  "generated_at_utc": "2026-09-06T00:54:09Z",
+  "generated_at_utc": "2026-09-06T06:28:36Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1273,
+    "collected_tests": 1286,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1273 tests collected in 1.24s"
+    "summary": "1286 tests collected in 1.09s"
   }
 }
