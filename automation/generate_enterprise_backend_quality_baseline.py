@@ -1217,23 +1217,29 @@ def _record_platform_test_count(
     baseline: dict[str, object],
     accepted: dict[str, object] | None,
 ) -> dict[str, object]:
-    """Record a test count only for the platform this run actually collected on.
+    """Carry each platform's recorded count forward and update this run's own.
 
-    Carrying every other platform's previous count forward looks like breadth
-    and behaves like staleness. A regeneration on one operating system left the
-    others holding numbers measured before the change, so the next check on one
-    of those compared its own increased count against a figure nobody had
-    collected and failed the tolerance — a failure that describes the recording,
-    not the tree.
+    An earlier revision dropped the other platforms on every regeneration, to
+    stop a Windows run leaving a stale Linux number behind. That removed real
+    drift detection: a Linux count that no longer matches a Linux collection is
+    exactly what this metric exists to report, and the remedy is to regenerate
+    on Linux rather than to forget the number.
 
-    An uncollected platform therefore has no accepted count. The next run on it
-    records its own, which is the same outcome the stale figure was pretending
-    to provide, without the false comparison in between.
+    What was actually wrong was the comparison, not the record. It fell back to
+    the top-level count when the running platform had none, so a Linux lane was
+    measured against a Windows total. Comparison is per platform now, and a
+    platform with no recorded count is reported rather than skipped.
     """
     tests = baseline.get("tests")
     if not isinstance(tests, dict):
         return baseline
     counts: dict[str, object] = {}
+    if isinstance(accepted, dict):
+        accepted_tests = accepted.get("tests")
+        if isinstance(accepted_tests, dict):
+            accepted_counts = accepted_tests.get("collected_tests_by_platform")
+            if isinstance(accepted_counts, dict):
+                counts.update(accepted_counts)
     platform_name = tests.get("platform")
     collected_tests = tests.get("collected_tests")
     if isinstance(platform_name, str) and isinstance(collected_tests, int):
