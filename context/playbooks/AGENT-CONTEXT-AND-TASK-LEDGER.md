@@ -40,6 +40,11 @@ worktree, or coordinate with the owner. A designated repository owner may contin
 in its checkout after explicitly excluding unrelated paths. Record any temporary worktree and
 remove it after its exact clean state and resolved path are verified.
 
+Stage explicit paths and verify the active branch in the same command that commits. Attribute
+shared-checkout work through the branch, PR, and recorded task—not the common commit identity.
+Before reverting, reconstruct and record why the original change is being removed; target only the
+owned concern so unrelated work from the same commit is not discarded with it.
+
 ## Identifier Preservation
 
 When summarizing, compacting, or handing off work, preserve these identifiers exactly when they are

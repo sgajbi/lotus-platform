@@ -122,6 +122,12 @@ personal usernames, drive letters, checkout directories, or local temporary path
 instructions. Immutable historical evidence may name the environment in which it ran only when
 that provenance is material; provide a portable repository-relative or canonical link alongside it.
 
+For command examples:
+
+1. state the working directory before using relative paths,
+2. give each operating system its own runnable block instead of commenting out variants,
+3. verify setup instructions in a fresh checkout so sibling repositories cannot hide a dependency.
+
 `AGENTS.md` is the shared, tool-neutral entry. A repository may add a thin `CLAUDE.md` that points
 to `AGENTS.md` and local context, but it must not copy policy. Tool/runtime instruction precedence
 is controlled by that runtime; Lotus documentation defines its own authority without claiming to
