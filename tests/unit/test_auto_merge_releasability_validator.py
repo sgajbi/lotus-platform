@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from automation import validate_auto_merge_releasability as validator
 from automation.validate_auto_merge_releasability import validate_repositories
 
 
@@ -1026,3 +1027,91 @@ def test_auto_merge_releasability_rejects_unverified_matrix_dispatch(
     )
 
     assert "merged-pr-dispatch.missing-expected-sha-input" in results[0].violations
+
+
+# --- Revision enumeration: two forms, one meaning ----------------------------
+
+_DISPATCH_BY_RANGE = """\
+name: Merged PR Main Releasability
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch
+        env:
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          revisions="$(git rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA")"
+          for revision in $revisions; do
+            git merge-base --is-ancestor "$revision" HEAD
+            dispatch_ref="main-releasability-${revision}"
+            gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f sha="$revision"
+            gh workflow run main-releasability.yml --ref "$dispatch_ref" -f expected_sha="$revision"
+          done
+"""
+
+
+def _dispatch_file(tmp_path: Path, text: str) -> Path:
+    workflow = tmp_path / "merged-pr-main-releasability.yml"
+    workflow.write_text(text, encoding="utf-8")
+    return workflow
+
+
+def test_enumeration_by_range_is_accepted(tmp_path: Path) -> None:
+    """`rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA"` names the same revisions.
+
+    It is the stronger of the two forms: a commit count taken from the pull
+    request can be wrong after a rebase, while the range is derived from the
+    merge itself. Recognising only the count form reported a defect against a
+    repository that had improved its dispatcher.
+    """
+    workflow = _dispatch_file(tmp_path, _DISPATCH_BY_RANGE)
+
+    assert validator._merged_pr_dispatch_violations(workflow) == []
+
+
+def test_a_dispatcher_that_enumerates_everything_is_rejected(tmp_path: Path) -> None:
+    """The acceptance above must not become an acceptance of any rev-list at all."""
+    workflow = _dispatch_file(
+        tmp_path,
+        _DISPATCH_BY_RANGE.replace(
+            'revisions="$(git rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA")"',
+            'revisions="$(git rev-list HEAD)"',
+        ),
+    )
+
+    violations = validator._merged_pr_dispatch_violations(workflow)
+
+    assert "merged-pr-dispatch.missing-expected-sha-input" in violations
+
+
+def test_dropping_the_expected_sha_input_is_still_rejected(tmp_path: Path) -> None:
+    workflow = _dispatch_file(
+        tmp_path, _DISPATCH_BY_RANGE.replace(' -f expected_sha="$revision"', "")
+    )
+
+    violations = validator._merged_pr_dispatch_violations(workflow)
+
+    assert "merged-pr-dispatch.missing-expected-sha-input" in violations
+
+
+def test_dropping_the_ancestor_guard_is_still_rejected(tmp_path: Path) -> None:
+    """A revision not on main must never be tagged and gated as main history."""
+    workflow = _dispatch_file(
+        tmp_path,
+        _DISPATCH_BY_RANGE.replace(
+            'git merge-base --is-ancestor "$revision" HEAD', "true"
+        ),
+    )
+
+    violations = validator._merged_pr_dispatch_violations(workflow)
+
+    assert "merged-pr-dispatch.missing-expected-sha-input" in violations
