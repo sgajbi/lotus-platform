@@ -59,7 +59,13 @@ TEXT_FILENAMES = {
 # outside the governed set is a defect that reproduces itself.
 SCAFFOLD = REPO_ROOT / "automation" / "New-Lotus-Service.ps1"
 TEMPLATE_ROOT = REPO_ROOT / "platform-standards" / "templates"
-_SCAFFOLD_TEMPLATE = re.compile(r"Join-Path \$templateRoot \"(?P<name>[^\"]+)\"")
+# PowerShell variable names are case-insensitive, confirmed against the shell:
+# `$TemplateRoot` and `$templateRoot` are the same variable. Both recognizers
+# below must agree on that, or a copy using different casing escapes each of
+# them and the equality check between them still passes.
+_SCAFFOLD_TEMPLATE = re.compile(
+    r"Join-Path \$templateRoot \"(?P<name>[^\"]+)\"", re.IGNORECASE
+)
 
 
 def scaffold_template_sources(scaffold: Path = SCAFFOLD) -> list[Path]:
@@ -223,7 +229,7 @@ def test_every_template_the_scaffold_copies_is_scanned() -> None:
     copy_statements = [
         line
         for line in scaffold_text.splitlines()
-        if "Copy-Item" in line and "$templateRoot" in line
+        if "copy-item" in line.lower() and "$templateroot" in line.lower()
     ]
 
     assert len(copy_statements) >= 10, (
