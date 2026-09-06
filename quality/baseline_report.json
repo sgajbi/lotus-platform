@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1289 tests collected in 1.17s"
+    "summary": "1289 tests collected in 5.26s"
   }
 }
