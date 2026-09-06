@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 414,
     "powershell_file_count": 69,
-    "python_file_count": 239,
-    "source_file_count": 909,
+    "python_file_count": 238,
+    "source_file_count": 908,
     "suffix_counts": {
       ".json": 138,
       ".md": 414,
       ".ps1": 69,
-      ".py": 239,
+      ".py": 238,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 367954
+    "total_source_lines": 368038
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -43,8 +43,8 @@
       },
       {
         "complexity": 27,
-        "end_line": 411,
-        "line": 316,
+        "end_line": 377,
+        "line": 282,
         "lines": 96,
         "name": "unguarded_pipelines",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 362,
+        "end_line": 366,
         "line": 26,
-        "lines": 337,
+        "lines": 341,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3181
+    "python_function_count": 3177
   },
-  "generated_at_utc": "2026-09-06T09:00:45Z",
+  "generated_at_utc": "2026-09-06T09:58:01Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1286,
+    "collected_tests": 1283,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1286 tests collected in 1.39s"
+    "summary": "1283 tests collected in 0.89s"
   }
 }
