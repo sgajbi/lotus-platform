@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 368236
+    "total_source_lines": 368228
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
