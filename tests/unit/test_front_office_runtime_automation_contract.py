@@ -285,7 +285,11 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "`qa-platform-readiness-clean-core-build`" in automation_readme
     assert "-LotusAiEnvFile .env.example" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 `" in automation_readme
-    assert "-ScreenshotDirectory C:\\Users\\Sandeep\\AppData\\Local\\Temp\\lotus-risk-module-shots" in automation_readme
+    # A documented example must not carry a personal checkout path: it fails
+    # for every other reader, and an absolute path suppresses the link and
+    # path checks that would otherwise catch rot beneath it.
+    assert "-ScreenshotDirectory <temp-dir>\\lotus-risk-module-shots" in automation_readme
+    assert "Users\\Sandeep" not in automation_readme
     assert "canonical contract identity and version" in automation_readme
     assert "calculationChecks" in automation_readme
     assert "panelClassifications" in automation_readme

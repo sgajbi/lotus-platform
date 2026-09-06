@@ -6,10 +6,13 @@ param(
     [string[]]$Repository = @(),
     [switch]$AllRepoRoots,
     [switch]$IncludeDeployedTarget,
-    [switch]$CheckOnly
+    [switch]$CheckOnly,
+    [switch]$Force
 )
 
 Set-StrictMode -Version Latest
+
+$skippedTargets = [System.Collections.Generic.List[string]]::new()
 
 $InScopeRepositories = @(
     "lotus-platform",
@@ -96,6 +99,31 @@ function Resolve-RepoRootTargetPath {
     }
 
     return (Join-Path $repoRoot "AGENTS.md")
+}
+
+
+function Test-RepositoryIsQuiescent {
+    <#
+        A deploy into a repository someone else is mid-slice in is locally
+        reasonable and remotely destructive: it appears in their working tree as
+        a change they did not make, and if the governing source is not merged yet
+        it is a change that should not exist anywhere. Skip such a target and say
+        so, rather than writing and leaving them to discover it.
+    #>
+    param([string]$TargetPath)
+
+    $repoRoot = Split-Path -Parent $TargetPath
+    if (-not $repoRoot) { return $true }
+
+    $insideWorkTree = & git -C $repoRoot rev-parse --is-inside-work-tree 2>$null
+    if ($LASTEXITCODE -ne 0 -or $insideWorkTree -ne "true") {
+        # Not a checkout (the deployed CODEX_HOME target); nothing to disturb.
+        return $true
+    }
+
+    $dirty = & git -C $repoRoot status --porcelain 2>$null
+    if ($LASTEXITCODE -ne 0) { return $true }
+    return [string]::IsNullOrWhiteSpace(($dirty | Out-String).Trim())
 }
 
 function Resolve-RequestedTargets {
@@ -234,6 +262,9 @@ $resolvedSource = (Resolve-Path $sourcePathToUse).ProviderPath
 # codepage, so a UTF-8 em dash is read as three cp1252 characters and written
 # back double-encoded. The check then never converges, because the file this
 # script just wrote does not match the source it wrote it from.
+$sourceStatus = & git -C (Split-Path -Parent (Split-Path -Parent $resolvedSource)) status --porcelain -- $resolvedSource 2>$null
+$sourceIsUncommitted = ($LASTEXITCODE -eq 0) -and -not [string]::IsNullOrWhiteSpace(($sourceStatus | Out-String).Trim())
+
 $sourceContent = Get-Content -Raw -Encoding utf8 $resolvedSource
 $normalizedSourceContent = Normalize-ContractContent $sourceContent
 
@@ -265,6 +296,39 @@ foreach ($target in $targets) {
         }
 
         $checkedTargets += 1
+        continue
+    }
+
+    # The repository this script lives in is the operator's own: they are editing
+    # the contract here, so a dirty tree is expected and not someone else's work.
+    $targetRepoRoot = Split-Path -Parent $target.path
+    $isOwnRepository = $targetRepoRoot -and ((Resolve-Path -LiteralPath $targetRepoRoot -ErrorAction SilentlyContinue).Path -eq (Resolve-Path -LiteralPath $ResolvedPlatformRoot -ErrorAction SilentlyContinue).Path)
+
+    # Deploying a contract that is not committed here puts content into other
+    # repositories that exists nowhere in history: the receiving seat sees a
+    # change nobody can trace, and if the source is later edited before merge,
+    # what they carry was never real. Contract changes reach siblings by each
+    # seat syncing after the change lands on main.
+    # Only guard real sibling checkouts. A target that is not a git working tree
+    # is a deployment location or a test workspace: there is no other session to
+    # disturb and no history for the content to be missing from.
+    $targetIsWorkTree = $false
+    if ($targetRepoRoot) {
+        $probe = & git -C $targetRepoRoot rev-parse --is-inside-work-tree 2>$null
+        $targetIsWorkTree = ($LASTEXITCODE -eq 0) -and ($probe -eq "true")
+    }
+
+    if (-not $Force -and -not $isOwnRepository -and $targetIsWorkTree -and $sourceIsUncommitted) {
+        $unmergedMessage = "Skipped $($target.path): the governed source has uncommitted changes here, so deploying it would put unmerged content into another repository. Land the contract change first, then sync from that repository."
+        Write-Warning $unmergedMessage
+        $skippedTargets.Add($target.path) | Out-Null
+        continue
+    }
+
+    if (-not $Force -and -not $isOwnRepository -and $targetIsWorkTree -and -not (Test-RepositoryIsQuiescent -TargetPath $target.path)) {
+        $skipMessage = "Skipped $($target.path): that repository has uncommitted changes, so another session is working in it. Re-run the sync there once it is clean, or pass -Force if the change is yours."
+        Write-Warning $skipMessage
+        $skippedTargets.Add($target.path) | Out-Null
         continue
     }
 

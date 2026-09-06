@@ -179,4 +179,4 @@ This architecture pattern is achieved when:
 
 The detailed remaining work to reach the full gold-standard architecture is defined in:
 
-- [RFC-canonical-simulation-authority-golden-standard-completion.md](C:/Users/Sandeep/projects/lotus-platform/docs/architecture/RFC-canonical-simulation-authority-golden-standard-completion.md)
+- [RFC-canonical-simulation-authority-golden-standard-completion.md](./RFC-canonical-simulation-authority-golden-standard-completion.md)

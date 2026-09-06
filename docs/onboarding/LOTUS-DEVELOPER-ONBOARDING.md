@@ -51,7 +51,7 @@ C:\Users\<user>\projects\
 The current local examples often use:
 
 ```text
-C:\Users\Sandeep\projects\
+<workspace-root>\
 ```
 
 Do not treat that path as the only supported layout. Platform automation and documentation should be path-aware and should accept a different workspace root.
@@ -166,7 +166,7 @@ When a demo screenshot pack and platform-owned validation summary are required, 
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory C:\Users\Sandeep\AppData\Local\Temp\lotus-risk-module-shots
+  -ScreenshotDirectory <temp-dir>\lotus-risk-module-shots
 ```
 
 The screenshot pack is valid only after canonical endpoint, calculation, and panel validation passes.

@@ -15,10 +15,31 @@ Before doing substantial work, load context in this order:
 2. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
 3. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
 4. the target repository's `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
-6. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` when the task is primarily about how work should be executed
+5. `lotus-platform/context/LOTUS-SKILL-ROUTING-MAP.md`, to find whether a skill already covers the
+   task, **before** starting it
+6. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
+7. `lotus-platform/context/PROCEDURAL-MEMORY-INDEX.md` when the task is primarily about how work should be executed
 
 Use the smallest correct working set. Do not load broad context blindly if the task is narrow.
+
+Skills live in `lotus-platform/codex/skills/<skill-name>/SKILL.md` and the routing map is keyed by
+task rather than by repository, so an agent in any repository reaches the right skill through the
+task row. Check it even when the task looks narrow: a skill found afterwards means the work was
+done to a convention that already existed and was not followed. Documentation and wiki work is
+covered by `lotus-readme-wiki-governance`; skills, agent context, routing and manifests by
+`lotus-skill-context-governance`.
+
+Those `lotus-platform/context/...` paths assume a sibling checkout. Without one, read the same
+documents at
+`https://github.com/sgajbi/lotus-platform/blob/main/context/<FILENAME>` — the repository is the
+authoritative source and the sibling path is a local convenience, not a prerequisite. Skills
+resolve the same way: `codex/skills/<skill-name>/SKILL.md` in a sibling checkout, or the same path
+under that URL.
+
+Paths in Lotus documentation are repository-relative. Where a machine-specific location is
+unavoidable, `<workspace-root>` means the directory holding the Lotus checkouts and `<temp-dir>`
+the local temporary directory; neither is a real path and neither assumes an operating system,
+drive or folder name.
 
 ## Target Repository Root Rule
 
