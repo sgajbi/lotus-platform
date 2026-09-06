@@ -1078,6 +1078,41 @@ def test_enumeration_by_range_is_accepted(tmp_path: Path) -> None:
     assert validator._merged_pr_dispatch_violations(workflow) == []
 
 
+def test_a_hard_coded_range_bound_is_rejected(tmp_path: Path) -> None:
+    """A bound that does not come from the merge event enumerates the wrong revisions.
+
+    The pattern and the source of its bound are checked together: recognising
+    the command text alone would approve a dispatcher whose `BASE_SHA` is
+    hard-coded, which enumerates unrelated revisions and lets added commits
+    reach main without an individual releasability verdict.
+    """
+    workflow = _dispatch_file(
+        tmp_path,
+        _DISPATCH_BY_RANGE.replace(
+            "BASE_SHA: ${{ github.event.pull_request.base.sha }}", "BASE_SHA: deadbeef"
+        ),
+    )
+
+    violations = validator._merged_pr_dispatch_violations(workflow)
+
+    assert "merged-pr-dispatch.missing-expected-sha-input" in violations
+
+
+def test_a_range_bound_from_another_event_field_is_rejected(tmp_path: Path) -> None:
+    """`head.sha` is a plausible-looking substitution that enumerates nothing useful."""
+    workflow = _dispatch_file(
+        tmp_path,
+        _DISPATCH_BY_RANGE.replace(
+            "BASE_SHA: ${{ github.event.pull_request.base.sha }}",
+            "BASE_SHA: ${{ github.event.pull_request.head.sha }}",
+        ),
+    )
+
+    violations = validator._merged_pr_dispatch_violations(workflow)
+
+    assert "merged-pr-dispatch.missing-expected-sha-input" in violations
+
+
 def test_a_dispatcher_that_enumerates_everything_is_rejected(tmp_path: Path) -> None:
     """The acceptance above must not become an acceptance of any rev-list at all."""
     workflow = _dispatch_file(
