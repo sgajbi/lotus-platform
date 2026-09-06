@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-06T09:00:45Z`
+Generated: `2026-09-06T09:58:01Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `909`
-- Total source lines: `367954`
-- Python files: `239`
+- Source files: `908`
+- Total source lines: `368038`
+- Python files: `238`
 - PowerShell files: `69`
 - Markdown files: `414`
 
@@ -39,14 +39,14 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3181`
+- Python functions: `3177`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
-| automation/validate_workflow_pipeline_exit_codes.py | unguarded_pipelines | 316 | 27 | 96 |
+| automation/validate_workflow_pipeline_exit_codes.py | unguarded_pipelines | 282 | 27 | 96 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1286`
+- Unit tests collected: `1283`
 - Collection command return code: `0`
-- Collection summary: `1286 tests collected in 1.39s`
+- Collection summary: `1283 tests collected in 0.89s`
 
 ## Security Baseline
 
