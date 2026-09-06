@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 366741
+    "total_source_lines": 366902
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -74,14 +74,6 @@
         "path": "automation/resolve_canonical_cash_evidence.py"
       },
       {
-        "complexity": 20,
-        "end_line": 252,
-        "line": 218,
-        "lines": 35,
-        "name": "_terminal_sink",
-        "path": "automation/validate_workflow_pipeline_exit_codes.py"
-      },
-      {
         "complexity": 18,
         "end_line": 335,
         "line": 273,
@@ -91,8 +83,8 @@
       },
       {
         "complexity": 18,
-        "end_line": 164,
-        "line": 102,
+        "end_line": 173,
+        "line": 111,
         "lines": 63,
         "name": "iter_steps",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
@@ -128,6 +120,14 @@
         "lines": 68,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
+        "complexity": 16,
+        "end_line": 321,
+        "line": 263,
+        "lines": 59,
+        "name": "unguarded_pipelines",
+        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
         "complexity": 16,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3138
+    "python_function_count": 3152
   },
-  "generated_at_utc": "2026-09-06T00:02:00Z",
+  "generated_at_utc": "2026-09-06T00:42:13Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1258,
+    "collected_tests": 1269,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1258 tests collected in 1.51s"
+    "summary": "1269 tests collected in 1.20s"
   }
 }

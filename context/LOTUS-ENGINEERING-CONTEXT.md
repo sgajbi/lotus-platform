@@ -648,19 +648,26 @@ and remediation contract:
 1. it reports a pipeline whose terminal stage is a passive sink (`tee`, `tail`, `head`, `cat`,
    `sed`, `awk`, `sort`, `uniq`, `tr`, `wc`, and peers, including behind a `sudo`/`env` prefix)
    and whose status is not propagated,
-2. guards are judged per pipeline in execution order: `set -o pipefail` protects only pipelines
-   after it, and a `${PIPESTATUS[0]}` capture protects only the pipeline it immediately follows
-   and only when that captured value reaches an `exit` or `return` — mentioning `PIPESTATUS`, or
-   capturing `[1]`, is not a guard,
+2. guards are judged per pipeline in execution order, following Bash's own rules rather than a
+   text search: `set -o pipefail` — including compact clusters such as `set -euo pipefail` —
+   protects only pipelines after it, is cancelled by a later `set +o pipefail`, and counts only
+   when it is unconditional, since one inside an untaken `if` branch never executes. A
+   `${PIPESTATUS[0]}` capture protects only the **last** pipeline of the line it follows, because
+   `PIPESTATUS` describes only the most recently executed pipeline, and only when that captured
+   value reaches an `exit` or `return`; mentioning `PIPESTATUS`, or capturing `[1]`, is not a
+   guard,
 3. lines Bash joins into one command are joined before analysis, so a pipeline written across
-   two lines after a trailing `|` is still seen whole,
+   two lines after a trailing `|` is still seen whole, and every command segment of a compound
+   line is inspected — `gate.py | tee log; echo done` ends the step on `echo`. `|&` is
+   normalised to `|`, being Bash shorthand for `2>&1 |`,
 4. a pipeline used as an `if`/`while`/`until` condition is analysed like any other, because the
    branch is taken on the sink's status: `if gate.py | tee log; then` runs the success branch
    whenever `tee` succeeds,
 5. a terminal `grep` or `jq` is not treated as a sink, because as a final stage it is usually the
-   assertion and its failure does fail the step; a pipeline beginning with `echo`, `printf`, or
-   `true` is not reported either, since a producer with no verdict cannot have one hidden
-   (`echo … | sudo tee /etc/apt/x.list` is the ordinary privileged-write idiom),
+   assertion and its failure does fail the step; a pipeline is exempt as verdict-free only when
+   **every** stage feeding the sink is a producer such as `echo`, `printf`, or `true`, so
+   `echo … | sudo tee /etc/apt/x.list` is quiet while `printf x | gate.py | tee log` is
+   reported,
 6. remediation is to run the gate bare, add `set -o pipefail` before the pipeline, or capture
    `${PIPESTATUS[0]}` and exit with it,
 7. `--require-local-repos` makes an unavailable repository a failure rather than a skip.

@@ -274,7 +274,7 @@ def test_pipeline_split_across_lines_is_joined() -> None:
 
 
 def test_mentioning_pipestatus_is_not_a_guard() -> None:
-    body = 'run: |\n          gate.py | tee log\n          status=${PIPESTATUS[0]}\n          echo done\n'
+    body = "run: |\n          gate.py | tee log\n          status=${PIPESTATUS[0]}\n          echo done\n"
     assert validator.unguarded_pipelines(body) == ["gate.py | tee log"], (
         "capturing the status without ever exiting on it leaves the step green"
     )
@@ -305,3 +305,123 @@ def test_trivial_producers_are_not_gates() -> None:
     for source in ("echo deb-line", 'printf "%s" x', "true"):
         body = f"run: {source} | sudo tee /etc/apt/x.list > /dev/null\n"
         assert validator.unguarded_pipelines(body) == [], source
+
+
+def test_pipeline_before_a_later_shell_command_is_reported() -> None:
+    """`gate.py | tee log; echo done` ends the step on echo, hiding the gate."""
+    for line in ("gate.py | tee log; echo done", "gate.py | tee log && echo done"):
+        assert validator.unguarded_pipelines(f"run: {line}\n") == [line], line
+
+
+def test_a_guarded_segment_still_passes_alongside_other_commands() -> None:
+    body = "run: |\n          set -o pipefail\n          gate.py | tee log; echo done\n"
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_bash_pipe_ampersand_operator_is_recognized() -> None:
+    """`|&` is shorthand for `2>&1 |` and hides the gate the same way."""
+    assert validator.unguarded_pipelines("run: gate.py |& tee log\n") == [
+        "gate.py |& tee log"
+    ]
+
+
+def test_a_gate_after_a_trivial_source_is_still_reported() -> None:
+    """Only the whole upstream being verdict-free makes a pipeline harmless."""
+    line = "printf data | python gate.py | tee log"
+    assert validator.unguarded_pipelines(f"run: {line}\n") == [line]
+
+
+def test_compact_pipefail_option_clusters_are_accepted() -> None:
+    """`set -euo pipefail` is the repository idiom; rejecting it blocks valid PRs."""
+    for options in ("-o", "-eo", "-euo", "-euxo"):
+        body = (
+            f"run: |\n          set {options} pipefail\n          gate.py | tee log\n"
+        )
+        assert validator.unguarded_pipelines(body) == [], options
+
+
+def test_same_line_set_is_applied_before_the_pipeline_after_it() -> None:
+    """Enable first, so a disable that never matched would fail this test.
+
+    Asserting the disabled case alone passes for the wrong reason: pipefail is
+    off by default, so the pipeline is reported whether or not `set +o` was
+    recognised at all. That is exactly how a broken pattern survived here once.
+    """
+    disabled = "set -o pipefail; set +o pipefail; gate.py | tee log"
+    enabled = "set -o pipefail; gate.py | tee log"
+    assert validator.unguarded_pipelines(f"run: |\n          {disabled}\n") == [
+        disabled
+    ]
+    assert validator.unguarded_pipelines(f"run: |\n          {enabled}\n") == []
+
+
+def test_conditional_disable_invalidates_an_earlier_guard() -> None:
+    """A `set +o` inside a branch may execute, so it must cancel the guard."""
+    body = (
+        "run: |\n"
+        "          set -o pipefail\n"
+        "          if true; then set +o pipefail; fi\n"
+        "          gate.py | tee log\n"
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_commented_propagation_is_not_a_guard() -> None:
+    body = "run: |\n          gate.py | tee log\n          # exit ${PIPESTATUS[0]}\n"
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_pipestatus_vouches_only_for_the_last_pipeline_on_the_line() -> None:
+    """PIPESTATUS describes the most recent pipeline, not every one on the line."""
+    body = (
+        "run: |\n"
+        "          a.py | tee a; b.py | tee b\n"
+        "          s=${PIPESTATUS[0]}\n"
+        '          exit "$s"\n'
+    )
+    assert validator.unguarded_pipelines(body) == ["a.py | tee a; b.py | tee b"], (
+        "only b's status is captured, so a can still fail open"
+    )
+
+
+def test_pipefail_inside_an_untaken_branch_is_not_honoured() -> None:
+    """`if false; then set -o pipefail; fi` never runs; assuming it did is unsafe."""
+    body = (
+        "run: |\n"
+        "          if false; then set -o pipefail; fi\n"
+        "          gate.py | tee log\n"
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
+
+
+def test_unconditional_pipefail_is_still_honoured() -> None:
+    body = "run: |\n          set -o pipefail\n          gate.py | tee log\n"
+    assert validator.unguarded_pipelines(body) == []
+
+
+def test_gate_inside_a_command_substitution_is_reported() -> None:
+    """`result="$(gate.py | tee log)"` executes, and the assignment takes tee's status."""
+    line = 'result="$(python gate.py | tee gate.log)"'
+    assert validator.unguarded_pipelines(f"run: {line}\n") == [line]
+
+
+def test_value_producing_substitution_pipelines_stay_quiet() -> None:
+    """`test "$(find … | wc -l)" -gt 0` asserts on the value; wc is doing its job."""
+    line = 'test "$(find coverage-data -type f | wc -l)" -gt 0'
+    assert validator.unguarded_pipelines(f"run: {line}\n") == []
+
+
+def test_sink_behind_a_wrapper_option_is_detected() -> None:
+    for stage in ("sudo -n tee log", "sudo -- tee log"):
+        assert validator.unguarded_pipelines(f"run: gate.py | {stage}\n"), stage
+
+
+def test_conditional_exit_is_not_propagation() -> None:
+    """`false && exit ${PIPESTATUS[0]}` never runs, so it guards nothing."""
+    body = (
+        "run: |\n"
+        "          gate.py | tee log\n"
+        "          false && exit ${PIPESTATUS[0]}\n"
+        "          true\n"
+    )
+    assert validator.unguarded_pipelines(body) == ["gate.py | tee log"]
