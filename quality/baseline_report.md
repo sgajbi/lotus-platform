@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `909`
-- Total source lines: `368531`
+- Total source lines: `368537`
 - Python files: `239`
 - PowerShell files: `69`
 - Markdown files: `414`
