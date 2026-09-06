@@ -5,16 +5,26 @@ description: Create or refresh a gold-standard README.md and GitHub wiki structu
 
 # Lotus Readme Wiki Governance
 
-Use this skill after loading the smallest correct Lotus context set:
+Use this skill after the common startup set has loaded the Quickstart, target repository context,
+and Skill Routing Map. Add only the depth the documentation task requires:
 
-1. `lotus-platform/context/LOTUS-QUICKSTART-CONTEXT.md`
-2. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md`
-3. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md`
-4. the target repo `REPOSITORY-ENGINEERING-CONTEXT.md`
-5. only the additional local docs needed to make the README or wiki truthful
+1. `lotus-platform/context/LOTUS-ENGINEERING-CONTEXT.md` only when documentation changes shared
+   architecture or policy across repositories,
+2. `lotus-platform/context/CONTEXT-REFERENCE-MAP.md` only to locate a specific specialist authority,
+3. only the additional local docs needed to make the README or wiki truthful.
 
 Use the platform-owned skill source in `lotus-platform/codex/skills`, not the local Codex profile,
 as the durable home for Lotus documentation workflow guidance.
+
+## Context-First Rule
+
+Before substantive documentation work:
+
+1. rely on the common startup set, which already includes the repo-local context,
+2. load the central engineering context only when documentation changes shared architecture or
+   policy across repositories,
+3. load only the specialist standards and implementation sources needed to make the changed pages
+   truthful.
 
 Read `lotus-platform/platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md` when README,
 wiki, or documentation work is part of a readiness, refactor, demo-readiness, production-readiness,

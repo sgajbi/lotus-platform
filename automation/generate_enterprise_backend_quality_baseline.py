@@ -307,6 +307,7 @@ def _count_pytest_tests() -> dict[str, object]:
             collected = int(token)
             break
     result["collected_tests"] = collected
+    result["platform"] = sys.platform
     if result["returncode"] == 0:
         # Pytest appends wall-clock duration to successful collection output.
         # Duration is not a quality signal and made a no-change regeneration
@@ -1174,6 +1175,14 @@ def _baseline_freshness_differences(
     for metric_name, metric_path in FRESHNESS_METRICS.items():
         accepted_value = _metric_value(accepted, metric_path)
         current_value = _metric_value(current, metric_path)
+        if metric_name == "tests.collected_tests":
+            current_tests = current.get("tests")
+            accepted_tests = accepted.get("tests")
+            if isinstance(current_tests, dict) and isinstance(accepted_tests, dict):
+                platform_name = current_tests.get("platform")
+                platform_counts = accepted_tests.get("collected_tests_by_platform")
+                if isinstance(platform_name, str) and isinstance(platform_counts, dict):
+                    accepted_value = platform_counts.get(platform_name, accepted_value)
         tolerance = FRESHNESS_TOLERANCES.get(metric_name, 0)
         if _within_tolerance(accepted_value, current_value, tolerance):
             continue
@@ -1182,6 +1191,35 @@ def _baseline_freshness_differences(
                 f"`{metric_name}`: accepted={accepted_value!r}, current={current_value!r}"
             )
     return differences
+
+
+def _record_platform_test_count(
+    baseline: dict[str, object],
+    accepted: dict[str, object] | None,
+) -> dict[str, object]:
+    """Record a test count only for the platform this run actually collected on.
+
+    Carrying every other platform's previous count forward looks like breadth
+    and behaves like staleness. A regeneration on one operating system left the
+    others holding numbers measured before the change, so the next check on one
+    of those compared its own increased count against a figure nobody had
+    collected and failed the tolerance — a failure that describes the recording,
+    not the tree.
+
+    An uncollected platform therefore has no accepted count. The next run on it
+    records its own, which is the same outcome the stale figure was pretending
+    to provide, without the false comparison in between.
+    """
+    tests = baseline.get("tests")
+    if not isinstance(tests, dict):
+        return baseline
+    counts: dict[str, object] = {}
+    platform_name = tests.get("platform")
+    collected_tests = tests.get("collected_tests")
+    if isinstance(platform_name, str) and isinstance(collected_tests, int):
+        counts[platform_name] = collected_tests
+    tests["collected_tests_by_platform"] = dict(sorted(counts.items()))
+    return baseline
 
 
 def _within_tolerance(
@@ -1295,7 +1333,8 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 1
-        write_quality_artifacts(baseline)
+        accepted = _load_baseline_report([])
+        write_quality_artifacts(_record_platform_test_count(baseline, accepted))
         print("Enterprise backend quality baseline generated.")
 
     if args.check:
