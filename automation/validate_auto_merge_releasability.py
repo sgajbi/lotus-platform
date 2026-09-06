@@ -133,18 +133,34 @@ def _step_run(step: dict[str, Any]) -> str:
     return run if isinstance(run, str) else ""
 
 
+# Two ways to enumerate exactly the revisions a merge added, both of which
+# name each one and gate it individually.
+#
+# By count, oldest-first: `rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA"`,
+# reversed with `tac`.
+#
+# By range: `rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA"`. This is the
+# stronger of the two, because a count taken from the pull request can be wrong
+# after a rebase while the range is derived from the merge itself.
+#
+# Recognising only the first rejected a dispatcher that had moved to the
+# second, which is the hazard in asserting a command's spelling rather than
+# what it enumerates: the check reports a defect when a repository improves.
+_REVISION_ENUMERATIONS = (
+    r'revisions="\$\(git rev-list -n "\$COMMIT_COUNT" "\$MERGE_COMMIT_SHA"(?:\s*\|\s*tac)?\)"',
+    r'revisions="\$\(git rev-list --reverse "\$BASE_SHA\.\.\$MERGE_COMMIT_SHA"\)"',
+)
+
+
 def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
     merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
-    commit_count = _step_env_value(step, "COMMIT_COUNT")
     run = _step_run(step)
+    enumerates = any(
+        re.search(pattern, run) is not None for pattern in _REVISION_ENUMERATIONS
+    )
     return (
         "github.event.pull_request.merge_commit_sha" in merge_commit_sha
-        and "github.event.pull_request.commits" in commit_count
-        and re.search(
-            r'revisions="\$\(git rev-list -n "\$COMMIT_COUNT" "\$MERGE_COMMIT_SHA"(?:\s*\|\s*tac)?\)"',
-            run,
-        )
-        is not None
+        and enumerates
         and re.search(r"^\s*for\s+revision\s+in\s+\$revisions;\s*do", run, re.MULTILINE)
         is not None
         and 'git merge-base --is-ancestor "$revision" HEAD' in run
