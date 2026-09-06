@@ -14,8 +14,11 @@ does not fail loudly; it silently matches nothing.
 
 from __future__ import annotations
 
+import re
 import subprocess
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -37,8 +40,41 @@ TEXT_SUFFIXES = {
     ".ini",
     ".sql",
     ".env",
+    ".ts",
 }
-TEXT_FILENAMES = {"Makefile", "Dockerfile", ".gitignore", ".dockerignore"}
+# Extensionless or dot-prefixed files that are text by convention. Each of these
+# is also a scaffold output, so the `.backend.template` sources that render into
+# them are governed through the `startswith` rule in `_is_governed_text`.
+TEXT_FILENAMES = {
+    "Makefile",
+    "Dockerfile",
+    ".gitignore",
+    ".dockerignore",
+    ".editorconfig",
+    ".gitattributes",
+}
+
+# The scaffold is the reason this classifier exists: a corrupted template is
+# copied verbatim into every repository generated afterwards, so a template
+# outside the governed set is a defect that reproduces itself.
+SCAFFOLD = REPO_ROOT / "automation" / "New-Lotus-Service.ps1"
+TEMPLATE_ROOT = REPO_ROOT / "platform-standards" / "templates"
+_SCAFFOLD_TEMPLATE = re.compile(r"Join-Path \$templateRoot \"(?P<name>[^\"]+)\"")
+
+
+def scaffold_template_sources(scaffold: Path = SCAFFOLD) -> list[Path]:
+    """Every template `New-Lotus-Service.ps1` copies into a generated repository.
+
+    Derived from the scaffold rather than listed here: a hand-maintained list
+    stops covering whatever is added next, which is exactly how
+    `.editorconfig.backend.template` and `.gitattributes.backend.template` came
+    to be copied into every generated repository while going unscanned.
+    """
+    text = scaffold.read_text(encoding="utf-8")
+    return [
+        TEMPLATE_ROOT / match.group("name")
+        for match in _SCAFFOLD_TEMPLATE.finditer(text)
+    ]
 
 
 def is_suspicious(byte: int) -> bool:
@@ -140,19 +176,65 @@ def test_the_scan_reports_an_injected_interpreted_escape(tmp_path: Path) -> None
     assert _find_suspicious_control_bytes([corrupted]) == [(corrupted, 2, 0x08)]
 
 
-def test_the_scan_includes_tracked_service_templates(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "Makefile.backend.template",
+        "Dockerfile.python-service.template",
+        ".editorconfig.backend.template",
+        ".gitattributes.backend.template",
+        ".gitignore.backend.template",
+        ".dockerignore.backend.template",
+    ],
+)
+def test_a_corrupted_tracked_template_is_discovered_and_rejected(
+    filename: str, tmp_path: Path
+) -> None:
+    """Discovery and rejection proven together, on a really tracked file.
+
+    Asserting only that the classifier returns True would pass even if
+    `git ls-files` never surfaced the path, so the file is committed to a real
+    repository and the corruption is found through the same scan CI runs.
+    """
     repo = tmp_path / "repo"
     repo.mkdir()
     subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
-    template = repo / "Makefile.backend.template"
-    template.write_bytes(b"guard:\n\t@printf 'wrong\x08boundary'\n")
+    template = repo / filename
+    template.write_bytes(b"root = true\nwrong\x08boundary\n")
     subprocess.run(
-        ["git", "-C", str(repo), "add", "Makefile.backend.template"],
-        check=True,
-        capture_output=True,
+        ["git", "-C", str(repo), "add", filename], check=True, capture_output=True
     )
 
     governed_files = _tracked_text_files(repo)
 
-    assert governed_files == [template]
+    assert governed_files == [template], f"{filename} is tracked but never scanned"
     assert _find_suspicious_control_bytes(governed_files) == [(template, 2, 0x08)]
+
+
+def test_every_template_the_scaffold_copies_is_scanned() -> None:
+    """A template outside the governed set corrupts every repository generated next."""
+    templates = scaffold_template_sources()
+
+    assert len(templates) >= 10, (
+        f"only {len(templates)} templates parsed from {SCAFFOLD.name}; the "
+        "assertion would be hollow if the copy syntax changed"
+    )
+    missing = [
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in templates
+        if not _is_governed_text(path)
+    ]
+    assert not missing, (
+        "the scaffold copies these into every generated repository, but the "
+        "control-byte scan does not read them: " + ", ".join(missing)
+    )
+
+
+def test_the_scaffold_templates_named_by_the_parser_really_exist() -> None:
+    """A parser that silently matched nothing would make the coverage test hollow."""
+    absent = [
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in scaffold_template_sources()
+        if not path.is_file()
+    ]
+    assert not absent, f"scaffold copies templates that do not exist: {absent}"
