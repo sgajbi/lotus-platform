@@ -39,59 +39,6 @@ function Resolve-CodexHome {
     return $null
 }
 
-
-function Resolve-ClaudeHome {
-    <#
-        The Claude runtime reads ~/.claude, the Codex runtime ~/.codex. Skills
-        deployed to only one of them are documentation rather than skills for
-        the other agent type, which is invisible: the files exist, they are
-        correct, and the agent simply never sees them.
-    #>
-    if ($env:CLAUDE_HOME) {
-        return $env:CLAUDE_HOME
-    }
-    if ($env:USERPROFILE) {
-        return (Join-Path $env:USERPROFILE ".claude")
-    }
-    if ($env:HOME) {
-        return (Join-Path $env:HOME ".claude")
-    }
-    return $null
-}
-
-function Resolve-AgentSkillTargets {
-    <#
-        Returns one entry per agent runtime present on this machine, so a
-        machine set up from a fresh checkout serves both. A runtime whose home
-        does not exist is skipped rather than created: absence means that agent
-        is not installed here.
-    #>
-    $targets = @()
-
-    $codexHome = Resolve-CodexHome
-    if ($codexHome) {
-        $targets += [ordered]@{
-            agent = "codex"
-            skills = (Join-Path $codexHome "skills")
-            instructions = (Join-Path $codexHome "AGENTS.md")
-            home = $codexHome
-        }
-    }
-
-    $claudeHome = Resolve-ClaudeHome
-    if ($claudeHome) {
-        $targets += [ordered]@{
-            agent = "claude"
-            skills = (Join-Path $claudeHome "skills")
-            # Same authoritative content, the filename each runtime reads.
-            instructions = (Join-Path $claudeHome "CLAUDE.md")
-            home = $claudeHome
-        }
-    }
-
-    return $targets
-}
-
 function Resolve-DefaultSkillTargetPath {
     $codexHome = Resolve-CodexHome
     if (-not $codexHome) {
@@ -558,11 +505,6 @@ function Write-ReadinessReports {
 
 $platformRoot = Resolve-PlatformRoot
 $resolvedWorkspaceRoot = Resolve-WorkspaceRoot $WorkspaceRoot
-# Record whether the caller named a target BEFORE defaults are filled in.
-# Testing the variables afterwards always finds them set, which made the
-# multi-agent discovery below unreachable.
-$callerNamedTarget = [bool]$SkillTargetPath -or [bool]$AgentsTargetPath
-
 if (-not $SkillTargetPath) {
     $SkillTargetPath = Resolve-DefaultSkillTargetPath
 }
@@ -580,24 +522,8 @@ Test-GitHubAuth $checks
 Test-DockerPosture $checks
 Test-RepositoryPresence $checks $platformRoot $resolvedWorkspaceRoot
 Test-ContextDocs $checks $platformRoot
-$contractSource = Join-Path $platformRoot "context\AGENTS-OPERATING-CONTRACT.md"
-
-if ($callerNamedTarget) {
-    # An explicit target overrides discovery: used by the tests and by anyone
-    # deploying to a location this script would not find.
-    Test-SkillSync $checks $platformRoot $SkillTargetPath $Mode
-    Test-AgentsSync $checks $contractSource $AgentsTargetPath $Mode
-}
-else {
-    foreach ($agentTarget in Resolve-AgentSkillTargets) {
-        if (-not (Test-Path -LiteralPath $agentTarget.home)) {
-            # That runtime is not installed on this machine.
-            continue
-        }
-        Test-SkillSync $checks $platformRoot $agentTarget.skills $Mode
-        Test-AgentsSync $checks $contractSource $agentTarget.instructions $Mode
-    }
-}
+Test-SkillSync $checks $platformRoot $SkillTargetPath $Mode
+Test-AgentsSync $checks (Join-Path $platformRoot "context\AGENTS-OPERATING-CONTRACT.md") $AgentsTargetPath $Mode
 Test-IngressPosture $checks
 Test-DsnPosture $checks $platformRoot
 
