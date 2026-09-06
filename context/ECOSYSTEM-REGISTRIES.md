@@ -2,7 +2,7 @@
 
 This file is generated from [lotus-context-manifest.json](./lotus-context-manifest.json) by `automation/render_context_registries.py`.
 
-- Last reviewed on: `2026-07-18`
+- Last reviewed on: `2026-09-06`
 
 ## Application Registry
 
