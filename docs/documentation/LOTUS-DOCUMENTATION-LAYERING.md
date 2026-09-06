@@ -126,7 +126,12 @@ For command examples:
 
 1. state the working directory before using relative paths,
 2. give each operating system its own runnable block instead of commenting out variants,
-3. verify setup instructions in a fresh checkout so sibling repositories cannot hide a dependency.
+3. verify setup instructions in a fresh checkout so sibling repositories cannot hide a dependency,
+4. for a step you cannot execute, state the requirement and a verification the reader runs, not the
+   method. Prescribing a method for an environment you cannot see gets more specific with each
+   revision without getting more correct — `python`, then `python3`, then `python3.12`, then a
+   package name that exists in neither Debian 12 nor Ubuntu 22.04. One `python -V` and its required
+   output closes the class that four increasingly precise commands could not.
 
 `AGENTS.md` is the shared, tool-neutral entry. A repository may add a thin `CLAUDE.md` that points
 to `AGENTS.md` and local context, but it must not copy policy. Tool/runtime instruction precedence
