@@ -440,20 +440,18 @@ quickstart and `lotus-context-manifest.json` use.
 
 Add:
 
-1. the `lotus-workbench` repository context,
-2. RFC-0070 and RFC-0072 where delivery or UI-platform governance matters,
-3. the platform validation references when end-to-end proof is required,
-4. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
+1. RFC-0070 and RFC-0072 where delivery or UI-platform governance matters,
+2. the platform validation references when end-to-end proof is required,
+3. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
    repository boundary or changes shared engineering policy.
 
 ### For backend API or domain-service work
 
 Add:
 
-1. the owning repo context,
-2. RFC-0067 and related vocabulary or contract standards,
-3. RFC-0072 for CI and validation expectations,
-4. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
+1. RFC-0067 and related vocabulary or contract standards,
+2. RFC-0072 for CI and validation expectations,
+3. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the change crosses a
    repository boundary or changes shared engineering policy.
 
 ### For cross-app runtime and validation work
@@ -482,13 +480,12 @@ Add:
 
 Add:
 
-1. the target repo context,
-2. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md),
-3. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md) when a documentation skill boundary
+1. [Lotus Documentation Layering](../docs/documentation/LOTUS-DOCUMENTATION-LAYERING.md),
+2. [Lotus Skill Routing Map](./LOTUS-SKILL-ROUTING-MAP.md) when a documentation skill boundary
    matters,
-4. only the target repo `README.md`, `wiki/`, and deeper `docs/` pages needed to keep the docs
+3. only the target repo `README.md`, `wiki/`, and deeper `docs/` pages needed to keep the docs
    truthful,
-5. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the documentation change
+4. [Lotus Engineering Context](./LOTUS-ENGINEERING-CONTEXT.md) only when the documentation change
    crosses a repository boundary or changes shared engineering policy.
 
 Use the [Task Routing Guide](./TASK-ROUTING-GUIDE.md) when ownership or the correct context set is

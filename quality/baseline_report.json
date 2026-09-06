@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 370993
+    "total_source_lines": 370997
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -443,7 +443,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1369,
+      "lines": 1376,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
     },
