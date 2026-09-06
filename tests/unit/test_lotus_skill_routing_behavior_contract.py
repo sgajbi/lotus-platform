@@ -462,13 +462,14 @@ def test_delivery_skills_route_review_lessons_without_copying_reference_detail()
     assert "Database Disaster-Recovery Certification" in recovery_reference
     assert "Use the same lifecycle reference for directly owned database adapters" in backend_skill
     assert "injected shared providers, close only owners" in backend_skill
+    assert "database-specific persistence, transaction, locking, and concurrency" in backend_skill
 
     for required_text in (
         "SQLite is useful for portable domain and repository feedback",
         "real PostgreSQL test",
         "A call-entry barrier proves only that two callers reached a point",
         "SQLSTATE `40001`",
-        "fails when the protected correction is removed",
+        "demonstrate that the focused check fails",
     ):
         assert required_text in database_reference
 
