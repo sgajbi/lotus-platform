@@ -2366,29 +2366,55 @@ def _case_library_entry_errors(library: str) -> list[str]:
     check, the cheapest entry to write is the one worth least, so the shape is
     enforced rather than requested.
 
-    Each field's *content* is measured, not the presence of its marker. A guard
-    that only asked whether `**Evidence:**` appeared anywhere accepted an entry
-    whose evidence was empty and immediately followed by the next marker, which
-    is precisely the placeholder entry the contract exists to keep out.
+    Every check here measures content and placement rather than the presence of
+    a marker, because presence is satisfied by a placeholder. Three revisions of
+    this guard were needed to learn that once: an empty `**Evidence:**` followed
+    immediately by the next marker passed, then a heading of `### ` alone
+    passed, then `Contributed by.` passed. Each was the same mistake left in the
+    checks not yet revisited, which is the failure this library records as
+    fixing the instance instead of the class.
+
+    Enforced, in order:
+
+    1. the file contains at least one entry,
+    2. every entry has a non-empty heading,
+    3. every entry carries all three case fields with non-empty content,
+    4. every entry names a contributing seat, on its own line, before the case
+       begins -- so a mention of the phrase inside the evidence is not mistaken
+       for attribution.
     """
     errors: list[str] = []
     sections = library.split(chr(10) + "### ")
     if len(sections) < 2:
         return ["the case library contains no entries, so this check would pass on an empty file"]
-    for section in sections[1:]:
+
+    for index, section in enumerate(sections[1:], start=1):
         heading = section.split(chr(10), 1)[0].strip()
+        label = heading or f"entry {index} (no heading)"
+        if not heading:
+            errors.append(f"{label} has no heading, so it names no case")
+
         for part in _CASE_PARTS:
             if part not in section:
-                errors.append(f"entry {heading!r} is missing {part}")
+                errors.append(f"entry {label!r} is missing {part}")
                 continue
             others = "|".join(re.escape(other) for other in _CASE_PARTS if other != part)
             content = re.search(
                 re.escape(part) + r"(.*?)(?=" + others + r"|\Z)", section, re.DOTALL
             )
             if content is None or not content.group(1).strip(" " + chr(10) + chr(9) + ".-*_"):
-                errors.append(f"entry {heading!r} has no content under {part}")
-        if "Contributed by" not in section:
-            errors.append(f"entry {heading!r} does not name the contributing seat")
+                errors.append(f"entry {label!r} has no content under {part}")
+
+        # Placement matters: the attribution introduces the case, so it is read
+        # from the region above the first field. A section whose evidence merely
+        # mentions the phrase has not attributed anything.
+        preamble = section.split(_CASE_PARTS[0], 1)[0]
+        attribution = re.search(r"^Contributed by(.*)$", preamble, re.MULTILINE)
+        if attribution is None:
+            errors.append(f"entry {label!r} does not name the contributing seat")
+        elif not attribution.group(1).strip(" " + chr(9) + ".-*_"):
+            errors.append(f"entry {label!r} has an empty attribution")
+
     return errors
 
 
@@ -2476,6 +2502,70 @@ def test_the_case_library_guard_rejects_an_empty_evidence_field() -> None:
     errors = _case_library_entry_errors(hollow)
 
     assert any("no content under **Evidence:**" in error for error in errors), errors
+
+
+def test_the_case_library_guard_rejects_an_entry_without_a_heading() -> None:
+    """An entry that names nothing is not an entry, however complete its fields."""
+    headless = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### "
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** it reported success on 128 files it never read."
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(headless)
+
+    assert any("has no heading" in error for error in errors), errors
+
+
+def test_the_case_library_guard_rejects_a_hollow_attribution() -> None:
+    """`Contributed by.` names no seat, so a reader cannot reach the history."""
+    hollow = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** it reported success on 128 files it never read."
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(hollow)
+
+    assert any("empty attribution" in error for error in errors), errors
+
+
+def test_the_case_library_guard_does_not_accept_attribution_buried_in_evidence() -> None:
+    """Placement is part of the contract: attribution introduces the case."""
+    buried = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** Contributed by the `lotus-platform` seat, this gate read nothing."
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(buried)
+
+    assert any("does not name the contributing seat" in error for error in errors), errors
 
 
 def test_the_case_library_guard_does_not_pass_on_an_empty_file() -> None:
