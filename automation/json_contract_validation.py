@@ -64,6 +64,54 @@ def _validate_node(
     _validate_string_constraints(value, schema, path, errors)
     _validate_object_constraints(value, schema, path, errors, root_schema=root_schema)
     _validate_array_constraints(value, schema, path, errors, root_schema=root_schema)
+    _validate_conditional(value, schema, path, errors, root_schema=root_schema)
+
+
+def _validate_conditional(
+    value: Any,
+    schema: dict[str, Any],
+    path: list[str],
+    errors: list[str],
+    *,
+    root_schema: dict[str, Any],
+) -> None:
+    """Apply `then` when `if` already matches, for the const/required subset.
+
+    A conditional requirement cannot be expressed any other way: requiring a
+    field unconditionally demands it where it is meaningless, and requiring it
+    nowhere lets a document omit the field that carries the meaning. Without
+    this, such a rule can only live in a repository-side validator, and a
+    consumer checking its own document against the published schema is told
+    nothing.
+
+    Only `if` with `properties` carrying `const`, and `then` with `required`, is
+    supported. That is the shape the platform contracts use, and a wider subset
+    would be guessing at semantics this validator does not implement.
+    """
+    condition = schema.get("if")
+    consequence = schema.get("then")
+    if not isinstance(condition, dict) or not isinstance(consequence, dict):
+        return
+    if not isinstance(value, dict):
+        return
+
+    expected = condition.get("properties")
+    if not isinstance(expected, dict):
+        return
+    for field, constraint in expected.items():
+        if not isinstance(constraint, dict) or "const" not in constraint:
+            return
+        if value.get(field) != constraint["const"]:
+            return
+
+    for field in consequence.get("required", []):
+        if field not in value:
+            errors.append(
+                f"{'.'.join(path)}: {field!r} is required when "
+                + ", ".join(
+                    f"{name} is {rule['const']!r}" for name, rule in expected.items()
+                )
+            )
 
 
 def _resolve_ref(schema: dict[str, Any], root_schema: dict[str, Any]) -> dict[str, Any]:

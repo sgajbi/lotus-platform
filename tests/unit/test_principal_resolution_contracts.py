@@ -391,3 +391,51 @@ def test_an_absent_credential_needs_no_verifier_outcome() -> None:
     absent = {"request": {"credential": {"present": False}}}
 
     assert validator._verifier_outcome_errors(absent) == []
+
+
+def test_the_verifier_outcome_follows_the_failing_step() -> None:
+    """Verification is step one, so the outcome is not a free choice.
+
+    Setting them independently let `unknown_key_id` -- a key explicitly absent
+    from discovery -- instruct the harness to accept the credential, which a
+    compliant consumer can satisfy only by contradicting the fixture or by
+    branching on the class instead of verifying.
+    """
+    for denial_class in sorted(validator.REQUIRED_DENIAL_CLASSES):
+        fixture = _denial(denial_class)
+        credential = fixture["request"]["credential"]
+        if not credential.get("present"):
+            continue
+        expected = "reject" if fixture["expected"]["failsAtStep"] == 1 else "accept"
+
+        assert credential["verifierOutcome"] == expected, (
+            f"{denial_class}: refuses at step {fixture['expected']['failsAtStep']} "
+            f"and instructs the verifier to {credential['verifierOutcome']!r}"
+        )
+
+
+def test_a_step_one_denial_cannot_instruct_the_verifier_to_accept() -> None:
+    """Prove the invariant fails, and that a later step is unaffected."""
+    contradiction = {
+        "request": {"credential": {"present": True, "verifierOutcome": "accept"}},
+        "expected": {"failsAtStep": 1},
+    }
+
+    assert validator._verifier_outcome_errors(contradiction)
+
+    contradiction["expected"]["failsAtStep"] = 4
+    assert validator._verifier_outcome_errors(contradiction) == []
+
+
+def test_the_published_schema_requires_the_outcome_without_the_validator() -> None:
+    """A consumer checks its own fixtures against the schema, not against our validator.
+
+    The conditional lived only in the repository-side validator, so a consumer
+    validating a `present: true` fixture with the published schema was told
+    nothing about the field that carries the meaning.
+    """
+    schema = json.loads(validator.DENIAL_SCHEMA_PATH.read_text(encoding="utf-8"))
+    credential = schema["properties"]["request"]["properties"]["credential"]
+
+    assert credential["if"] == {"properties": {"present": {"const": True}}}
+    assert credential["then"] == {"required": ["verifierOutcome"]}

@@ -165,6 +165,26 @@ def _verifier_outcome_errors(fixture: dict[str, Any]) -> list[str]:
             "a present credential must state verifierOutcome, or the fixture does "
             "not say whether verification succeeds"
         ]
+
+    # Verification is step one, so the outcome is not free: a credential refused
+    # at step one is one the verifier rejects, and a credential that reaches
+    # step two or beyond is one it accepted. Setting these independently let
+    # `unknown_key_id` -- a key explicitly absent from discovery -- instruct the
+    # harness to accept it, which a compliant consumer can satisfy only by
+    # contradicting the fixture or by branching on the class instead of
+    # verifying. Asserted as an invariant rather than a per-fixture list, so a
+    # class added later cannot reintroduce the contradiction.
+    expected = fixture.get("expected")
+    step = expected.get("failsAtStep") if isinstance(expected, dict) else None
+    if not isinstance(step, int):
+        return []
+    required = "reject" if step == 1 else "accept"
+    if credential["verifierOutcome"] != required:
+        return [
+            f"refuses at step {step} but instructs the verifier to "
+            f"{credential['verifierOutcome']!r}; verification is step one, so a "
+            f"step-{step} denial requires {required!r}"
+        ]
     return []
 
 
