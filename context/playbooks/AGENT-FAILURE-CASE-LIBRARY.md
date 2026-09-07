@@ -519,6 +519,53 @@ repositories: neither has a migration gate, and one names its columns explicitly
 them, so a new field there fails to persist rather than breaking every write. Different exposure,
 milder, not the same finding — so it stayed scoped rather than becoming an estate sweep.
 
+### 19. Fixing one unread field is not fixing the document that published it
+
+Contributed by the `lotus-report` / `lotus-risk` / `lotus-archive` seat, reported by the
+`lotus-platform` seat.
+
+**Claimed:** `status` is published on every verification key so a consumer can distinguish an active
+key from one that is no longer signing.
+
+**Evidence:** nothing reads it, and nothing constrains it. Same key, same window, same signature,
+only `status` differing — every one of these was accepted:
+
+```
+status='active'               -> ACCEPTED
+status='retired'              -> ACCEPTED
+status='revoked'              -> ACCEPTED
+status='compromised'          -> ACCEPTED
+status='definitely-not-valid' -> ACCEPTED
+status=''                     -> ACCEPTED
+```
+
+`grep status signing.py` returns nothing. The field is a bare string, so a typo or an empty value
+publishes silently and is indistinguishable from a real one. Measured against the governed discovery
+contract, which permits `active`, `rotated` and `revoked`, the service emits `active` and `retired`:
+`retired` is not permitted, so a consumer validating the bundle against the schema rejects it, and
+`revoked` is unrepresentable — a compromised key cannot be published at all. Nothing in the
+repository validates against that schema, which is why no test catches either half.
+
+The entry that matters is why this survived. The same document publishes a validity window, and that
+window's missing reader had already been found and fixed. **The fix shipped without anyone asking
+what else on that page nobody reads.** One unread field was repaired and its neighbour, on the same
+object, in the same response, was not looked at.
+
+**Check:** when you find a published field with no reader, treat the *document* as the unit rather
+than the field. Enumerate every field the response carries and name, for each, the code that
+consumes it — the answer is short, and "none" is the finding.
+
+For this control specifically, the proof is that a decision signed by a revoked key is refused
+**inside its own validity window**, with a reason naming it as revoked. Inside the window is
+load-bearing: refusing only outside it is the pre-existing window check passing under a new name,
+which is the trap the first version of this control already fell into. And the reason must not be
+"not published", or the deletion implementation that
+[entry 17](#17-retiring-a-compromised-key-is-not-withdrawing-it) rules out would satisfy the test.
+
+A vocabulary correction here is breaking for whoever already consumes the field, so it moves with its
+consumer rather than ahead of it. Renaming under a downstream that reads the old values would trade
+this defect for an outage.
+
 ## Contributing
 
 Add an entry when a failure would otherwise survive only in one session's memory and would change
