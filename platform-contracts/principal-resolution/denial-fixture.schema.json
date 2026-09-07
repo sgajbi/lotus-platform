@@ -78,6 +78,10 @@
                 "user",
                 "service"
               ]
+            },
+            "signatureVerifies": {
+              "description": "Whether the credential's signature verifies against the issuer's published keys. A fixture that says a credential was not verified without encoding it cannot be fed to a resolver: the request would be indistinguishable from a verified one, and only branching on the denial class would produce the expected refusal.",
+              "type": "boolean"
             }
           }
         },
@@ -126,7 +130,7 @@
         "status",
         "failsAtStep",
         "revealsReasonDetail",
-        "maxOutboundCalls"
+        "maxProtectedOperationCalls"
       ],
       "properties": {
         "outcome": {
@@ -152,8 +156,8 @@
           "type": "boolean",
           "const": false
         },
-        "maxOutboundCalls": {
-          "description": "How many calls the refusal path may make to any downstream, store or side-effecting client. Zero for every denial: a refusal must precede every effect it disclaims. A boolean cannot distinguish no calls from nobody counted, so the consumer asserts a number against a recording client.",
+        "maxProtectedOperationCalls": {
+          "description": "How many calls the refusal path may make to the protected operation the request was trying to perform. Zero for every denial: a refusal must precede every effect it disclaims. Resolution lookups are deliberately excluded -- key discovery, tenant membership and the grant store are how the refusal is reached, and grant_store_unavailable can only be discovered by attempting that call. A boolean cannot distinguish no calls from nobody counting, so the consumer asserts a number against a recording client.",
           "type": "integer",
           "const": 0
         }

@@ -12,7 +12,8 @@
       "keyId": "key-2026-09",
       "expired": false,
       "revoked": false,
-      "subjectKind": "service"
+      "subjectKind": "service",
+      "signatureVerifies": true
     },
     "assertedHeaders": {
       "x-caller-capabilities": "manage.write"
@@ -29,6 +30,6 @@
     "outcome": "denied",
     "status": 403,
     "failsAtStep": 4,
-    "maxOutboundCalls": 0
+    "maxProtectedOperationCalls": 0
   }
 }

@@ -227,7 +227,7 @@ def test_every_denial_fixture_refuses_before_any_side_effect(denial_class: str) 
     # A number, not a boolean. A 401 is identical whether the refusal ran before
     # the request left or after it, so only the call count separates them, and a
     # boolean cannot distinguish no calls from nobody counting.
-    assert fixture["expected"]["maxOutboundCalls"] == 0
+    assert fixture["expected"]["maxProtectedOperationCalls"] == 0
     assert fixture["expected"]["revealsReasonDetail"] is False
     assert fixture["environmentPosture"] == "verified"
 
@@ -261,9 +261,13 @@ def test_no_denial_fixture_permits_an_outbound_call() -> None:
     for denial_class in sorted(validator.REQUIRED_DENIAL_CLASSES):
         fixture = _denial(denial_class)
 
-        assert fixture["expected"]["maxOutboundCalls"] == 0, denial_class
+        assert fixture["expected"]["maxProtectedOperationCalls"] == 0, denial_class
         assert "sideEffectsPermitted" not in fixture["expected"], (
             f"{denial_class}: a boolean cannot distinguish no calls from nobody counting"
+        )
+        assert "maxOutboundCalls" not in fixture["expected"], (
+            f"{denial_class}: the budget covers the protected operation, not the "
+            "resolution lookups that reach the refusal"
         )
 
 
@@ -282,3 +286,52 @@ def test_the_readme_names_the_two_ways_to_prove_nothing() -> None:
     assert "A request echo cannot certify" in readme
     assert "Authority never comes from payload content" in readme
     assert "present_but_unverified" in readme
+
+
+def test_the_unverified_fixture_is_distinguishable_from_a_verified_one() -> None:
+    """A fixture that only says it was unverified cannot be fed to a resolver.
+
+    Its credential was byte-identical to the ones in fixtures that *are*
+    verified and fail later, so a consumer could not produce the expected
+    refusal without branching on the denial class -- which tests the fixture
+    metadata rather than the resolver.
+    """
+    unverified = _denial("present_but_unverified")["request"]["credential"]
+    verified_but_fails_later = _denial("tenant_not_a_member")["request"]["credential"]
+
+    assert unverified["signatureVerifies"] is False
+    assert verified_but_fails_later["signatureVerifies"] is True
+    assert unverified != verified_but_fails_later, (
+        "the request itself must differ, or the fixture proves nothing about verification"
+    )
+
+
+def test_every_present_credential_states_whether_it_verifies() -> None:
+    """Silence would let a consumer assume whichever answer passes."""
+    for denial_class in sorted(validator.REQUIRED_DENIAL_CLASSES):
+        credential = _denial(denial_class)["request"]["credential"]
+        if credential.get("present"):
+            assert "signatureVerifies" in credential, denial_class
+
+    admission = _admission()["request"]["credential"]
+    assert admission["signatureVerifies"] is True
+
+
+def test_the_grant_store_denial_is_reachable_under_the_call_budget() -> None:
+    """The budget must not forbid the lookup that discovers the denial.
+
+    `grant_store_unavailable` can only be found by attempting the grant store,
+    so a budget counting every outbound call would make the one compliant
+    implementation fail its own fixture, or push a consumer into fabricating the
+    failure from fixture metadata.
+    """
+    fixture = _denial("grant_store_unavailable")
+
+    assert fixture["request"]["grantStoreAvailable"] is False
+    assert fixture["expected"]["maxProtectedOperationCalls"] == 0
+    assert fixture["expected"]["failsAtStep"] == 3
+
+    schema = json.loads(validator.DENIAL_SCHEMA_PATH.read_text(encoding="utf-8"))
+    budget = schema["properties"]["expected"]["properties"]["maxProtectedOperationCalls"]
+
+    assert "Resolution lookups are deliberately excluded" in budget["description"]

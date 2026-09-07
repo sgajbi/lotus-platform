@@ -19,63 +19,179 @@
     },
     "principalKind": {
       "type": "string",
-      "enum": ["user", "service", "delegated"]
+      "enum": [
+        "user",
+        "service",
+        "delegated"
+      ]
     },
-    "environmentPosture": { "type": "string", "const": "verified" },
+    "environmentPosture": {
+      "type": "string",
+      "const": "verified"
+    },
     "request": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["description", "credential", "tenantRef", "requiredCapability", "grantStoreAvailable"],
+      "required": [
+        "description",
+        "credential",
+        "tenantRef",
+        "requiredCapability",
+        "grantStoreAvailable"
+      ],
       "properties": {
-        "description": { "type": "string", "minLength": 1 },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
         "credential": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["present", "issuer", "audience", "keyId", "expired", "revoked", "subjectKind"],
+          "required": [
+            "present",
+            "issuer",
+            "audience",
+            "keyId",
+            "expired",
+            "revoked",
+            "subjectKind",
+            "signatureVerifies"
+          ],
           "properties": {
-            "present": { "type": "boolean", "const": true },
-            "issuer": { "type": "string", "minLength": 1 },
-            "audience": { "type": "string", "minLength": 1 },
-            "keyId": { "type": "string", "minLength": 1 },
-            "expired": { "type": "boolean", "const": false },
-            "revoked": { "type": "boolean", "const": false },
-            "subjectKind": { "type": "string", "enum": ["user", "service"] }
+            "present": {
+              "type": "boolean",
+              "const": true
+            },
+            "issuer": {
+              "type": "string",
+              "minLength": 1
+            },
+            "audience": {
+              "type": "string",
+              "minLength": 1
+            },
+            "keyId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "expired": {
+              "type": "boolean",
+              "const": false
+            },
+            "revoked": {
+              "type": "boolean",
+              "const": false
+            },
+            "subjectKind": {
+              "type": "string",
+              "enum": [
+                "user",
+                "service"
+              ]
+            },
+            "signatureVerifies": {
+              "description": "Whether the credential's signature verifies against the issuer's published keys. A fixture that says a credential was not verified without encoding it cannot be fed to a resolver: the request would be indistinguishable from a verified one, and only branching on the denial class would produce the expected refusal.",
+              "type": "boolean",
+              "const": true
+            }
           }
         },
         "assertedHeaders": {
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": {
+            "type": "string"
+          }
         },
-        "tenantRef": { "type": "string", "minLength": 1 },
-        "requiredCapability": { "type": "string", "minLength": 1 },
-        "portfolioRef": { "type": "string" },
-        "grantStoreAvailable": { "type": "boolean", "const": true },
-        "actingForSubjectRef": { "type": "string" },
-        "applicationCapabilities": { "type": "array", "items": { "type": "string" } },
-        "userCapabilities": { "type": "array", "items": { "type": "string" } }
+        "tenantRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredCapability": {
+          "type": "string",
+          "minLength": 1
+        },
+        "portfolioRef": {
+          "type": "string"
+        },
+        "grantStoreAvailable": {
+          "type": "boolean",
+          "const": true
+        },
+        "actingForSubjectRef": {
+          "type": "string"
+        },
+        "applicationCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "expected": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["outcome", "status", "resolvedPrincipal", "headerAuthorityHonoured"],
+      "required": [
+        "outcome",
+        "status",
+        "resolvedPrincipal",
+        "headerAuthorityHonoured"
+      ],
       "properties": {
-        "outcome": { "type": "string", "const": "admitted" },
-        "status": { "type": "integer", "enum": [200, 201, 202, 204] },
+        "outcome": {
+          "type": "string",
+          "const": "admitted"
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            200,
+            201,
+            202,
+            204
+          ]
+        },
         "resolvedPrincipal": {
           "description": "What the downstream authorizes against. It never names the transport that produced the caller.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["kind", "tenantRef", "effectiveCapabilities"],
+          "required": [
+            "kind",
+            "tenantRef",
+            "effectiveCapabilities"
+          ],
           "properties": {
-            "kind": { "type": "string", "enum": ["user", "service", "delegated"] },
-            "tenantRef": { "type": "string", "minLength": 1 },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "user",
+                "service",
+                "delegated"
+              ]
+            },
+            "tenantRef": {
+              "type": "string",
+              "minLength": 1
+            },
             "effectiveCapabilities": {
               "type": "array",
               "minItems": 1,
-              "items": { "type": "string" }
+              "items": {
+                "type": "string"
+              }
             },
-            "entitlementScope": { "type": "array", "items": { "type": "string" } }
+            "entitlementScope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         },
         "headerAuthorityHonoured": {
