@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 417,
+    "markdown_file_count": 418,
     "powershell_file_count": 69,
-    "python_file_count": 244,
-    "source_file_count": 935,
+    "python_file_count": 247,
+    "source_file_count": 954,
     "suffix_counts": {
-      ".json": 156,
-      ".md": 417,
+      ".json": 171,
+      ".md": 418,
       ".ps1": 69,
-      ".py": 244,
+      ".py": 247,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 379433
+    "total_source_lines": 380763
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -88,6 +88,22 @@
         "lines": 61,
         "name": "_matrix_dispatch_is_verified",
         "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
+        "complexity": 21,
+        "end_line": 325,
+        "line": 245,
+        "lines": 81,
+        "name": "resolve_principal",
+        "path": "automation/verify_principal_credential.py"
+      },
+      {
+        "complexity": 21,
+        "end_line": 242,
+        "line": 168,
+        "lines": 75,
+        "name": "verify_credential",
+        "path": "automation/verify_principal_credential.py"
       },
       {
         "complexity": 20,
@@ -176,22 +192,6 @@
         "lines": 40,
         "name": "_broad_context_policy_errors",
         "path": "tests/unit/test_engineering_context_system_contract.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 1131,
-        "line": 1034,
-        "lines": 98,
-        "name": "_validate_document_links",
-        "path": "automation/validate_engineering_context_system.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 125,
-        "line": 52,
-        "lines": 74,
-        "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
-        "path": "tests/unit/test_lotus_platform_standards_docs.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3557
+    "python_function_count": 3592
   },
-  "generated_at_utc": "2026-09-07T12:28:39Z",
+  "generated_at_utc": "2026-09-07T13:36:55Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1628,
+    "collected_tests": 1654,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1628 tests collected"
+    "summary": "1654 tests collected"
   }
 }
