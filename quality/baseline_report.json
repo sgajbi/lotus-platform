@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 376947
+    "total_source_lines": 377024
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3485
+    "python_function_count": 3488
   },
-  "generated_at_utc": "2026-09-07T04:26:18Z",
+  "generated_at_utc": "2026-09-07T04:45:09Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -383,7 +383,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 6036,
+      "lines": 6046,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1554,
+    "collected_tests": 1557,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1554 tests collected"
+    "summary": "1557 tests collected"
   }
 }
