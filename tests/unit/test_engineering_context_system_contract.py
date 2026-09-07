@@ -1767,3 +1767,169 @@ def test_the_governed_documents_have_no_unresolvable_route() -> None:
     ]
 
     assert errors == [], errors
+
+
+def test_link_check_rejects_a_broken_reference_definition(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A reference-style route carries its destination on a separate line.
+
+    `[guide][target]` names no path at all; the path lives on the `[target]:`
+    definition, which the inline pattern never sees. A document could route
+    through a file that does not exist and pass a blocking gate.
+    """
+    errors = _link_errors(
+        tmp_path,
+        monkeypatch=monkeypatch,
+        body="See [the guide][target]." + chr(10) * 2 + "[target]: ./absent.md" + chr(10),
+    )
+
+    assert len(errors) == 1, errors
+    assert "./absent.md" in errors[0]
+
+
+def test_link_check_accepts_a_reference_definition_that_resolves(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: a definition pointing at a real file is a route."""
+    (tmp_path / "present.md").write_text("# present" + chr(10), encoding="utf-8")
+
+    errors = _link_errors(
+        tmp_path,
+        monkeypatch=monkeypatch,
+        body="See [the guide][target]." + chr(10) * 2 + "[target]: ./present.md" + chr(10),
+    )
+
+    assert errors == [], errors
+
+
+def test_link_check_ignores_a_link_inside_a_fenced_example(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A fenced example demonstrates syntax; it is displayed, not followed.
+
+    Treating it as a live link makes the guard fail on correct documentation
+    unless the illustrative filename happens to exist, which is how a useful
+    check gets switched off.
+    """
+    fence = chr(96) * 3
+    body = (
+        "Write a link like this:"
+        + chr(10) * 2
+        + fence
+        + "markdown"
+        + chr(10)
+        + "[example](not-a-real-file.md)"
+        + chr(10)
+        + fence
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_still_reads_links_after_a_fence_closes(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: skipping a fence must not skip the rest of the file."""
+    fence = chr(96) * 3
+    body = (
+        fence
+        + chr(10)
+        + "[example](not-a-real-file.md)"
+        + chr(10)
+        + fence
+        + chr(10) * 2
+        + "And a real route: [pack](./also-absent.md)."
+        + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./also-absent.md" in errors[0]
+    assert "not-a-real-file.md" not in errors[0]
+
+
+def test_link_check_ignores_a_link_inside_a_code_span(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """An inline code span is the same case as a fence, in one line."""
+    body = (
+        "The form is "
+        + chr(96)
+        + "[example](not-a-real-file.md)"
+        + chr(96)
+        + "."
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_rejects_an_absolute_filesystem_destination(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """An absolute path is machine-specific even when it exists right now.
+
+    Joining discards the left operand, so an absolute destination that happens
+    to sit under this checkout passed both containment and existence. It is a
+    404 on every other machine, which is precisely what this check exists to
+    catch.
+    """
+    real_file = tmp_path / "README.md"
+    real_file.write_text("# readme" + chr(10), encoding="utf-8")
+
+    errors = _link_errors(
+        tmp_path,
+        monkeypatch=monkeypatch,
+        body="See [the readme](" + real_file.resolve().as_posix() + ")." + chr(10),
+    )
+
+    assert len(errors) == 1, errors
+    assert "absolute filesystem path" in errors[0], errors
+
+
+def test_link_check_accepts_the_relative_form_of_the_same_file(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: the same target, written portably, is a route."""
+    (tmp_path / "README.md").write_text("# readme" + chr(10), encoding="utf-8")
+
+    errors = _link_errors(
+        tmp_path, monkeypatch=monkeypatch, body="See [the readme](./README.md)." + chr(10)
+    )
+
+    assert errors == [], errors
+
+
+def test_the_checked_document_set_comes_from_the_manifest() -> None:
+    """A hand-maintained map drifts from the routes it is supposed to cover.
+
+    Both documents below are routed into by the manifest's business-app RFC
+    route and were absent from the explicit map, so a broken link in either one
+    passed a blocking gate.
+    """
+    routes = CONTEXT_VALIDATOR._governed_markdown_documents()
+    routed_paths = {path.resolve() for path in routes.values()}
+
+    for relative in (
+        "platform-standards/LOTUS_BANK_BUYABLE_ENGINEERING_CONTRACT.md",
+        "context/playbooks/ENTERPRISE-BACKEND-REFACTORING-INSTRUCTIONS.md",
+        "context/LOTUS-SKILL-ROUTING-MAP.md",
+    ):
+        assert (ROOT / relative).resolve() in routed_paths, relative
+
+
+def test_an_empty_manifest_cannot_pass_the_link_check_by_inspecting_nothing(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """Zero routes and zero broken routes must not be the same green."""
+    empty_context = tmp_path / "context"
+    empty_context.mkdir()
+    (empty_context / "lotus-context-manifest.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(CONTEXT_VALIDATOR, "CONTEXT_DIR", empty_context)
+
+    with pytest.raises(ValueError, match="no Markdown routes"):
+        CONTEXT_VALIDATOR._governed_markdown_documents()
+
