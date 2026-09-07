@@ -20,9 +20,9 @@
   },
   "expected": {
     "revealsReasonDetail": false,
-    "sideEffectsPermitted": false,
     "outcome": "denied",
     "status": 503,
-    "failsAtStep": 3
+    "failsAtStep": 3,
+    "maxOutboundCalls": 0
   }
 }

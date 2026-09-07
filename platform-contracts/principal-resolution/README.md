@@ -52,14 +52,38 @@ any consumer, choose an identity provider, or certify production identity.
 - [`resolved-principal.v1.json`](resolved-principal.v1.json)
 - [`denial-fixture.schema.json`](denial-fixture.schema.json)
 - [`admission-fixture.schema.json`](admission-fixture.schema.json)
-- [`examples/`](examples) — one fixture per denial class, plus an admitted delegated call
+- [`examples/`](examples) — one fixture per denial class (13), plus an admitted delegated call
 
 ## What a consumer must prove
 
-Every consumer must prove all twelve denials, not a selection: missing, malformed, expired,
-wrong-audience, wrong-issuer, unknown-key-id and revoked credentials; tenant not a member; capability
-not granted; portfolio outside scope; grant store unavailable; and — for delegated calls — a
-capability the application holds but the person does not.
+Every consumer must prove all thirteen denials, not a selection: missing, malformed, expired,
+wrong-audience, wrong-issuer, unknown-key-id and revoked credentials; **present but unverified**;
+tenant not a member; capability not granted; portfolio outside scope; grant store unavailable; and —
+for delegated calls — a capability the application holds but the person does not.
+
+**`present_but_unverified` is the one that matters most, and the easiest to skip.** It is a
+well-formed, unexpired, correctly-audienced credential whose signature was never checked. Every
+shape assertion passes, so a consumer can satisfy all twelve other fixtures by validating structure
+and resolving nothing at all. It is the fixture that makes "verified server-side authority is the
+source" mean something.
+
+Each denial also carries `maxOutboundCalls: 0`, and that is a measurement rather than a claim. A 401
+is identical whether the refusal ran before the request left or after it, so the status code alone
+cannot tell them apart — only the call count can. Assert it against a recording client. A boolean
+saying side effects are not permitted cannot distinguish no calls from nobody counting.
+
+### Two ways to prove nothing
+
+**A request echo cannot certify.** Comparing a response's `tenant_id` against the one the request
+sent compares an input with itself: where a producer builds that field from the request's own policy
+context, the assertion holds for every possible implementation, including one that ignores identity
+entirely. If such a comparison is kept, name it as echo integrity and do not count it as
+authorization evidence. This one is on the record because a consumer shipped it and had to unwind
+it.
+
+**Authority never comes from payload content.** A tenant, actor or capability read out of a request
+body lets the payload choose its own authorization scope. The resolved principal is the only source;
+a body field of the same name is data being described, not authority being asserted.
 
 Passing only the positive case is not an implementation. Neither is passing only the denials: a
 resolver that refuses every request satisfies all twelve, which is why an admission fixture is

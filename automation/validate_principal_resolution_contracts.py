@@ -56,6 +56,10 @@ REQUIRED_DENIAL_CLASSES = {
     "portfolio_outside_scope",
     "delegated_capability_not_held_by_user",
     "grant_store_unavailable",
+    # The class that passes every other fixture in this set. A consumer can
+    # satisfy all the others by validating structure and resolving nothing; only
+    # this one requires that the credential was actually verified.
+    "present_but_unverified",
 }
 
 FORBIDDEN_EVIDENCE_FIELDS = {

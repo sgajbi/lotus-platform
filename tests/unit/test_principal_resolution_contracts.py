@@ -224,6 +224,61 @@ def test_every_denial_fixture_refuses_before_any_side_effect(denial_class: str) 
     fixture = _denial(denial_class)
 
     assert fixture["expected"]["outcome"] == "denied"
-    assert fixture["expected"]["sideEffectsPermitted"] is False
+    # A number, not a boolean. A 401 is identical whether the refusal ran before
+    # the request left or after it, so only the call count separates them, and a
+    # boolean cannot distinguish no calls from nobody counting.
+    assert fixture["expected"]["maxOutboundCalls"] == 0
     assert fixture["expected"]["revealsReasonDetail"] is False
     assert fixture["environmentPosture"] == "verified"
+
+
+def test_the_unverified_credential_class_is_required() -> None:
+    """The class a consumer passes every other fixture without implementing.
+
+    Missing, malformed, expired, wrong-audience, wrong-issuer, unknown-key-id
+    and revoked are all refusals of a *defective* credential. A well-formed,
+    unexpired, correctly-audienced credential whose signature was never checked
+    passes every shape assertion in the set, so a consumer could satisfy the
+    other twelve by validating structure and resolving nothing.
+    """
+    assert "present_but_unverified" in validator.REQUIRED_DENIAL_CLASSES
+
+    fixture = _denial("present_but_unverified")
+    credential = fixture["request"]["credential"]
+
+    assert credential["present"] is True
+    assert credential["expired"] is False
+    assert credential["revoked"] is False
+    assert fixture["expected"]["failsAtStep"] == 1, (
+        "verification is step one, so an unverified credential must not reach "
+        "tenant membership or the grant store"
+    )
+    assert fixture["expected"]["status"] == 401
+
+
+def test_no_denial_fixture_permits_an_outbound_call() -> None:
+    """A refusal must precede every effect it disclaims, measured rather than claimed."""
+    for denial_class in sorted(validator.REQUIRED_DENIAL_CLASSES):
+        fixture = _denial(denial_class)
+
+        assert fixture["expected"]["maxOutboundCalls"] == 0, denial_class
+        assert "sideEffectsPermitted" not in fixture["expected"], (
+            f"{denial_class}: a boolean cannot distinguish no calls from nobody counting"
+        )
+
+
+def test_the_readme_names_the_two_ways_to_prove_nothing() -> None:
+    """Consumer guidance must carry the anti-patterns, not only the requirements.
+
+    Both are on the record because a consumer shipped them: comparing a
+    response's tenant against the one the request sent is comparing an input
+    with itself, and reading authority out of a request body lets the payload
+    choose its own scope.
+    """
+    readme = (
+        validator.CONTRACT_DIR / "README.md"
+    ).read_text(encoding="utf-8")
+
+    assert "A request echo cannot certify" in readme
+    assert "Authority never comes from payload content" in readme
+    assert "present_but_unverified" in readme
