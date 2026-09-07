@@ -2365,6 +2365,11 @@ def _case_library_entry_errors(library: str) -> list[str]:
     success on 128 files while resolving every import to `Any` is not. Without a
     check, the cheapest entry to write is the one worth least, so the shape is
     enforced rather than requested.
+
+    Each field's *content* is measured, not the presence of its marker. A guard
+    that only asked whether `**Evidence:**` appeared anywhere accepted an entry
+    whose evidence was empty and immediately followed by the next marker, which
+    is precisely the placeholder entry the contract exists to keep out.
     """
     errors: list[str] = []
     sections = library.split(chr(10) + "### ")
@@ -2375,6 +2380,13 @@ def _case_library_entry_errors(library: str) -> list[str]:
         for part in _CASE_PARTS:
             if part not in section:
                 errors.append(f"entry {heading!r} is missing {part}")
+                continue
+            others = "|".join(re.escape(other) for other in _CASE_PARTS if other != part)
+            content = re.search(
+                re.escape(part) + r"(.*?)(?=" + others + r"|\Z)", section, re.DOTALL
+            )
+            if content is None or not content.group(1).strip(" " + chr(10) + chr(9) + ".-*_"):
+                errors.append(f"entry {heading!r} has no content under {part}")
         if "Contributed by" not in section:
             errors.append(f"entry {heading!r} does not name the contributing seat")
     return errors
@@ -2442,6 +2454,28 @@ def test_the_case_library_guard_rejects_an_unattributed_entry() -> None:
     errors = _case_library_entry_errors(unattributed)
 
     assert any("contributing seat" in error for error in errors), errors
+
+
+def test_the_case_library_guard_rejects_an_empty_evidence_field() -> None:
+    """A marker with nothing under it is a placeholder, not a case."""
+    hollow = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:**"
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(hollow)
+
+    assert any("no content under **Evidence:**" in error for error in errors), errors
 
 
 def test_the_case_library_guard_does_not_pass_on_an_empty_file() -> None:
