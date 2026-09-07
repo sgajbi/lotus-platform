@@ -2128,3 +2128,121 @@ def test_link_check_still_accepts_a_genuinely_external_scheme(
 
     assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
 
+
+def test_link_check_reads_a_destination_containing_balanced_parentheses(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A regular expression cannot express nesting; the destination grammar is nested.
+
+    Stopping at the first `)` truncated `guide(v2).md` to `guide(v2` and
+    reported a file that exists as missing.
+    """
+    (tmp_path / "guide(v2).md").write_text("# guide" + chr(10), encoding="utf-8")
+
+    errors = _link_errors(
+        tmp_path, monkeypatch=monkeypatch, body="See [the guide](./guide(v2).md)." + chr(10)
+    )
+
+    assert errors == [], errors
+
+
+def test_link_check_still_reports_a_missing_parenthesised_destination(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired rejection, so the acceptance is not simply parsing nothing."""
+    errors = _link_errors(
+        tmp_path, monkeypatch=monkeypatch, body="See [the guide](./absent(v2).md)." + chr(10)
+    )
+
+    assert len(errors) == 1, errors
+    assert "absent(v2).md" in errors[0], errors
+
+
+def test_link_check_reads_a_destination_with_a_title(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A title follows the destination and is not part of it."""
+    (tmp_path / "guide.md").write_text("# guide" + chr(10), encoding="utf-8")
+    body = "See [the guide](./guide.md " + chr(34) + "The guide" + chr(34) + ")." + chr(10)
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_does_not_close_a_fence_on_a_line_with_trailing_text(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A closing fence may be followed only by whitespace.
+
+    Accepting any line that starts with the delimiter closed the block on a
+    literal example line, and every link after it was read as a live route.
+    """
+    fence = chr(96) * 3
+    body = (
+        fence
+        + chr(10)
+        + fence
+        + "still-code"
+        + chr(10)
+        + "[example](not-a-real-file.md)"
+        + chr(10)
+        + fence
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_resumes_after_a_bare_closing_fence(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: a real closer with trailing spaces still closes."""
+    fence = chr(96) * 3
+    body = (
+        fence
+        + chr(10)
+        + "[example](not-a-real-file.md)"
+        + chr(10)
+        + fence
+        + "   "
+        + chr(10) * 2
+        + "A real route: [pack](./absent-route.md)."
+        + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./absent-route.md" in errors[0], errors
+
+
+def test_link_check_ignores_a_link_inside_an_html_comment(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A commented route is not rendered and cannot be followed."""
+    body = (
+        "Current route: [pack](./pack.md)."
+        + chr(10) * 2
+        + "<!-- a future route: [future](missing.md) -->"
+        + chr(10)
+    )
+    (tmp_path / "pack.md").write_text("# pack" + chr(10), encoding="utf-8")
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_still_reads_links_around_an_html_comment(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: removing a comment must not remove the document."""
+    body = (
+        "<!-- a note -->"
+        + chr(10) * 2
+        + "A real route: [pack](./absent-pack.md)."
+        + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./absent-pack.md" in errors[0], errors
+
