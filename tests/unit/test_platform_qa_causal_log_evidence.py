@@ -29,10 +29,11 @@ def _powershell() -> str:
 
 
 def _verdict(log_text: str, pattern: str, marker: str = MARKER) -> str:
-    """Dot-source the shipped script and ask it about one log window.
+    """Ask the shipped script's own decision function about one log window.
 
-    `-WhatIfPreview` is not available, so the script is dot-sourced inside a
-    scriptblock guarded by a parameter that makes it define functions and stop.
+    The script runs a whole QA sweep when executed, so the function is extracted
+    from its source and evaluated alone. That keeps the assertion behavioural --
+    it is the shipped code deciding -- without bringing up a stack.
     """
     command = (
         "$ErrorActionPreference='Stop';"
@@ -171,3 +172,68 @@ def test_domain_invariants_are_left_unproven_rather_than_given_a_false_probe() -
         ("lotus-render", "render"),
         ("lotus-risk", "risk"),
     }, unproven
+
+
+def _scaffold_invariant(pattern: str) -> dict:
+    """Ask the scaffold to build one invariant, the way it does when registering."""
+    script = ROOT / "automation" / "New-Lotus-Service.ps1"
+    command = (
+        "$ErrorActionPreference='Stop';"
+        f"$src = Get-Content -Raw '{script.as_posix()}';"
+        "$start = $src.IndexOf('function New-QaLogInvariant');"
+        "$end = $src.IndexOf('function Register-PlatformContextAndAutomation');"
+        "Invoke-Expression $src.Substring($start, $end - $start);"
+        f"New-QaLogInvariant -Pattern '{pattern}' "
+        "-HealthUrl 'http://example.dev.lotus/health' | ConvertTo-Json -Depth 6"
+    )
+    completed = subprocess.run(
+        [_powershell(), "-NoProfile", "-Command", command], text=True, capture_output=True
+    )
+    assert completed.returncode == 0, completed.stderr
+    return json.loads(completed.stdout)
+
+
+@pytest.mark.parametrize("pattern", ["correlation", "trace", "service"])
+def test_a_newly_scaffolded_service_is_registered_with_a_probe(pattern: str) -> None:
+    """The scaffold's defaults are exactly the patterns a bare form would strand.
+
+    Registering them as bare strings would enter every new service into the
+    matrix in a form the validator reports as unproven, so a service would be
+    born failing QA for a reason unrelated to the service.
+    """
+    invariant = _scaffold_invariant(pattern)
+
+    assert invariant["pattern"] == pattern
+    assert invariant["probe"]["method"] == "GET"
+    assert invariant["probe"]["url"].endswith("/health")
+    assert invariant["probe"]["correlation_header"] == "X-Correlation-Id"
+
+
+def test_the_marker_cannot_satisfy_the_pattern_it_proves() -> None:
+    """A marker naming the invariant matched the pattern it existed to prove.
+
+    A marker ending in `-service` made every `service` invariant pass on a line
+    that carried no such field, so the check could not fail. Reported in review
+    of #828; the marker is opaque now, and the marker text is removed from the
+    line before the pattern is applied, so either alone would close it.
+    """
+    colliding_marker = "lotus-qa-20260907-031500-lotus-report-service"
+    line_without_the_field = (
+        '{"event":"request.completed","correlation_id":"' + colliding_marker + '"}' + chr(10)
+    )
+
+    assert _verdict(line_without_the_field, "service", marker=colliding_marker) == "unmatched"
+
+
+def test_a_field_outside_the_marker_still_proves_the_invariant() -> None:
+    """The paired acceptance: removing the marker must not remove the evidence."""
+    colliding_marker = "lotus-qa-20260907-031500-lotus-report-service"
+    line_with_the_field = (
+        '{"event":"request.completed","service":"lotus-report","correlation_id":"'
+        + colliding_marker
+        + '"}'
+        + chr(10)
+    )
+
+    assert _verdict(line_with_the_field, "service", marker=colliding_marker) == "correlated"
+
