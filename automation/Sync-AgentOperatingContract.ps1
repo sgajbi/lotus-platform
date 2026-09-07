@@ -114,10 +114,14 @@ function Test-RepositoryIsQuiescent {
         it is a change that should not exist anywhere. Skip such a target and say
         so, rather than writing and leaving them to discover it.
     #>
-    param([string]$TargetPath)
+    param([string]$RepositoryRoot)
 
-    $repoRoot = Split-Path -Parent $TargetPath
-    if (-not $repoRoot) { return $true }
+    # The caller passes the repository root that has already been resolved. This
+    # used to take the target's path and split its parent, which asked Git about
+    # a directory that need not exist -- and a failed probe was read as
+    # quiescent, so a nested target below a dirty sibling was written anyway.
+    if (-not $RepositoryRoot) { return $true }
+    $repoRoot = $RepositoryRoot
 
     $insideWorkTree = & git -C $repoRoot rev-parse --is-inside-work-tree 2>$null
     if ($LASTEXITCODE -ne 0 -or $insideWorkTree -ne "true") {
@@ -162,7 +166,14 @@ function Resolve-RequestedTargets {
         $targets.Add((New-TargetSpec -Path (Resolve-DefaultTargetPath) -Kind "deployed" -Label "deployed target")) | Out-Null
     }
 
-    if ($targets.Count -eq 0) {
+    # `-IncludeDeployedTarget` adds a target; it does not choose one. Testing
+    # for an empty list meant the switch suppressed the repository default, so
+    # `-CheckOnly -IncludeDeployedTarget` could pass while the committed
+    # repository-root copy was stale -- the opposite of "as well".
+    # Wrapped in @() because an unbound array parameter is \$null, and reading
+    # .Count on it is a terminating error under Set-StrictMode.
+    $hasSelectedTarget = (@($ExplicitTargetPaths).Count -gt 0) -or (@($repoNamesToUse).Count -gt 0)
+    if (-not $hasSelectedTarget) {
         # No target was named, so check this repository's own copy rather than
         # the machine-local deployed file. The deployed path exists only on a
         # workstation with Codex installed, so defaulting to it meant the
@@ -372,19 +383,12 @@ function Test-CommittedContractSynchronized {
         return ""
     }
 
-    # Identical text committed with different line endings is a real and common
-    # difference in this estate, and it is not a contract drift. Fall back to
-    # comparing the committed text under the same normalization the writer uses
-    # so the gate reports policy divergence rather than checkout settings.
-    $targetCommittedText = Get-CommittedText -RepoRoot $probeRoot -RelativePath $relativePath
-    if ($null -eq $targetCommittedText) {
-        return "Unable to read the committed content of $($Target.path), so synchronization cannot be proved."
-    }
-
-    if ((Normalize-ContractContent $targetCommittedText) -eq (Normalize-ContractContent $SourceCommittedText)) {
-        Write-Warning "Committed content of $($Target.path) matches the governed source but differs in line endings (blob $targetBlobId versus $SourceBlobId)."
-        return ""
-    }
+    # A blob mismatch is drift. An earlier revision normalized line endings here
+    # and returned success with a warning, which declared two repositories
+    # synchronized while they shipped different committed bytes -- and the
+    # governed rule is a committed blob-SHA comparison precisely so that
+    # "identical apart from something" cannot become a pass. The remedy for a
+    # line-ending difference is to re-lift the file, not to accept it.
 
     $hint = Get-RepoRootCheckoutHint -Target $Target
     $message = "Committed AGENTS file is not synchronized with the governed source: $($Target.path) (committed blob $targetBlobId, governed source blob $SourceBlobId)"
@@ -455,13 +459,24 @@ $sourcePathToUse = if ($SourcePath) {
 else {
     Join-Path $PSScriptRoot "..\context\AGENTS-OPERATING-CONTRACT.md"
 }
-$resolvedSource = (Resolve-Path $sourcePathToUse).ProviderPath
+# `Resolve-Path` fails outright for a path that is not on disk, which stopped a
+# sparse checkout or a local deletion before the committed lookup below could
+# run. The full path is derived without requiring materialization, and whether
+# the file is actually present is decided where that matters.
+$resolvedSource = [System.IO.Path]::GetFullPath($sourcePathToUse)
+$sourceExistsOnDisk = Test-Path -LiteralPath $resolvedSource -PathType Leaf
 # -Encoding utf8 is required: without it Get-Content decodes with the system
 # codepage, so a UTF-8 em dash is read as three cp1252 characters and written
 # back double-encoded. The check then never converges, because the file this
 # script just wrote does not match the source it wrote it from.
 $global:LASTEXITCODE = 0
-$sourceRepoRootOutput = @(& git -C (Split-Path -Parent $resolvedSource) rev-parse --show-toplevel 2>$null)
+$sourceProbeRoot = Get-NearestExistingAncestor (Split-Path -Parent $resolvedSource)
+$sourceRepoRootOutput = if ($sourceProbeRoot) {
+    @(& git -C $sourceProbeRoot rev-parse --show-toplevel 2>$null)
+}
+else {
+    @()
+}
 $sourceRepoRootExitCode = $LASTEXITCODE
 $sourceRepoRoot = $sourceRepoRootOutput | Select-Object -First 1
 $sourceIsOnOriginMain = $false
@@ -472,12 +487,18 @@ $sourceRelativePath = ""
 if ($sourceRepoRootExitCode -eq 0 -and $sourceRepoRoot) {
     # Ask Git for the source directory's repository-relative prefix. This works
     # in Windows PowerShell 5.1 and PowerShell 7 without widening the pathspec.
-    $sourceDirectory = Split-Path -Parent $resolvedSource
+    $sourceDirectory = $sourceProbeRoot
     $sourcePrefixOutput = @(& git -C $sourceDirectory rev-parse --show-prefix 2>$null)
     $sourcePrefixExitCode = $LASTEXITCODE
     $sourcePrefix = $sourcePrefixOutput | Select-Object -First 1
     if ($sourcePrefixExitCode -eq 0) {
-        $sourceRelativePath = ($sourcePrefix + (Split-Path -Leaf $resolvedSource)).Replace("\", "/")
+        # The prefix belongs to the directory Git was asked from, which may be
+        # an ancestor of the source when the source's own directory is absent.
+        $sourceProbeFull = [System.IO.Path]::GetFullPath($sourceProbeRoot).Replace("\", "/").TrimEnd("/")
+        $sourceFull = $resolvedSource.Replace("\", "/")
+        if ($sourceFull.StartsWith("$sourceProbeFull/", [System.StringComparison]::OrdinalIgnoreCase)) {
+            $sourceRelativePath = ($sourcePrefix + $sourceFull.Substring($sourceProbeFull.Length + 1)).Replace("\", "/")
+        }
     }
     if ($sourceRelativePath) {
         & git -C $sourceRepoRoot ls-files --error-unmatch -- $sourceRelativePath 2>$null | Out-Null
@@ -498,7 +519,18 @@ if ($sourceRepoRoot -and $sourceRelativePath) {
     $sourceCommittedText = Get-CommittedText -RepoRoot $sourceRepoRoot -RelativePath $sourceRelativePath
 }
 
-$sourceContent = Get-Content -Raw -Encoding utf8 $resolvedSource
+# A source that exists only at HEAD is still a governed source. Requiring it on
+# disk failed a check whose two committed blobs were identical, which describes
+# the checkout rather than the repositories.
+$sourceContent = if ($sourceExistsOnDisk) {
+    Get-Content -Raw -Encoding utf8 $resolvedSource
+}
+elseif ($sourceCommittedText) {
+    $sourceCommittedText
+}
+else {
+    throw "Unable to read the governed contract source at $resolvedSource. It is neither on disk nor committed at HEAD."
+}
 $normalizedSourceContent = Normalize-ContractContent $sourceContent
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -589,12 +621,22 @@ foreach ($target in $targets) {
     # errors are non-terminating the script carried on and wrote the file --
     # reporting success while skipping the guard entirely. Full-path
     # normalization answers for a path whether or not it is on disk.
+    # Ownership is a property of the repository, not of the target's immediate
+    # directory. Comparing the lexical parent classified this repository's own
+    # `config/AGENTS.md`, or its root reached through a link, as a sibling: a
+    # normal unmerged contract edit was then refused by the provenance guard and
+    # a dirty tree skipped, in the one repository where both are expected.
     $isOwnRepository = $false
-    if ($targetRepoRoot) {
-        $separators = [char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
-        $normalizedTargetRoot = [System.IO.Path]::GetFullPath($targetRepoRoot).TrimEnd($separators)
-        $normalizedPlatformRoot = [System.IO.Path]::GetFullPath($ResolvedPlatformRoot).TrimEnd($separators)
-        $isOwnRepository = ($normalizedTargetRoot -eq $normalizedPlatformRoot)
+    $targetWorktreeRoot = ""
+    $targetProbeRoot = Get-NearestExistingAncestor $targetRepoRoot
+    if ($targetProbeRoot) {
+        $targetWorktreeRoot = Invoke-GitText -RepoRoot $targetProbeRoot -Arguments @("rev-parse", "--show-toplevel")
+    }
+    if ($targetWorktreeRoot) {
+        $platformWorktreeRoot = Invoke-GitText -RepoRoot $ResolvedPlatformRoot -Arguments @("rev-parse", "--show-toplevel")
+        if ($platformWorktreeRoot) {
+            $isOwnRepository = ($targetWorktreeRoot -eq $platformWorktreeRoot)
+        }
     }
 
     # Deploying a contract that is not on origin/main puts branch-only policy
@@ -603,18 +645,12 @@ foreach ($target in $targets) {
     # Only guard real sibling checkouts. A target that is not a git working tree
     # is a deployment location or a test workspace: there is no other session to
     # disturb and no history for the content to be missing from.
-    $targetIsWorkTree = $false
-    # The same reason the check-only path walks up: Git cannot run with -C in a
-    # directory that does not exist, and a nested target below a sibling
-    # checkout has no parent directory until this script creates one. Probing
-    # the missing directory answered "not a work tree", which skipped the
-    # provenance refusal and wrote unmerged contract content into another
-    # repository -- the one outcome no flag is allowed to override.
-    $targetProbeRoot = Get-NearestExistingAncestor $targetRepoRoot
-    if ($targetProbeRoot) {
-        $probe = & git -C $targetProbeRoot rev-parse --is-inside-work-tree 2>$null
-        $targetIsWorkTree = ($LASTEXITCODE -eq 0) -and ($probe -eq "true")
-    }
+    # Git cannot run with -C in a directory that does not exist, and a nested
+    # target below a sibling checkout has no parent directory until this script
+    # creates one. Probing the missing directory answered "not a work tree",
+    # which skipped the provenance refusal and wrote unmerged contract content
+    # into another repository -- the one outcome no flag is allowed to override.
+    $targetIsWorkTree = [bool]$targetWorktreeRoot
 
     # -Force is deliberately absent from this condition. It exists to override
     # the quiescence check below, which protects work the operator can see and
@@ -634,7 +670,7 @@ foreach ($target in $targets) {
         continue
     }
 
-    if (-not $Force -and -not $isOwnRepository -and $targetIsWorkTree -and -not (Test-RepositoryIsQuiescent -TargetPath $target.path)) {
+    if (-not $Force -and -not $isOwnRepository -and $targetIsWorkTree -and -not (Test-RepositoryIsQuiescent -RepositoryRoot $targetWorktreeRoot)) {
         $skipMessage = "Skipped $($target.path): that repository has uncommitted changes, so another session is working in it. Re-run the sync there once it is clean, or pass -Force if the change is yours."
         Write-Warning $skipMessage
         $skippedTargets.Add($target.path) | Out-Null

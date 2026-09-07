@@ -563,8 +563,17 @@ def test_force_still_overrides_a_dirty_sibling_checkout(tmp_path: Path) -> None:
     )
 
 
-def test_check_only_fails_when_it_verified_nothing(tmp_path: Path) -> None:
-    """Reporting success for zero comparisons is how this passed on every runner."""
+def test_including_the_deployed_target_still_checks_this_repository(
+    tmp_path: Path,
+) -> None:
+    """`-IncludeDeployedTarget` adds a target; it must not replace the default.
+
+    Selecting the repository default only when the target list was empty meant
+    this switch suppressed it, so the run could pass while the committed
+    repository-root copy was stale. On a runner the deployed file is absent and
+    is skipped, which previously left the run verifying nothing at all -- the
+    exact zero-comparison success this check exists to prevent.
+    """
     result = _run_sync_with_env(
         {
             "GITHUB_ACTIONS": "true",
@@ -575,8 +584,11 @@ def test_check_only_fails_when_it_verified_nothing(tmp_path: Path) -> None:
     )
 
     output = _readable(result)
-    assert result.returncode != 0, output
-    assert _says(result, "verified no targets")
+    assert result.returncode == 0, output
+    assert _says(result, "synchronized for 1 target(s)"), output
+    assert _says(result, "skipped because deployed AGENTS target is not present"), (
+        "the deployed target must still be reported as skipped, not silently dropped"
+    )
 
 
 def test_check_only_defaults_to_this_repository_not_the_deployed_file(
@@ -1039,4 +1051,183 @@ def test_sync_refuses_a_nested_target_whose_directory_does_not_exist_yet(
     assert _says(result, "differs from or cannot be verified against origin/main"), _readable(
         result
     )
+
+
+def _isolated_platform_checkout(tmp_path: Path) -> Path:
+    """A committed checkout that this script treats as its own repository.
+
+    `Resolve-PlatformRoot` is the script's own parent directory, so running a
+    copy makes the copy's repository the platform root. That is the only way to
+    exercise write-mode ownership without writing into the repository under
+    test.
+    """
+    platform = tmp_path / "platform-checkout"
+    (platform / "automation").mkdir(parents=True)
+    (platform / "context").mkdir(parents=True)
+    script = ROOT / "automation" / "Sync-AgentOperatingContract.ps1"
+    with script.open("rb") as source, (platform / "automation" / script.name).open("wb") as copy:
+        copy.write(source.read())
+    _write_exact(platform / "context" / "AGENTS-OPERATING-CONTRACT.md", _governed_source_text())
+    _commit_all(platform)
+    return platform
+
+
+def _run_script(script: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    command = [_powershell_executable(), "-NoProfile"]
+    if shutil.which("powershell") and "powershell" in _powershell_executable().lower():
+        command.extend(["-ExecutionPolicy", "Bypass"])
+    command.extend(["-File", str(script), *args])
+    return subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+
+
+def test_a_committed_blob_mismatch_is_drift_not_a_warning(tmp_path: Path) -> None:
+    """Two repositories shipping different committed bytes are not synchronized.
+
+    An earlier revision normalized line endings and returned success with a
+    warning. The governed rule is a committed blob-SHA comparison precisely so
+    that "identical apart from something" cannot become a pass; the remedy for a
+    line-ending difference is to re-lift the file.
+    """
+    git = shutil.which("git")
+    assert git is not None
+    repo = tmp_path / "sibling"
+    target = repo / "AGENTS.md"
+    target.parent.mkdir(parents=True)
+    subprocess.run([git, "init", str(repo)], check=True, capture_output=True)
+    _run_git(repo, "config", "user.email", "tests@lotus.invalid")
+    _run_git(repo, "config", "user.name", "Lotus Tests")
+    # Without these, Git normalizes the line endings on the way into the object
+    # store and the committed blob matches after all -- so the fixture would not
+    # reproduce the case it exists for.
+    _run_git(repo, "config", "core.autocrlf", "false")
+    _write_exact(repo / ".gitattributes", "* -text" + chr(10))
+    with target.open("w", encoding="utf-8", newline="") as handle:
+        handle.write(_governed_source_text().replace(chr(10), chr(13) + chr(10)))
+    _run_git(repo, "add", "-A")
+    _run_git(repo, "commit", "-m", "seed")
+    committed = subprocess.run(
+        [git, "-C", str(repo), "rev-parse", "HEAD:AGENTS.md"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    governed = subprocess.run(
+        [git, "-C", str(ROOT), "rev-parse", "HEAD:context/AGENTS-OPERATING-CONTRACT.md"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert committed != governed, (
+        "the fixture must actually commit different bytes, or this proves nothing"
+    )
+
+    result = _run_sync_result("-CheckOnly", "-TargetPath", str(target))
+
+    assert result.returncode != 0, _readable(result)
+    assert _says(result, "not synchronized"), _readable(result)
+
+
+def test_a_source_that_exists_only_at_head_is_still_readable(tmp_path: Path) -> None:
+    """A sparse checkout or a local deletion does not unship the governed source.
+
+    Resolution failed outright on a path that was not on disk, before the
+    committed lookup could run, so a check whose two committed blobs were
+    identical reported failure -- describing the checkout rather than the
+    repositories.
+    """
+    platform = _isolated_platform_checkout(tmp_path)
+    source = platform / "context" / "AGENTS-OPERATING-CONTRACT.md"
+
+    target_repo = tmp_path / "sibling"
+    target = target_repo / "AGENTS.md"
+    target.parent.mkdir(parents=True)
+    _write_exact(target, _governed_source_text())
+    _commit_all(target_repo)
+
+    source.unlink()
+    assert not source.exists()
+
+    result = _run_script(
+        platform / "automation" / "Sync-AgentOperatingContract.ps1",
+        "-CheckOnly",
+        "-TargetPath",
+        str(target),
+    )
+
+    assert result.returncode == 0, _readable(result)
+
+
+def test_write_mode_treats_its_own_nested_target_as_its_own_repository(
+    tmp_path: Path,
+) -> None:
+    """Ownership is a property of the repository, not of the target's directory.
+
+    Comparing the target's immediate lexical parent classified this repository's
+    own `config/AGENTS.md` as a sibling, so a normal unmerged contract edit was
+    refused by the provenance guard in the one repository where editing the
+    contract is the point.
+    """
+    platform = _isolated_platform_checkout(tmp_path)
+    nested_target = platform / "config" / "AGENTS.md"
+
+    result = _run_script(
+        platform / "automation" / "Sync-AgentOperatingContract.ps1",
+        "-TargetPath",
+        str(nested_target),
+    )
+
+    assert result.returncode == 0, _readable(result)
+    assert nested_target.exists(), (
+        "its own repository is where the contract is edited, so this write must "
+        "not be refused as if it were a sibling"
+    )
+    assert not _says(result, "cannot be verified against origin/main"), _readable(result)
+
+
+def test_a_dirty_sibling_is_not_written_through_a_missing_directory(
+    tmp_path: Path,
+) -> None:
+    """A failed probe was read as quiescent, so a dirty checkout was written anyway.
+
+    The quiescence check ran Git from the target's parent, which does not exist
+    for a nested target, and treated the failure as "nothing to disturb".
+    """
+    git = shutil.which("git")
+    assert git is not None
+
+    source_origin = tmp_path / "source-origin.git"
+    source_repo = tmp_path / "source"
+    source_contract = source_repo / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    target_repo = tmp_path / "sibling"
+    nested_target = target_repo / "config" / "AGENTS.md"
+
+    subprocess.run([git, "init", "--bare", str(source_origin)], check=True, capture_output=True)
+    source_contract.parent.mkdir(parents=True)
+    subprocess.run([git, "init", str(source_repo)], check=True, capture_output=True)
+    _run_git(source_repo, "checkout", "-b", "main")
+    _run_git(source_repo, "config", "user.email", "test@example.com")
+    _run_git(source_repo, "config", "user.name", "Test User")
+    _run_git(source_repo, "remote", "add", "origin", str(source_origin))
+    source_contract.write_text("# governed contract" + chr(10), encoding="utf-8")
+    _run_git(source_repo, "add", ".")
+    _run_git(source_repo, "commit", "-m", "governed contract")
+    _run_git(source_repo, "push", "-u", "origin", "main")
+
+    target_repo.mkdir(parents=True)
+    subprocess.run([git, "init", str(target_repo)], check=True, capture_output=True)
+    _run_git(target_repo, "config", "user.email", "test@example.com")
+    _run_git(target_repo, "config", "user.name", "Test User")
+    (target_repo / "README.md").write_text("# sibling" + chr(10), encoding="utf-8")
+    _run_git(target_repo, "add", ".")
+    _run_git(target_repo, "commit", "-m", "seed")
+    # Another session is mid-slice in this checkout.
+    (target_repo / "work-in-progress.md").write_text("# theirs" + chr(10), encoding="utf-8")
+
+    assert not nested_target.parent.exists()
+
+    result = _run_sync_result(
+        "-SourcePath", str(source_contract), "-TargetPath", str(nested_target)
+    )
+
+    assert not nested_target.exists(), (
+        "a dirty sibling checkout must not be written through a directory that "
+        "does not exist yet"
+    )
+    assert _says(result, "uncommitted changes"), _readable(result)
 

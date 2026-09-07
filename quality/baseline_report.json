@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 372602
+    "total_source_lines": 372829
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3356
+    "python_function_count": 3362
   },
-  "generated_at_utc": "2026-09-07T01:09:58Z",
+  "generated_at_utc": "2026-09-07T01:37:31Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -453,14 +453,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1233,
+      "path": "tests/unit/test_agent_operating_contract_sync.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1231,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
-    },
-    {
-      "lines": 1172,
-      "path": "automation/generate_domain_product_onboarding.py",
-      "suffix": ".py"
     }
   ],
   "openapi": {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1440,
+    "collected_tests": 1444,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1440 tests collected"
+    "summary": "1444 tests collected"
   }
 }
