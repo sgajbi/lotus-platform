@@ -723,6 +723,35 @@ function Register-PlatformDevIngress {
   }
 }
 
+function New-QaLogInvariant {
+  <#
+    .SYNOPSIS
+    Build a probe-backed QA log invariant for a scaffolded service.
+
+    .DESCRIPTION
+    A bare pattern is matched against whatever the last log window happens to
+    hold, which proves nothing about the request path. Every invariant this
+    scaffold registers therefore names the side-effect-free health request that
+    provokes it, so a newly scaffolded service is registered in the form the QA
+    validator can actually evaluate.
+  #>
+  param(
+    [string]$Pattern,
+    [string]$HealthUrl
+  )
+
+  return [pscustomobject]@{
+    id = $Pattern
+    pattern = $Pattern
+    probe = [pscustomobject]@{
+      method = "GET"
+      url = $HealthUrl
+      expected_status = 200
+      correlation_header = "X-Correlation-Id"
+    }
+  }
+}
+
 function Register-PlatformContextAndAutomation {
   param(
     [string]$PlatformRoot,
@@ -786,7 +815,11 @@ function Register-PlatformContextAndAutomation {
           )
           observability = [pscustomobject]@{
             require_response_headers = @("x-correlation-id", "x-trace-id")
-            required_log_patterns = @($RepoLogPatterns)
+            required_log_patterns = @(
+              $RepoLogPatterns | ForEach-Object {
+                New-QaLogInvariant -Pattern $_ -HealthUrl "http://$RepoHostName.dev.lotus/health"
+              }
+            )
           }
         }
       }

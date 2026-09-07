@@ -178,7 +178,14 @@ function Get-CausalLogEvidence {
     return [pscustomobject]@{ verdict = "uncorrelated"; lines = @() }
   }
 
-  $matching = @($correlated | Where-Object { $_ -match $Pattern })
+  # The marker is removed before the pattern is applied. Matching the whole line
+  # let the marker satisfy the pattern it was supposed to help prove: a marker
+  # ending in `-service` made every `service` invariant pass on a line carrying
+  # no such field. The marker is opaque now as well, and this removal holds even
+  # if a future marker scheme reintroduces words.
+  $matching = @($correlated | Where-Object {
+    ($_ -replace [regex]::Escape($Marker), "") -match $Pattern
+  })
   if ($matching.Count -eq 0) {
     return [pscustomobject]@{ verdict = "unmatched"; lines = $correlated }
   }
@@ -394,6 +401,7 @@ if ($selected.Count -eq 0) {
 
 if (-not (Test-Path $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null }
 $runId = Get-Date -Format "yyyyMMdd-HHmmss"
+$script:probeSequence = 0
 $runDir = Join-Path $OutputDir $runId
 $evidenceDir = Join-Path $runDir "evidence"
 New-Item -ItemType Directory -Path $evidenceDir -Force | Out-Null
@@ -528,7 +536,10 @@ foreach ($entry in $selected) {
       }
 
       $patternText = [string]$invariant.pattern
-      $marker = "lotus-qa-" + $runId + "-" + $repoName + "-" + $invariantId
+      # Opaque on purpose: a marker built from the invariant name is matched by
+      # the pattern it exists to prove.
+      $script:probeSequence = [int]$script:probeSequence + 1
+      $marker = "lotus-qa-" + $runId + "-p" + ([string]$script:probeSequence).PadLeft(4, "0")
       $correlationHeader = if ([string]::IsNullOrWhiteSpace([string]$probe.correlation_header)) { "X-Correlation-Id" } else { [string]$probe.correlation_header }
       $probeMethod = if ([string]::IsNullOrWhiteSpace([string]$probe.method)) { "GET" } else { [string]$probe.method }
       $probeHeaders = @{ $correlationHeader = $marker }
