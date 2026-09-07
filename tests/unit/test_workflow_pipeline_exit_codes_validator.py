@@ -683,6 +683,10 @@ _HIDES_THE_STATUS = {
         "( enable_strict )\n"
         "gate | tee /dev/null"
     ),
+    "verdict in a substitution after a quoted operator": (
+        "echo " + chr(34) + "a;b" + chr(34) + "; echo " + chr(34) + "$(gate)" + chr(34)
+        + " | tee /dev/null"
+    ),
     "verdict inside a command substitution": 'echo "$(gate)" | tee /dev/null',
     "self-guarding subshell whose status is discarded": (
         "( set -o pipefail; gate | tee /dev/null ) || true"
@@ -743,6 +747,13 @@ _PROPAGATES_THE_STATUS = {
         "enable_strict() { set -o pipefail; }\n"
         "( enable_strict; gate | tee /dev/null )"
     ),
+    "single-quoted substitution text": (
+        "echo " + chr(39) + "$(gate)" + chr(39) + " | tee /dev/null; gate"
+    ),
+    "escaped substitution text": (
+        "echo " + chr(34) + chr(92) + "$(gate)" + chr(34) + " | tee /dev/null; gate"
+    ),
+    "optional check with no pipeline": "( test -e /definitely-absent ) || true; gate",
     "substitution on the sink side": (
         'set -o pipefail' + chr(10) + 'gate | tee "$(echo /dev/null)"'
     ),

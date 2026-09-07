@@ -299,6 +299,43 @@ def _join_subshells(lines: list[str]) -> list[str]:
     return joined
 
 
+def _has_executable_substitution(raw_text: str) -> bool:
+    """True when this text runs a command substitution.
+
+    A literal ``$(`` is not enough. Inside single quotes the shell runs nothing,
+    and a backslash-escaped ``\\$(`` is printed rather than executed, so a
+    workflow step that documents shell syntax would otherwise be reported for a
+    gate it never runs -- a blocking guard failing on a step that prints an
+    example.
+    """
+    quote = ""
+    index = 0
+    while index < len(raw_text):
+        character = raw_text[index]
+        if character == chr(92) and quote != "'":
+            index += 2
+            continue
+        if quote == "'":
+            # Single quotes suppress substitution entirely.
+            if character == quote:
+                quote = ""
+            index += 1
+            continue
+        if character in "'" + chr(34):
+            if quote == chr(34) and character == chr(34):
+                quote = ""
+            elif not quote:
+                quote = character
+            index += 1
+            continue
+        # Reached at the top level and inside double quotes, because a double
+        # quote does not suppress substitution -- `echo "$(gate)"` runs it.
+        if raw_text.startswith("$(", index):
+            return True
+        index += 1
+    return False
+
+
 def _producer_text(raw_line: str) -> str:
     """Return a line's text up to its first top-level pipe, quotes intact.
 
@@ -357,7 +394,7 @@ def _terminal_sink(segment: str, raw_line: str | None = None) -> str | None:
         # looks like a bare `echo`, so the original line is consulted. A
         # substitution on the *sink* side stays exempt, because a sink's
         # argument is not a gate.
-        if raw_line is None or "$(" not in _producer_text(raw_line):
+        if raw_line is None or not _has_executable_substitution(_producer_text(raw_line)):
             return None
     return last
 
@@ -568,6 +605,15 @@ def _scan_shell(
                     not reported
                     and _failure_is_consumed(pieces, position)
                     and not _is_trivial_subshell("; ".join(_subshell_lines(segment)))
+                    # A subshell with no pipeline has no piped verdict to lose,
+                    # and this validator judges pipeline exit codes. `( test -e
+                    # optional-file ) || true` is a deliberate optional check,
+                    # and reporting it would make the guard fail on steps that
+                    # are doing the right thing.
+                    and any(
+                        _terminal_sink(inner) is not None
+                        for inner in _subshell_lines(segment)
+                    )
                 ):
                     offenders.append(line)
                     reported = True
@@ -840,8 +886,24 @@ def _split_top_level(text: str, operators: tuple[str, ...]) -> list[tuple[str, s
     start = 0
     preceding = ""
     index = 0
+    quote = ""
     while index < len(text):
         character = text[index]
+        # Quoting is tracked so that the raw line and the quote-stripped probe
+        # segment identically. `echo "a;b"; gate | tee log` otherwise yields one
+        # more raw piece than probe piece, and every later index refers to a
+        # different command -- which silently stops the substitution check from
+        # seeing the pipeline it was meant to judge. The probe has its quotes
+        # removed before it arrives, so this costs it nothing.
+        if quote:
+            if character == quote:
+                quote = ""
+            index += 1
+            continue
+        if character in "'" + chr(34):
+            quote = character
+            index += 1
+            continue
         if character == "(":
             depth += 1
         elif character == ")":
