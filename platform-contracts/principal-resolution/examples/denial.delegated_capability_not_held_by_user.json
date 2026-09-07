@@ -28,9 +28,9 @@
   },
   "expected": {
     "revealsReasonDetail": false,
-    "sideEffectsPermitted": false,
     "outcome": "denied",
     "status": 403,
-    "failsAtStep": 4
+    "failsAtStep": 4,
+    "maxOutboundCalls": 0
   }
 }

@@ -18,10 +18,17 @@
       "type": "string",
       "const": "lotus-platform.principal-denial-fixture.v1"
     },
-    "denialClass": { "type": "string", "minLength": 1 },
+    "denialClass": {
+      "type": "string",
+      "minLength": 1
+    },
     "principalKind": {
       "type": "string",
-      "enum": ["user", "service", "delegated"]
+      "enum": [
+        "user",
+        "service",
+        "delegated"
+      ]
     },
     "environmentPosture": {
       "description": "Every denial fixture is evaluated under `verified`. Under `header-trust` the perimeter is the control, and these cases do not apply.",
@@ -31,53 +38,109 @@
     "request": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["description", "credential"],
+      "required": [
+        "description",
+        "credential"
+      ],
       "properties": {
-        "description": { "type": "string", "minLength": 1 },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
         "credential": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["present"],
+          "required": [
+            "present"
+          ],
           "properties": {
-            "present": { "type": "boolean" },
-            "issuer": { "type": "string" },
-            "audience": { "type": "string" },
-            "keyId": { "type": "string" },
-            "expired": { "type": "boolean" },
-            "revoked": { "type": "boolean" },
-            "subjectKind": { "type": "string", "enum": ["user", "service"] }
+            "present": {
+              "type": "boolean"
+            },
+            "issuer": {
+              "type": "string"
+            },
+            "audience": {
+              "type": "string"
+            },
+            "keyId": {
+              "type": "string"
+            },
+            "expired": {
+              "type": "boolean"
+            },
+            "revoked": {
+              "type": "boolean"
+            },
+            "subjectKind": {
+              "type": "string",
+              "enum": [
+                "user",
+                "service"
+              ]
+            }
           }
         },
         "assertedHeaders": {
           "description": "Headers the caller supplied. Under `verified` these carry no authority; they are recorded so a fixture can prove they were ignored rather than honoured.",
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": {
+            "type": "string"
+          }
         },
-        "tenantRef": { "type": "string" },
-        "requiredCapability": { "type": "string" },
-        "portfolioRef": { "type": "string" },
-        "grantStoreAvailable": { "type": "boolean" },
+        "tenantRef": {
+          "type": "string"
+        },
+        "requiredCapability": {
+          "type": "string"
+        },
+        "portfolioRef": {
+          "type": "string"
+        },
+        "grantStoreAvailable": {
+          "type": "boolean"
+        },
         "actingForSubjectRef": {
           "description": "Present only for delegated calls: the user the application is acting for.",
           "type": "string"
         },
         "applicationCapabilities": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "userCapabilities": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "expected": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["outcome", "status", "failsAtStep", "revealsReasonDetail"],
+      "required": [
+        "outcome",
+        "status",
+        "failsAtStep",
+        "revealsReasonDetail",
+        "maxOutboundCalls"
+      ],
       "properties": {
-        "outcome": { "type": "string", "const": "denied" },
-        "status": { "type": "integer", "enum": [401, 403, 503] },
+        "outcome": {
+          "type": "string",
+          "const": "denied"
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            401,
+            403,
+            503
+          ]
+        },
         "failsAtStep": {
           "description": "Which resolution step refuses. A denial at a later step than expected means an earlier control did not run.",
           "type": "integer",
@@ -89,10 +152,10 @@
           "type": "boolean",
           "const": false
         },
-        "sideEffectsPermitted": {
-          "description": "A refusal must precede every effect it disclaims.",
-          "type": "boolean",
-          "const": false
+        "maxOutboundCalls": {
+          "description": "How many calls the refusal path may make to any downstream, store or side-effecting client. Zero for every denial: a refusal must precede every effect it disclaims. A boolean cannot distinguish no calls from nobody counted, so the consumer asserts a number against a recording client.",
+          "type": "integer",
+          "const": 0
         }
       }
     }

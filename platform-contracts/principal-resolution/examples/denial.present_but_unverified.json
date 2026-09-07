@@ -1,10 +1,10 @@
 {
   "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
-  "denialClass": "portfolio_outside_scope",
+  "denialClass": "present_but_unverified",
   "principalKind": "user",
   "environmentPosture": "verified",
   "request": {
-    "description": "A verified principal holding the capability, naming a portfolio outside its entitlement scope.",
+    "description": "A well-formed, unexpired, correctly-audienced credential whose signature was never checked against the issuer's keys. Every shape assertion passes: the fields are present, the values are plausible, and the expiry is in the future. Only verification distinguishes it from a genuine principal, which is why a consumer can satisfy every other fixture in this set by validating structure and resolving nothing.",
     "credential": {
       "present": true,
       "issuer": "https://identity.lotus.bank/example-idp",
@@ -16,17 +16,13 @@
     },
     "tenantRef": "tenant:private-bank-sg",
     "requiredCapability": "manage.write",
-    "portfolioRef": "portfolio:not-in-scope",
-    "userCapabilities": [
-      "manage.write"
-    ],
     "grantStoreAvailable": true
   },
   "expected": {
-    "revealsReasonDetail": false,
     "outcome": "denied",
-    "status": 403,
-    "failsAtStep": 5,
+    "status": 401,
+    "failsAtStep": 1,
+    "revealsReasonDetail": false,
     "maxOutboundCalls": 0
   }
 }
