@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 374245
+    "total_source_lines": 374279
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3420
+    "python_function_count": 3421
   },
-  "generated_at_utc": "2026-09-07T02:08:56Z",
+  "generated_at_utc": "2026-09-07T02:27:30Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -403,7 +403,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2450,
+      "lines": 2484,
       "path": "tests/unit/test_engineering_context_system_contract.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1492,
+    "collected_tests": 1493,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1492 tests collected"
+    "summary": "1493 tests collected"
   }
 }
