@@ -389,13 +389,19 @@ call sites agree, because there is no call site to omit.
 
 Contributed by the `lotus-ai` / `lotus-idea` seat.
 
-**Claimed:** putting the tenant into a wave request hash closed a cross-tenant replay. The claim was
-made to a reviewer in writing.
+**Claimed:** adding the tenant to `create_wave_request_hash` closed a cross-tenant replay in
+`lotus-manage`. The claim was made to a reviewer in writing, on a thread of PR #676.
 
 **Evidence:** it did not. The hash was written on save and never compared on the lookup path, which
-returned on the caller-chosen key alone. The derivation was read, the tenant was seen in it, and a
-property was asserted about a branch that had not been opened. Review caught it, and a false
-security claim stood in the record for several hours.
+returned on the caller-chosen key alone, so the tenant the hash carried never entered the replay
+decision and the second tenant was still handed the first's wave — indistinguishable from a
+legitimate replay. The derivation had been read, the tenant seen in it, and a property asserted
+about a branch that had not been opened. Review caught it; the false security claim stood in the
+record for several hours. Fixed in commit `b8d21bc6`, by deriving the stored mapping key from the
+tenant and the caller's key rather than by comparing the hash — refusing the second tenant would
+have disclosed that another tenant holds the key, so the failure mode is silence and the second
+tenant creates its own wave. Pinned afterwards by `fbd938b7`, which asserts the upgrade path rather
+than describing it.
 
 **Check:** when claiming a fix closes a vulnerability, name the exact line where the decision is made
 and confirm the scoped value reaches it. "The key now contains the tenant" is a fact about a string;
