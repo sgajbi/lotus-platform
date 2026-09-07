@@ -1405,3 +1405,83 @@ def test_valid_renamed_matrix_forms_are_still_accepted() -> None:
             output_name="commit_shas", matrix_key="commit_sha", from_json="fromJSON"
         )
     )
+
+
+def test_a_verified_step_emitting_a_constant_is_rejected() -> None:
+    """The published value must be the revisions the step enumerated.
+
+    Binding the matrix to the proven step's output key was not enough: a step
+    could walk every revision correctly and then publish a constant under that
+    key. The matrix would gate the merge commit alone while the validator
+    reported the whole PR as aligned.
+    """
+    constant = _ENUMERATION_RUN.replace(
+        'echo "list=$revisions" >> "$GITHUB_OUTPUT"',
+        'echo "list=[\\"$MERGE_COMMIT_SHA\\"]" >> "$GITHUB_OUTPUT"',
+    )
+
+    assert not _matrix_is_accepted(_matrix_dispatch_workflow(enumeration=constant))
+
+
+def test_an_emptiness_guard_on_an_unrelated_variable_is_rejected() -> None:
+    """A guard has to test the enumeration, not merely exist in the step."""
+    unrelated = _ENUMERATION_RUN.replace(
+        'if [ -z "$revisions" ]; then exit 1; fi',
+        'if [ -z "$UNRELATED" ]; then exit 1; fi',
+    )
+
+    assert not _matrix_is_accepted(_matrix_dispatch_workflow(enumeration=unrelated))
+
+
+def test_an_emptiness_guard_that_only_logs_is_rejected() -> None:
+    """Detecting the empty list and continuing publishes it anyway.
+
+    The revisions are still emitted, the matrix still expands to zero jobs, and
+    the dispatch still reports green having gated nothing -- with a log line
+    that reads like the guard worked.
+    """
+    logs_only = _ENUMERATION_RUN.replace(
+        'if [ -z "$revisions" ]; then exit 1; fi',
+        'if [ -z "$revisions" ]; then echo "none"; fi',
+    )
+
+    assert not _matrix_is_accepted(_matrix_dispatch_workflow(enumeration=logs_only))
+
+
+def test_an_emission_derived_from_the_enumeration_is_accepted() -> None:
+    """The shipped form reshapes the revisions before publishing them.
+
+    One of the estate's two implementations emits `revisions=$payload`, where
+    `payload` is the enumeration rendered as JSON. Demanding the enumeration
+    variable appear verbatim in the emission would reject that correct workflow,
+    so the binding follows the derivation and this pins it.
+    """
+    derived = _ENUMERATION_RUN.replace(
+        'echo "list=$revisions" >> "$GITHUB_OUTPUT"',
+        "payload=\"$(printf '%s' $revisions | jq -R . | jq -sc .)\""
+        + chr(10)
+        + 'echo "list=$payload" >> "$GITHUB_OUTPUT"',
+    )
+
+    assert _matrix_is_accepted(_matrix_dispatch_workflow(enumeration=derived))
+
+
+def test_a_multi_line_guard_that_terminates_is_accepted() -> None:
+    """Real workflows write the guard as a block, not a one-liner.
+
+    Reading the condition without its body cannot tell a terminating guard from
+    a logging one, so the reader pairs them -- and it has to handle the block
+    form both shipped workflows actually use.
+    """
+    block = _ENUMERATION_RUN.replace(
+        'if [ -z "$revisions" ]; then exit 1; fi',
+        'if [ -z "$revisions" ]; then'
+        + chr(10)
+        + '  echo "::error::No revisions enumerated"'
+        + chr(10)
+        + "  exit 1"
+        + chr(10)
+        + "fi",
+    )
+
+    assert _matrix_is_accepted(_matrix_dispatch_workflow(enumeration=block))
