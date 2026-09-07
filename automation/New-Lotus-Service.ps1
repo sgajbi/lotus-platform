@@ -1988,6 +1988,20 @@ from starlette.types import ASGIApp
 from app.observability.logging import emit_request_completed_event
 
 
+def _route_template(request: Request) -> str:
+    """The matched route template, or a bounded value when nothing matched.
+
+    An unmatched request -- a 404 -- has no route in scope, and falling back to
+    the raw path writes whatever the caller sent into the logs. Paths carry
+    client, portfolio, account and token-like identifiers, so `/clients/<id>`
+    would become a sensitive-data logging path reachable by anyone who can send
+    a request. The bound is the same one the application's error handlers use.
+    """
+    route = request.scope.get("route")
+    path = getattr(route, "path", None)
+    return path if isinstance(path, str) and path.startswith("/") else "/unknown"
+
+
 class CorrelationIdMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, service_name: str) -> None:
         super().__init__(app)
@@ -2012,16 +2026,12 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         # Response headers travel back to one caller and are gone. An event is
         # what an operator, and platform QA, can correlate afterwards: without
         # it a served request leaves no trace that it happened, so no assertion
-        # about the request path can be causal. The route template is logged
-        # rather than the raw path, and no query string, body or identifier is
-        # included.
+        # about the request path can be causal.
         emit_request_completed_event(
             correlation_id=correlation_id,
             trace_id=trace_id,
             method=request.method,
-            route=request.scope.get("route").path
-            if request.scope.get("route") is not None
-            else request.url.path,
+            route=_route_template(request),
             status_code=response.status_code,
             duration_ms=duration_ms,
         )

@@ -410,6 +410,11 @@ if ($selected.Count -eq 0) {
 if (-not (Test-Path $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null }
 $runId = Get-Date -Format "yyyyMMdd-HHmmss"
 $script:probeSequence = 0
+# Second-resolution alone is not unique: two QA processes started within the
+# same second -- which the async validator wrapper makes ordinary -- share a
+# run id, both reset the probe sequence, and read the same Compose logs. One
+# run then finds the other run event and reports it as its own proof.
+$script:probeNonce = [guid]::NewGuid().ToString("N").Substring(0, 12)
 $runDir = Join-Path $OutputDir $runId
 $evidenceDir = Join-Path $runDir "evidence"
 New-Item -ItemType Directory -Path $evidenceDir -Force | Out-Null
@@ -547,7 +552,7 @@ foreach ($entry in $selected) {
       # Opaque on purpose: a marker built from the invariant name is matched by
       # the pattern it exists to prove.
       $script:probeSequence = [int]$script:probeSequence + 1
-      $marker = "lotus-qa-" + $runId + "-p" + ([string]$script:probeSequence).PadLeft(4, "0")
+      $marker = "lotus-qa-" + $runId + "-" + $script:probeNonce + "-p" + ([string]$script:probeSequence).PadLeft(4, "0")
       $correlationHeader = if ([string]::IsNullOrWhiteSpace([string]$probe.correlation_header)) { "X-Correlation-Id" } else { [string]$probe.correlation_header }
       $probeMethod = if ([string]::IsNullOrWhiteSpace([string]$probe.method)) { "GET" } else { [string]$probe.method }
       $probeHeaders = @{ $correlationHeader = $marker }

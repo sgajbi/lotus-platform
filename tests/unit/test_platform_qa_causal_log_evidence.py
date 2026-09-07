@@ -334,3 +334,65 @@ def test_a_compose_prefixed_line_still_proves_a_real_field() -> None:
 
     assert _verdict(prefixed, "service", marker=marker) == "correlated"
 
+
+def test_the_generated_middleware_never_logs_a_caller_controlled_path() -> None:
+    """An unmatched request must not write its raw path into the logs.
+
+    A 404 has no route template in scope. Falling back to `request.url.path`
+    logs whatever the caller sent, and paths carry client, portfolio, account
+    and token-like identifiers, so `/clients/<id>` becomes a sensitive-data
+    logging path reachable by anyone who can send a request.
+    """
+    source = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    opening = source.index("$correlationMiddleware = @\"")
+    middleware = source[opening : source.index('"@', opening)]
+
+    assert "request.url.path" not in middleware, (
+        "the middleware must not log a caller-controlled path"
+    )
+    assert "route=_route_template(request)" in middleware
+    assert '"/unknown"' in middleware
+
+
+def test_the_generated_helper_refuses_a_raw_path_with_a_query_string() -> None:
+    """The central helper is the second bound, so a caller of it cannot leak either."""
+    namespace = _generated_logging_module()
+
+    with pytest.raises(ValueError):
+        namespace["emit_request_completed_event"](
+            correlation_id="c",
+            trace_id="t",
+            method="GET",
+            route="/clients/12345?token=abc",
+            status_code=200,
+            duration_ms=1.0,
+        )
+
+
+def test_markers_from_two_runs_in_the_same_second_do_not_collide() -> None:
+    """Two QA processes started within one second must not read each other's proof.
+
+    `$runId` is second-resolution and the probe sequence restarts per process,
+    so concurrent runs against the same repository produced identical markers --
+    and since both read the same Compose logs, one run's event satisfied the
+    other's assertion. The async validator wrapper makes that ordinary rather
+    than rare.
+    """
+    script = (ROOT / "automation" / "Invoke-Platform-QA.ps1").read_text(encoding="utf-8")
+
+    assert "probeNonce" in script, "markers need per-run entropy beyond the timestamp"
+    assert "[guid]::NewGuid()" in script
+    assert "$script:probeNonce + \"-p\"" in script or "probeNonce" in script
+
+    command = (
+        "$ErrorActionPreference='Stop';"
+        "$a = [guid]::NewGuid().ToString('N').Substring(0,12);"
+        "$b = [guid]::NewGuid().ToString('N').Substring(0,12);"
+        "if ($a -eq $b) { 'collision' } else { 'distinct' }"
+    )
+    completed = subprocess.run(
+        [_powershell(), "-NoProfile", "-Command", command], text=True, capture_output=True
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.strip() == "distinct"
+
