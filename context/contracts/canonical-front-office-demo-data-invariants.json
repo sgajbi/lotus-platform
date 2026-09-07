@@ -1,6 +1,6 @@
 {
   "contract_id": "canonical-front-office-demo-data-invariants",
-  "contract_version": "1.1.2",
+  "contract_version": "1.2.0",
   "status": "proposed-for-rfc-0076-slice-1",
   "governed_by_rfc": "RFC-0076",
   "canonical_portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -44,6 +44,8 @@
     "derived_state_must_reach_canonical_as_of_date_before_product_surface_validation",
     "advisor_book_seed_must_persist_authoritative_portfolio_manager_assignment_before_workbench_validation",
     "advisor_book_evidence_must_bind_manager_business_date_and_source_lineage",
+    "canonical_portfolio_source_tenant_must_match_lotus_core_seed_authority",
+    "canonical_portfolio_source_tenant_must_stay_distinct_from_caller_admission_tenant",
     "dpm_command_center_seed_refresh_must_persist_mandate_before_workbench_validation",
     "dpm_command_center_health_date_must_match_canonical_portfolio_valuation_date",
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
@@ -67,6 +69,7 @@
     "Thresholds are minimums or governed counts for canonical validation, not arbitrary smoke checks.",
     "Performance evidence is ready when Gateway exposes execution status, lineage status, and artifact inventory for the canonical performance view.",
     "DPM command-center populated evidence is ready for the canonical PM/book/as-of filter; partial and empty postures are validated with separate selector and date filters.",
-    "Advisor-book membership must be authoritative and date-bound; the panel remains partial until lotus-core#798 replaces trusted tenant context with source-confirmed tenant identity."
+    "Advisor-book membership must be authoritative and date-bound; the panel remains partial until lotus-core#798 replaces trusted tenant context with source-confirmed tenant identity.",
+    "The canonical portfolio's source tenant and the Workbench caller admission tenant are separate published facts that presently hold the same value; lotus-core derives its seed caller header from the source constant, while Gateway and Workbench admission is configured independently, so equality is a current state and never a rule."
   ]
 }
