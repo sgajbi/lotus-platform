@@ -484,7 +484,10 @@ hard-coded scalar allowlist and ignored four controls — two of which decide wh
 merged at all.
 
 Both were measured as **liveness gaps and not live defects**: all 58 columns exist today and all four
-protection fields are correctly set. The finding is that neither gate could have said so.
+protection fields match their declared expectation. The finding is that neither gate could have said
+so. Note the narrower claim — matching the declared expectation is not the same as being the right
+posture, and one of those four, unsigned commits being permitted, is a policy position rather than a
+correct default. An entry that blurred the two would be doing what this entry is about.
 
 **Check:** wherever a gate's scope is a list, ask what authority the system already derives the same
 thing from — a model, a registry, a manifest — and derive the check from that authority instead of
