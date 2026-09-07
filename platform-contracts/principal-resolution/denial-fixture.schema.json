@@ -87,6 +87,18 @@
                 "reject"
               ]
             }
+          },
+          "if": {
+            "properties": {
+              "present": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "verifierOutcome"
+            ]
           }
         },
         "assertedHeaders": {

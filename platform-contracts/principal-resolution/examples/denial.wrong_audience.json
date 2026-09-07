@@ -13,7 +13,7 @@
       "expired": false,
       "revoked": false,
       "subjectKind": "service",
-      "verifierOutcome": "accept"
+      "verifierOutcome": "reject"
     },
     "tenantRef": "tenant:private-bank-sg",
     "requiredCapability": "core.intake.write"
