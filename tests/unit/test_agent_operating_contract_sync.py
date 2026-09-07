@@ -50,7 +50,9 @@ def _run_sync(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def _run_sync_result(*args: str) -> subprocess.CompletedProcess[str]:
+def _run_sync_result(
+    *args: str, env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
     command = [_powershell_executable(), "-NoProfile"]
     if shutil.which("powershell") and "powershell" in _powershell_executable().lower():
         command.extend(["-ExecutionPolicy", "Bypass"])
@@ -61,11 +63,15 @@ def _run_sync_result(*args: str) -> subprocess.CompletedProcess[str]:
             *args,
         ]
     )
+    process_environment = None
+    if env is not None:
+        process_environment = {**os.environ, **env}
     return subprocess.run(
         command,
         cwd=ROOT,
         text=True,
         capture_output=True,
+        env=process_environment,
     )
 
 
@@ -779,3 +785,98 @@ def test_a_disk_target_is_compared_to_the_committed_source(tmp_path: Path) -> No
         "the deployed copy matches the source working tree but not the "
         f"contract at HEAD: {_readable(result)}"
     )
+
+
+def _governed_source_text() -> str:
+    """The governed contract exactly as committed, with its bytes preserved."""
+    return (ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md").read_text(
+        encoding="utf-8", newline=""
+    )
+
+
+def _write_exact(path: Path, content: str) -> None:
+    """Write without newline translation, so a blob comparison stays meaningful."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        handle.write(content)
+
+
+def _commit_all(repo_root: Path) -> None:
+    git = shutil.which("git")
+    assert git is not None, "git is required for committed-contract tests"
+    subprocess.run([git, "init", str(repo_root)], check=True, capture_output=True)
+    _run_git(repo_root, "config", "user.email", "tests@lotus.invalid")
+    _run_git(repo_root, "config", "user.name", "Lotus Tests")
+    _run_git(repo_root, "add", "-A")
+    _run_git(repo_root, "commit", "-m", "seed")
+
+
+def test_a_nested_target_is_verified_from_head_when_its_directory_is_absent(
+    tmp_path: Path,
+) -> None:
+    """A sparse or locally deleted directory does not unship what the repo committed.
+
+    Git cannot run with -C in a directory that does not exist, so probing the
+    target's own parent reported the file missing instead of reading
+    `HEAD:config/AGENTS.md`. The unrelated file at the repository root is the
+    other half of the case: deriving the path from Git's `--show-prefix` at the
+    surviving ancestor would look up `AGENTS.md`, verify that file instead, and
+    report a result about a document nobody asked about.
+    """
+    repo_root = tmp_path / "repo"
+    nested_target = repo_root / "config" / "AGENTS.md"
+    _write_exact(nested_target, _governed_source_text())
+    _write_exact(repo_root / "AGENTS.md", "not the governed contract" + chr(10))
+    _commit_all(repo_root)
+    shutil.rmtree(repo_root / "config")
+    assert not nested_target.exists()
+
+    result = _run_sync_result("-CheckOnly", "-TargetPath", str(nested_target))
+
+    assert result.returncode == 0, _readable(result)
+    assert not _says(result, "not found"), _readable(result)
+
+
+def test_a_deployed_target_is_compared_on_disk_even_inside_a_checkout(
+    tmp_path: Path,
+) -> None:
+    """The deployed copy is the file the runtime reads, so its bytes are the question.
+
+    A home directory kept as a dotfiles checkout would otherwise route the
+    deployed target through HEAD, and the check would pass on a committed copy
+    while the file Codex actually loads is stale. That is the single outcome
+    this check exists to prevent.
+    """
+    home = tmp_path / "dotfiles"
+    codex_home = home / ".codex"
+    governed = _governed_source_text()
+    _write_exact(codex_home / "AGENTS.md", governed)
+    _commit_all(home)
+    _write_exact(codex_home / "AGENTS.md", governed + chr(10) + "local drift" + chr(10))
+
+    result = _run_sync_result(
+        "-CheckOnly",
+        "-IncludeDeployedTarget",
+        env={"CODEX_HOME": str(codex_home)},
+    )
+
+    assert result.returncode != 0, _readable(result)
+    assert _says(result, "not synchronized"), _readable(result)
+
+
+def test_a_deployed_target_need_not_be_committed_to_be_verified(tmp_path: Path) -> None:
+    """An untracked installed copy is normal, and being untracked is not drift."""
+    home = tmp_path / "dotfiles"
+    codex_home = home / ".codex"
+    _write_exact(home / "README.md", "dotfiles" + chr(10))
+    _commit_all(home)
+    _write_exact(codex_home / "AGENTS.md", _governed_source_text())
+
+    result = _run_sync_result(
+        "-CheckOnly",
+        "-IncludeDeployedTarget",
+        env={"CODEX_HOME": str(codex_home)},
+    )
+
+    assert result.returncode == 0, _readable(result)
+    assert not _says(result, "is not committed"), _readable(result)
