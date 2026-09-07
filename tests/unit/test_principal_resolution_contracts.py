@@ -368,3 +368,26 @@ def test_breaking_fixture_changes_carry_a_new_version() -> None:
 
     assert _admission()["schemaVersion"].endswith(".v2")
     assert _contract()["contractVersion"] == "2.0.0"
+
+
+def test_a_present_credential_without_a_verifier_outcome_is_reported() -> None:
+    """The rule is conditional, so a schema alone cannot express it.
+
+    Requiring the field unconditionally would demand it on
+    `missing_credential`, where there is no credential; requiring it nowhere
+    lets a consumer-authored fixture omit the one field that separates
+    verifying from inspecting. The subset validator has no `if`/`then`, so the
+    condition lives where the other checks a schema cannot make already live.
+    """
+    silent = {
+        "request": {"credential": {"present": True, "issuer": "https://example.invalid"}}
+    }
+
+    assert validator._verifier_outcome_errors(silent)
+
+
+def test_an_absent_credential_needs_no_verifier_outcome() -> None:
+    """The paired acceptance: there is nothing to verify when nothing was sent."""
+    absent = {"request": {"credential": {"present": False}}}
+
+    assert validator._verifier_outcome_errors(absent) == []

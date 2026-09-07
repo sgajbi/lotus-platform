@@ -143,6 +143,31 @@ def validate_contract_completeness(contract: dict[str, Any]) -> list[str]:
     return errors
 
 
+def _verifier_outcome_errors(fixture: dict[str, Any]) -> list[str]:
+    """A present credential must say what the verifier does with it.
+
+    The rule is conditional -- required when `present` is true, meaningless when
+    it is false -- and the shared schema subset has no `if`/`then`, so a schema
+    that expressed it would either demand the field on `missing_credential`,
+    where there is no credential, or demand it nowhere. Silence lets a
+    consumer-authored fixture omit the one field that separates verifying from
+    inspecting, which is the ambiguity this contract's second revision exists to
+    remove.
+    """
+    request = fixture.get("request")
+    if not isinstance(request, dict):
+        return []
+    credential = request.get("credential")
+    if not isinstance(credential, dict) or not credential.get("present"):
+        return []
+    if "verifierOutcome" not in credential:
+        return [
+            "a present credential must state verifierOutcome, or the fixture does "
+            "not say whether verification succeeds"
+        ]
+    return []
+
+
 def validate_denial_fixtures(contract: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     declared = _declared_denial_classes(contract)
@@ -201,6 +226,7 @@ def validate_denial_fixtures(contract: dict[str, Any]) -> list[str]:
             )
 
         errors.extend(f"{path.name}: forbidden field {field}" for field in _find_forbidden_fields(fixture))
+        errors.extend(f"{path.name}: {error}" for error in _verifier_outcome_errors(fixture))
 
     for missing in sorted(REQUIRED_DENIAL_CLASSES - seen):
         errors.append(f"no denial fixture for required class {missing!r}")
