@@ -1152,7 +1152,10 @@ def test_dropping_the_ancestor_guard_is_still_rejected(tmp_path: Path) -> None:
     assert "merged-pr-dispatch.missing-expected-sha-input" in violations
 
 
-_ENUMERATION_RUN = chr(10).join(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"']) + chr(10)
+# An empty enumeration expands to zero matrix jobs, and zero jobs is a
+# success, so a valid workflow has to refuse one. The fixture carries that
+# guard because a fixture without it is not a workflow this control accepts.
+_ENUMERATION_RUN = chr(10).join(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"']) + chr(10)
 _DISPATCH_RUN = chr(10).join(['set -euo pipefail', 'dispatch_ref="main-releasability-${revision}"', 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha', 'gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$revision"', 'gh workflow run main-releasability.yml --ref "$dispatch_ref" -f expected_sha="$revision"']) + chr(10)
 
 
@@ -1283,7 +1286,7 @@ def test_matrix_dispatch_creating_a_ref_from_another_sha_is_rejected() -> None:
 def test_matrix_enumeration_without_a_count_bound_is_rejected() -> None:
     """An unbounded enumeration can return fewer commits than the PR contained,
     and every commit it omits is one that nothing gates."""
-    unbounded = list(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'])
+    unbounded = list(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'])
     unbounded[3] = 'revisions="$(git rev-list "$MERGE_COMMIT_SHA")"'
 
     assert not _matrix_is_accepted(
@@ -1294,7 +1297,7 @@ def test_matrix_enumeration_without_a_count_bound_is_rejected() -> None:
 def test_matrix_enumeration_without_the_rebase_only_assertion_is_rejected() -> None:
     """Squash and merge commits make per-commit enumeration describe history
     that was never put on main."""
-    unasserted = [line for line in ['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'] if "false,false,true" not in line]
+    unasserted = [line for line in ['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'] if "false,false,true" not in line]
 
     assert not _matrix_is_accepted(
         _matrix_dispatch_workflow(enumeration=chr(10).join(unasserted) + chr(10))
@@ -1326,3 +1329,79 @@ def test_widening_did_not_drop_the_single_step_shape(tmp_path: Path) -> None:
     assert validator._merged_pr_dispatch_passes_exact_sha(aligned)
     assert validator._merged_pr_dispatch_has_immutable_ref(aligned)
     assert _matrix_is_accepted(_matrix_dispatch_workflow())
+
+
+def test_a_matrix_fed_by_a_nonexistent_step_is_rejected() -> None:
+    """The consumed output must come from the step that was proven.
+
+    Accepting any expression containing `steps.` meant a job could declare an
+    output referencing a step that does not exist, and the matrix built from it
+    was reported as a verified enumeration. Reported as C5-PLAT-01.
+    """
+    workflow = _matrix_dispatch_workflow()
+    workflow["jobs"]["enumerate"]["outputs"]["revisions"] = (
+        "${{ steps.does-not-exist.outputs.list }}"
+    )
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_a_matrix_fed_by_an_unrelated_step_is_rejected() -> None:
+    """A second step publishing an empty list is not the enumeration.
+
+    This is the sharper half of C5-PLAT-01: the enumeration step is present and
+    correct, so every other check passes, and the matrix consumes something else
+    entirely. The dispatch then gates whatever that other step emitted, which
+    here is nothing.
+    """
+    workflow = _matrix_dispatch_workflow()
+    workflow["jobs"]["enumerate"]["steps"].append(
+        {"id": "unrelated", "run": 'echo "empty=[]" >> "$GITHUB_OUTPUT"' + chr(10)}
+    )
+    workflow["jobs"]["enumerate"]["outputs"]["revisions"] = (
+        "${{ steps.unrelated.outputs.empty }}"
+    )
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_a_matrix_fed_by_a_key_the_step_never_emits_is_rejected() -> None:
+    """Naming the right step is not enough if it never writes that key."""
+    workflow = _matrix_dispatch_workflow()
+    workflow["jobs"]["enumerate"]["outputs"]["revisions"] = (
+        "${{ steps.enumerate.outputs.not_emitted }}"
+    )
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_an_enumeration_that_can_publish_nothing_is_rejected() -> None:
+    """Zero matrix jobs is a success, so an empty enumeration is a silent pass.
+
+    The dispatch job reports green having gated no commit at all, which is
+    indistinguishable from having gated them successfully.
+    """
+    enumeration = chr(10).join(
+        line
+        for line in _ENUMERATION_RUN.split(chr(10))
+        if '-z "$revisions"' not in line
+    )
+
+    assert not _matrix_is_accepted(
+        _matrix_dispatch_workflow(enumeration=enumeration)
+    )
+
+
+def test_valid_renamed_matrix_forms_are_still_accepted() -> None:
+    """The correction must not regress into the spelling checks #844 removed.
+
+    Both spellings in use across the estate stay accepted: eleven repositories
+    use the single-step form, and the two matrix repositories name their output
+    and matrix key differently from each other.
+    """
+    assert _matrix_is_accepted(_matrix_dispatch_workflow())
+    assert _matrix_is_accepted(
+        _matrix_dispatch_workflow(
+            output_name="commit_shas", matrix_key="commit_sha", from_json="fromJSON"
+        )
+    )
