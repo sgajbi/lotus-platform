@@ -63,10 +63,19 @@ def test_default_path_validation_does_not_require_a_core_checkout(
 def test_validator_rejects_missing_core_executable_advisor_book_seed_proof(
     tmp_path: Path,
 ) -> None:
+    """Every Core-backed proof must report its own absence.
+
+    Named rather than counted: a count says nothing about which proof went
+    missing, and it fails whenever another producer check is added even though
+    both findings are correct.
+    """
     errors = _validator().validate_default_paths(core_repo=tmp_path)
 
-    assert len(errors) == 1
-    assert "executable advisor-book seed validator is missing" in errors[0]
+    assert any(
+        "executable advisor-book seed validator is missing" in error
+        for error in errors
+    )
+    assert any("source tenant authority is missing" in error for error in errors)
 
 
 @pytest.mark.parametrize(
@@ -371,3 +380,183 @@ def test_validator_rejects_missing_health_date_identity_assertion() -> None:
         "Invoke-DpmCommandCenterSeed.ps1 must verify source-owned health identity "
         "with gateway-mandate-health-date-match" in errors
     )
+
+
+def _tenant_errors(mutate) -> list[str]:
+    """Validate a mutated contract, keeping only the tenant findings."""
+    validator = _validator()
+    contract = _contract()
+    mutate(contract)
+    return [
+        error
+        for error in validator.validate_contract(
+            contract, _invariants(), _seed_script()
+        )
+        if "tenant" in error.lower()
+    ]
+
+
+def test_the_published_contract_names_its_source_owned_core_tenant() -> None:
+    """The value a consumer needs must be readable without inference."""
+    portfolio = _contract()["portfolio"]
+
+    assert portfolio["source_tenant_id"] == "tenant-sg"
+    assert portfolio["source_tenant_authority"]["repository"] == "lotus-core"
+    assert (
+        portfolio["source_tenant_authority"]["constant"]
+        == "FRONT_OFFICE_PORTFOLIO_TENANT_ID"
+    )
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        pytest.param(lambda c: c["portfolio"].pop("source_tenant_id"), id="absent"),
+        pytest.param(
+            lambda c: c["portfolio"].__setitem__("source_tenant_id", "   "),
+            id="blank",
+        ),
+        pytest.param(
+            lambda c: c["portfolio"].__setitem__("source_tenant_id", 7),
+            id="not-a-string",
+        ),
+        pytest.param(
+            lambda c: c["portfolio"].__setitem__("source_tenant_id", "tenant-hk"),
+            id="foreign-tenant",
+        ),
+    ],
+)
+def test_a_missing_or_wrong_source_tenant_fails_closed(mutate) -> None:
+    assert _tenant_errors(mutate)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        pytest.param(
+            lambda c: c["portfolio"].pop("source_tenant_authority"), id="absent"
+        ),
+        pytest.param(
+            lambda c: c["portfolio"]["source_tenant_authority"].__setitem__(
+                "repository", "lotus-gateway"
+            ),
+            id="wrong-producer",
+        ),
+        pytest.param(
+            lambda c: c["portfolio"]["source_tenant_authority"].__setitem__("path", ""),
+            id="blank-path",
+        ),
+        pytest.param(
+            lambda c: c["portfolio"]["source_tenant_authority"].__setitem__(
+                "constant", ""
+            ),
+            id="blank-constant",
+        ),
+    ],
+)
+def test_the_source_tenant_authority_must_be_resolvable(mutate) -> None:
+    """The provenance has to be usable, because the producer check resolves it."""
+    assert _tenant_errors(mutate)
+
+
+def test_the_caller_tenant_cannot_stand_in_for_the_source_tenant() -> None:
+    """This is the defect the field exists to prevent.
+
+    `dpm_command_center.workbench_caller_tenant_id` is present and correct in
+    this fixture, and holds the same value the source tenant should. If the
+    validator let that satisfy the requirement, a consumer reading an admission
+    header as provenance would look correct until a portfolio was seeded under a
+    different tenant.
+    """
+    def drop_source_only(contract: dict) -> None:
+        contract["portfolio"].pop("source_tenant_id")
+        assert (
+            contract["dpm_command_center"]["workbench_caller_tenant_id"] == "tenant-sg"
+        )
+
+    assert _tenant_errors(drop_source_only)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        pytest.param(
+            lambda c: c["portfolio"].pop("tenant_identity_separation"), id="absent"
+        ),
+        pytest.param(
+            lambda c: c["portfolio"]["tenant_identity_separation"].__setitem__(
+                "source_ownership_field",
+                "dpm_command_center.workbench_caller_tenant_id",
+            ),
+            id="collapsed-onto-caller",
+        ),
+        pytest.param(
+            lambda c: c["portfolio"]["tenant_identity_separation"].__setitem__(
+                "consumer_rule", ""
+            ),
+            id="no-consumer-rule",
+        ),
+    ],
+)
+def test_the_two_tenant_facts_must_stay_separately_published(mutate) -> None:
+    assert _tenant_errors(mutate)
+
+
+def test_the_source_tenant_is_proven_against_the_producer(tmp_path: Path) -> None:
+    """Agreement with lotus-core is measured, not asserted."""
+    validator = _validator()
+    contract = _contract()
+    authority = contract["portfolio"]["source_tenant_authority"]
+    seed = tmp_path / authority["path"]
+    seed.parent.mkdir(parents=True, exist_ok=True)
+    seed.write_text(
+        f'{authority["constant"]} = "{contract["portfolio"]["source_tenant_id"]}"'
+        + chr(10),
+        encoding="utf-8",
+    )
+
+    assert validator._validate_core_portfolio_source_tenant(tmp_path, contract) == []
+
+
+def test_a_producer_seeding_a_different_tenant_fails_closed(tmp_path: Path) -> None:
+    """The drift this contract exists to catch."""
+    validator = _validator()
+    contract = _contract()
+    authority = contract["portfolio"]["source_tenant_authority"]
+    seed = tmp_path / authority["path"]
+    seed.parent.mkdir(parents=True, exist_ok=True)
+    seed.write_text(f'{authority["constant"]} = "tenant-hk"' + chr(10), encoding="utf-8")
+
+    errors = validator._validate_core_portfolio_source_tenant(tmp_path, contract)
+
+    assert errors
+    assert "tenant-hk" in errors[0]
+
+
+@pytest.mark.parametrize(
+    ("filename", "contents"),
+    [
+        pytest.param(None, None, id="authority-file-absent"),
+        pytest.param(
+            "seed.py", 'SOMETHING_ELSE = "tenant-sg"', id="constant-not-defined"
+        ),
+    ],
+)
+def test_an_unprovable_source_tenant_is_an_error_not_a_pass(
+    tmp_path: Path, filename, contents
+) -> None:
+    """Absence must not read as agreement.
+
+    A missing file or an unreadable constant produces no mismatch to report, and
+    a check that only reports mismatches would return the same empty list it
+    returns when the producer agrees.
+    """
+    validator = _validator()
+    contract = _contract()
+    authority = dict(contract["portfolio"]["source_tenant_authority"])
+    if filename is not None:
+        authority["path"] = filename
+        (tmp_path / filename).write_text(contents, encoding="utf-8")
+    contract["portfolio"]["source_tenant_authority"] = authority
+
+    assert validator._validate_core_portfolio_source_tenant(tmp_path, contract)

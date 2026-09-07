@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -20,9 +21,20 @@ SEED_SCRIPT_PATH = ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1"
 CORE_SEED_VALIDATOR_RELATIVE_PATH = Path(
     "tools/validate_front_office_advisor_book_seed.py"
 )
-REQUIRED_CONTRACT_VERSION = "1.1.2"
+REQUIRED_CONTRACT_VERSION = "1.2.0"
 REQUIRED_DPM_CAMPAIGN_TENANT_ID = "tenant-sg"
 REQUIRED_DPM_WORKBENCH_CALLER_TENANT_ID = "tenant-sg"
+# The tenant lotus-core seeds the canonical portfolio under. It presently equals
+# the Workbench caller tenant above, and that equality is a fact about today's
+# configuration rather than a rule: source ownership answers who owns the seeded
+# data, caller admission answers who Gateway and Workbench let ask for it. They
+# are pinned separately so neither can be derived from the other.
+REQUIRED_PORTFOLIO_SOURCE_TENANT_ID = "tenant-sg"
+REQUIRED_SOURCE_TENANT_AUTHORITY_REPOSITORY = "lotus-core"
+REQUIRED_TENANT_SEPARATION_FIELDS = {
+    "source_ownership_field": "portfolio.source_tenant_id",
+    "caller_admission_field": "dpm_command_center.workbench_caller_tenant_id",
+}
 
 REQUIRED_DPM_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -69,6 +81,8 @@ REQUIRED_COVERAGE_ASSERTIONS = {
     "dpm_command_center_validation_must_cover_populated_ready_partial_and_empty_states",
     "dpm_command_center_evidence_must_record_source_product_lineage",
     "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
+    "canonical_portfolio_source_tenant_must_match_lotus_core_seed_authority",
+    "canonical_portfolio_source_tenant_must_stay_distinct_from_caller_admission_tenant",
 }
 REQUIRED_ECONOMIC_INVARIANTS = {
     "advisor_book_assignment_identity_is_deterministic",
@@ -169,6 +183,7 @@ def validate_contract(
         )
     if isinstance(advisor_book, dict):
         _validate_advisor_book(errors, advisor_book, contract, invariants)
+    _validate_portfolio_source_tenant(errors, contract)
     _validate_invariants(errors, invariants)
     _validate_seed_script(errors, seed_script)
     return errors
@@ -448,6 +463,131 @@ def _validate_seed_script(errors: list[str], seed_script: str) -> None:
             )
 
 
+def _validate_portfolio_source_tenant(
+    errors: list[str], contract: dict[str, Any]
+) -> None:
+    """The contract must publish who owns the canonical portfolio at source.
+
+    Before this field existed a consumer had to infer the seeded portfolio's
+    tenant from ``dpm_command_center.workbench_caller_tenant_id`` -- a header
+    Gateway and Workbench configure for admission, which says nothing about
+    provenance. The two happen to hold the same value today, which is precisely
+    why the inference looked correct.
+    """
+    portfolio = contract.get("portfolio")
+    if not isinstance(portfolio, dict):
+        errors.append("canonical contract must define portfolio")
+        return
+
+    source_tenant = portfolio.get("source_tenant_id")
+    if not isinstance(source_tenant, str) or not source_tenant.strip():
+        errors.append(
+            "portfolio.source_tenant_id must be a non-empty string naming the "
+            "tenant lotus-core seeds the canonical portfolio under"
+        )
+    elif source_tenant != REQUIRED_PORTFOLIO_SOURCE_TENANT_ID:
+        errors.append(
+            f"portfolio.source_tenant_id must be {REQUIRED_PORTFOLIO_SOURCE_TENANT_ID}"
+        )
+
+    authority = portfolio.get("source_tenant_authority")
+    if not isinstance(authority, dict):
+        errors.append(
+            "portfolio.source_tenant_authority must be an object naming the "
+            "producer-owned definition of the source tenant"
+        )
+    else:
+        if authority.get("repository") != REQUIRED_SOURCE_TENANT_AUTHORITY_REPOSITORY:
+            errors.append(
+                "portfolio.source_tenant_authority.repository must be "
+                f"{REQUIRED_SOURCE_TENANT_AUTHORITY_REPOSITORY}"
+            )
+        for field in ("path", "constant"):
+            value = authority.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(
+                    f"portfolio.source_tenant_authority.{field} must be a non-empty "
+                    "string, because the producer cross-check resolves it"
+                )
+
+    separation = portfolio.get("tenant_identity_separation")
+    if not isinstance(separation, dict):
+        errors.append(
+            "portfolio.tenant_identity_separation must be an object keeping source "
+            "ownership and caller admission distinct"
+        )
+        return
+    for field, expected in REQUIRED_TENANT_SEPARATION_FIELDS.items():
+        if separation.get(field) != expected:
+            errors.append(f"portfolio.tenant_identity_separation.{field} must be {expected}")
+    if separation.get("source_ownership_field") == separation.get(
+        "caller_admission_field"
+    ):
+        errors.append(
+            "portfolio.tenant_identity_separation must name two different fields; "
+            "collapsing them is the defect this section exists to prevent"
+        )
+    consumer_rule = separation.get("consumer_rule")
+    if not isinstance(consumer_rule, str) or not consumer_rule.strip():
+        errors.append(
+            "portfolio.tenant_identity_separation.consumer_rule must state how a "
+            "consumer picks between the two tenants"
+        )
+
+
+def _validate_core_portfolio_source_tenant(
+    core_repo: Path, contract: dict[str, Any]
+) -> list[str]:
+    """The published source tenant must equal what lotus-core actually seeds.
+
+    Resolved through the contract's own ``source_tenant_authority`` rather than a
+    path pinned here, so the published provenance is load-bearing: if it names
+    the wrong file or constant, this check fails instead of quietly passing.
+
+    Every outcome other than an exact match is an error, absence included. A
+    missing file or an unreadable constant would otherwise make this check
+    report the same green as agreement.
+    """
+    portfolio = contract.get("portfolio")
+    if not isinstance(portfolio, dict):
+        return ["canonical contract must define portfolio"]
+    authority = portfolio.get("source_tenant_authority")
+    if not isinstance(authority, dict):
+        return [
+            "portfolio.source_tenant_authority must be an object to cross-check "
+            "the producer-owned source tenant"
+        ]
+    relative_path = authority.get("path")
+    constant = authority.get("constant")
+    if not isinstance(relative_path, str) or not isinstance(constant, str):
+        return [
+            "portfolio.source_tenant_authority must name both a path and a constant"
+        ]
+
+    seed_path = core_repo / relative_path
+    if not seed_path.is_file():
+        return [
+            "lotus-core source tenant authority is missing: "
+            f"{seed_path} (named by portfolio.source_tenant_authority.path)"
+        ]
+    seeded = re.search(
+        rf"^{re.escape(constant)}\s*=\s*[\"']([^\"']+)[\"']",
+        seed_path.read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    if seeded is None:
+        return [
+            f"lotus-core {relative_path} does not define {constant}; the contract's "
+            "published source tenant cannot be proven against the producer"
+        ]
+    if seeded.group(1) != portfolio.get("source_tenant_id"):
+        return [
+            f"portfolio.source_tenant_id is {portfolio.get('source_tenant_id')!r} but "
+            f"lotus-core {constant} seeds {seeded.group(1)!r}"
+        ]
+    return []
+
+
 def _resolve_core_repo(explicit_core_repo: Path | None = None) -> Path:
     if explicit_core_repo is not None:
         return explicit_core_repo.resolve()
@@ -541,8 +681,10 @@ def validate_default_paths(core_repo: Path | None = None) -> list[str]:
         seed_script=SEED_SCRIPT_PATH.read_text(encoding="utf-8"),
     )
     if core_repo is not None:
+        resolved_core_repo = _resolve_core_repo(core_repo)
+        errors.extend(_validate_core_advisor_book_seed(resolved_core_repo, contract))
         errors.extend(
-            _validate_core_advisor_book_seed(_resolve_core_repo(core_repo), contract)
+            _validate_core_portfolio_source_tenant(resolved_core_repo, contract)
         )
     return errors
 
@@ -563,9 +705,9 @@ def main(argv: list[str] | None = None) -> int:
         invariants=_load_json_object(args.invariants),
         seed_script=args.seed_script.read_text(encoding="utf-8"),
     )
-    errors.extend(
-        _validate_core_advisor_book_seed(_resolve_core_repo(args.core_repo), contract)
-    )
+    resolved_core_repo = _resolve_core_repo(args.core_repo)
+    errors.extend(_validate_core_advisor_book_seed(resolved_core_repo, contract))
+    errors.extend(_validate_core_portfolio_source_tenant(resolved_core_repo, contract))
     if errors:
         print("Canonical front-office demo data contract validation failed:")
         for error in errors:
