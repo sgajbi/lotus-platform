@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sgajbi/lotus-platform/platform-contracts/principal-resolution/admission-fixture.schema.json",
+  "title": "Lotus Principal Resolution Admission Fixture",
+  "description": "A call that resolves and is admitted, stating the resolved principal a downstream authorizes against. It exists so the denial fixtures can be shown to reject the hostile case rather than everything: a resolver that refuses every request satisfies all twelve denial fixtures and is useless.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "principalKind",
+    "environmentPosture",
+    "request",
+    "expected"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "lotus-platform.principal-admission-fixture.v1"
+    },
+    "principalKind": {
+      "type": "string",
+      "enum": ["user", "service", "delegated"]
+    },
+    "environmentPosture": { "type": "string", "const": "verified" },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "credential", "tenantRef", "requiredCapability", "grantStoreAvailable"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "credential": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["present", "issuer", "audience", "keyId", "expired", "revoked", "subjectKind"],
+          "properties": {
+            "present": { "type": "boolean", "const": true },
+            "issuer": { "type": "string", "minLength": 1 },
+            "audience": { "type": "string", "minLength": 1 },
+            "keyId": { "type": "string", "minLength": 1 },
+            "expired": { "type": "boolean", "const": false },
+            "revoked": { "type": "boolean", "const": false },
+            "subjectKind": { "type": "string", "enum": ["user", "service"] }
+          }
+        },
+        "assertedHeaders": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "tenantRef": { "type": "string", "minLength": 1 },
+        "requiredCapability": { "type": "string", "minLength": 1 },
+        "portfolioRef": { "type": "string" },
+        "grantStoreAvailable": { "type": "boolean", "const": true },
+        "actingForSubjectRef": { "type": "string" },
+        "applicationCapabilities": { "type": "array", "items": { "type": "string" } },
+        "userCapabilities": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "status", "resolvedPrincipal", "headerAuthorityHonoured"],
+      "properties": {
+        "outcome": { "type": "string", "const": "admitted" },
+        "status": { "type": "integer", "enum": [200, 201, 202, 204] },
+        "resolvedPrincipal": {
+          "description": "What the downstream authorizes against. It never names the transport that produced the caller.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "tenantRef", "effectiveCapabilities"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["user", "service", "delegated"] },
+            "tenantRef": { "type": "string", "minLength": 1 },
+            "effectiveCapabilities": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" }
+            },
+            "entitlementScope": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "headerAuthorityHonoured": {
+          "description": "False even on an admitted call: the request may carry identity headers, and under `verified` they contribute nothing. An admission that would differ without them is accepting header authority.",
+          "type": "boolean",
+          "const": false
+        }
+      }
+    }
+  }
+}

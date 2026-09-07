@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "lotus-platform.resolved-principal.v1",
+  "contractId": "lotus-platform-resolved-principal-and-capability-grant",
+  "contractVersion": "1.0.0",
+  "issueRefs": [
+    "sgajbi/lotus-platform#775",
+    "sgajbi/lotus-platform#563",
+    "sgajbi/lotus-workbench#436",
+    "sgajbi/lotus-gateway#753",
+    "sgajbi/lotus-manage#624",
+    "sgajbi/lotus-idea#687"
+  ],
+  "posture": {
+    "evidenceClass": "source_contract",
+    "grantStoreImplemented": false,
+    "productionIdentityCertified": false,
+    "supportedFeaturePromoted": false,
+    "localDevFixtureNonCertifying": true
+  },
+  "environmentPosture": {
+    "postures": [
+      {
+        "name": "header-trust",
+        "principalRequirement": "documented perimeter trust; identity headers are accepted because the perimeter is the control",
+        "permittedEnvironments": ["local", "dev"]
+      },
+      {
+        "name": "verified",
+        "principalRequirement": "a verified principal is required and header authority is ignored entirely",
+        "permittedEnvironments": ["every promoted environment"]
+      }
+    ],
+    "selectableByRequest": false,
+    "verifiedMayFallBackToHeaderTrust": false
+  },
+  "principalKinds": [
+    {
+      "kind": "user",
+      "subjectNames": "a person, established by an authenticated session at a BFF",
+      "entitlementSource": "that person's grants in the requested tenant"
+    },
+    {
+      "kind": "service",
+      "subjectNames": "an application acting for itself, established by a platform-issued service credential",
+      "entitlementSource": "that application's grants in the requested tenant"
+    },
+    {
+      "kind": "delegated",
+      "subjectNames": "an application acting for a person, carrying both credentials",
+      "entitlementSource": "the intersection of the application's grants and the person's grants"
+    }
+  ],
+  "resolutionOrder": [
+    {
+      "step": 1,
+      "resolves": "the principal itself",
+      "failsClosedOn": [
+        "missing_credential",
+        "malformed_credential",
+        "expired_credential",
+        "revoked_principal",
+        "wrong_issuer",
+        "wrong_audience",
+        "unknown_key_id"
+      ]
+    },
+    {
+      "step": 2,
+      "resolves": "tenant membership for that principal",
+      "failsClosedOn": ["tenant_not_a_member", "request_names_another_tenant"]
+    },
+    {
+      "step": 3,
+      "resolves": "the capability grant set for that principal in that tenant",
+      "failsClosedOn": ["grant_store_unavailable"]
+    },
+    {
+      "step": 4,
+      "resolves": "the intersection with the route's required capabilities",
+      "failsClosedOn": ["capability_not_granted", "delegated_capability_not_held_by_user"]
+    },
+    {
+      "step": 5,
+      "resolves": "entitlement scope for the identifiers named by the request",
+      "failsClosedOn": ["portfolio_outside_scope"]
+    }
+  ],
+  "grantStore": {
+    "ownedBy": "the service that owns tenant membership",
+    "hostedByPlatform": false,
+    "unavailableBehaviour": "deny",
+    "revocationWindowSeconds": 300
+  },
+  "delegation": {
+    "required": true,
+    "effectivePermissions": "intersection",
+    "capabilityRule": "a capability must be granted to the application and to the person; a shared service identity never widens a person's entitlement",
+    "entitlementRule": "a portfolio must be in scope for the application and for the person"
+  },
+  "denials": {
+    "classes": [
+      { "class": "missing_credential", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "malformed_credential", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "expired_credential", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "wrong_audience", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "wrong_issuer", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "unknown_key_id", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "revoked_principal", "appliesTo": ["user", "service", "delegated"], "status": 401 },
+      { "class": "tenant_not_a_member", "appliesTo": ["user", "service", "delegated"], "status": 403 },
+      { "class": "capability_not_granted", "appliesTo": ["user", "service", "delegated"], "status": 403 },
+      { "class": "portfolio_outside_scope", "appliesTo": ["user", "service", "delegated"], "status": 403 },
+      { "class": "delegated_capability_not_held_by_user", "appliesTo": ["delegated"], "status": 403 },
+      { "class": "grant_store_unavailable", "appliesTo": ["user", "service", "delegated"], "status": 503 }
+    ],
+    "distinguishesUnauthenticatedFromUnauthorized": true,
+    "revealsMissingCapability": false,
+    "revealsResourceExistence": false
+  },
+  "auditSafety": {
+    "forbiddenInEvidence": [
+      "raw_token",
+      "access_token",
+      "id_token",
+      "refresh_token",
+      "authorization",
+      "cookie",
+      "session_secret",
+      "client_id",
+      "capability_set",
+      "portfolio_id"
+    ],
+    "correlationIdRequired": true
+  },
+  "nonGoals": [
+    "selecting or deploying a bank identity provider",
+    "hosting the grant store, which belongs to the tenant-membership owner",
+    "implementing resolution inside any consumer",
+    "promoting a Lotus Idea supported feature",
+    "clearing production identity certification"
+  ]
+}

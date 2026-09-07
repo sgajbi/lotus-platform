@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "portfolio_outside_scope",
+  "principalKind": "user",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A verified principal holding the capability, naming a portfolio outside its entitlement scope.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "user"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write",
+    "portfolioRef": "portfolio:not-in-scope",
+    "userCapabilities": [
+      "manage.write"
+    ],
+    "grantStoreAvailable": true
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 403,
+    "failsAtStep": 5
+  }
+}

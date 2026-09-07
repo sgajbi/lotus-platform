@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "revoked_principal",
+  "principalKind": "user",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A credential valid by signature and expiry whose principal has been revoked.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": true,
+      "subjectKind": "user"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write"
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 401,
+    "failsAtStep": 1
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lotus-platform.principal-admission-fixture.v1",
+  "principalKind": "delegated",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A server-side application acting for a signed-in adviser. Both hold manage.write and both have the portfolio in scope, so the intersection is non-empty. The request also carries identity headers, which contribute nothing: the same call without them resolves identically.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "service"
+    },
+    "assertedHeaders": {
+      "x-caller-capabilities": "manage.write,manage.admin",
+      "x-tenant-id": "tenant:another-private-bank"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write",
+    "portfolioRef": "portfolio:PB-SG-0001",
+    "grantStoreAvailable": true,
+    "actingForSubjectRef": "subject:advisor-001",
+    "applicationCapabilities": ["manage.write", "manage.read"],
+    "userCapabilities": ["manage.write", "manage.read", "idea.review"]
+  },
+  "expected": {
+    "outcome": "admitted",
+    "status": 200,
+    "resolvedPrincipal": {
+      "kind": "delegated",
+      "tenantRef": "tenant:private-bank-sg",
+      "effectiveCapabilities": ["manage.read", "manage.write"],
+      "entitlementScope": ["portfolio:PB-SG-0001"]
+    },
+    "headerAuthorityHonoured": false
+  }
+}

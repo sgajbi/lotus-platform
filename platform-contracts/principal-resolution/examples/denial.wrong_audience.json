@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "wrong_audience",
+  "principalKind": "service",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A credential minted for another Lotus audience, replayed at this one.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-report:ingest",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "service"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "core.intake.write"
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 401,
+    "failsAtStep": 1
+  }
+}

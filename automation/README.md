@@ -432,6 +432,21 @@ attested cost verification, live deployed-digest observation, protected migratio
 data-product certification, supported-feature promotion, required-product promotion, or
 production-certification blockers.
 
+### Principal resolution and capability grant contract
+
+```powershell
+python automation/validate_principal_resolution_contracts.py
+python -m pytest tests/unit/test_principal_resolution_contracts.py -q
+```
+
+This validator protects `platform-contracts/principal-resolution/`: the resolved shape a downstream
+authorizes against, and a fixture for every denial class RFC-0109 requires a consumer to prove. It
+checks three things a schema cannot. Every declared denial class has a fixture and every fixture
+names a declared class, so a rule cannot be published without anyone being asked to prove it. Each
+fixture refuses at the resolution step the contract says owns its class, because a denial later than
+that means an earlier control did not run. And at least one admission fixture must exist, since a
+resolver that refuses every request satisfies all twelve denial fixtures.
+
 ### Authenticated BFF principal-session contract
 
 ```powershell

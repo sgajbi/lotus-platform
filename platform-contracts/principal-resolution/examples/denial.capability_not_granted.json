@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "capability_not_granted",
+  "principalKind": "service",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A verified service principal whose grant set does not contain the route's capability, while its request asserts that capability as a header.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "service"
+    },
+    "assertedHeaders": {
+      "x-caller-capabilities": "manage.write"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write",
+    "applicationCapabilities": [
+      "manage.read"
+    ],
+    "grantStoreAvailable": true
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 403,
+    "failsAtStep": 4
+  }
+}

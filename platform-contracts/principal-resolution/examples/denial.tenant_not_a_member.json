@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "tenant_not_a_member",
+  "principalKind": "user",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A verified principal requesting a tenant it holds no membership in.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "user"
+    },
+    "tenantRef": "tenant:another-private-bank",
+    "requiredCapability": "manage.write",
+    "grantStoreAvailable": true
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 403,
+    "failsAtStep": 2
+  }
+}

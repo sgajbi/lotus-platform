@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sgajbi/lotus-platform/platform-contracts/principal-resolution/resolved-principal.schema.json",
+  "title": "Lotus Resolved Principal And Capability Grant",
+  "description": "The shape a downstream service authorizes against, after resolving a caller. A user session and a service credential resolve into this same shape, so a domain service never authorizes against the transport that produced the caller. Published by RFC-0109 slice 1 for sgajbi/lotus-platform#775.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "contractVersion",
+    "issueRefs",
+    "posture",
+    "environmentPosture",
+    "principalKinds",
+    "resolutionOrder",
+    "grantStore",
+    "delegation",
+    "denials",
+    "auditSafety",
+    "nonGoals"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "lotus-platform.resolved-principal.v1"
+    },
+    "contractId": {
+      "type": "string",
+      "const": "lotus-platform-resolved-principal-and-capability-grant"
+    },
+    "contractVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "issueRefs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceClass",
+        "grantStoreImplemented",
+        "productionIdentityCertified",
+        "supportedFeaturePromoted",
+        "localDevFixtureNonCertifying"
+      ],
+      "properties": {
+        "evidenceClass": { "type": "string", "const": "source_contract" },
+        "grantStoreImplemented": {
+          "description": "False until the tenant-membership owner implements it. A contract is not an implementation.",
+          "type": "boolean"
+        },
+        "productionIdentityCertified": { "type": "boolean" },
+        "supportedFeaturePromoted": { "type": "boolean" },
+        "localDevFixtureNonCertifying": { "type": "boolean", "const": true }
+      }
+    },
+    "environmentPosture": {
+      "description": "A deployment fact, never a request fact. No header, claim or parameter may select it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["postures", "selectableByRequest", "verifiedMayFallBackToHeaderTrust"],
+      "properties": {
+        "postures": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "principalRequirement", "permittedEnvironments"],
+            "properties": {
+              "name": { "type": "string", "enum": ["header-trust", "verified"] },
+              "principalRequirement": { "type": "string", "minLength": 1 },
+              "permittedEnvironments": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "selectableByRequest": { "type": "boolean", "const": false },
+        "verifiedMayFallBackToHeaderTrust": {
+          "description": "A fallback turns the strongest control in the chain into the weakest.",
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "principalKinds": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "subjectNames", "entitlementSource"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["user", "service", "delegated"] },
+          "subjectNames": { "type": "string", "minLength": 1 },
+          "entitlementSource": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "resolutionOrder": {
+      "description": "Every step is a refusal rather than a filter.",
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["step", "resolves", "failsClosedOn"],
+        "properties": {
+          "step": { "type": "integer", "minimum": 1 },
+          "resolves": { "type": "string", "minLength": 1 },
+          "failsClosedOn": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "grantStore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ownedBy", "hostedByPlatform", "unavailableBehaviour", "revocationWindowSeconds"],
+      "properties": {
+        "ownedBy": {
+          "description": "The service that owns tenant membership owns the grant store. Platform defines the contract and does not host it.",
+          "type": "string",
+          "minLength": 1
+        },
+        "hostedByPlatform": { "type": "boolean", "const": false },
+        "unavailableBehaviour": { "type": "string", "const": "deny" },
+        "revocationWindowSeconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "delegation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "effectivePermissions", "capabilityRule", "entitlementRule"],
+      "properties": {
+        "required": {
+          "description": "Workbench's BFF is exactly this shape, so the delegated form is required rather than optional.",
+          "type": "boolean",
+          "const": true
+        },
+        "effectivePermissions": { "type": "string", "const": "intersection" },
+        "capabilityRule": { "type": "string", "minLength": 1 },
+        "entitlementRule": { "type": "string", "minLength": 1 }
+      }
+    },
+    "denials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classes", "distinguishesUnauthenticatedFromUnauthorized", "revealsMissingCapability", "revealsResourceExistence"],
+      "properties": {
+        "classes": {
+          "type": "array",
+          "minItems": 11,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["class", "appliesTo", "status"],
+            "properties": {
+              "class": { "type": "string", "minLength": 1 },
+              "appliesTo": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "enum": ["user", "service", "delegated"] }
+              },
+              "status": { "type": "integer", "enum": [401, 403, 503] }
+            }
+          }
+        },
+        "distinguishesUnauthenticatedFromUnauthorized": { "type": "boolean", "const": true },
+        "revealsMissingCapability": {
+          "description": "Naming the missing capability tells a caller what to ask for.",
+          "type": "boolean",
+          "const": false
+        },
+        "revealsResourceExistence": {
+          "description": "A 'no such portfolio' that differs from 'not entitled' is an enumeration oracle.",
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "auditSafety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["forbiddenInEvidence", "correlationIdRequired"],
+      "properties": {
+        "forbiddenInEvidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "correlationIdRequired": { "type": "boolean", "const": true }
+      }
+    },
+    "nonGoals": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    }
+  }
+}
