@@ -147,6 +147,37 @@ function New-TestGap {
   }
 }
 
+function Get-CausalLogCommand {
+  <#
+    .SYNOPSIS
+    Rewrite a Compose log command to start at the probe rather than at the end.
+
+    .DESCRIPTION
+    `--tail=200` shows the last 200 lines. A service that writes more than that
+    between the probe response and the capture evicts the marker, and the check
+    then reports a missing correlated event for a request that was logged
+    correctly -- a false defect that grows with traffic, so the busier the
+    service the less trustworthy the result.
+
+    Anchoring at the probe removes the dependency on volume. `--since` is given
+    a timestamp taken just before the probe, less a small allowance for clock
+    skew between the host and the container. A command that is not a Compose
+    logs invocation is returned unchanged, because rewriting an operator's own
+    command on a guess would be worse than the tail.
+  #>
+  param(
+    [string]$Command,
+    [datetime]$Since
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Command)) { return $Command }
+  if ($Command -notmatch "docker\s+compose\s+logs") { return $Command }
+
+  $stamp = $Since.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+  $rewritten = $Command -replace "\s--tail(=|\s+)\S+", ""
+  return ($rewritten -replace "docker\s+compose\s+logs", "docker compose logs --since $stamp")
+}
+
 function Get-CausalLogEvidence {
   <#
     .SYNOPSIS
@@ -558,6 +589,9 @@ foreach ($entry in $selected) {
       $probeHeaders = @{ $correlationHeader = $marker }
       $probeBody = if ($null -ne $probe.body) { ($probe.body | ConvertTo-Json -Depth 8 -Compress) } else { $null }
 
+      # Taken before the request, with a five-second allowance for clock skew
+      # between this host and the container writing the log.
+      $probeSince = (Get-Date).ToUniversalTime().AddSeconds(-5)
       $probeResult = Invoke-HttpCheck -Method $probeMethod -Url ([string]$probe.url) -Headers $probeHeaders -Body $probeBody -TimeoutSec $HttpTimeoutSeconds
       $probeExpected = if ($null -ne $probe.expected_status) { [int]$probe.expected_status } else { 200 }
 
@@ -569,12 +603,13 @@ foreach ($entry in $selected) {
         continue
       }
 
-      $logResult = Invoke-CommandCapture -RepoPath $repoPath -Command ([string]$entry.startup.log_command)
+      $causalLogCommand = Get-CausalLogCommand -Command ([string]$entry.startup.log_command) -Since $probeSince
+      $logResult = Invoke-CommandCapture -RepoPath $repoPath -Command $causalLogCommand
       $evidence = Get-CausalLogEvidence -LogText ([string]$logResult.output) -Marker $marker -Pattern $patternText
       $causalLines = $evidence.lines
 
       if ($evidence.verdict -eq "uncorrelated") {
-        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-correlation-missing-" + $invariantId) -Type "logs" -Expected "A structured event carrying the run-scoped marker $marker" -Actual "No log line carries the marker, so the request was served without a correlated event and no log assertion about it can be causal" -Evidence ([string]$logResult.output) -Steps @("$probeMethod $($probe.url) with $correlationHeader=$marker", "cd $repoPath", ([string]$entry.startup.log_command))
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-correlation-missing-" + $invariantId) -Type "logs" -Expected "A structured event carrying the run-scoped marker $marker" -Actual "No log line carries the marker, so the request was served without a correlated event and no log assertion about it can be causal" -Evidence ([string]$logResult.output) -Steps @("$probeMethod $($probe.url) with $correlationHeader=$marker", "cd $repoPath", $causalLogCommand)
         continue
       }
 
