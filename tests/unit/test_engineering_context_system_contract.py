@@ -2352,3 +2352,99 @@ def test_link_check_rejects_a_routed_document_outside_the_repository(
     assert len(errors) == 1, errors
     assert "outside the repository" in errors[0], errors
 
+
+_CASE_LIBRARY = CONTEXT_DIR / "playbooks" / "AGENT-FAILURE-CASE-LIBRARY.md"
+_CASE_PARTS = ("**Claimed:**", "**Evidence:**", "**Check:**")
+
+
+def _case_library_entry_errors(library: str) -> list[str]:
+    """Return every entry that does not name a case.
+
+    The library's whole value is that entries carry evidence rather than advice.
+    "Prove your gate can fail" is forgettable; the typecheck that reported
+    success on 128 files while resolving every import to `Any` is not. Without a
+    check, the cheapest entry to write is the one worth least, so the shape is
+    enforced rather than requested.
+    """
+    errors: list[str] = []
+    sections = library.split(chr(10) + "### ")
+    if len(sections) < 2:
+        return ["the case library contains no entries, so this check would pass on an empty file"]
+    for section in sections[1:]:
+        heading = section.split(chr(10), 1)[0].strip()
+        for part in _CASE_PARTS:
+            if part not in section:
+                errors.append(f"entry {heading!r} is missing {part}")
+        if "Contributed by" not in section:
+            errors.append(f"entry {heading!r} does not name the contributing seat")
+    return errors
+
+
+def test_the_failure_case_library_is_governed_and_linked() -> None:
+    """A case library nobody is routed to is a file, not procedural memory."""
+    manifest = json.loads((CONTEXT_DIR / "lotus-context-manifest.json").read_text(encoding="utf-8"))
+    index = (CONTEXT_DIR / "PROCEDURAL-MEMORY-INDEX.md").read_text(encoding="utf-8")
+    loop = (
+        CONTEXT_DIR / "playbooks" / "AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md"
+    ).read_text(encoding="utf-8")
+
+    assert _CASE_LIBRARY.is_file()
+    assert (
+        manifest["procedural_memory"]["agent_failure_case_library"]
+        == "context/playbooks/AGENT-FAILURE-CASE-LIBRARY.md"
+    )
+    assert "AGENT-FAILURE-CASE-LIBRARY.md" in index
+    # The loop is where an agent arrives when converting failures into gates, so
+    # it must reach the cases rather than the cases sitting beside it unread.
+    assert "AGENT-FAILURE-CASE-LIBRARY.md" in loop
+
+
+def test_every_case_library_entry_names_its_case() -> None:
+    """An entry that cannot name a case is dropped rather than generalised."""
+    assert _case_library_entry_errors(_CASE_LIBRARY.read_text(encoding="utf-8")) == []
+
+
+def test_the_case_library_guard_rejects_an_entry_without_evidence() -> None:
+    """Prove the guard fails on the entry it exists to reject."""
+    maxim_only = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. Prove your gate can fail"
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** the gate worked."
+        + chr(10) * 2
+        + "**Check:** falsify it."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(maxim_only)
+
+    assert any("**Evidence:**" in error for error in errors), errors
+
+
+def test_the_case_library_guard_rejects_an_unattributed_entry() -> None:
+    """Attribution is how a reader reaches the full history of a case."""
+    unattributed = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** it reported success on 128 files it never read."
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(unattributed)
+
+    assert any("contributing seat" in error for error in errors), errors
+
+
+def test_the_case_library_guard_does_not_pass_on_an_empty_file() -> None:
+    """Zero entries and zero defective entries must not be the same green."""
+    assert _case_library_entry_errors("# Agent Failure Case Library" + chr(10))
+

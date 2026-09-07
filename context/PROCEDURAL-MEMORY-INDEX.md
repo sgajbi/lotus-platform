@@ -37,6 +37,10 @@ These playbooks turn recurring delivery practice into durable operating guidance
 11. [Evidence And Guard Integrity](./playbooks/AGENTIC-CODING-QUALITY-EVALUATION-LOOP.md#evidence-and-guard-integrity)
     Failure cases and verification practice behind the compact mandatory rules in `AGENTS.md`.
 
+12. [Agent Failure Case Library](./playbooks/AGENT-FAILURE-CASE-LIBRARY.md)
+    Cross-seat failures with the evidence that produced them and the check that would have
+    caught each one, feeding the evaluation loop above.
+
 ## When To Use This Layer
 
 Use these playbooks when:
@@ -60,3 +64,5 @@ Use these playbooks when:
     evidence across handovers or context compaction.
 11. you are assessing bank readiness and need the status, maturity, evidence, environment, issue,
     and closure sequence while leaving control definitions in the versioned catalog.
+12. you have hit a failure that would otherwise survive only in one session's memory, or you
+    want the case behind a rule before deciding how much to trust it.
