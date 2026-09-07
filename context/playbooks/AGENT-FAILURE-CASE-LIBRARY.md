@@ -341,6 +341,68 @@ defended on inspection — which is the reason to run the probe rather than read
 Fixed in `lotus-manage` commit `5e443f12`; after adding the divergence half, the constant
 substitution fails both tests.
 
+### 15. A stated rule with no wiring reads as a satisfied rule
+
+Contributed by the `lotus-ai` / `lotus-idea` seat, with the negative result from the
+`lotus-render` / `lotus-performance` / `lotus-advise` seat.
+
+**Claimed:** a codebase can hold a correct, well-explained statement of a rule and no enforcement
+wiring at all. The statement is what stops you looking: you read it, recognise it as right, and move
+on. This is distinct from a misconfigured or a skipped control — the code is correct, tested,
+covered, and never reached.
+
+**Evidence:** three instances in one `lotus-manage` pull request on 2026-09-07.
+`require_mandate_tenant` normalised tenant ids, and its docstring explained why padding must not
+create a second tenant; **none of the eight routes annotated with `MandateTenantId` called it**, so
+`tenant_id=%20tenant-a` reached the store padded — reads missed rows under `tenant-a` while writes
+persisted into a padded namespace nothing later reads. `X-Tenant-Id`'s own description said it
+covered preview, create, source-check and selection, and two of the four were wired to a query
+parameter, so a caller following the published contract received 422.
+`validate_production_cutover_contract` refuses a production start when the persistence profile is
+not PRODUCTION or migrations are unapplied; it is correct, tested, and referenced by nothing outside
+its own unit test, verified by hand against `src/`, `scripts/`, the Makefile, every workflow and the
+packaging entry points. Filed as `lotus-manage#678`.
+
+**Check:** when you read a stated rule — in a docstring, a field description, a comment — and find
+it convincing, grep for its enforcer *before moving on*. The trigger is the moment of being
+convinced, because that is the moment that stops you looking. One named rule, one `grep -c`, in a
+place you have reason to suspect. Zero call sites is the finding; one is worth reading. Two caveats
+from running it: a function passed by reference rather than called, as in `Depends(f)` or
+`AfterValidator(f)`, counts as zero and is a false positive, and a helper referenced *only* from
+`tests/` is the true positive — test references are what make a dead gate look alive in coverage.
+
+**Do not generalise this into a sweep.** Enumerating enforcement-named helpers and reading every
+zero was tried across three repositories: four implementations, four distinct bugs, roughly one in
+twenty signal, and every sampled candidate false. One pass reported *more* candidates after its
+matcher was loosened, which is arithmetically impossible and was the only reason nothing was acted
+on. "Is this called" is not textually decidable in Python — methods, dependency injection, framework
+registration and dynamic dispatch all reference a function in forms a grep cannot separate from
+coincidence, and a checker whose false positives outnumber its findings gets someone to "fix" a
+correct one. The trigger has to be a human moment of conviction, not a schedule.
+
+**Repair pattern:** put the rule in the type rather than in a helper someone must remember to call.
+Normalisation as an `AfterValidator` on the annotated type is shared by query parameter, header and
+body, so a ninth surface added in six months gets it by construction. That beats checking that the
+call sites agree, because there is no call site to omit.
+
+### 16. A value's construction is not the decision path
+
+Contributed by the `lotus-ai` / `lotus-idea` seat.
+
+**Claimed:** putting the tenant into a wave request hash closed a cross-tenant replay. The claim was
+made to a reviewer in writing.
+
+**Evidence:** it did not. The hash was written on save and never compared on the lookup path, which
+returned on the caller-chosen key alone. The derivation was read, the tenant was seen in it, and a
+property was asserted about a branch that had not been opened. Review caught it, and a false
+security claim stood in the record for several hours.
+
+**Check:** when claiming a fix closes a vulnerability, name the exact line where the decision is made
+and confirm the scoped value reaches it. "The key now contains the tenant" is a fact about a string;
+"the lookup refuses another tenant" is a fact about a branch. Only the second is the claim, and the
+two are easy to mistake for each other because the first is visible in the diff and the second is
+not.
+
 ## Contributing
 
 Add an entry when a failure would otherwise survive only in one session's memory and would change
