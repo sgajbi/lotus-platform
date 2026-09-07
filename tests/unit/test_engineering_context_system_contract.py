@@ -2361,26 +2361,22 @@ _ATTRIBUTION = re.compile(r"^Contributed by\b(?P<seats>.*)$", re.MULTILINE)
 _SEAT = re.compile(r"`[^`]+`")
 
 
-def _case_sections(library: str) -> list[str]:
-    """Return each entry's text, splitting only on headings a reader would see.
+def _fenced_lines(lines: list[str]) -> list[bool]:
+    """Mark each line that sits inside a fenced code block.
 
-    An entry may include a fenced reproduction containing an unindented `###`
-    line. Splitting the raw text treated that code line as another entry and
-    reported it as missing every field, so a case carrying its own repro would
-    have failed the suite -- which is how a useful check gets switched off.
-
-    Only the split is fence-aware. The field and attribution checks read the
-    original text, because stripping code spans there would erase the very
-    backticked seat names attribution requires.
+    Every structural decision below shares this one mask. Making the entry split
+    fence-aware while leaving the field scan raw is what produced the second of
+    two findings in the same round: a reproduction containing
+    `**Evidence:** fake` satisfied a field the entry did not have.
     """
-    lines = library.split(chr(10))
+    inside: list[bool] = []
     fence = ""
-    starts: list[int] = []
-    for index, line in enumerate(lines):
+    for line in lines:
         stripped = line.lstrip(" ")
         indent = len(line) - len(stripped)
         delimiter = re.match(r"^(?P<fence>`{3,}|~{3,})", stripped) if indent <= 3 else None
         if fence:
+            inside.append(True)
             if (
                 delimiter
                 and delimiter.group("fence")[0] == fence[0]
@@ -2391,15 +2387,42 @@ def _case_sections(library: str) -> list[str]:
             continue
         if delimiter:
             fence = delimiter.group("fence")
+            inside.append(True)
             continue
-        if line.startswith("### "):
-            starts.append(index)
+        inside.append(False)
+    return inside
 
-    sections: list[str] = []
+
+def _case_entries(library: str) -> list[tuple[str, list[str]]]:
+    """Return each entry as its heading and the lines belonging to it.
+
+    An entry ends at the next case heading *or* at the next non-case heading.
+    Running the last entry to end-of-file let the document's own `## Contributing`
+    footer stand in as content for an empty final field, so a malformed entry
+    passed because of prose written for the reader.
+    """
+    lines = library.split(chr(10))
+    fenced = _fenced_lines(lines)
+
+    starts = [
+        index
+        for index, line in enumerate(lines)
+        if not fenced[index] and line.startswith("### ")
+    ]
+    entries: list[tuple[str, list[str]]] = []
     for position, start in enumerate(starts):
-        end = starts[position + 1] if position + 1 < len(starts) else len(lines)
-        sections.append(chr(10).join(lines[start:end])[len("### ") :])
-    return sections
+        limit = starts[position + 1] if position + 1 < len(starts) else len(lines)
+        for index in range(start + 1, limit):
+            if not fenced[index] and line_is_non_case_heading(lines[index]):
+                limit = index
+                break
+        entries.append((lines[start][len("### ") :].strip(), lines[start + 1 : limit]))
+    return entries
+
+
+def line_is_non_case_heading(line: str) -> bool:
+    """A heading that is not a case heading closes the entry above it."""
+    return bool(re.match(r"^#{1,3} ", line)) and not line.startswith("### ")
 
 
 def _case_library_entry_errors(library: str) -> list[str]:
@@ -2411,55 +2434,68 @@ def _case_library_entry_errors(library: str) -> list[str]:
     check, the cheapest entry to write is the one worth least, so the shape is
     enforced rather than requested.
 
-    Every pattern here is anchored to the position it occupies, because an
-    unanchored match is satisfied by a mention. Four revisions of this guard
-    were needed to learn that: an empty `**Evidence:**` passed, then a bare
-    `###` heading passed, then `Contributed by.` passed, then an entry whose
-    prose *mentioned* `**Check:**` passed while having no such field, and
-    `Contributed bystander text.` passed on a character prefix. Each was the
-    same mistake surviving in whichever check the previous finding had not
-    named.
+    Structure is decided from one fence mask, in line space. Five revisions were
+    needed to reach that, and every one of them was the same mistake surviving
+    in whichever check the previous finding had not named: an empty field
+    passed, a bare heading passed, `Contributed by.` passed, a marker mentioned
+    in prose passed, `Contributed bystander text.` passed, a fenced `###` split
+    a valid entry, a fenced `**Evidence:**` satisfied a missing field, and the
+    footer filled an empty final field. Sharing the mask is what stops the next
+    one.
 
-    Enforced, in order:
+    Enforced:
 
     1. the file contains at least one entry,
     2. every entry has a non-empty heading,
-    3. every case field appears at the start of a line -- its own field
-       position -- and carries non-empty content up to the next such field,
-    4. every entry names a contributing seat on its own line above the first
-       field, with the seat itself present as a code-span repository name.
+    3. every case field appears unfenced at the start of a line and carries
+       non-empty content up to the next field or the end of the entry,
+    4. every entry names a contributing seat on an unfenced line above the
+       first field, with the seat present as a code-span repository name.
     """
     errors: list[str] = []
-    sections = _case_sections(library)
-    if not sections:
+    entries = _case_entries(library)
+    if not entries:
         return ["the case library contains no entries, so this check would pass on an empty file"]
 
-    for index, section in enumerate(sections, start=1):
-        heading = section.split(chr(10), 1)[0].strip()
+    for index, (heading, body) in enumerate(entries, start=1):
         label = heading or f"entry {index} (no heading)"
         if not heading:
             errors.append(f"{label} has no heading, so it names no case")
 
-        found: dict[str, "re.Match[str]"] = {}
+        fenced = _fenced_lines(body)
+        positions: dict[str, int] = {}
         for part in _CASE_PARTS:
-            match = re.search("^" + re.escape(part), section, re.MULTILINE)
-            if match is None:
+            found = next(
+                (
+                    number
+                    for number, line in enumerate(body)
+                    if not fenced[number] and line.startswith(part)
+                ),
+                None,
+            )
+            if found is None:
                 errors.append(f"entry {label!r} is missing {part}")
             else:
-                found[part] = match
+                positions[part] = found
 
-        boundaries = sorted(match.start() for match in found.values())
-        for part, match in found.items():
-            after = [boundary for boundary in boundaries if boundary > match.start()]
-            content = section[match.end() : after[0] if after else len(section)]
+        boundaries = sorted(positions.values())
+        for part, number in positions.items():
+            after = [boundary for boundary in boundaries if boundary > number]
+            stop = after[0] if after else len(body)
+            content = body[number][len(part) :] + chr(10) + chr(10).join(body[number + 1 : stop])
             if not content.strip(" " + chr(10) + chr(9) + ".-*_"):
                 errors.append(f"entry {label!r} has no content under {part}")
 
-        # Attribution introduces the case, so it is read from above the first
-        # field. A section whose evidence merely mentions the phrase has
-        # attributed nothing.
-        preamble = section[: boundaries[0]] if boundaries else section
-        attribution = _ATTRIBUTION.search(preamble)
+        preamble = body[: boundaries[0]] if boundaries else body
+        preamble_fenced = fenced[: boundaries[0]] if boundaries else fenced
+        attribution = next(
+            (
+                _ATTRIBUTION.match(line)
+                for number, line in enumerate(preamble)
+                if not preamble_fenced[number] and _ATTRIBUTION.match(line)
+            ),
+            None,
+        )
         if attribution is None:
             errors.append(f"entry {label!r} does not name the contributing seat")
         elif not _SEAT.search(attribution.group("seats")):
@@ -2717,6 +2753,68 @@ def test_the_case_library_guard_accepts_a_fenced_heading_inside_evidence() -> No
     )
 
     assert _case_library_entry_errors(with_repro) == []
+
+
+def test_the_case_library_guard_rejects_a_fenced_field_marker() -> None:
+    """A reproduction containing a marker does not give the entry that field.
+
+    Making the entry split fence-aware while leaving the field scan raw let an
+    example containing `**Evidence:** fake` satisfy a field the entry lacked.
+    """
+    fence = chr(96) * 3
+    fenced_marker = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + fence
+        + "markdown"
+        + chr(10)
+        + "**Evidence:** fake"
+        + chr(10)
+        + fence
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(fenced_marker)
+
+    assert any("is missing **Evidence:**" in error for error in errors), errors
+
+
+def test_the_case_library_guard_does_not_let_the_footer_fill_a_final_field() -> None:
+    """An entry ends at the next heading, so trailing prose is not its content.
+
+    Running the last entry to end-of-file let the document's own closing section
+    stand in as content for an empty final field.
+    """
+    with_footer = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** it reported success on 128 files it never read."
+        + chr(10) * 2
+        + "**Check:**"
+        + chr(10) * 2
+        + "## Contributing"
+        + chr(10) * 2
+        + "Add an entry when a failure would otherwise survive only in session memory."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(with_footer)
+
+    assert any("no content under **Check:**" in error for error in errors), errors
 
 
 def test_the_case_library_guard_does_not_pass_on_an_empty_file() -> None:
