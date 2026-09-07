@@ -237,3 +237,103 @@ def test_a_field_outside_the_marker_still_proves_the_invariant() -> None:
 
     assert _verdict(line_with_the_field, "service", marker=colliding_marker) == "correlated"
 
+
+def _generated_logging_module() -> dict:
+    """Execute the logging module the scaffold generates, as generated.
+
+    The scaffold writes this file into every new service, so running it is the
+    only way to know what a scaffolded service actually emits. Extracting and
+    executing it keeps the claim behavioural without creating a service.
+    """
+    source = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    opening = source.index('$observabilityPy = @"')
+    body = source[opening + len('$observabilityPy = @"') : source.index('"@', opening)]
+    namespace: dict = {}
+    exec(compile(body.replace("$ServiceName", "lotus-example"), "generated_logging.py", "exec"), namespace)
+    return namespace
+
+
+def test_the_generated_request_event_satisfies_the_scaffolded_invariants(caplog) -> None:
+    """The generated logger's own output must prove the invariants the scaffold registers.
+
+    Registering `correlation`, `trace` and `service` against a health probe is
+    only honest if a scaffolded service emits an event carrying them. Response
+    headers do not: they travel back to one caller and are gone, so a served
+    request left no trace and every default check reported a missing
+    correlation.
+    """
+    namespace = _generated_logging_module()
+    marker = "lotus-qa-20260907-031500-p0001"
+
+    with caplog.at_level("INFO"):
+        namespace["log_event"](
+            "request.completed",
+            "lotus-example",
+            "INFO",
+            correlation_id=marker,
+            trace_id="trace-abc",
+            method="GET",
+            route="/health",
+            status_code=200,
+            duration_ms=1.234,
+        )
+
+    emitted = [record.getMessage() for record in caplog.records]
+    assert emitted, "the generated logger produced no record"
+    line = emitted[-1]
+
+    for pattern in ("correlation", "trace", "service"):
+        assert _verdict(line + chr(10), pattern, marker=marker) == "correlated", (
+            f"a scaffolded service's own request event does not prove {pattern!r}: {line}"
+        )
+
+
+def test_the_generated_middleware_emits_that_event() -> None:
+    """The middleware must call the logger, or the event above never happens.
+
+    This is the half that was missing: the generated middleware computed the
+    correlation id, wrote it to response headers, and returned. Nothing reached
+    the log, so the marker could not be found and QA reported
+    `logs-correlation-missing-*` for every default invariant on a healthy
+    service.
+    """
+    source = (ROOT / "automation" / "New-Lotus-Service.ps1").read_text(encoding="utf-8")
+    opening = source.index("$correlationMiddleware = @\"")
+    middleware = source[opening : source.index('"@', opening)]
+
+    assert "from app.observability.logging import log_event" in middleware
+    assert '"request.completed"' in middleware
+    assert "correlation_id=correlation_id" in middleware
+    assert "trace_id=trace_id" in middleware
+
+
+def test_a_compose_prefix_cannot_satisfy_the_pattern() -> None:
+    """`docker compose logs` prefixes each line with the service it came from.
+
+    `lotus-core` reads two services, so every line is prefixed `query_service |`
+    or `ingestion_service |` -- and that prefix contains the word `service`. The
+    invariant passed whenever any correlated line existed, whatever the event
+    carried. Unlike the marker collision this has no second line of defence, so
+    the prefix is stripped before the pattern is applied.
+    """
+    marker = "lotus-qa-20260907-031500-p0001"
+    prefixed = (
+        'query_service  | {"event":"request.completed","correlation_id":"'
+        + marker
+        + '"}'
+        + chr(10)
+    )
+
+    assert _verdict(prefixed, "service", marker=marker) == "unmatched"
+
+
+def test_a_compose_prefixed_line_still_proves_a_real_field() -> None:
+    """The paired acceptance: stripping the prefix must not strip the payload."""
+    marker = "lotus-qa-20260907-031500-p0001"
+    prefixed = (
+        'query_service  | {"event":"request.completed","service":"lotus-core",'
+        '"correlation_id":"' + marker + '"}' + chr(10)
+    )
+
+    assert _verdict(prefixed, "service", marker=marker) == "correlated"
+

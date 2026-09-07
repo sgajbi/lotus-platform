@@ -1950,6 +1950,8 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
+from app.observability.logging import log_event
+
 
 class CorrelationIdMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, service_name: str) -> None:
@@ -1972,6 +1974,25 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         response.headers["X-Trace-Id"] = trace_id
         response.headers["X-Service-Name"] = self._service_name
         response.headers["X-Request-Duration-Ms"] = f"{duration_ms:.3f}"
+        # Response headers travel back to one caller and are gone. An event is
+        # what an operator, and platform QA, can correlate afterwards: without
+        # it a served request leaves no trace that it happened, so no assertion
+        # about the request path can be causal. The route template is logged
+        # rather than the raw path, and no query string, body or identifier is
+        # included.
+        log_event(
+            "request.completed",
+            self._service_name,
+            "INFO",
+            correlation_id=correlation_id,
+            trace_id=trace_id,
+            method=request.method,
+            route=request.scope.get("route").path
+            if request.scope.get("route") is not None
+            else request.url.path,
+            status_code=response.status_code,
+            duration_ms=round(duration_ms, 3),
+        )
         return response
 "@
 Set-Content -Path (Join-Path $target "src/app/middleware/correlation.py") -Value $correlationMiddleware
