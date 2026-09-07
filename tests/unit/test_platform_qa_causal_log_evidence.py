@@ -396,3 +396,79 @@ def test_markers_from_two_runs_in_the_same_second_do_not_collide() -> None:
     assert completed.returncode == 0, completed.stderr
     assert completed.stdout.strip() == "distinct"
 
+
+def _causal_command(command: str) -> str:
+    """Ask the shipped script to rewrite one log command."""
+    script_command = (
+        "$ErrorActionPreference='Stop';"
+        f"$src = Get-Content -Raw '{SCRIPT.as_posix()}';"
+        "$start = $src.IndexOf('function Get-CausalLogCommand');"
+        "$end = $src.IndexOf('function Get-CausalLogEvidence');"
+        "Invoke-Expression $src.Substring($start, $end - $start);"
+        f"Get-CausalLogCommand -Command '{command}' "
+        "-Since ([datetime]::Parse('2026-09-07T04:00:00Z'))"
+    )
+    completed = subprocess.run(
+        [_powershell(), "-NoProfile", "-Command", script_command], text=True, capture_output=True
+    )
+    assert completed.returncode == 0, completed.stderr
+    return completed.stdout.strip()
+
+
+def test_the_capture_starts_at_the_probe_rather_than_the_last_lines() -> None:
+    """`--tail=200` evicts the marker on a busy service.
+
+    A service writing more than 200 lines between the probe response and the
+    capture loses the correlated event, and the check then reports a missing
+    correlation for a request that was logged correctly. The false defect grows
+    with traffic, so the busier the service the less trustworthy the result.
+    """
+    rewritten = _causal_command("docker compose logs --tail=200 lotus-gateway")
+
+    assert "--tail" not in rewritten, rewritten
+    assert "--since 2026-09-07T04:00:00Z" in rewritten, rewritten
+    assert rewritten.endswith("lotus-gateway"), rewritten
+
+
+def test_a_multi_service_capture_keeps_every_service() -> None:
+    """lotus-core reads two services; the rewrite must not drop one."""
+    rewritten = _causal_command(
+        "docker compose logs --tail=200 ingestion_service query_service"
+    )
+
+    assert "ingestion_service" in rewritten and "query_service" in rewritten, rewritten
+    assert "--since" in rewritten
+
+
+def test_a_command_that_is_not_compose_logs_is_left_alone() -> None:
+    """Rewriting an operator's own command on a guess is worse than the tail."""
+    original = "kubectl logs deploy/lotus-gateway --tail=200"
+
+    assert _causal_command(original) == original
+
+
+@pytest.mark.parametrize(
+    "repo",
+    [
+        "lotus-gateway",
+        "lotus-advise",
+        "lotus-performance",
+        "lotus-core",
+        "lotus-report",
+        "lotus-render",
+        "lotus-risk",
+        "lotus-manage",
+        "lotus-archive",
+        "lotus-idea",
+    ],
+)
+def test_every_configured_log_command_is_rewritable(repo: str) -> None:
+    """Each matrix command must actually be anchored, not silently left on tail."""
+    entry = next(item for item in _matrix()["repositories"] if item["repo"] == repo)
+    command = entry["startup"]["log_command"]
+
+    rewritten = _causal_command(command)
+
+    assert "--tail" not in rewritten, f"{repo} still captures by tail: {rewritten}"
+    assert "--since" in rewritten, f"{repo} is not anchored at the probe: {rewritten}"
+
