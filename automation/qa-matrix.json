@@ -43,9 +43,36 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "latency_ms",
-                                                                                                "service"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://gateway.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "latency_ms",
+                                                                                                  "pattern": "latency_ms",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://gateway.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://gateway.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               }
                                         }
@@ -93,9 +120,36 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "request.completed",
-                                                                                                "service"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://advise.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "request.completed",
+                                                                                                  "pattern": "request.completed",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://advise.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://advise.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               }
                                         }
@@ -143,9 +197,36 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "service",
-                                                                                                "duration"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://performance.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://performance.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "duration",
+                                                                                                  "pattern": "duration",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://performance.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               }
                                         }
@@ -202,9 +283,36 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "service",
-                                                                                                "request"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://core-query.dev.lotus/health/ready",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://core-query.dev.lotus/health/ready",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "request",
+                                                                                                  "pattern": "request",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://core-query.dev.lotus/health/ready",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               },
                                             "custom_checks":  [
@@ -260,8 +368,26 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "service",
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://report.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://report.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
                                                                                                 "audit"
                                                                                             ]
                                                               }
@@ -310,8 +436,26 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "service",
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://render.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://render.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
                                                                                                 "render"
                                                                                             ]
                                                               }
@@ -360,8 +504,26 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "service",
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://risk.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://risk.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
                                                                                                 "risk"
                                                                                             ]
                                                               }
@@ -410,9 +572,36 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "request.completed",
-                                                                                                "service"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://manage.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "request.completed",
+                                                                                                  "pattern": "request.completed",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://manage.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://manage.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               }
                                         }
@@ -460,8 +649,26 @@
                                                                                                    "x-correlation-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "service"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://archive.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://archive.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               }
                                         }
@@ -510,9 +717,36 @@
                                                                                                    "x-trace-id"
                                                                                                ],
                                                                   "required_log_patterns":  [
-                                                                                                "correlation",
-                                                                                                "trace",
-                                                                                                "service"
+                                                                                                {
+                                                                                                  "id": "correlation",
+                                                                                                  "pattern": "correlation",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://idea.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "trace",
+                                                                                                  "pattern": "trace",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://idea.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                },
+                                                                                                {
+                                                                                                  "id": "service",
+                                                                                                  "pattern": "service",
+                                                                                                  "probe": {
+                                                                                                    "method": "GET",
+                                                                                                    "url": "http://idea.dev.lotus/health",
+                                                                                                    "expected_status": 200,
+                                                                                                    "correlation_header": "X-Correlation-Id"
+                                                                                                  }
+                                                                                                }
                                                                                             ]
                                                               }
                                         }
