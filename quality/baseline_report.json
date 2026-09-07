@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 377379
+    "total_source_lines": 377443
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -42,10 +42,10 @@
         "path": "automation/gate_liveness_audit.py"
       },
       {
-        "complexity": 48,
-        "end_line": 551,
-        "line": 366,
-        "lines": 186,
+        "complexity": 52,
+        "end_line": 608,
+        "line": 403,
+        "lines": 206,
         "name": "_scan_shell",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
@@ -284,20 +284,20 @@
         "path": "automation/core_seeded_analytics_maturity_validation.py"
       },
       {
+        "complexity": 52,
+        "end_line": 608,
+        "line": 403,
+        "lines": 206,
+        "name": "_scan_shell",
+        "path": "automation/validate_workflow_pipeline_exit_codes.py"
+      },
+      {
         "complexity": 1,
         "end_line": 323,
         "line": 128,
         "lines": 196,
         "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
-      },
-      {
-        "complexity": 48,
-        "end_line": 551,
-        "line": 366,
-        "lines": 186,
-        "name": "_scan_shell",
-        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
         "complexity": 1,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3496
+    "python_function_count": 3497
   },
-  "generated_at_utc": "2026-09-07T05:04:10Z",
+  "generated_at_utc": "2026-09-07T06:57:38Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1572,
+    "collected_tests": 1575,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1572 tests collected"
+    "summary": "1575 tests collected"
   }
 }
