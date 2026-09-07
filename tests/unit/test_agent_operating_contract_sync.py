@@ -789,9 +789,12 @@ def test_a_disk_target_is_compared_to_the_committed_source(tmp_path: Path) -> No
 
 def _governed_source_text() -> str:
     """The governed contract exactly as committed, with its bytes preserved."""
-    return (ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md").read_text(
-        encoding="utf-8", newline=""
-    )
+    # `Path.read_text` only gained a `newline` argument in Python 3.13, and the
+    # lanes run an older interpreter. Opening explicitly keeps the bytes intact
+    # on every version rather than on the one this was written against.
+    source = ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    with source.open(encoding="utf-8", newline="") as handle:
+        return handle.read()
 
 
 def _write_exact(path: Path, content: str) -> None:
