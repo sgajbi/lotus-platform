@@ -472,3 +472,50 @@ def test_every_configured_log_command_is_rewritable(repo: str) -> None:
     assert "--tail" not in rewritten, f"{repo} still captures by tail: {rewritten}"
     assert "--since" in rewritten, f"{repo} is not anchored at the probe: {rewritten}"
 
+
+def _log_block() -> str:
+    """The section of the runner that evaluates log invariants."""
+    source = SCRIPT.read_text(encoding="utf-8")
+    start = source.index("foreach ($invariant in $entry.checks.observability.required_log_patterns)")
+    return source[start : source.index("$errorScanTargets", start)]
+
+
+def test_a_failed_evidence_command_is_not_a_service_defect() -> None:
+    """A step that did not run says nothing about the service it would observe.
+
+    An unavailable Docker daemon makes the log command exit non-zero and print
+    to stderr. Treating that output as a log window reported a missing
+    correlated event, and with `-CreateIssues` would file an observability
+    defect against a service whose logs were never read.
+    """
+    block = _log_block()
+
+    assert "logs-collection-failed-" in block
+    collection_check = block.index("$logResult.exitCode")
+    evaluation = block.index("Get-CausalLogEvidence")
+
+    assert collection_check < evaluation, (
+        "the exit status must be checked before its output is treated as evidence"
+    )
+
+
+def test_each_non_evaluation_has_its_own_check_id() -> None:
+    """Three ways of not evaluating an invariant, three distinct findings.
+
+    A probe that did not run, a log window that could not be collected, and a
+    request that produced no correlated event are different problems with
+    different owners. Reporting them under one id would put an infrastructure
+    fault and a service defect in the same bucket, which is the confusion this
+    change exists to remove.
+    """
+    block = _log_block()
+
+    for check_id in (
+        "logs-invariant-unproven-",
+        "logs-probe-failed-",
+        "logs-collection-failed-",
+        "logs-correlation-missing-",
+        "logs-pattern-",
+    ):
+        assert check_id in block, check_id
+

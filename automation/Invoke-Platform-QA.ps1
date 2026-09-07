@@ -605,6 +605,18 @@ foreach ($entry in $selected) {
 
       $causalLogCommand = Get-CausalLogCommand -Command ([string]$entry.startup.log_command) -Since $probeSince
       $logResult = Invoke-CommandCapture -RepoPath $repoPath -Command $causalLogCommand
+
+      if ([int]$logResult.exitCode -ne 0) {
+        # The evidence command failed, so there is no log window to judge. Its
+        # stderr is not a log window either: passing it on would report a
+        # service observability defect -- and with -CreateIssues, file one --
+        # for an unavailable Docker daemon. This is the same separation the
+        # probe already has: a step that did not run says nothing about the
+        # service it was going to observe.
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-collection-failed-" + $invariantId) -Type "logs" -Expected "The log window for the '$invariantId' invariant can be collected" -Actual "The log command exited $([int]$logResult.exitCode), so no evidence was gathered and the invariant was not evaluated" -Evidence ([string]$logResult.output) -Steps @("cd $repoPath", $causalLogCommand)
+        continue
+      }
+
       $evidence = Get-CausalLogEvidence -LogText ([string]$logResult.output) -Marker $marker -Pattern $patternText
       $causalLines = $evidence.lines
 
