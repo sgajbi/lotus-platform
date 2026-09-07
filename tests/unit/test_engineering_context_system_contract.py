@@ -2355,6 +2355,10 @@ def test_link_check_rejects_a_routed_document_outside_the_repository(
 
 _CASE_LIBRARY = CONTEXT_DIR / "playbooks" / "AGENT-FAILURE-CASE-LIBRARY.md"
 _CASE_PARTS = ("**Claimed:**", "**Evidence:**", "**Check:**")
+# `\b` after "by" so that "Contributed bystander text." is not read as an
+# attribution: a character-prefix match named no seat and passed.
+_ATTRIBUTION = re.compile(r"^Contributed by\b(?P<seats>.*)$", re.MULTILINE)
+_SEAT = re.compile(r"`[^`]+`")
 
 
 def _case_library_entry_errors(library: str) -> list[str]:
@@ -2366,22 +2370,23 @@ def _case_library_entry_errors(library: str) -> list[str]:
     check, the cheapest entry to write is the one worth least, so the shape is
     enforced rather than requested.
 
-    Every check here measures content and placement rather than the presence of
-    a marker, because presence is satisfied by a placeholder. Three revisions of
-    this guard were needed to learn that once: an empty `**Evidence:**` followed
-    immediately by the next marker passed, then a heading of `### ` alone
-    passed, then `Contributed by.` passed. Each was the same mistake left in the
-    checks not yet revisited, which is the failure this library records as
-    fixing the instance instead of the class.
+    Every pattern here is anchored to the position it occupies, because an
+    unanchored match is satisfied by a mention. Four revisions of this guard
+    were needed to learn that: an empty `**Evidence:**` passed, then a bare
+    `###` heading passed, then `Contributed by.` passed, then an entry whose
+    prose *mentioned* `**Check:**` passed while having no such field, and
+    `Contributed bystander text.` passed on a character prefix. Each was the
+    same mistake surviving in whichever check the previous finding had not
+    named.
 
     Enforced, in order:
 
     1. the file contains at least one entry,
     2. every entry has a non-empty heading,
-    3. every entry carries all three case fields with non-empty content,
-    4. every entry names a contributing seat, on its own line, before the case
-       begins -- so a mention of the phrase inside the evidence is not mistaken
-       for attribution.
+    3. every case field appears at the start of a line -- its own field
+       position -- and carries non-empty content up to the next such field,
+    4. every entry names a contributing seat on its own line above the first
+       field, with the seat itself present as a code-span repository name.
     """
     errors: list[str] = []
     sections = library.split(chr(10) + "### ")
@@ -2394,25 +2399,29 @@ def _case_library_entry_errors(library: str) -> list[str]:
         if not heading:
             errors.append(f"{label} has no heading, so it names no case")
 
+        found: dict[str, "re.Match[str]"] = {}
         for part in _CASE_PARTS:
-            if part not in section:
+            match = re.search("^" + re.escape(part), section, re.MULTILINE)
+            if match is None:
                 errors.append(f"entry {label!r} is missing {part}")
-                continue
-            others = "|".join(re.escape(other) for other in _CASE_PARTS if other != part)
-            content = re.search(
-                re.escape(part) + r"(.*?)(?=" + others + r"|\Z)", section, re.DOTALL
-            )
-            if content is None or not content.group(1).strip(" " + chr(10) + chr(9) + ".-*_"):
+            else:
+                found[part] = match
+
+        boundaries = sorted(match.start() for match in found.values())
+        for part, match in found.items():
+            after = [boundary for boundary in boundaries if boundary > match.start()]
+            content = section[match.end() : after[0] if after else len(section)]
+            if not content.strip(" " + chr(10) + chr(9) + ".-*_"):
                 errors.append(f"entry {label!r} has no content under {part}")
 
-        # Placement matters: the attribution introduces the case, so it is read
-        # from the region above the first field. A section whose evidence merely
-        # mentions the phrase has not attributed anything.
-        preamble = section.split(_CASE_PARTS[0], 1)[0]
-        attribution = re.search(r"^Contributed by(.*)$", preamble, re.MULTILINE)
+        # Attribution introduces the case, so it is read from above the first
+        # field. A section whose evidence merely mentions the phrase has
+        # attributed nothing.
+        preamble = section[: boundaries[0]] if boundaries else section
+        attribution = _ATTRIBUTION.search(preamble)
         if attribution is None:
             errors.append(f"entry {label!r} does not name the contributing seat")
-        elif not attribution.group(1).strip(" " + chr(9) + ".-*_"):
+        elif not _SEAT.search(attribution.group("seats")):
             errors.append(f"entry {label!r} has an empty attribution")
 
     return errors
@@ -2566,6 +2575,74 @@ def test_the_case_library_guard_does_not_accept_attribution_buried_in_evidence()
     errors = _case_library_entry_errors(buried)
 
     assert any("does not name the contributing seat" in error for error in errors), errors
+
+
+def test_the_case_library_guard_rejects_a_marker_mentioned_in_prose() -> None:
+    """A field is a position, not a token that appears somewhere in the entry.
+
+    An entry whose evidence discusses `**Check:**` was credited with having one,
+    so a malformed entry passed while describing its own missing field.
+    """
+    buried_marker = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** the entry had no **Check:** field at all, which nobody noticed."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(buried_marker)
+
+    assert any("is missing **Check:**" in error for error in errors), errors
+
+
+def test_the_case_library_guard_rejects_an_attribution_prefix_collision() -> None:
+    """"Contributed bystander text." names no seat and is not an attribution."""
+    collision = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed bystander text."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** it reported success on 128 files it never read."
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(collision)
+
+    assert any("does not name the contributing seat" in error for error in errors), errors
+
+
+def test_the_case_library_guard_requires_a_named_seat() -> None:
+    """An attribution with prose but no repository name reaches no history."""
+    unnamed = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by somebody, at some point."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** it reported success on 128 files it never read."
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    errors = _case_library_entry_errors(unnamed)
+
+    assert any("empty attribution" in error for error in errors), errors
 
 
 def test_the_case_library_guard_does_not_pass_on_an_empty_file() -> None:
