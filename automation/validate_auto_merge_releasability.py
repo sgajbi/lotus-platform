@@ -182,8 +182,13 @@ def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
     )
 
 
+# GitHub accepts `fromJson` and `fromJSON`, and the output name is the workflow
+# author's choice. Pinning either turned a naming preference into a requirement
+# and rejected a correct implementation, so the job and the output are captured
+# and checked against what that job actually declares.
 _MATRIX_COMMIT_SOURCE = re.compile(
-    r"fromJSON\(needs\.([A-Za-z0-9_-]+)\.outputs\.commit_shas\)"
+    r"fromJSON\(\s*needs\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)\s*\)",
+    re.IGNORECASE,
 )
 
 
@@ -192,6 +197,35 @@ def _job_steps(job: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(steps, list):
         return []
     return [step for step in steps if isinstance(step, dict)]
+
+
+def _step_enumerates_by_commits_api(step: dict[str, Any]) -> bool:
+    """The paginated commits-API form, with an explicit page size and a count check."""
+    run = _step_run(step)
+    commit_count = _step_env_value(step, "PR_COMMIT_COUNT") or _step_env_value(
+        step, "COMMIT_COUNT"
+    )
+    return (
+        "github.event.pull_request.commits" in commit_count
+        and "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" in run
+        and re.search(r'-ne\s+"\$(?:PR_)?COMMIT_COUNT"', run) is not None
+    )
+
+
+def _step_enumerates_by_rev_list(step: dict[str, Any]) -> bool:
+    """The `git rev-list` form, bounded by the event's own commit count.
+
+    Already trusted by the single-step path through `_REVISION_ENUMERATIONS`;
+    the matrix path rejected it only because it looked for the API form. Bounding
+    by the event's commit count is what makes it exact, and it cannot truncate
+    the way an unpaginated API call can.
+    """
+    run = _step_run(step)
+    return any(
+        re.search(pattern, run) is not None
+        and expected_source in _step_env_value(step, bound)
+        for pattern, bound, expected_source in _REVISION_ENUMERATIONS
+    )
 
 
 def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
@@ -206,22 +240,19 @@ def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
         return False
     if "github.event.pull_request.base.ref == 'main'" not in condition:
         return False
-    outputs = job.get("outputs") if isinstance(job.get("outputs"), dict) else {}
-    if "outputs.commit_shas" not in str(outputs.get("commit_shas") or ""):
-        return False
     for step in _job_steps(job):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
-        commit_count = _step_env_value(step, "PR_COMMIT_COUNT") or _step_env_value(
-            step, "COMMIT_COUNT"
-        )
         run = _step_run(step)
         if (
             "github.event.pull_request.merge_commit_sha" in merge_commit_sha
-            and "github.event.pull_request.commits" in commit_count
+            # Rebase-only, asserted against the repository's own merge settings.
             and '"false,false,true"' in run
-            and "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" in run
-            and re.search(r'-ne\s+"\$(?:PR_)?COMMIT_COUNT"', run)
-            and "commit_shas=" in run
+            # Exactly the commits this PR put on main, by either trusted form.
+            and (
+                _step_enumerates_by_commits_api(step)
+                or _step_enumerates_by_rev_list(step)
+            )
+            # Published through the job's declared output rather than logged.
             and "GITHUB_OUTPUT" in run
         ):
             return True
@@ -242,23 +273,78 @@ def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
             continue
         strategy = job.get("strategy") if isinstance(job.get("strategy"), dict) else {}
         matrix = strategy.get("matrix") if isinstance(strategy.get("matrix"), dict) else {}
-        source = _MATRIX_COMMIT_SOURCE.search(str(matrix.get("commit_sha") or ""))
-        if source is None:
+        if not isinstance(matrix, dict):
             continue
-        needs = job.get("needs")
-        needs_list = [needs] if isinstance(needs, str) else (
-            needs if isinstance(needs, list) else []
-        )
-        source_job = jobs.get(source.group(1))
-        if source.group(1) not in needs_list or not isinstance(source_job, dict):
+        for matrix_key, matrix_value in matrix.items():
+            source = _MATRIX_COMMIT_SOURCE.search(str(matrix_value or ""))
+            if source is None:
+                continue
+            source_name, output_name = source.group(1), source.group(2)
+            needs = job.get("needs")
+            needs_list = [needs] if isinstance(needs, str) else (
+                needs if isinstance(needs, list) else []
+            )
+            source_job = jobs.get(source_name)
+            if source_name not in needs_list or not isinstance(source_job, dict):
+                continue
+            # The named output must be one the source job actually declares, and
+            # it must come from a step rather than being a literal: a matrix fed
+            # from a hard-coded output is not an enumeration.
+            outputs = (
+                source_job.get("outputs")
+                if isinstance(source_job.get("outputs"), dict)
+                else {}
+            )
+            if "steps." not in str(outputs.get(output_name) or ""):
+                continue
+            if not _job_has_verified_enumeration_step(source_job):
+                continue
+            if _job_dispatches_matrix_revision(job, matrix_key):
+                return True
+    return False
+
+
+def _job_dispatches_matrix_revision(job: dict[str, Any], matrix_key: str) -> bool:
+    """Every dispatch must name the matrix revision as both ref and expected SHA.
+
+    Both halves matter and neither substitutes for the other. An immutable ref
+    without a matching `expected_sha` gates a commit the caller did not name, and
+    an `expected_sha` dispatched on a mutable ref gates whatever that ref points
+    at when the run starts. The variable is whatever the workflow binds the
+    matrix value to, so it is read from the step rather than assumed.
+    """
+    for step in _job_steps(job):
+        env = step.get("env") if isinstance(step.get("env"), dict) else {}
+        bound = [
+            name
+            for name, value in env.items()
+            if f"matrix.{matrix_key}" in str(value or "")
+        ]
+        if not bound:
             continue
-        if not _job_has_verified_enumeration_step(source_job):
-            continue
-        for step in _job_steps(job):
-            if "matrix.commit_sha" in _step_env_value(
-                step, "MERGE_COMMIT_SHA"
-            ) and re.search(
-                r"-(?:f|F)\s+expected_sha=\"?\$MERGE_COMMIT_SHA\"?", _step_run(step)
+        run = _step_run(step)
+        for name in bound:
+            variable = re.escape(name)
+            passes_sha = re.search(
+                rf"-(?:f|F)\s+expected_sha=\"?\$\{{?{variable}\}}?\"?", run
+            )
+            immutable_ref = re.search(
+                rf"dispatch_ref=\"[^\"]*\$\{{?{variable}\}}?[^\"]*\"", run
+            )
+            creates_ref = re.search(
+                rf"-(?:f|F)\s+sha=\"?\$\{{?{variable}\}}?\"?", run
+            )
+            if (
+                passes_sha
+                and immutable_ref
+                and creates_ref
+                # The ref must be looked up before it is created and used, or a
+                # ref already pointing elsewhere would be dispatched as if it
+                # named this revision.
+                and 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"' in run
+                and 'gh api "repos/$GITHUB_REPOSITORY/git/refs"' in run
+                and "gh workflow run main-releasability.yml" in run
+                and '--ref "$dispatch_ref"' in run
             ):
                 return True
     return False
@@ -300,7 +386,11 @@ def _merged_pr_dispatch_has_immutable_ref(payload: dict[str, Any]) -> bool:
             and '--ref "$dispatch_ref"' in run
         ):
             return True
-    return False
+    # A matrix design proves the same property across two jobs rather than in
+    # one step: the enumeration is verified where it happens, and the dispatch
+    # is verified against the matrix it consumes. Checking it step-locally
+    # rejected that shape for having moved the enumeration, not for being weaker.
+    return _matrix_dispatch_is_verified(payload)
 
 
 def _main_releasability_has_exact_sha_assertion(payload: dict[str, Any]) -> bool:

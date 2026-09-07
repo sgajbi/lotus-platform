@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 378459
+    "total_source_lines": 378725
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -88,6 +88,14 @@
         "lines": 69,
         "name": "cash_evidence_from_overview",
         "path": "automation/resolve_canonical_cash_evidence.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 304,
+        "line": 262,
+        "lines": 43,
+        "name": "_matrix_dispatch_is_verified",
+        "path": "automation/validate_auto_merge_releasability.py"
       },
       {
         "complexity": 18,
@@ -162,22 +170,6 @@
         "path": "tests/unit/test_engineering_context_system_contract.py"
       },
       {
-        "complexity": 16,
-        "end_line": 264,
-        "line": 231,
-        "lines": 34,
-        "name": "_matrix_dispatch_is_verified",
-        "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
-        "complexity": 16,
-        "end_line": 228,
-        "line": 197,
-        "lines": 32,
-        "name": "_job_has_verified_enumeration_step",
-        "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
         "complexity": 15,
         "end_line": 1131,
         "line": 1034,
@@ -192,6 +184,14 @@
         "lines": 74,
         "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
+      },
+      {
+        "complexity": 15,
+        "end_line": 630,
+        "line": 566,
+        "lines": 65,
+        "name": "_validate_agents_contract_paths",
+        "path": "automation/validate_engineering_context_system.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3513
+    "python_function_count": 3527
   },
-  "generated_at_utc": "2026-09-07T07:57:32Z",
+  "generated_at_utc": "2026-09-07T09:51:25Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -448,6 +448,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 1328,
+      "path": "tests/unit/test_auto_merge_releasability_validator.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1320,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
       "suffix": ".py"
@@ -455,11 +460,6 @@
     {
       "lines": 1300,
       "path": "automation/mesh_certification_gate.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1233,
-      "path": "tests/unit/test_agent_operating_contract_sync.py",
       "suffix": ".py"
     }
   ],
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1593,
+    "collected_tests": 1601,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1593 tests collected"
+    "summary": "1601 tests collected"
   }
 }
