@@ -270,10 +270,18 @@ place. Every read on that path is then correctly scoped and still wrong: one ten
 other's data, and the other reads nothing. The asymmetry is what hides it — the victim sees
 plausible data, and the loser sees an empty result indistinguishable from "no evidence yet".
 
-**Check:** on any change that scopes reads, enumerate every *derived* identity on the path — primary
-and surrogate keys, content hashes, idempotency tokens, cache keys, replay keys — and confirm each
-carries the scope. Replay keys are the sharpest: a proof-pack id that *is* the replay key hands the
-second tenant the first's evidence, and it presents as a legitimate replay rather than an error.
+**Check:** on any change that scopes reads, enumerate every derived identity on the path that
+something **looks a record up by or writes on** — primary and surrogate keys, idempotency tokens,
+cache keys, replay keys, and any hash used as a lookup or upsert target — and confirm each carries
+the scope. Replay keys are the sharpest: a proof-pack id that *is* the replay key hands the second
+tenant the first's evidence, and it presents as a legitimate replay rather than an error.
+
+The distinction is collision-bearing versus integrity-bearing, and it matters in both directions. An
+**integrity digest must not be scoped**: `lotus.content_hash` is defined in the platform vocabulary
+as a source-owned evidence hash, so a consumer recomputes it from the evidence bytes it holds.
+Salting it with tenant identity makes every such recomputation disagree, converting a working
+integrity check into a permanent mismatch. Scope what is used to *find* a record; leave alone what is
+used to *verify* one. A digest that is also a lookup key is the case to split rather than to salt.
 
 Two traps once the scope is being added to keys. Joining is not encoding: `f"{tenant}_{mandate}"` is
 ambiguous when either component may contain the separator, and as a primary key the collision
@@ -311,9 +319,23 @@ case proves it discriminates. The divergence input must be one that **would have
 defect being guarded against: an input the derivation never reads passes on a broken implementation
 and proves nothing.
 
-Then substitute a constant derivation and confirm the test fails. A constant collides with
-everything, so a test that still passes against it is not reading the derivation at all. That
-substitution is how these two were found, and the contributing seat notes they would have been
+Run the two in order, because they answer different questions. The constant substitution is a
+**detector**: a constant collides with everything, so it needs no judgement about nearness and it
+answers whether the test reads the derivation at all. The near-collision case is a **specification**:
+it answers whether the derivation discriminates on the component that matters, and it is the one that
+stays in the suite because it names the defect. Running them the other way spends the expensive
+judgement on tests that turn out not to read the derivation.
+
+The constant probe is diagnostic and disposable — run it, learn from it, delete it. A suite that ends
+up asserting against a constant derivation pins the probe instead of the property.
+
+It detects only tests that route through the derivation at runtime. A test hard-coding the expected
+literal also fails against a constant, but for the wrong reason: it would fail against any change at
+all. So the probe reports "weak or literal" and the two still have to be told apart by reading. These
+two were the recomputation kind; the previous version of the same assertion was the literal kind, and
+it was weak for the opposite reason — one test, three states, two of them wrong.
+
+That substitution is how these two were found, and the contributing seat notes they would have been
 defended on inspection — which is the reason to run the probe rather than read the test.
 
 Fixed in `lotus-manage` commit `5e443f12`; after adding the divergence half, the constant
