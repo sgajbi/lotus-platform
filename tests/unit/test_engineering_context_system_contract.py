@@ -1933,3 +1933,128 @@ def test_an_empty_manifest_cannot_pass_the_link_check_by_inspecting_nothing(
     with pytest.raises(ValueError, match="no Markdown routes"):
         CONTEXT_VALIDATOR._governed_markdown_documents()
 
+
+def test_link_check_reports_a_route_to_a_document_that_is_not_there(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A manifest route to a missing document is the finding, not a skip.
+
+    Skipping a non-existent document was a silent pass: the manifest could send
+    an agent to a file that does not exist and the gate whose whole purpose is
+    proving routes resolve would say nothing.
+    """
+    errors: list[str] = []
+    monkeypatch.setattr(CONTEXT_VALIDATOR, "ROOT", tmp_path.resolve())
+    CONTEXT_VALIDATOR._validate_document_links(
+        errors=errors,
+        documents={"routed document": tmp_path / "never-written.md"},
+    )
+
+    assert len(errors) == 1, errors
+    assert "does not exist" in errors[0]
+
+
+def test_link_check_accepts_a_route_to_a_document_that_is_there(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance, so the rejection is about absence and nothing else."""
+    present = tmp_path / "present.md"
+    present.write_text("# present" + chr(10), encoding="utf-8")
+
+    errors: list[str] = []
+    monkeypatch.setattr(CONTEXT_VALIDATOR, "ROOT", tmp_path.resolve())
+    CONTEXT_VALIDATOR._validate_document_links(
+        errors=errors, documents={"routed document": present}
+    )
+
+    assert errors == [], errors
+
+
+def test_link_check_accepts_an_external_url_in_any_case(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """URI schemes are case-insensitive; a matched lowercase prefix is not a rule.
+
+    `HTTPS://example.com/guide` was resolved as a repository-relative path and
+    reported as a missing file, so a valid external reference failed a blocking
+    gate.
+    """
+    body = (
+        "See [the guide](HTTPS://example.com/guide) and "
+        "[the other](MailTo:someone@example.com)." + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_still_reads_a_relative_route_beside_an_external_one(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: skipping schemes must not skip relative paths."""
+    body = (
+        "See [external](HTTPS://example.com) and [local](./absent.md)." + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./absent.md" in errors[0]
+
+
+def test_link_check_keeps_the_whole_fence_delimiter(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """Documentation that demonstrates a fence opens with a longer one.
+
+    Truncating every opener to three characters let the inner triple-backtick
+    line close the outer block, so everything after it was read as live routes.
+    """
+    outer = chr(96) * 4
+    inner = chr(96) * 3
+    body = (
+        "How to write a fenced example:"
+        + chr(10) * 2
+        + outer
+        + chr(10)
+        + inner
+        + "markdown"
+        + chr(10)
+        + "[example](not-a-real-file.md)"
+        + chr(10)
+        + inner
+        + chr(10)
+        + "[another](also-not-real.md)"
+        + chr(10)
+        + outer
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_resumes_after_the_longer_fence_actually_closes(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: the outer fence must still end where it ends."""
+    outer = chr(96) * 4
+    inner = chr(96) * 3
+    body = (
+        outer
+        + chr(10)
+        + inner
+        + chr(10)
+        + "[example](not-a-real-file.md)"
+        + chr(10)
+        + inner
+        + chr(10)
+        + outer
+        + chr(10) * 2
+        + "A real route: [pack](./absent-route.md)."
+        + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./absent-route.md" in errors[0]
+
