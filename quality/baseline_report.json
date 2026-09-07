@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 372829
+    "total_source_lines": 373898
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 16,
-        "end_line": 1292,
-        "line": 1253,
+        "end_line": 1327,
+        "line": 1288,
         "lines": 40,
         "name": "_broad_context_policy_errors",
         "path": "tests/unit/test_engineering_context_system_contract.py"
@@ -171,6 +171,14 @@
       },
       {
         "complexity": 15,
+        "end_line": 1131,
+        "line": 1034,
+        "lines": 98,
+        "name": "_validate_document_links",
+        "path": "automation/validate_engineering_context_system.py"
+      },
+      {
+        "complexity": 15,
         "end_line": 125,
         "line": 52,
         "lines": 74,
@@ -179,19 +187,11 @@
       },
       {
         "complexity": 15,
-        "end_line": 451,
-        "line": 387,
+        "end_line": 630,
+        "line": 566,
         "lines": 65,
         "name": "_validate_agents_contract_paths",
         "path": "automation/validate_engineering_context_system.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 171,
-        "line": 122,
-        "lines": 50,
-        "name": "_validate_environments",
-        "path": "automation/validate_deployment_promotion_manifest.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3362
+    "python_function_count": 3414
   },
-  "generated_at_utc": "2026-09-07T01:37:31Z",
+  "generated_at_utc": "2026-09-07T01:44:46Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -403,6 +403,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 2354,
+      "path": "tests/unit/test_engineering_context_system_contract.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1908,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
@@ -433,13 +438,13 @@
       "suffix": ".md"
     },
     {
-      "lines": 1592,
-      "path": "tests/unit/test_engineering_context_system_contract.py",
+      "lines": 1490,
+      "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
       "suffix": ".py"
     },
     {
-      "lines": 1490,
-      "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
+      "lines": 1354,
+      "path": "automation/validate_engineering_context_system.py",
       "suffix": ".py"
     },
     {
@@ -456,11 +461,6 @@
       "lines": 1233,
       "path": "tests/unit/test_agent_operating_contract_sync.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1231,
-      "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "suffix": ".ps1"
     }
   ],
   "openapi": {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1444,
+    "collected_tests": 1487,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1444 tests collected"
+    "summary": "1487 tests collected"
   }
 }
