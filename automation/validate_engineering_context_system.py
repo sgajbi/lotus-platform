@@ -299,6 +299,10 @@ _REPOSITORY_OWNED_DOCUMENTS = frozenset(
 _MARKDOWN_LINK = re.compile(
     r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
 )
+_FENCE_OPENER = re.compile(r"^(?P<fence>`{3,}|~{3,})")
+# A URI scheme is case-insensitive, and at least two characters, so a Windows
+# drive letter is not mistaken for one.
+_URI_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]+:")
 _CODE_SPAN = re.compile(r"`(?P<span>[^`\n]+)`")
 # A reference-style link carries its destination in a separate definition, so a
 # document can route through `[guide][target]` while the only path in the file
@@ -332,8 +336,13 @@ def _without_code(text: str) -> str:
                 fence_marker = ""
             rendered.append("")
             continue
-        if stripped.startswith("```") or stripped.startswith("~~~"):
-            fence_marker = stripped[:3]
+        opener = _FENCE_OPENER.match(stripped)
+        if opener:
+            # The full delimiter is kept, not its first three characters.
+            # Documentation that demonstrates a triple-backtick fence opens with
+            # four, and truncating the opener lets the inner triple close the
+            # outer block: everything after it is then read as live routes.
+            fence_marker = opener.group("fence")
             rendered.append("")
             continue
         rendered.append(_CODE_SPAN.sub("", line))
@@ -944,14 +953,28 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
     prescribes the remedy for cross-repository references: the GitHub URL.
     """
     for label, path in sorted(documents.items()):
-        if path.suffix.lower() != ".md" or not path.is_file():
+        if path.suffix.lower() != ".md":
+            continue
+        if not path.is_file():
+            # Skipping was a silent pass: the manifest could route an agent to a
+            # document that does not exist, and the gate that is supposed to
+            # prove routes resolve would say nothing at all.
+            errors.append(
+                f"{label} is routed to but does not exist: "
+                f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}"
+            )
             continue
         rendered = _without_code(_read_text(path))
         matches = list(_MARKDOWN_LINK.finditer(rendered))
         matches.extend(_MARKDOWN_REFERENCE_DEFINITION.finditer(rendered))
         for match in matches:
             href = match.group("href")
-            if not href or href.startswith(("http://", "https://", "mailto:", "#")):
+            if not href or href.startswith("#"):
+                continue
+            # Any scheme means the destination is not a path in this repository.
+            # Matching literal lowercase prefixes resolved `HTTPS://example.com`
+            # as a relative path and reported a valid external link as missing.
+            if _URI_SCHEME.match(href.strip("<>")):
                 continue
             # A destination may carry a fragment and a query, and neither is
             # part of the filename. `guide.md?plain=1` names `guide.md`.
