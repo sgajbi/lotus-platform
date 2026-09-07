@@ -211,6 +211,28 @@ function Invoke-GitText {
     }
 }
 
+function Get-NearestExistingAncestor {
+    <#
+        Git cannot run with -C in a directory that does not exist, so asking a
+        target's own parent whether it is in a work tree answers "no" for every
+        path whose parent is absent from disk: a sparse checkout, or a directory
+        deleted locally. The repository is still there and still ships the file,
+        so the question is asked from the nearest ancestor that does exist.
+    #>
+    param([string]$CandidatePath)
+
+    $current = $CandidatePath
+    while ($current -and -not (Test-Path -LiteralPath $current -PathType Container)) {
+        $parent = Split-Path -Parent $current
+        if (-not $parent -or $parent -eq $current) {
+            return $null
+        }
+        $current = $parent
+    }
+
+    return $current
+}
+
 function Test-PathIsInsideWorkTree {
     param([string]$CandidatePath)
 
@@ -218,7 +240,12 @@ function Test-PathIsInsideWorkTree {
         return $false
     }
 
-    return ((Invoke-GitText -RepoRoot $CandidatePath -Arguments @("rev-parse", "--is-inside-work-tree")) -eq "true")
+    $probePath = Get-NearestExistingAncestor $CandidatePath
+    if (-not $probePath) {
+        return $false
+    }
+
+    return ((Invoke-GitText -RepoRoot $probePath -Arguments @("rev-parse", "--is-inside-work-tree")) -eq "true")
 }
 
 function Get-CommittedBlobId {
@@ -309,15 +336,27 @@ function Test-CommittedContractSynchronized {
     # `<repo>/config/AGENTS.md` must be looked up as `config/AGENTS.md` and not
     # as `AGENTS.md` from its own directory — which reads a different file, and
     # passes or fails on whatever happens to sit at the root.
-    $worktreeRoot = Invoke-GitText -RepoRoot $repoRoot -Arguments @("rev-parse", "--show-toplevel")
+    #
+    # The path is derived from the target itself rather than from Git's
+    # `--show-prefix`. The prefix describes the directory Git was asked from,
+    # and when the target's own directory is absent from disk that is an
+    # ancestor of it: prefix plus leaf would then name `AGENTS.md` at the root
+    # while the target is `config/AGENTS.md`, and the check would quietly verify
+    # a different file.
+    $probeRoot = Get-NearestExistingAncestor $repoRoot
+    if (-not $probeRoot) {
+        return "Cannot resolve a repository root for $($Target.path), so its committed content cannot be verified."
+    }
+    $worktreeRoot = Invoke-GitText -RepoRoot $probeRoot -Arguments @("rev-parse", "--show-toplevel")
     if (-not $worktreeRoot) {
         return "Unable to resolve the worktree root for $($Target.path), so its committed content cannot be verified."
     }
-    $prefix = Invoke-GitText -RepoRoot $repoRoot -Arguments @("rev-parse", "--show-prefix")
-    if ($null -eq $prefix) {
-        return "Unable to resolve the repository-relative path for $($Target.path), so its committed content cannot be verified."
+    $fullTargetPath = [System.IO.Path]::GetFullPath($Target.path).Replace("\", "/")
+    $normalizedRoot = $worktreeRoot.Replace("\", "/").TrimEnd("/")
+    if (-not $fullTargetPath.StartsWith("$normalizedRoot/", [System.StringComparison]::OrdinalIgnoreCase)) {
+        return "The target $($Target.path) does not sit inside the worktree at $worktreeRoot, so its committed content cannot be verified."
     }
-    $relativePath = ($prefix + (Split-Path -Leaf $Target.path)).Replace("\", "/")
+    $relativePath = $fullTargetPath.Substring($normalizedRoot.Length + 1)
     $targetBlobId = Get-CommittedBlobId -RepoRoot $worktreeRoot -RelativePath $relativePath
     if (-not $targetBlobId) {
         return "Target AGENTS file is not committed, so its content cannot be verified: $($Target.path)"
@@ -466,7 +505,13 @@ foreach ($target in $targets) {
         # An explicit -TargetPath inside a checkout ships its commit exactly as a
         # repo-root target does, so naming it differently must not change what is
         # inspected.
-        if (Test-PathIsInsideWorkTree (Split-Path -Parent $target.path)) {
+        # A deployed copy is never answered from a commit. It is the file the
+        # agent runtime actually reads, so its bytes on disk are the whole
+        # question, and a home directory kept as a dotfiles checkout would
+        # otherwise route it through HEAD: passing on a committed copy while the
+        # installed file is stale, or failing because it is untracked. Keeping
+        # the deployed check separate is the point of it.
+        if ($target.kind -ne "deployed" -and (Test-PathIsInsideWorkTree (Split-Path -Parent $target.path))) {
             # The commit is read before the working tree is required to exist. A
             # repository ships what it committed: a file missing from disk but
             # present at HEAD is synchronized, and reporting it as absent would

@@ -130,7 +130,7 @@ Implemented:
 1. `automation/validate_engineering_context_system.py` as the platform-owned validator for the RFC-0073 context contract,
 2. `tests/unit/test_engineering_context_validator.py` for direct validator coverage,
 3. feature-lane enforcement in `automation/Invoke-PlatformRepoChecks.ps1`,
-4. `Sync-AgentOperatingContract.ps1 -CheckOnly` integration so deployed `AGENTS.md` drift is visible in the operational repo gate,
+4. `Sync-AgentOperatingContract.ps1 -CheckOnly` integration in the operational repo gate, which checks the committed repository-root `AGENTS.md` against the governed source; the deployed copy is a developer-environment check, run explicitly with `-IncludeDeployedTarget`, because it does not exist on a CI runner,
 5. automation documentation updates so the context validator is discoverable and repeatable.
 
 Follow-on completed by Slice 2A:
