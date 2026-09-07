@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 374520
+    "total_source_lines": 374618
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -131,6 +131,14 @@
       },
       {
         "complexity": 16,
+        "end_line": 2504,
+        "line": 2428,
+        "lines": 77,
+        "name": "_case_library_entry_errors",
+        "path": "tests/unit/test_engineering_context_system_contract.py"
+      },
+      {
+        "complexity": 16,
         "end_line": 307,
         "line": 240,
         "lines": 68,
@@ -184,14 +192,6 @@
         "lines": 74,
         "name": "test_client_demo_certification_standard_is_audience_ready_and_evidence_backed",
         "path": "tests/unit/test_lotus_platform_standards_docs.py"
-      },
-      {
-        "complexity": 15,
-        "end_line": 630,
-        "line": 566,
-        "lines": 65,
-        "name": "_validate_agents_contract_paths",
-        "path": "automation/validate_engineering_context_system.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3429
+    "python_function_count": 3433
   },
-  "generated_at_utc": "2026-09-07T02:56:05Z",
+  "generated_at_utc": "2026-09-07T03:03:34Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,7 +398,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 2725,
+      "lines": 2823,
       "path": "tests/unit/test_engineering_context_system_contract.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1500,
+    "collected_tests": 1502,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1500 tests collected"
+    "summary": "1502 tests collected"
   }
 }
