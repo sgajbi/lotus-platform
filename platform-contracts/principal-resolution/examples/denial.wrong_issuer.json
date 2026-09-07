@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "wrong_issuer",
+  "principalKind": "user",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A credential from an issuer this environment does not trust.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.example.invalid/other-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "user"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write"
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 401,
+    "failsAtStep": 1
+  }
+}

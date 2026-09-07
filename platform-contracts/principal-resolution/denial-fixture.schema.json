@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sgajbi/lotus-platform/platform-contracts/principal-resolution/denial-fixture.schema.json",
+  "title": "Lotus Principal Resolution Denial Fixture",
+  "description": "One hostile case a consumer must prove it refuses. A consumer that passes only the positive case has not implemented RFC-0109. Each fixture states the request shape, the posture it is evaluated under, and the exact refusal required.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "denialClass",
+    "principalKind",
+    "environmentPosture",
+    "request",
+    "expected"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "lotus-platform.principal-denial-fixture.v1"
+    },
+    "denialClass": { "type": "string", "minLength": 1 },
+    "principalKind": {
+      "type": "string",
+      "enum": ["user", "service", "delegated"]
+    },
+    "environmentPosture": {
+      "description": "Every denial fixture is evaluated under `verified`. Under `header-trust` the perimeter is the control, and these cases do not apply.",
+      "type": "string",
+      "const": "verified"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "credential"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "credential": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["present"],
+          "properties": {
+            "present": { "type": "boolean" },
+            "issuer": { "type": "string" },
+            "audience": { "type": "string" },
+            "keyId": { "type": "string" },
+            "expired": { "type": "boolean" },
+            "revoked": { "type": "boolean" },
+            "subjectKind": { "type": "string", "enum": ["user", "service"] }
+          }
+        },
+        "assertedHeaders": {
+          "description": "Headers the caller supplied. Under `verified` these carry no authority; they are recorded so a fixture can prove they were ignored rather than honoured.",
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "tenantRef": { "type": "string" },
+        "requiredCapability": { "type": "string" },
+        "portfolioRef": { "type": "string" },
+        "grantStoreAvailable": { "type": "boolean" },
+        "actingForSubjectRef": {
+          "description": "Present only for delegated calls: the user the application is acting for.",
+          "type": "string"
+        },
+        "applicationCapabilities": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "userCapabilities": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "status", "failsAtStep", "revealsReasonDetail"],
+      "properties": {
+        "outcome": { "type": "string", "const": "denied" },
+        "status": { "type": "integer", "enum": [401, 403, 503] },
+        "failsAtStep": {
+          "description": "Which resolution step refuses. A denial at a later step than expected means an earlier control did not run.",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "revealsReasonDetail": {
+          "description": "A denial states its class and nothing further.",
+          "type": "boolean",
+          "const": false
+        },
+        "sideEffectsPermitted": {
+          "description": "A refusal must precede every effect it disclaims.",
+          "type": "boolean",
+          "const": false
+        }
+      }
+    }
+  }
+}

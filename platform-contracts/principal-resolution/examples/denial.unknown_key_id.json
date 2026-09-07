@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "unknown_key_id",
+  "principalKind": "user",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "A credential signed with a key id absent from discovery, so the signature cannot be verified.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-not-in-discovery",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "user"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write"
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 401,
+    "failsAtStep": 1
+  }
+}

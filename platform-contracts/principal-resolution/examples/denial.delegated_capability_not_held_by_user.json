@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "denialClass": "delegated_capability_not_held_by_user",
+  "principalKind": "delegated",
+  "environmentPosture": "verified",
+  "request": {
+    "description": "An application holding manage.write acting for a person who does not. The effective set is the intersection, so a broadly trusted application must not widen the person's entitlement.",
+    "credential": {
+      "present": true,
+      "issuer": "https://identity.lotus.bank/example-idp",
+      "audience": "lotus-gateway:composition",
+      "keyId": "key-2026-09",
+      "expired": false,
+      "revoked": false,
+      "subjectKind": "service"
+    },
+    "tenantRef": "tenant:private-bank-sg",
+    "requiredCapability": "manage.write",
+    "actingForSubjectRef": "subject:advisor-001",
+    "applicationCapabilities": [
+      "manage.write",
+      "manage.read"
+    ],
+    "userCapabilities": [
+      "manage.read"
+    ],
+    "grantStoreAvailable": true
+  },
+  "expected": {
+    "revealsReasonDetail": false,
+    "sideEffectsPermitted": false,
+    "outcome": "denied",
+    "status": 403,
+    "failsAtStep": 4
+  }
+}
