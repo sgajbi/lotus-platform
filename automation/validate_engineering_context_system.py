@@ -300,6 +300,8 @@ _MARKDOWN_LINK = re.compile(
     r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
 )
 _FENCE_OPENER = re.compile(r"^(?P<fence>`{3,}|~{3,})")
+_FENCE_CLOSER = re.compile(r"^(?P<fence>`{3,}|~{3,})[ \t]*$")
+_HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 # A URI scheme is case-insensitive, and at least two characters, so a Windows
 # drive letter is not mistaken for one.
 _URI_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]+:")
@@ -337,7 +339,17 @@ def _without_code(text: str) -> str:
         indent = len(line) - len(line.lstrip(" "))
         stripped = line.lstrip() if indent <= 3 else ""
         if fence_marker:
-            if stripped.startswith(fence_marker):
+            closer = _FENCE_CLOSER.match(stripped)
+            # A closing fence is the delimiter and nothing else. Accepting any
+            # line that merely starts with it closed the block on a literal
+            # example line, and every link after that was read as a live route.
+            # It must also use the same character and be at least as long as the
+            # opener, or a shorter run inside a longer fence would end it.
+            if (
+                closer
+                and closer.group("fence")[0] == fence_marker[0]
+                and len(closer.group("fence")) >= len(fence_marker)
+            ):
                 fence_marker = ""
             rendered.append("")
             continue
@@ -352,6 +364,46 @@ def _without_code(text: str) -> str:
             continue
         rendered.append(_CODE_SPAN.sub("", line))
     return chr(10).join(rendered)
+
+
+def _inline_link_destinations(text: str):
+    """Yield the destination of every inline link, parentheses and all.
+
+    A regular expression cannot express balanced nesting, so a pattern that
+    stops at the first `)` truncated `docs/guide(v2).md` to `docs/guide(v2` and
+    reported a file that exists as missing. Scanning tracks the depth instead,
+    which is what the destination grammar actually is.
+    """
+    length = len(text)
+    for opener in re.finditer(r"]" + chr(92) + "(", text):
+        index = opener.end()
+        while index < length and text[index] in " " + chr(9) + chr(10):
+            index += 1
+        if index < length and text[index] == "<":
+            closing = text.find(">", index + 1)
+            if closing != -1:
+                yield text[index + 1 : closing]
+            continue
+        start = index
+        depth = 1
+        while index < length:
+            character = text[index]
+            if character == chr(92):
+                index += 2
+                continue
+            if character == "(":
+                depth += 1
+            elif character == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            elif character in " " + chr(9) + chr(10):
+                # Whitespace at the top level ends the destination; a title may
+                # follow it.
+                break
+            index += 1
+        if index > start:
+            yield text[start:index]
 
 
 def _governed_markdown_documents() -> dict[str, Path]:
@@ -932,12 +984,6 @@ def _validate_repository_context_contracts(
 # A same-page anchor, an external URL, and a GitHub wiki page name are all
 # valid links that are not repository paths. Treating them as paths reported
 # 225 false failures across 37 files on a repository whose real count is zero.
-# `[guide](path "Title")` is valid Markdown, and a destination capture that
-# forbade whitespace did not match it at all — so a broken titled link passed
-# the guard silently, which is worse than reporting it wrongly.
-_MARKDOWN_LINK = re.compile(
-    r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
-)
 
 
 def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -> None:
@@ -969,11 +1015,17 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
                 f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}"
             )
             continue
-        rendered = _without_code(_read_text(path))
-        matches = list(_MARKDOWN_LINK.finditer(rendered))
-        matches.extend(_MARKDOWN_REFERENCE_DEFINITION.finditer(rendered))
-        for match in matches:
-            href = match.group("href")
+        # An HTML comment is not rendered and cannot be followed, so a route
+        # kept in one -- a future or historical link -- is not a broken route.
+        # Comments are removed before code, because a comment may contain a
+        # fence and would otherwise open one.
+        rendered = _without_code(_HTML_COMMENT.sub("", _read_text(path)))
+        destinations = list(_inline_link_destinations(rendered))
+        destinations.extend(
+            match.group("href")
+            for match in _MARKDOWN_REFERENCE_DEFINITION.finditer(rendered)
+        )
+        for href in destinations:
             if not href or href.startswith("#"):
                 continue
             # Any scheme means the destination is not a path in this repository.
