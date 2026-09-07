@@ -22,7 +22,11 @@ until their graders, datasets, false-positive posture, and exception policy are 
 
 ## Evaluation Sources
 
-Build eval cases from real Lotus evidence:
+Start from the [Agent Failure Case Library](./AGENT-FAILURE-CASE-LIBRARY.md), which holds
+cross-seat failures with the evidence that produced them. A case there is already the
+hardest part of an eval case: a real failure whose reproduction is known.
+
+Build further eval cases from real Lotus evidence:
 
 1. PR review findings,
 2. CI failures,
@@ -118,6 +122,10 @@ The compact rules in `AGENTS.md` come from observed failures:
 
 When a new case changes one of these rules, update this evidence section and its focused guard
 tests. Keep only the mandatory outcome in `AGENTS.md`.
+
+Cases that do not change a mandatory rule belong in the
+[Agent Failure Case Library](./AGENT-FAILURE-CASE-LIBRARY.md) instead, so this list stays the
+compact record of what `AGENTS.md` requires rather than a growing catalogue.
 
 ## Skill And Context Promotion
 

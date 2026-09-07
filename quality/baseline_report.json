@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 415,
+    "markdown_file_count": 416,
     "powershell_file_count": 69,
     "python_file_count": 241,
-    "source_file_count": 912,
+    "source_file_count": 913,
     "suffix_counts": {
       ".json": 138,
-      ".md": 415,
+      ".md": 416,
       ".ps1": 69,
       ".py": 241,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 373898
+    "total_source_lines": 374245
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3414
+    "python_function_count": 3420
   },
-  "generated_at_utc": "2026-09-07T01:44:46Z",
+  "generated_at_utc": "2026-09-07T02:08:56Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -403,7 +403,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2354,
+      "lines": 2450,
       "path": "tests/unit/test_engineering_context_system_contract.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1487,
+    "collected_tests": 1492,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1487 tests collected"
+    "summary": "1492 tests collected"
   }
 }
