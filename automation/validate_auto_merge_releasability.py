@@ -228,18 +228,53 @@ def _step_enumerates_by_rev_list(step: dict[str, Any]) -> bool:
     )
 
 
-def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
-    # The enumeration must run only for PRs merged into main, assert rebase-only
-    # merge settings, walk the commits endpoint anchored at the event's merge
-    # SHA with an explicit page size covering the whole PR (a default page
-    # would silently truncate large PRs; the count equality then fails closed),
-    # compare the resolved count to the event's commit count, and publish the
-    # enumerated SHAs through the job's declared output.
+def _step_emitted_output_keys(step: dict[str, Any]) -> set[str]:
+    """The output names this step actually writes to GITHUB_OUTPUT.
+
+    A job output is only meaningful if some step produces it. Reading the keys
+    lets the matrix be bound to a value that exists rather than to a plausible
+    expression.
+    """
+    keys: set[str] = set()
+    for line in _step_run(step).splitlines():
+        if "GITHUB_OUTPUT" not in line:
+            continue
+        match = re.search(r"([A-Za-z0-9_-]+)=", line)
+        if match:
+            keys.add(match.group(1))
+    return keys
+
+
+def _step_refuses_an_empty_enumeration(step: dict[str, Any]) -> bool:
+    """The step must fail rather than publish nothing.
+
+    An empty list expands to zero matrix jobs, and zero jobs is a success: the
+    dispatch job reports green having gated no commit at all. That is the
+    silent-pass shape this control exists to prevent, so an enumeration that can
+    emit an empty set is not verified however correct its other steps are.
+
+    Either an explicit emptiness test or a comparison against the event's own
+    commit count is sufficient; both are in use across the estate.
+    """
+    run = _step_run(step)
+    explicit_empty = re.search(r"\[\s+-z\s+\"\$\{?[A-Za-z0-9_-]+\}?\"\s+\]", run) is not None
+    count_compared = re.search(r'-ne\s+"\$\{?(?:PR_)?COMMIT_COUNT\}?"', run) is not None
+    return explicit_empty or count_compared
+
+
+def _verified_enumeration_step_id(job: dict[str, Any]) -> str | None:
+    """The id of this job's proven enumeration step, or None.
+
+    Returns the id rather than a boolean so the caller can require that the
+    consumed output is the one this step publishes. Checking only that some step
+    was verified, and separately that some output mentions `steps.`, accepted a
+    matrix fed by an unrelated step -- or by a step that does not exist.
+    """
     condition = str(job.get("if") or "")
     if "github.event.pull_request.merged == true" not in condition:
-        return False
+        return None
     if "github.event.pull_request.base.ref == 'main'" not in condition:
-        return False
+        return None
     for step in _job_steps(job):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
         run = _step_run(step)
@@ -252,11 +287,29 @@ def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
                 _step_enumerates_by_commits_api(step)
                 or _step_enumerates_by_rev_list(step)
             )
+            # An empty result must fail rather than produce zero matrix jobs.
+            and _step_refuses_an_empty_enumeration(step)
             # Published through the job's declared output rather than logged.
             and "GITHUB_OUTPUT" in run
         ):
-            return True
-    return False
+            step_id = step.get("id")
+            return str(step_id) if isinstance(step_id, str) and step_id else None
+    return None
+
+
+def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
+    # The enumeration must run only for PRs merged into main, assert rebase-only
+    # merge settings, walk the commits endpoint anchored at the event's merge
+    # SHA with an explicit page size covering the whole PR (a default page
+    # would silently truncate large PRs; the count equality then fails closed),
+    # compare the resolved count to the event's commit count, and publish the
+    # enumerated SHAs through the job's declared output.
+    condition = str(job.get("if") or "")
+    if "github.event.pull_request.merged == true" not in condition:
+        return False
+    if "github.event.pull_request.base.ref == 'main'" not in condition:
+        return False
+    return _verified_enumeration_step_id(job) is not None
 
 
 def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
@@ -287,17 +340,36 @@ def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
             source_job = jobs.get(source_name)
             if source_name not in needs_list or not isinstance(source_job, dict):
                 continue
-            # The named output must be one the source job actually declares, and
-            # it must come from a step rather than being a literal: a matrix fed
-            # from a hard-coded output is not an enumeration.
+            # The consumed output must be the one the *proven* enumeration step
+            # publishes. Accepting any expression containing "steps." let a
+            # matrix be fed by an unrelated step emitting an empty list, and by a
+            # step that does not exist at all -- both reported as verified while
+            # gating nothing.
+            enumeration_id = _verified_enumeration_step_id(source_job)
+            if enumeration_id is None:
+                continue
             outputs = (
                 source_job.get("outputs")
                 if isinstance(source_job.get("outputs"), dict)
                 else {}
             )
-            if "steps." not in str(outputs.get(output_name) or ""):
+            reference = re.search(
+                r"steps\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)",
+                str(outputs.get(output_name) or ""),
+            )
+            if reference is None or reference.group(1) != enumeration_id:
                 continue
-            if not _job_has_verified_enumeration_step(source_job):
+            enumeration_step = next(
+                (
+                    step
+                    for step in _job_steps(source_job)
+                    if step.get("id") == enumeration_id
+                ),
+                None,
+            )
+            if enumeration_step is None:
+                continue
+            if reference.group(2) not in _step_emitted_output_keys(enumeration_step):
                 continue
             if _job_dispatches_matrix_revision(job, matrix_key):
                 return True
