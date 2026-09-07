@@ -606,10 +606,16 @@ the remainder executed. Quoting against `;` closes that instance and not the cla
 single quotes, `$` and backticks in branch names, so a value carrying a quote escapes the quoting that
 was added to contain it.
 
-Fixed with a `shellquote` helper rather than a character-specific guard, and proven by driving both
-`feature/foo;echo-PWN` and `it's;rm -rf /` through it, confirming the escaped form evaluates back to
-the literal string with no command executed. The second input is the one that matters: it carries the
-quote character the fix itself relies on.
+Fixed with a `shellquote` helper rather than a character-specific guard, and proven by driving
+both `feature/foo;echo-PWN` and `feature/it's;rm-rf` through it, confirming the escaped form
+evaluates back to the literal string with no command executed. The second input is the one that
+matters: it carries the quote character the fix itself relies on.
+
+Both payloads are values `git check-ref-format --branch` **accepts**, which is not incidental. An
+earlier draft of this entry used a payload containing spaces, which Git rejects, so the proof would
+have exercised a value the stated source cannot produce — while this entry's own advice is to test
+what the source actually permits. A hostile fixture has to be reachable, or it demonstrates the fix
+against an input nobody can send.
 
 **Check:** when a report names one character, fix the class, then test the character the report did
 not use. A fix built from the reported input is tested by the reported input and passes, which is the
