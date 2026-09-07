@@ -48,11 +48,15 @@ Drift visibility now exists in two places:
    - verifies additional repo-root `AGENTS.md` copies when those repositories are present in the
      local workspace
 2. `automation/Invoke-PlatformRepoChecks.ps1`
-   - checks the deployed local `AGENTS.md`
+   - checks the committed platform repo-root `AGENTS.md` against the governed source
+   - does not check the deployed local copy, which exists only on a workstation with Codex
+     installed; that is a developer-environment check, requested explicitly with
+     `-IncludeDeployedTarget`
 
-This keeps CI realistic for the single-repo environment while avoiding duplicate platform-root
-checks; the validator already owns repo-root verification when the repositories are present in a
-normal Lotus workspace.
+The bare form previously resolved to the deployed copy, so on a runner it compared nothing and
+reported success. Checking the committed repo-root copy is what a CI environment can actually
+verify, and the overlap with the validator is deliberate: the validator inspects the working
+tree, this compares committed blobs, and only the second describes what the repository ships.
 
 ### Repo inventory synchronized
 
