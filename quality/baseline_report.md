@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-07T12:28:39Z`
+Generated: `2026-09-07T13:36:55Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `935`
-- Total source lines: `379433`
-- Python files: `244`
+- Source files: `954`
+- Total source lines: `380763`
+- Python files: `247`
 - PowerShell files: `69`
-- Markdown files: `417`
+- Markdown files: `418`
 
 ## Largest Files
 
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3557`
+- Python functions: `3592`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -52,9 +52,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/validate_auto_merge_releasability.py | _matrix_dispatch_is_verified | 440 | 22 | 61 |
+| automation/verify_principal_credential.py | resolve_principal | 245 | 21 | 81 |
+| automation/verify_principal_credential.py | verify_credential | 168 | 21 | 75 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 37 | 20 | 69 |
-| automation/validate_platform_stack.py | _validate_security | 273 | 18 | 63 |
-| automation/validate_workflow_pipeline_exit_codes.py | iter_steps | 127 | 18 | 63 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1628`
+- Unit tests collected: `1654`
 - Collection command return code: `0`
-- Collection summary: `1628 tests collected`
+- Collection summary: `1654 tests collected`
 
 ## Security Baseline
 
