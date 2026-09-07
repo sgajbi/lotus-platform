@@ -2246,3 +2246,109 @@ def test_link_check_still_reads_links_around_an_html_comment(
     assert len(errors) == 1, errors
     assert "./absent-pack.md" in errors[0], errors
 
+
+def test_link_check_ignores_escaped_link_syntax(tmp_path: Path, monkeypatch) -> None:
+    """Documentation that displays link syntax writes it escaped.
+
+    Markdown renders an escaped bracket as literal text, so scanning from every
+    `](` reported correct prose as a broken route -- a blocking guard failing on
+    documentation that was doing the right thing.
+    """
+    body = "Write it as " + chr(92) + "[guide](missing.md) to show the form." + chr(10)
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_still_reads_an_unescaped_link_on_the_same_line(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: one escaped example must not silence the line."""
+    body = (
+        "Write it as "
+        + chr(92)
+        + "[guide](missing.md), and see [the pack](./absent-pack.md)."
+        + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./absent-pack.md" in errors[0], errors
+
+
+def test_link_check_ignores_a_footnote_definition(tmp_path: Path, monkeypatch) -> None:
+    """A footnote shares the shape of a reference definition and is not one.
+
+    `[^1]: Explanatory prose` contributed `Explanatory` as a destination and
+    failed a blocking gate on ordinary prose.
+    """
+    body = (
+        "A claim with a footnote.[^1]"
+        + chr(10) * 2
+        + "[^1]: Explanatory prose only."
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_still_reads_a_real_reference_definition(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: excluding footnotes must not exclude definitions."""
+    body = "See [the guide][target]." + chr(10) * 2 + "[target]: ./absent.md" + chr(10)
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./absent.md" in errors[0], errors
+
+
+def test_link_check_validates_an_html_anchor(tmp_path: Path, monkeypatch) -> None:
+    """A rendered anchor is a route a reader follows, so a broken one is broken."""
+    body = '<a href="./missing.md">the guide</a>' + chr(10)
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "./missing.md" in errors[0], errors
+
+
+def test_link_check_accepts_an_html_anchor_that_resolves(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance, including an external anchor that is not a path."""
+    (tmp_path / "present.md").write_text("# present" + chr(10), encoding="utf-8")
+    body = (
+        '<a href="./present.md">local</a>'
+        + chr(10)
+        + '<a href="https://example.com">external</a>'
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_rejects_a_routed_document_outside_the_repository(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A route out of the repository resolves in a workspace and nowhere else.
+
+    Validating the outside file's contents reported success on exactly the
+    sibling-checkout dependency this check exists to reject.
+    """
+    inside = tmp_path / "repo"
+    inside.mkdir()
+    outside = tmp_path / "sibling" / "README.md"
+    outside.parent.mkdir(parents=True)
+    outside.write_text("# sibling" + chr(10), encoding="utf-8")
+
+    monkeypatch.setattr(CONTEXT_VALIDATOR, "ROOT", inside.resolve())
+    errors: list[str] = []
+    CONTEXT_VALIDATOR._validate_document_links(
+        errors=errors, documents={"manifest route": inside / ".." / "sibling" / "README.md"}
+    )
+
+    assert len(errors) == 1, errors
+    assert "outside the repository" in errors[0], errors
+
