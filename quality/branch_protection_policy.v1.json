@@ -40,8 +40,14 @@
       "field": "required_pull_request_reviews.required_approving_review_count",
       "value": 0,
       "reason": "the repository has a single accepted collaborator; requiring a non-author approval would hard-lock main rather than strengthen it, and naming that collaborator in CODEOWNERS would record an independent-review control that does not exist",
-      "compensating_controls": "three required green contexts, enforce_admins, strict up-to-date branches, required conversation resolution, and linear history apply to every merge including the administrator's; the PR merge gate runs the full 1270-test suite plus every platform validator",
+      "compensating_controls": "three required green contexts, enforce_admins, strict up-to-date branches, required conversation resolution, and linear history apply to every merge including the administrator's; the PR merge gate runs the full unit suite plus every platform validator",
       "retires_when": "a second accepted reviewer identity exists; then raise required_approving_review_count to 1, add CODEOWNERS, and update this policy in the same change"
     }
-  ]
+  ],
+  "live_comparison_wiring": {
+    "state": "dispatch_only",
+    "reason": "the branch protection endpoint requires administration:read, which github.token cannot carry, and no such credential is provisioned; a scheduled run would fail before comparing any field and a blocking pre-merge step would deadlock every pull request on an operator action",
+    "offline_check_is_blocking": true,
+    "tracked_follow_up": "https://github.com/sgajbi/lotus-platform/issues/827"
+  }
 }

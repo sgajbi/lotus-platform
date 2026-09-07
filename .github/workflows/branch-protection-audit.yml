@@ -1,8 +1,14 @@
 name: Branch Protection Audit
 
+# The daily supplement is deliberately absent until an administration-read
+# credential exists. The branch protection endpoint refuses `github.token`, so a
+# scheduled run today would fail in `gh api` before comparing a single field and
+# leave a permanently red workflow, which teaches readers to ignore red. Manual
+# dispatch stays, so an operator holding a token can run the comparison now.
+#
+# Restoring the schedule and adding the blocking pre-merge lane are tracked
+# together in the follow-up issue named in `quality/branch_protection_policy.v1.json`.
 on:
-  schedule:
-    - cron: "40 2 * * *"
   workflow_dispatch: {}
 
 permissions:

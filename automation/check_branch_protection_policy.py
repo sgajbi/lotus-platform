@@ -12,9 +12,12 @@ compared as absent, never coerced to false (a missing
 `required_pull_request_reviews` block and `required_approving_review_count: 0`
 are different postures and must be distinguishable).
 
-Usage:
-  python scripts/check_branch_protection_policy.py --offline   # document shape only
-  python scripts/check_branch_protection_policy.py             # live comparison (needs gh auth)
+Usage, invoking this file by its own path in the adopting repository -- it
+lives under `automation/` here and under `scripts/` in others, so a hard-coded
+directory is wrong in one of them:
+
+  python <path-to-this-file> --offline   # document shape only
+  python <path-to-this-file>             # live comparison (needs gh auth)
 """
 
 from __future__ import annotations

@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 371549
+    "total_source_lines": 371552
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -51,8 +51,8 @@
       },
       {
         "complexity": 35,
-        "end_line": 153,
-        "line": 79,
+        "end_line": 156,
+        "line": 82,
         "lines": 75,
         "name": "validate_policy_document",
         "path": "automation/check_branch_protection_policy.py"
@@ -139,8 +139,8 @@
       },
       {
         "complexity": 16,
-        "end_line": 250,
-        "line": 184,
+        "end_line": 253,
+        "line": 187,
         "lines": 67,
         "name": "compare_live_to_policy",
         "path": "automation/check_branch_protection_policy.py"
