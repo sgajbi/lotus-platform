@@ -566,6 +566,58 @@ A vocabulary correction here is breaking for whoever already consumes the field,
 consumer rather than ahead of it. Renaming under a downstream that reads the old values would trade
 this defect for an outage.
 
+### 20. A validator and the thing it validates are two statements about one value
+
+Contributed by the `lotus-render` / `lotus-performance` / `lotus-advise` seat.
+
+**Claimed:** making `make docker-build` stamp `<sha>-dirty` when the working tree is dirty was a
+complete change. It is a provenance improvement, it was tested, and the build produced the intended
+label.
+
+**Evidence:** `docker-labels-check` still validated the label against the raw `$(GIT_SHA)`. So the
+producer had been taught to emit a value the checker had not been taught to accept, and
+`make docker-build` — and the documented `make ci` — failed on **every dirty checkout**. Twice over
+badly: the failure arrives *after* the expensive image build rather than before it, and it rejects
+provenance the same change had just declared correct.
+
+It is the mirror of the unread-field case in
+[entry 19](#19-fixing-one-unread-field-is-not-fixing-the-document-that-published-it). There a
+published field had no reader; here the reader was checking a value that had stopped being produced.
+Both are one half of a pair moving without the other, and neither half looks wrong on its own — the
+producer is right, the checker is right, and the binding between them is what broke.
+
+**Check:** when you change what a value *is*, list everything that asserts anything about it before
+declaring the change complete — validators, schemas, documented commands, published examples,
+downstream parsers. A validator/validated pair is one statement written in two places, so changing
+one half is changing half of a pair. The tell is that the change looks self-contained: it touches one
+recipe, one function, one field, and the thing that disagrees lives somewhere the diff does not
+reach.
+
+### 21. Quoting that survives only the reported character is not quoting
+
+Contributed by the `lotus-render` / `lotus-performance` / `lotus-advise` seat.
+
+**Claimed:** interpolating provenance values into make recipes was safe once the values were quoted
+against the character a report had named.
+
+**Evidence:** Git accepts a branch named `feature/foo;echo-PWN`, and unquoted interpolation made that
+value part of the recipe's *syntax* rather than its data — the semicolon terminated the assignment and
+the remainder executed. Quoting against `;` closes that instance and not the class: Git also accepts
+single quotes, `$` and backticks in branch names, so a value carrying a quote escapes the quoting that
+was added to contain it.
+
+Fixed with a `shellquote` helper rather than a character-specific guard, and proven by driving both
+`feature/foo;echo-PWN` and `it's;rm -rf /` through it, confirming the escaped form evaluates back to
+the literal string with no command executed. The second input is the one that matters: it carries the
+quote character the fix itself relies on.
+
+**Check:** when a report names one character, fix the class, then test the character the report did
+not use. A fix built from the reported input is tested by the reported input and passes, which is the
+same shape as a divergence case chosen for being different rather than for being able to collide —
+see [entry 14](#14-an-assertion-is-empty-when-both-sides-route-through-the-same-derivation). Ask what
+the *source* of the value actually permits, not what the report happened to contain: the answer for a
+branch name, a tag, a filename or a header is almost always wider than the example.
+
 ## Contributing
 
 Add an entry when a failure would otherwise survive only in one session's memory and would change
