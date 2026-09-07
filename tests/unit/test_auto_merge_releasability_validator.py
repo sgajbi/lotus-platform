@@ -1150,3 +1150,179 @@ def test_dropping_the_ancestor_guard_is_still_rejected(tmp_path: Path) -> None:
     violations = validator._merged_pr_dispatch_violations(workflow)
 
     assert "merged-pr-dispatch.missing-expected-sha-input" in violations
+
+
+_ENUMERATION_RUN = chr(10).join(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"']) + chr(10)
+_DISPATCH_RUN = chr(10).join(['set -euo pipefail', 'dispatch_ref="main-releasability-${revision}"', 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha', 'gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$revision"', 'gh workflow run main-releasability.yml --ref "$dispatch_ref" -f expected_sha="$revision"']) + chr(10)
+
+
+def _matrix_dispatch_workflow(
+    *,
+    output_name: str = "revisions",
+    matrix_key: str = "revision",
+    from_json: str = "fromJson",
+    enumeration: str | None = None,
+    dispatch: str | None = None,
+) -> dict:
+    """A two-job matrix dispatch, parameterised so a breach can be injected.
+
+    The names are parameters on purpose. The defect this replaced pinned the
+    output name, the matrix key and the casing of `fromJson`, so a workflow that
+    gated every commit correctly was reported as a violation for choosing other
+    words, and that blocked every pull request in this repository.
+    """
+    matrix_expression = (
+        "${{ " + from_json + "(needs.enumerate.outputs." + output_name + ") }}"
+    )
+    return {
+        "on": {"pull_request_target": {"types": ["closed"]}},
+        "permissions": {"actions": "write", "contents": "write"},
+        "jobs": {
+            "enumerate": {
+                "if": (
+                    "github.event.pull_request.merged == true && "
+                    "github.event.pull_request.base.ref == 'main'"
+                ),
+                "outputs": {output_name: "${{ steps.enumerate.outputs.list }}"},
+                "steps": [
+                    {
+                        "id": "enumerate",
+                        "env": {
+                            "MERGE_COMMIT_SHA": (
+                                "${{ github.event.pull_request.merge_commit_sha }}"
+                            ),
+                            "COMMIT_COUNT": "${{ github.event.pull_request.commits }}",
+                        },
+                        "run": _ENUMERATION_RUN if enumeration is None else enumeration,
+                    }
+                ],
+            },
+            "dispatch": {
+                "needs": ["enumerate"],
+                "strategy": {"matrix": {matrix_key: matrix_expression}},
+                "steps": [
+                    {
+                        "env": {"revision": "${{ matrix." + matrix_key + " }}"},
+                        "run": _DISPATCH_RUN if dispatch is None else dispatch,
+                    }
+                ],
+            },
+        },
+    }
+
+
+def _matrix_is_accepted(workflow: dict) -> bool:
+    return validator._merged_pr_dispatch_passes_exact_sha(
+        workflow
+    ) and validator._merged_pr_dispatch_has_immutable_ref(workflow)
+
+
+def _dispatch_without(line_to_replace: str, replacement: str) -> str:
+    return chr(10).join(
+        replacement if line == line_to_replace else line for line in DISPATCH_SOURCE
+    ) + chr(10)
+
+
+DISPATCH_SOURCE = ['set -euo pipefail', 'dispatch_ref="main-releasability-${revision}"', 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha', 'gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$revision"', 'gh workflow run main-releasability.yml --ref "$dispatch_ref" -f expected_sha="$revision"']
+
+
+def test_matrix_dispatch_is_accepted_whatever_it_names_things() -> None:
+    """The property is the immutable ref and the bound expected SHA, not the words.
+
+    The recogniser required the literal `fromJSON`, an output named
+    `commit_shas` and a matrix key named `commit_sha`. Both spellings must be
+    accepted, because both describe the same gating behaviour.
+    """
+    assert _matrix_is_accepted(_matrix_dispatch_workflow())
+    assert _matrix_is_accepted(
+        _matrix_dispatch_workflow(
+            output_name="commit_shas", matrix_key="commit_sha", from_json="fromJSON"
+        )
+    )
+
+
+def test_matrix_dispatch_on_a_mutable_ref_is_rejected() -> None:
+    """Without an immutable ref the run gates whatever that ref points at."""
+    workflow = _matrix_dispatch_workflow(
+        dispatch=_dispatch_without(
+            DISPATCH_SOURCE[4],
+            "gh workflow run main-releasability.yml --ref main "
+            '-f expected_sha="$revision"',
+        )
+    )
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_matrix_dispatch_with_an_unbound_expected_sha_is_rejected() -> None:
+    """The other half: a ref naming a revision the caller did not assert."""
+    workflow = _matrix_dispatch_workflow(
+        dispatch=_dispatch_without(
+            DISPATCH_SOURCE[4],
+            'gh workflow run main-releasability.yml --ref "$dispatch_ref" '
+            "-f expected_sha=main",
+        )
+    )
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_matrix_dispatch_creating_a_ref_from_another_sha_is_rejected() -> None:
+    """The tag must name the revision it will be used to gate."""
+    workflow = _matrix_dispatch_workflow(
+        dispatch=_dispatch_without(
+            DISPATCH_SOURCE[3],
+            'gh api "repos/$GITHUB_REPOSITORY/git/refs" '
+            '-f ref="refs/tags/$dispatch_ref" -f sha=main',
+        )
+    )
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_matrix_enumeration_without_a_count_bound_is_rejected() -> None:
+    """An unbounded enumeration can return fewer commits than the PR contained,
+    and every commit it omits is one that nothing gates."""
+    unbounded = list(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'])
+    unbounded[3] = 'revisions="$(git rev-list "$MERGE_COMMIT_SHA")"'
+
+    assert not _matrix_is_accepted(
+        _matrix_dispatch_workflow(enumeration=chr(10).join(unbounded) + chr(10))
+    )
+
+
+def test_matrix_enumeration_without_the_rebase_only_assertion_is_rejected() -> None:
+    """Squash and merge commits make per-commit enumeration describe history
+    that was never put on main."""
+    unasserted = [line for line in ['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'] if "false,false,true" not in line]
+
+    assert not _matrix_is_accepted(
+        _matrix_dispatch_workflow(enumeration=chr(10).join(unasserted) + chr(10))
+    )
+
+
+def test_a_matrix_fed_from_a_literal_is_rejected() -> None:
+    """A hard-coded matrix is not an enumeration, whatever it is named."""
+    workflow = _matrix_dispatch_workflow()
+    workflow["jobs"]["enumerate"]["outputs"]["revisions"] = "abc123 def456"
+
+    assert not _matrix_is_accepted(workflow)
+
+
+def test_widening_did_not_drop_the_single_step_shape(tmp_path: Path) -> None:
+    """Eleven repositories use the single-step form and two use the matrix form.
+
+    A change accepting only the newly recognised shape would pass its own
+    fixtures and fail the estate, so the shape that already worked is asserted
+    from the same aligned fixture the rest of this suite uses.
+    """
+    repo_root = tmp_path / "lotus-example"
+    repo_root.mkdir()
+    _write_aligned_workflows(repo_root)
+    aligned = validator._load_yaml(
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+
+    assert validator._merged_pr_dispatch_passes_exact_sha(aligned)
+    assert validator._merged_pr_dispatch_has_immutable_ref(aligned)
+    assert _matrix_is_accepted(_matrix_dispatch_workflow())
