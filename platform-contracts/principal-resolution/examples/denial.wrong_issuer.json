@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v2",
   "denialClass": "wrong_issuer",
   "principalKind": "user",
   "environmentPosture": "verified",
@@ -13,7 +13,7 @@
       "expired": false,
       "revoked": false,
       "subjectKind": "user",
-      "signatureVerifies": true
+      "verifierOutcome": "accept"
     },
     "tenantRef": "tenant:private-bank-sg",
     "requiredCapability": "manage.write"

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "lotus-platform.resolved-principal.v1",
   "contractId": "lotus-platform-resolved-principal-and-capability-grant",
-  "contractVersion": "1.0.0",
+  "contractVersion": "2.0.0",
   "issueRefs": [
     "sgajbi/lotus-platform#775",
     "sgajbi/lotus-platform#563",
@@ -255,6 +255,7 @@
     "hosting the grant store, which belongs to the tenant-membership owner",
     "implementing resolution inside any consumer",
     "promoting a Lotus Idea supported feature",
-    "clearing production identity certification"
+    "clearing production identity certification",
+    "compelling cryptographic verification: the fixtures carry no signed bytes and no keys, so a consumer proves present_but_unverified against its own verifier and material, and this contract cannot certify that it did"
   ]
 }

@@ -299,8 +299,8 @@ def test_the_unverified_fixture_is_distinguishable_from_a_verified_one() -> None
     unverified = _denial("present_but_unverified")["request"]["credential"]
     verified_but_fails_later = _denial("tenant_not_a_member")["request"]["credential"]
 
-    assert unverified["signatureVerifies"] is False
-    assert verified_but_fails_later["signatureVerifies"] is True
+    assert unverified["verifierOutcome"] == "reject"
+    assert verified_but_fails_later["verifierOutcome"] == "accept"
     assert unverified != verified_but_fails_later, (
         "the request itself must differ, or the fixture proves nothing about verification"
     )
@@ -311,10 +311,10 @@ def test_every_present_credential_states_whether_it_verifies() -> None:
     for denial_class in sorted(validator.REQUIRED_DENIAL_CLASSES):
         credential = _denial(denial_class)["request"]["credential"]
         if credential.get("present"):
-            assert "signatureVerifies" in credential, denial_class
+            assert "verifierOutcome" in credential, denial_class
 
     admission = _admission()["request"]["credential"]
-    assert admission["signatureVerifies"] is True
+    assert admission["verifierOutcome"] == "accept"
 
 
 def test_the_grant_store_denial_is_reachable_under_the_call_budget() -> None:
@@ -335,3 +335,36 @@ def test_the_grant_store_denial_is_reachable_under_the_call_budget() -> None:
     budget = schema["properties"]["expected"]["properties"]["maxProtectedOperationCalls"]
 
     assert "Resolution lookups are deliberately excluded" in budget["description"]
+
+
+def test_the_contract_admits_what_it_cannot_compel() -> None:
+    """A fixture set with no keys cannot make a verifier fail, and must say so.
+
+    `verifierOutcome` is an instruction to the harness. A consumer that maps it
+    to a result rather than configuring its verifier satisfies the fixture and
+    proves nothing, so the limit is named rather than worked around -- shipping
+    key material would be shipping identity, which this contract's first
+    non-goal excludes.
+    """
+    contract = _contract()
+    # Whitespace-normalised: the estate wraps Markdown at 100 columns, so an
+    # exact-substring assertion over prose passes or fails on where a line
+    # happens to break rather than on what the document says.
+    readme = " ".join(
+        (validator.CONTRACT_DIR / "README.md").read_text(encoding="utf-8").split()
+    )
+
+    assert any(
+        "compelling cryptographic verification" in goal for goal in contract["nonGoals"]
+    ), contract["nonGoals"]
+    assert "What this fixture set cannot compel" in readme
+    assert "the **consumer** owns the proof" in readme
+
+
+def test_breaking_fixture_changes_carry_a_new_version() -> None:
+    """A required field added under additionalProperties false invalidates stored payloads."""
+    for denial_class in sorted(validator.REQUIRED_DENIAL_CLASSES):
+        assert _denial(denial_class)["schemaVersion"].endswith(".v2"), denial_class
+
+    assert _admission()["schemaVersion"].endswith(".v2")
+    assert _contract()["contractVersion"] == "2.0.0"

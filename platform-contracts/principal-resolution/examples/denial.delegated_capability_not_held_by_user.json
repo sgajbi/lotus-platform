@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "lotus-platform.principal-denial-fixture.v1",
+  "schemaVersion": "lotus-platform.principal-denial-fixture.v2",
   "denialClass": "delegated_capability_not_held_by_user",
   "principalKind": "delegated",
   "environmentPosture": "verified",
@@ -13,7 +13,7 @@
       "expired": false,
       "revoked": false,
       "subjectKind": "service",
-      "signatureVerifies": true
+      "verifierOutcome": "accept"
     },
     "tenantRef": "tenant:private-bank-sg",
     "requiredCapability": "manage.write",

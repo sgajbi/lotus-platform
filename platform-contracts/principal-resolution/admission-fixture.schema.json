@@ -15,7 +15,7 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "lotus-platform.principal-admission-fixture.v1"
+      "const": "lotus-platform.principal-admission-fixture.v2"
     },
     "principalKind": {
       "type": "string",
@@ -55,7 +55,7 @@
             "expired",
             "revoked",
             "subjectKind",
-            "signatureVerifies"
+            "verifierOutcome"
           ],
           "properties": {
             "present": {
@@ -89,10 +89,14 @@
                 "service"
               ]
             },
-            "signatureVerifies": {
-              "description": "Whether the credential's signature verifies against the issuer's published keys. A fixture that says a credential was not verified without encoding it cannot be fed to a resolver: the request would be indistinguishable from a verified one, and only branching on the denial class would produce the expected refusal.",
-              "type": "boolean",
-              "const": true
+            "verifierOutcome": {
+              "description": "What the consumer's own verifier must return for this credential: 'accept' or 'reject'. This is an instruction to the test harness, not a property of the payload. The fixture carries no signed bytes and no keys, so it cannot compel cryptographic verification -- a consumer that maps this value to a result rather than configuring its verifier proves nothing. See the limitation named in README.md.",
+              "type": "string",
+              "enum": [
+                "accept",
+                "reject"
+              ],
+              "const": "accept"
             }
           }
         },
