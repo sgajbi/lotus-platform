@@ -300,6 +300,13 @@ _MARKDOWN_LINK = re.compile(
     r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
 )
 _CODE_SPAN = re.compile(r"`(?P<span>[^`\n]+)`")
+# A reference-style link carries its destination in a separate definition, so a
+# document can route through `[guide][target]` while the only path in the file
+# sits on a `[target]: ...` line the inline pattern never sees.
+_MARKDOWN_REFERENCE_DEFINITION = re.compile(
+    r"^ {0,3}\[[^\]]+\]:[ \t]*(?P<href><[^>]*>|\S+)", re.MULTILINE
+)
+_ABSOLUTE_DESTINATION = re.compile(r"^(?:[/\\]|[A-Za-z]:[/\\])")
 # A token may begin with `./` or `../`, which is the conventional way to write
 # a relative path in a code span. Excluding a leading dot meant those spans
 # produced no token at all, so the normalization below was never reached for
@@ -307,6 +314,67 @@ _CODE_SPAN = re.compile(r"`(?P<span>[^`\n]+)`")
 _PATH_TOKEN = re.compile(
     r"(?<![A-Za-z0-9_/-])(?P<path>(?:\.{1,2}/)*[A-Za-z0-9_-][A-Za-z0-9_./-]*\.[A-Za-z0-9]+)"
 )
+
+
+def _without_code(text: str) -> str:
+    """Markdown inside a fence or a code span is shown to a reader, not followed.
+
+    A guide that demonstrates link syntax is documenting a form rather than
+    routing anywhere, so scanning raw text made this guard fail on correct
+    documentation unless the illustrative filename happened to exist.
+    """
+    rendered: list[str] = []
+    fence_marker = ""
+    for line in text.split(chr(10)):
+        stripped = line.lstrip()
+        if fence_marker:
+            if stripped.startswith(fence_marker):
+                fence_marker = ""
+            rendered.append("")
+            continue
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            fence_marker = stripped[:3]
+            rendered.append("")
+            continue
+        rendered.append(_CODE_SPAN.sub("", line))
+    return chr(10).join(rendered)
+
+
+def _governed_markdown_documents() -> dict[str, Path]:
+    """Every Markdown route the manifest governs, so the checked set cannot drift.
+
+    A hand-maintained map omitted documents the manifest already routes tasks
+    into -- the bank-buyable engineering contract and the enterprise backend
+    refactoring playbook among them -- so a broken link in one of them passed a
+    blocking gate. Deriving the set from the manifest means adding a route adds
+    its link check, rather than leaving the two to be kept in step by hand.
+    """
+    manifest_path = CONTEXT_DIR / "lotus-context-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    relative_paths: set[str] = set()
+
+    def collect(node: object) -> None:
+        if isinstance(node, str):
+            if node.endswith(".md"):
+                relative_paths.add(node)
+        elif isinstance(node, dict):
+            for value in node.values():
+                collect(value)
+        elif isinstance(node, list):
+            for value in node:
+                collect(value)
+
+    collect(manifest)
+    if not relative_paths:
+        raise ValueError(
+            f"{manifest_path} names no Markdown routes, so the link check would "
+            "inspect nothing and pass"
+        )
+
+    return {
+        f"manifest route {relative}": ROOT / relative for relative in sorted(relative_paths)
+    }
 
 
 def _governed_repositories() -> frozenset[str]:
@@ -878,7 +946,10 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
     for label, path in sorted(documents.items()):
         if path.suffix.lower() != ".md" or not path.is_file():
             continue
-        for match in _MARKDOWN_LINK.finditer(_read_text(path)):
+        rendered = _without_code(_read_text(path))
+        matches = list(_MARKDOWN_LINK.finditer(rendered))
+        matches.extend(_MARKDOWN_REFERENCE_DEFINITION.finditer(rendered))
+        for match in matches:
             href = match.group("href")
             if not href or href.startswith(("http://", "https://", "mailto:", "#")):
                 continue
@@ -887,7 +958,18 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
             target_path = href.strip("<>").split("#", 1)[0].split("?", 1)[0]
             if not target_path:
                 continue
-            target = (path.parent / urllib.parse.unquote(target_path)).resolve()
+            decoded = urllib.parse.unquote(target_path)
+            # An absolute destination must be rejected before it is joined:
+            # joining discards the left operand, so a machine-specific path that
+            # happens to exist under this checkout would then pass containment
+            # and existence while being a 404 anywhere else.
+            if _ABSOLUTE_DESTINATION.match(decoded):
+                errors.append(
+                    f"{label} links to an absolute filesystem path, which "
+                    f"resolves only on the machine that wrote it: {href}"
+                )
+                continue
+            target = (path.parent / decoded).resolve()
             if not target.is_relative_to(ROOT):
                 errors.append(
                     f"{label} links outside the repository, which resolves only "
@@ -957,11 +1039,13 @@ def validate_engineering_context_system_with_warnings() -> tuple[list[str], list
         errors=errors,
         documents={
             **required_files,
-            "skill routing map": CONTEXT_DIR / "LOTUS-SKILL-ROUTING-MAP.md",
             "documentation layering standard": ROOT
             / "docs"
             / "documentation"
             / "LOTUS-DOCUMENTATION-LAYERING.md",
+            # The routes the manifest governs, so a document added to a route is
+            # checked without anyone remembering to add it here as well.
+            **_governed_markdown_documents(),
         },
     )
 
