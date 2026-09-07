@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 378882
+    "total_source_lines": 379086
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,9 +83,9 @@
       },
       {
         "complexity": 22,
-        "end_line": 376,
-        "line": 315,
-        "lines": 62,
+        "end_line": 500,
+        "line": 440,
+        "lines": 61,
         "name": "_matrix_dispatch_is_verified",
         "path": "automation/validate_auto_merge_releasability.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3535
+    "python_function_count": 3545
   },
-  "generated_at_utc": "2026-09-07T11:37:54Z",
+  "generated_at_utc": "2026-09-07T12:02:20Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -443,7 +443,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1407,
+      "lines": 1487,
       "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1606,
+    "collected_tests": 1611,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1606 tests collected"
+    "summary": "1611 tests collected"
   }
 }

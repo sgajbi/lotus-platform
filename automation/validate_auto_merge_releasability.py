@@ -228,47 +228,179 @@ def _step_enumerates_by_rev_list(step: dict[str, Any]) -> bool:
     )
 
 
-def _step_emitted_output_keys(step: dict[str, Any]) -> set[str]:
-    """The output names this step actually writes to GITHUB_OUTPUT.
+def _logical_lines(run: str) -> list[str]:
+    """Shell lines with backslash continuations joined.
 
-    A job output is only meaningful if some step produces it. Reading the keys
-    lets the matrix be bound to a value that exists rather than to a plausible
-    expression.
+    An author may split the enumeration or its emission across lines, and a
+    line-by-line reader would then see neither the assignment nor the value.
     """
-    keys: set[str] = set()
-    for line in _step_run(step).splitlines():
+    joined: list[str] = []
+    pending = ""
+    for line in run.splitlines():
+        stripped = line.rstrip()
+        if stripped.endswith("\\"):
+            pending += stripped[:-1]
+            continue
+        joined.append(pending + line)
+        pending = ""
+    if pending:
+        joined.append(pending)
+    return joined
+
+
+_ASSIGNMENT = re.compile(r"\s*([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
+
+
+def _references(value: str, names: set[str]) -> bool:
+    return any(
+        re.search(r"\$\{?" + re.escape(name) + r"\b", value) is not None
+        for name in names
+    )
+
+
+def _enumeration_variable(step: dict[str, Any]) -> str | None:
+    """The variable the trusted enumeration command assigns, if any.
+
+    Everything downstream is judged against this name, so the value the matrix
+    consumes can be tied back to the enumeration that was proven rather than to
+    a key that merely shares its spelling.
+    """
+    for line in _logical_lines(_step_run(step)):
+        assignment = _ASSIGNMENT.match(line)
+        if assignment is None:
+            continue
+        if any(
+            re.search(pattern, line) is not None
+            for pattern, _bound, _source in _REVISION_ENUMERATIONS
+        ):
+            return assignment.group(1)
+        if "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" in line:
+            return assignment.group(1)
+    return None
+
+
+def _values_derived_from(run: str, seed: str) -> set[str]:
+    """The seed plus every variable transitively assigned from it.
+
+    The estate's two implementations differ here: one publishes the enumeration
+    variable directly, the other reshapes it into a JSON payload first. Both are
+    correct, so the binding follows the derivation rather than demanding the
+    enumeration variable appear verbatim in the emission.
+    """
+    derived = {seed}
+    for line in _logical_lines(run):
+        assignment = _ASSIGNMENT.match(line)
+        if assignment is None:
+            continue
+        name, value = assignment.group(1), assignment.group(2)
+        if name not in derived and _references(value, derived):
+            derived.add(name)
+    return derived
+
+
+def _step_emits_derived_value(
+    step: dict[str, Any], key: str, derived: set[str]
+) -> bool:
+    """The step writes `key` to GITHUB_OUTPUT carrying the enumerated revisions.
+
+    Checking only that the key is written accepted a step that enumerated every
+    revision correctly and then published a constant or a subset under that key,
+    such as the merge commit alone. The matrix would gate one revision while the
+    validator reported the dispatcher as aligned.
+    """
+    for line in _logical_lines(_step_run(step)):
         if "GITHUB_OUTPUT" not in line:
             continue
-        match = re.search(r"([A-Za-z0-9_-]+)=", line)
-        if match:
-            keys.add(match.group(1))
-    return keys
+        emission = re.search(re.escape(key) + r"=(.*?)\"?\s*>>", line)
+        if emission is not None and _references(emission.group(1), derived):
+            return True
+    return False
 
 
-def _step_refuses_an_empty_enumeration(step: dict[str, Any]) -> bool:
+def _shell_if_blocks(run: str) -> list[tuple[str, str]]:
+    """(condition, body) for each `if` block, single-line or multi-line.
+
+    A guard is only a guard if its body does something, so the condition and the
+    body have to be read together.
+    """
+    blocks: list[tuple[str, str]] = []
+    lines = _logical_lines(run)
+    index = 0
+    while index < len(lines):
+        opener = re.match(r"\s*if\s+(?P<cond>.*?);\s*then\b(?P<rest>.*)$", lines[index])
+        if opener is None:
+            index += 1
+            continue
+        condition, rest = opener.group("cond"), opener.group("rest")
+        if re.search(r"\bfi\s*;?\s*$", rest):
+            blocks.append((condition, rest))
+            index += 1
+            continue
+        body, depth = [rest], 1
+        index += 1
+        while index < len(lines) and depth:
+            line = lines[index]
+            if re.match(r"\s*if\s+.*;\s*then\b", line):
+                depth += 1
+            if re.match(r"\s*fi\s*$", line):
+                depth -= 1
+                if depth == 0:
+                    index += 1
+                    break
+            body.append(line)
+            index += 1
+        blocks.append((condition, chr(10).join(body)))
+    return blocks
+
+
+def _terminates_unsuccessfully(body: str) -> bool:
+    return re.search(r"\bexit\s+[1-9][0-9]*\b", body) is not None
+
+
+def _step_refuses_an_empty_enumeration(
+    step: dict[str, Any], derived: set[str]
+) -> bool:
     """The step must fail rather than publish nothing.
 
     An empty list expands to zero matrix jobs, and zero jobs is a success: the
     dispatch job reports green having gated no commit at all. That is the
-    silent-pass shape this control exists to prevent, so an enumeration that can
-    emit an empty set is not verified however correct its other steps are.
+    silent-pass shape this control exists to prevent.
 
-    Either an explicit emptiness test or a comparison against the event's own
-    commit count is sufficient; both are in use across the estate.
+    Both halves are load-bearing. Accepting any emptiness test let a guard on an
+    unrelated variable stand in for one on the enumeration; accepting a guard
+    whose branch only logs let the empty list be published anyway. Either an
+    emptiness test on the enumeration or a comparison against the event's own
+    commit count is sufficient, because the estate's two implementations use one
+    each, but the branch has to terminate unsuccessfully.
     """
-    run = _step_run(step)
-    explicit_empty = re.search(r"\[\s+-z\s+\"\$\{?[A-Za-z0-9_-]+\}?\"\s+\]", run) is not None
-    count_compared = re.search(r'-ne\s+"\$\{?(?:PR_)?COMMIT_COUNT\}?"', run) is not None
-    return explicit_empty or count_compared
+    for condition, body in _shell_if_blocks(_step_run(step)):
+        if not _terminates_unsuccessfully(body):
+            continue
+        tests_enumeration_empty = any(
+            re.search(r"-z\s+\"?\$\{?" + re.escape(name) + r"\b", condition)
+            is not None
+            for name in derived
+        )
+        compares_event_commit_count = (
+            re.search(r"-ne\s+\"?\$\{?(?:PR_)?COMMIT_COUNT\b", condition) is not None
+        )
+        if tests_enumeration_empty or compares_event_commit_count:
+            return True
+    return False
 
 
-def _verified_enumeration_step_id(job: dict[str, Any]) -> str | None:
-    """The id of this job's proven enumeration step, or None.
+def _verified_enumeration_step(job: dict[str, Any]) -> dict[str, Any] | None:
+    """This job's proven enumeration step, or None.
 
-    Returns the id rather than a boolean so the caller can require that the
-    consumed output is the one this step publishes. Checking only that some step
-    was verified, and separately that some output mentions `steps.`, accepted a
-    matrix fed by an unrelated step -- or by a step that does not exist.
+    The enumeration must run only for PRs merged into main, assert rebase-only
+    merge settings, enumerate exactly the commits the event names, refuse an
+    empty result, and publish through the job's declared output.
+
+    Returns the step rather than a boolean so the caller can require that the
+    value the matrix consumes is the one this step publishes. Checking only that
+    some step was verified, and separately that some output mentioned a step
+    reference, accepted a matrix fed by an unrelated step -- or by a step that
+    does not exist.
     """
     condition = str(job.get("if") or "")
     if "github.event.pull_request.merged == true" not in condition:
@@ -278,6 +410,10 @@ def _verified_enumeration_step_id(job: dict[str, Any]) -> str | None:
     for step in _job_steps(job):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
         run = _step_run(step)
+        seed = _enumeration_variable(step)
+        if seed is None:
+            continue
+        step_id = step.get("id")
         if (
             "github.event.pull_request.merge_commit_sha" in merge_commit_sha
             # Rebase-only, asserted against the repository's own merge settings.
@@ -288,28 +424,17 @@ def _verified_enumeration_step_id(job: dict[str, Any]) -> str | None:
                 or _step_enumerates_by_rev_list(step)
             )
             # An empty result must fail rather than produce zero matrix jobs.
-            and _step_refuses_an_empty_enumeration(step)
+            and _step_refuses_an_empty_enumeration(
+                step, _values_derived_from(run, seed)
+            )
             # Published through the job's declared output rather than logged.
             and "GITHUB_OUTPUT" in run
+            # Addressable, so the consumed output can be bound to this step.
+            and isinstance(step_id, str)
+            and step_id
         ):
-            step_id = step.get("id")
-            return str(step_id) if isinstance(step_id, str) and step_id else None
+            return step
     return None
-
-
-def _job_has_verified_enumeration_step(job: dict[str, Any]) -> bool:
-    # The enumeration must run only for PRs merged into main, assert rebase-only
-    # merge settings, walk the commits endpoint anchored at the event's merge
-    # SHA with an explicit page size covering the whole PR (a default page
-    # would silently truncate large PRs; the count equality then fails closed),
-    # compare the resolved count to the event's commit count, and publish the
-    # enumerated SHAs through the job's declared output.
-    condition = str(job.get("if") or "")
-    if "github.event.pull_request.merged == true" not in condition:
-        return False
-    if "github.event.pull_request.base.ref == 'main'" not in condition:
-        return False
-    return _verified_enumeration_step_id(job) is not None
 
 
 def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
@@ -340,13 +465,13 @@ def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
             source_job = jobs.get(source_name)
             if source_name not in needs_list or not isinstance(source_job, dict):
                 continue
-            # The consumed output must be the one the *proven* enumeration step
-            # publishes. Accepting any expression containing "steps." let a
+            # The consumed output must be the one the *proven* enumeration
+            # step publishes. Accepting any expression containing "steps." let a
             # matrix be fed by an unrelated step emitting an empty list, and by a
             # step that does not exist at all -- both reported as verified while
             # gating nothing.
-            enumeration_id = _verified_enumeration_step_id(source_job)
-            if enumeration_id is None:
+            enumeration_step = _verified_enumeration_step(source_job)
+            if enumeration_step is None:
                 continue
             outputs = (
                 source_job.get("outputs")
@@ -357,19 +482,18 @@ def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
                 r"steps\.([A-Za-z0-9_-]+)\.outputs\.([A-Za-z0-9_-]+)",
                 str(outputs.get(output_name) or ""),
             )
-            if reference is None or reference.group(1) != enumeration_id:
+            if reference is None or reference.group(1) != enumeration_step.get("id"):
                 continue
-            enumeration_step = next(
-                (
-                    step
-                    for step in _job_steps(source_job)
-                    if step.get("id") == enumeration_id
-                ),
-                None,
-            )
-            if enumeration_step is None:
-                continue
-            if reference.group(2) not in _step_emitted_output_keys(enumeration_step):
+            # Naming the proven step is still not enough: the key it publishes
+            # has to carry that step's enumerated revisions. A step can walk
+            # every commit correctly and then emit a constant under the expected
+            # key, gating one revision while reporting the whole PR aligned.
+            seed = _enumeration_variable(enumeration_step)
+            if seed is None or not _step_emits_derived_value(
+                enumeration_step,
+                reference.group(2),
+                _values_derived_from(_step_run(enumeration_step), seed),
+            ):
                 continue
             if _job_dispatches_matrix_revision(job, matrix_key):
                 return True
