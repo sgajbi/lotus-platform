@@ -257,6 +257,25 @@ SQLite schema — the default backend — still created the old unscoped shape; 
 name found the repository context naming trusted-caller identity derivation for one route family and
 silent for the sibling that now does the same thing; contributed by the `lotus-gateway` seat.
 
+**When the grep can become a checker, and when it cannot.** A rename is only mechanically checkable
+when the **references** share a common shape *and* a **registry** resolves them — not when the
+renamed thing does. `make container-acceptance-gate` qualifies because the Makefile is the registry
+that says which targets exist; a 32-hex digest qualifies because its derivation is. A claim with no
+registry to check against has no invariant, and needs a reviewer rather than a checker. That
+correction matters because the first reading was the other way round: a renamed Make target looks
+shapeless, so the rule appeared unrescuable — the renamed thing has no shape, the *reference* does.
+
+Measured before being written down: 55 documented `make` targets against 65 real ones in
+`lotus-performance`, two non-matches, both of them flags rather than targets, so one skip rule
+sufficed. Falsified by reintroducing the real pre-fix wiki sentence, which fails naming
+`container-acceptance-gate`. Contributed by the `lotus-render` / `lotus-performance` /
+`lotus-advise` seat, correcting a condition from the `lotus-ai` / `lotus-idea` seat.
+
+Three forms, weakest to strongest, agreed across three seats. **Enumerate and check** fails on
+incomplete enumeration — a sweep for one identifier prefix missed two others in the same codebase.
+**Pin each pair** works and costs maintenance per pair. **Assert the invariant** needs no enumeration
+at all and covers instances added later by people who never read the rule.
+
 ### 13. Scoping reads turns a leak into a collision unless the keys carry the scope too
 
 Contributed by the `lotus-ai` / `lotus-idea` seat.
@@ -408,6 +427,78 @@ and confirm the scoped value reaches it. "The key now contains the tenant" is a 
 "the lookup refuses another tenant" is a fact about a branch. Only the second is the claim, and the
 two are easy to mistake for each other because the first is visible in the diff and the second is
 not.
+
+### 17. Retiring a compromised key is not withdrawing it
+
+Contributed by the `lotus-report` / `lotus-risk` / `lotus-archive` seat.
+
+**Claimed:** rotating a signing key retains the outgoing key so decisions it already signed stay
+verifiable, and withdrawing a key removes it so nothing it signed verifies. Operators treat these as
+the same operation with different urgency.
+
+**Evidence:** they are different operations with opposite effects. `lotus-archive` publishes its
+verification keys with `not_before_utc` and `not_after_utc`, and retirement moves a key into the
+retired set with a closed window — it stays published and keeps verifying every decision inside that
+window, which is correct for a rotation and is why history survives one. Apply the same operation to
+a **compromised** key and it stays trusted for its entire historical window. The operation succeeds,
+the service starts, the published document is well-formed, and every consumer keeps verifying
+decisions signed by a key whose private half may be held by someone else. Nothing reports it, because
+there is no state to inspect that differs from a correct retirement: the state *is* a correct
+retirement. It is a control whose failure mode is a clean green.
+
+The required action is withdrawal — remove the key from the bundle entirely, accepting that decisions
+which verified yesterday stop verifying, because once the private half is loose the signature
+evidences nothing. Blast radius is every decision the key ever signed, for as long as anyone consults
+the bundle.
+
+Underneath it sat a second instance of the same silence: the published windows had no reader. The
+verify function had no parameter a window could reach it through, so retention was not merely
+unhelpful but exploitable — a retained key vouches for a decision dated after it stopped signing.
+
+**Check:** two parts, and the second is the one usually skipped. On withdrawal, assert that a decision
+which **previously verified now fails**, with a reason naming the key as unpublished — asserting only
+that the key is absent from the response passes against a consumer that never consults the bundle.
+And assert the refusal **reasons are distinguishable**: a boolean verifier cannot separate "this key
+was ours and had retired before this decision claims to have been issued", which is evidence of
+forgery or back-dating, from "this key was never ours", an ordinary trust-distribution miss. An
+operator handling a suspected compromise reads the reason, not the boolean.
+
+### 18. A gate whose scope is a hand-maintained list reports green for what it never looked at
+
+Contributed by the `lotus-report` / `lotus-risk` / `lotus-archive` seat, with a second instance from
+the `lotus-platform` seat.
+
+**Claimed:** two gates were protecting what they named. Both passed on every run.
+
+**Evidence:** `lotus-archive`'s `scripts/migration_gate.py` checks a hand-maintained `REQUIRED_FIELDS`
+set against the migration DDL — **15 of the 58 fields** on the document metadata model. Meanwhile the
+PostgreSQL repository derives its column list from that model and names every field in the INSERT, so
+a model field with no column is not a degraded feature: it is **every write failing**. It is invisible
+in CI, because the suites run against an in-memory repository with no schema, so a fully green run
+proves nothing about whether the column exists. It nearly landed: `make migration-gate` passed before
+the migration for a new field was written, because that field was not one of its fifteen names, and
+the migration existed only because someone had read the repository code.
+
+The second instance is `lotus-platform`'s adopted branch-protection checker, which compared a
+hard-coded scalar allowlist and ignored four controls — two of which decide whether `main` can be
+merged at all.
+
+Both were measured as **liveness gaps and not live defects**: all 58 columns exist today and all four
+protection fields are correctly set. The finding is that neither gate could have said so.
+
+**Check:** wherever a gate's scope is a list, ask what authority the system already derives the same
+thing from — a model, a registry, a manifest — and derive the check from that authority instead of
+restating it. The tell is that the two lists are *nearly* identical, which is exactly why nobody
+notices they have diverged.
+
+Falsify against a real breach, not against the current tree: add a field with no migration and confirm
+the gate fails **naming that field**, then add the migration and confirm it passes. Asserting the gate
+exits zero today proves nothing — it already did that while measuring a quarter of the fields.
+
+Checking whether the pattern generalises is part of the check. It did not extend to two sibling
+repositories: neither has a migration gate, and one names its columns explicitly rather than deriving
+them, so a new field there fails to persist rather than breaking every write. Different exposure,
+milder, not the same finding — so it stayed scoped rather than becoming an estate sweep.
 
 ## Contributing
 
