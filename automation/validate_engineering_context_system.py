@@ -309,8 +309,17 @@ _CODE_SPAN = re.compile(r"`(?P<span>[^`\n]+)`")
 # A reference-style link carries its destination in a separate definition, so a
 # document can route through `[guide][target]` while the only path in the file
 # sits on a `[target]: ...` line the inline pattern never sees.
+# A footnote definition shares the shape of a reference definition and is not
+# one: `[^1]: Explanatory prose` would otherwise contribute `Explanatory` as a
+# destination and fail a blocking gate on ordinary prose.
 _MARKDOWN_REFERENCE_DEFINITION = re.compile(
-    r"^ {0,3}\[[^\]]+\]:[ \t]*(?P<href><[^>]*>|\S+)", re.MULTILINE
+    r"^ {0,3}\[(?!\^)[^\]]+\]:[ \t]*(?P<href><[^>]*>|\S+)", re.MULTILINE
+)
+# A rendered HTML anchor is a route a reader can follow, so a broken one is a
+# broken route even though no Markdown link syntax is involved.
+_HTML_ANCHOR = re.compile(
+    r"""<a\s[^>]*?href\s*=\s*(?P<quote>["']?)(?P<href>[^"'\s>]*)(?P=quote)""",
+    re.IGNORECASE,
 )
 _ABSOLUTE_DESTINATION = re.compile(r"^(?:[/\\]|[A-Za-z]:[/\\])")
 # A token may begin with `./` or `../`, which is the conventional way to write
@@ -366,6 +375,40 @@ def _without_code(text: str) -> str:
     return chr(10).join(rendered)
 
 
+def _is_escaped(text: str, index: int) -> bool:
+    """True when the character at `index` is preceded by an odd run of backslashes."""
+    backslashes = 0
+    position = index - 1
+    while position >= 0 and text[position] == chr(92):
+        backslashes += 1
+        position -= 1
+    return backslashes % 2 == 1
+
+
+def _opens_a_link(text: str, closing_bracket: int) -> bool:
+    """True when this `](` is preceded by an unescaped label opener.
+
+    Documentation that displays link syntax writes it escaped, and Markdown
+    renders that as literal text. Scanning from every `](` reported those
+    examples as broken routes -- a blocking guard failing on correct prose.
+    """
+    if _is_escaped(text, closing_bracket):
+        return False
+    position = closing_bracket - 1
+    depth = 0
+    while position >= 0:
+        character = text[position]
+        if character in "[]" and not _is_escaped(text, position):
+            if character == "]":
+                depth += 1
+            elif depth == 0:
+                return True
+            else:
+                depth -= 1
+        position -= 1
+    return False
+
+
 def _inline_link_destinations(text: str):
     """Yield the destination of every inline link, parentheses and all.
 
@@ -376,6 +419,8 @@ def _inline_link_destinations(text: str):
     """
     length = len(text)
     for opener in re.finditer(r"]" + chr(92) + "(", text):
+        if not _opens_a_link(text, opener.start()):
+            continue
         index = opener.end()
         while index < length and text[index] in " " + chr(9) + chr(10):
             index += 1
@@ -1006,6 +1051,18 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
     for label, path in sorted(documents.items()):
         if path.suffix.lower() != ".md":
             continue
+        # The routed document's own containment, not only its contents. A
+        # manifest route written as `../lotus-workbench/README.md` resolves in a
+        # developer workspace and nowhere else, and validating the outside file's
+        # links would have reported success on exactly the sibling-checkout
+        # dependency this check exists to reject.
+        resolved = path.resolve()
+        if not resolved.is_relative_to(ROOT):
+            errors.append(
+                f"{label} is routed to a path outside the repository, which "
+                f"resolves only where a sibling checkout exists: {path}"
+            )
+            continue
         if not path.is_file():
             # Skipping was a silent pass: the manifest could route an agent to a
             # document that does not exist, and the gate that is supposed to
@@ -1024,6 +1081,9 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
         destinations.extend(
             match.group("href")
             for match in _MARKDOWN_REFERENCE_DEFINITION.finditer(rendered)
+        )
+        destinations.extend(
+            match.group("href") for match in _HTML_ANCHOR.finditer(rendered)
         )
         for href in destinations:
             if not href or href.startswith("#"):
