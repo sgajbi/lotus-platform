@@ -446,18 +446,34 @@ decisions signed by a key whose private half may be held by someone else. Nothin
 there is no state to inspect that differs from a correct retirement: the state *is* a correct
 retirement. It is a control whose failure mode is a clean green.
 
-The required action is withdrawal — remove the key from the bundle entirely, accepting that decisions
-which verified yesterday stop verifying, because once the private half is loose the signature
-evidences nothing. Blast radius is every decision the key ever signed, for as long as anyone consults
-the bundle.
+The required action is withdrawal: everything the key ever signed must stop verifying, because once
+the private half is loose the signature evidences nothing. Blast radius is every decision the key
+ever signed, for as long as anyone consults the bundle.
+
+**Withdrawal does not mean deleting the entry.** The governed discovery contract,
+[`lifecycle-authority-key-discovery.schema.json`](../../platform-contracts/lifecycle-authority/lifecycle-authority-key-discovery.schema.json),
+carries `status` with `active`, `rotated` and `revoked` precisely so a withdrawn key stays published
+and says what happened to it. Removing the entry produces "this key was never ours", which is
+indistinguishable from an ordinary trust-distribution miss — and that collapses the very distinction
+the check below requires. A key is withdrawn by publishing it as `revoked`, so a consumer refuses
+everything it signed *and* can say why.
+
+The two operations differ in what they do to verification, not in whether the key stays published:
+a rotated key keeps verifying inside its closed window, and a revoked key verifies nothing at any
+time.
 
 Underneath it sat a second instance of the same silence: the published windows had no reader. The
 verify function had no parameter a window could reach it through, so retention was not merely
 unhelpful but exploitable — a retained key vouches for a decision dated after it stopped signing.
+The shape recurs one layer along, which is the reason to look again after fixing it: a bundle that
+publishes a status a verifier never reads has the same gap as one that publishes a window nobody
+reads.
 
 **Check:** two parts, and the second is the one usually skipped. On withdrawal, assert that a decision
-which **previously verified now fails**, with a reason naming the key as unpublished — asserting only
-that the key is absent from the response passes against a consumer that never consults the bundle.
+which **previously verified now fails**, with a reason naming the key as revoked rather than as
+absent — asserting only that the key is gone from the response passes against a consumer that never
+consults the bundle, and asserting an unpublished-key reason accepts an implementation that deleted
+the entry.
 And assert the refusal **reasons are distinguishable**: a boolean verifier cannot separate "this key
 was ours and had retired before this decision claims to have been issued", which is evidence of
 forgery or back-dating, from "this key was never ours", an ordinary trust-distribution miss. An
