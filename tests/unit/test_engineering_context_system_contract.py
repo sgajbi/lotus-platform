@@ -2361,6 +2361,47 @@ _ATTRIBUTION = re.compile(r"^Contributed by\b(?P<seats>.*)$", re.MULTILINE)
 _SEAT = re.compile(r"`[^`]+`")
 
 
+def _case_sections(library: str) -> list[str]:
+    """Return each entry's text, splitting only on headings a reader would see.
+
+    An entry may include a fenced reproduction containing an unindented `###`
+    line. Splitting the raw text treated that code line as another entry and
+    reported it as missing every field, so a case carrying its own repro would
+    have failed the suite -- which is how a useful check gets switched off.
+
+    Only the split is fence-aware. The field and attribution checks read the
+    original text, because stripping code spans there would erase the very
+    backticked seat names attribution requires.
+    """
+    lines = library.split(chr(10))
+    fence = ""
+    starts: list[int] = []
+    for index, line in enumerate(lines):
+        stripped = line.lstrip(" ")
+        indent = len(line) - len(stripped)
+        delimiter = re.match(r"^(?P<fence>`{3,}|~{3,})", stripped) if indent <= 3 else None
+        if fence:
+            if (
+                delimiter
+                and delimiter.group("fence")[0] == fence[0]
+                and len(delimiter.group("fence")) >= len(fence)
+                and re.match(r"^(?:`{3,}|~{3,})[ \t]*$", stripped)
+            ):
+                fence = ""
+            continue
+        if delimiter:
+            fence = delimiter.group("fence")
+            continue
+        if line.startswith("### "):
+            starts.append(index)
+
+    sections: list[str] = []
+    for position, start in enumerate(starts):
+        end = starts[position + 1] if position + 1 < len(starts) else len(lines)
+        sections.append(chr(10).join(lines[start:end])[len("### ") :])
+    return sections
+
+
 def _case_library_entry_errors(library: str) -> list[str]:
     """Return every entry that does not name a case.
 
@@ -2389,11 +2430,11 @@ def _case_library_entry_errors(library: str) -> list[str]:
        field, with the seat itself present as a code-span repository name.
     """
     errors: list[str] = []
-    sections = library.split(chr(10) + "### ")
-    if len(sections) < 2:
+    sections = _case_sections(library)
+    if not sections:
         return ["the case library contains no entries, so this check would pass on an empty file"]
 
-    for index, section in enumerate(sections[1:], start=1):
+    for index, section in enumerate(sections, start=1):
         heading = section.split(chr(10), 1)[0].strip()
         label = heading or f"entry {index} (no heading)"
         if not heading:
@@ -2643,6 +2684,39 @@ def test_the_case_library_guard_requires_a_named_seat() -> None:
     errors = _case_library_entry_errors(unnamed)
 
     assert any("empty attribution" in error for error in errors), errors
+
+
+def test_the_case_library_guard_accepts_a_fenced_heading_inside_evidence() -> None:
+    """A case may carry its own reproduction, including one that contains `###`.
+
+    Splitting raw text treated the fenced line as another entry and reported it
+    as missing every field, so evidence concrete enough to reproduce would have
+    failed the suite that exists to require it.
+    """
+    fence = chr(96) * 3
+    with_repro = (
+        "# Agent Failure Case Library"
+        + chr(10) * 2
+        + "### 1. A gate that cannot fail"
+        + chr(10) * 2
+        + "Contributed by the `lotus-platform` seat."
+        + chr(10) * 2
+        + "**Claimed:** it worked."
+        + chr(10) * 2
+        + "**Evidence:** the document below reproduces it."
+        + chr(10) * 2
+        + fence
+        + "markdown"
+        + chr(10)
+        + "### Example"
+        + chr(10)
+        + fence
+        + chr(10) * 2
+        + "**Check:** inject a known-bad input."
+        + chr(10)
+    )
+
+    assert _case_library_entry_errors(with_repro) == []
 
 
 def test_the_case_library_guard_does_not_pass_on_an_empty_file() -> None:
