@@ -178,13 +178,21 @@ function Get-CausalLogEvidence {
     return [pscustomobject]@{ verdict = "uncorrelated"; lines = @() }
   }
 
-  # The marker is removed before the pattern is applied. Matching the whole line
-  # let the marker satisfy the pattern it was supposed to help prove: a marker
-  # ending in `-service` made every `service` invariant pass on a line carrying
-  # no such field. The marker is opaque now as well, and this removal holds even
-  # if a future marker scheme reintroduces words.
+  # The pattern is applied to the event, not to what surrounds it. Two kinds of
+  # scaffolding otherwise satisfy the invariant they were meant to help prove:
+  #
+  #   the marker -- one built from the invariant id and ending in `-service`
+  #   made every `service` invariant pass on a line carrying no such field;
+  #
+  #   the Compose prefix -- `docker compose logs` prefixes each line with the
+  #   service it came from unless `--no-log-prefix` is given, so a line from
+  #   `query_service` contains the word `service` before the payload starts.
+  #
+  # Both are stripped. The marker is opaque now as well, so either measure alone
+  # would close the first; the second has no such second line of defence.
   $matching = @($correlated | Where-Object {
-    ($_ -replace [regex]::Escape($Marker), "") -match $Pattern
+    $payload = $_ -replace "^\s*[^|]{1,64}\s\|\s", ""
+    ($payload -replace [regex]::Escape($Marker), "") -match $Pattern
   })
   if ($matching.Count -eq 0) {
     return [pscustomobject]@{ verdict = "unmatched"; lines = $correlated }
