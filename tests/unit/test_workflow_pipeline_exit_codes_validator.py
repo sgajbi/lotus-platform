@@ -683,6 +683,10 @@ _HIDES_THE_STATUS = {
         "( enable_strict )\n"
         "gate | tee /dev/null"
     ),
+    "verdict inside a command substitution": 'echo "$(gate)" | tee /dev/null',
+    "self-guarding subshell whose status is discarded": (
+        "( set -o pipefail; gate | tee /dev/null ) || true"
+    ),
     "guarded subshell piped into a sink": (
         "( set -o pipefail; gate | tee /dev/null ) | tee /dev/null"
     ),
@@ -738,6 +742,9 @@ _PROPAGATES_THE_STATUS = {
     "outer enabling function called in a subshell": (
         "enable_strict() { set -o pipefail; }\n"
         "( enable_strict; gate | tee /dev/null )"
+    ),
+    "substitution on the sink side": (
+        'set -o pipefail' + chr(10) + 'gate | tee "$(echo /dev/null)"'
     ),
     "recovery operator that propagates": (
         "set -o pipefail\ngate | tee /dev/null || exit 7"

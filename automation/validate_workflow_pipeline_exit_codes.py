@@ -299,7 +299,36 @@ def _join_subshells(lines: list[str]) -> list[str]:
     return joined
 
 
-def _terminal_sink(segment: str) -> str | None:
+def _producer_text(raw_line: str) -> str:
+    """Return a line's text up to its first top-level pipe, quotes intact.
+
+    Callers work on a quote-stripped probe, which erases ``"$(gate.py)"``
+    entirely and leaves what looks like a bare ``echo``. Deciding whether a
+    producer is verdict-free needs the original text, and a pipe inside a
+    substitution does not end the producer.
+    """
+    depth = 0
+    quote = ""
+    index = 0
+    while index < len(raw_line):
+        character = raw_line[index]
+        if quote:
+            if character == quote:
+                quote = ""
+        elif character in "'" + chr(34):
+            quote = character
+        elif raw_line.startswith("$(", index):
+            depth += 1
+            index += 1
+        elif character == ")" and depth:
+            depth -= 1
+        elif character == "|" and depth == 0:
+            return raw_line[:index]
+        index += 1
+    return raw_line
+
+
+def _terminal_sink(segment: str, raw_line: str | None = None) -> str | None:
     """Return the passive sink this single command segment ends in, if any.
 
     A segment is one command in a shell list; the caller splits on ``&&``,
@@ -321,7 +350,15 @@ def _terminal_sink(segment: str) -> str | None:
     # verdict: `printf x | gate.py | tee log` still hides gate.py's failure.
     upstream = [_command_of(stage) for stage in stages[:-1]]
     if upstream and all(command in _TRIVIAL_SOURCES for command in upstream):
-        return None
+        # `echo "$(gate.py)" | tee log` is NOT verdict-free, and is doubly
+        # fail-open: a command substitution discards its own exit status, and
+        # the pipeline then ends in a sink. The probe this function receives has
+        # been quote-stripped, which erases the substitution and leaves what
+        # looks like a bare `echo`, so the original line is consulted. A
+        # substitution on the *sink* side stays exempt, because a sink's
+        # argument is not a gate.
+        if raw_line is None or "$(" not in _producer_text(raw_line):
+            return None
     return last
 
 
@@ -419,10 +456,17 @@ def _scan_shell(
         # frequently written inside quotes, and stripping them removes it.
         raw_pieces = _split_top_level(line, ("&&", "||", ";"))
         segments = [(piece, preceding in ("", ";")) for piece, preceding in pieces]
+        # The matching raw piece is passed, not the whole line: a substitution in
+        # a different segment of the same line has nothing to do with this
+        # pipeline's producer, and judging by the line would report it.
         piped = [
             position
             for position, (segment, _) in enumerate(segments)
-            if _terminal_sink(segment) is not None
+            if _terminal_sink(
+                segment,
+                raw_pieces[position][0] if position < len(raw_pieces) else None,
+            )
+            is not None
         ]
         last_piped = piped[-1] if piped else None
         reported = False
@@ -511,6 +555,19 @@ def _scan_shell(
                         position == last_piped
                         and _status_is_propagated(shell, index)
                     )
+                ):
+                    offenders.append(line)
+                    reported = True
+                # A subshell that guards itself internally still hands its own
+                # status to whatever follows. `( set -o pipefail; gate | tee log
+                # ) || true` propagates correctly inside the parentheses and is
+                # then discarded outside them, so the inner scan is clean and the
+                # step still cannot fail. Trivial subshells are exempt: `( echo
+                # hi ) || true` has no verdict to lose.
+                if (
+                    not reported
+                    and _failure_is_consumed(pieces, position)
+                    and not _is_trivial_subshell("; ".join(_subshell_lines(segment)))
                 ):
                     offenders.append(line)
                     reported = True
