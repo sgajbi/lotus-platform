@@ -11,7 +11,8 @@
       "keyId": "key-2026-09",
       "expired": false,
       "revoked": false,
-      "subjectKind": "service"
+      "subjectKind": "service",
+      "signatureVerifies": true
     },
     "assertedHeaders": {
       "x-caller-capabilities": "manage.write,manage.admin",
@@ -22,8 +23,15 @@
     "portfolioRef": "portfolio:PB-SG-0001",
     "grantStoreAvailable": true,
     "actingForSubjectRef": "subject:advisor-001",
-    "applicationCapabilities": ["manage.write", "manage.read"],
-    "userCapabilities": ["manage.write", "manage.read", "idea.review"]
+    "applicationCapabilities": [
+      "manage.write",
+      "manage.read"
+    ],
+    "userCapabilities": [
+      "manage.write",
+      "manage.read",
+      "idea.review"
+    ]
   },
   "expected": {
     "outcome": "admitted",
@@ -31,8 +39,13 @@
     "resolvedPrincipal": {
       "kind": "delegated",
       "tenantRef": "tenant:private-bank-sg",
-      "effectiveCapabilities": ["manage.read", "manage.write"],
-      "entitlementScope": ["portfolio:PB-SG-0001"]
+      "effectiveCapabilities": [
+        "manage.read",
+        "manage.write"
+      ],
+      "entitlementScope": [
+        "portfolio:PB-SG-0001"
+      ]
     },
     "headerAuthorityHonoured": false
   }

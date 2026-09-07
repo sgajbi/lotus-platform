@@ -62,15 +62,26 @@ tenant not a member; capability not granted; portfolio outside scope; grant stor
 for delegated calls — a capability the application holds but the person does not.
 
 **`present_but_unverified` is the one that matters most, and the easiest to skip.** It is a
-well-formed, unexpired, correctly-audienced credential whose signature was never checked. Every
-shape assertion passes, so a consumer can satisfy all twelve other fixtures by validating structure
-and resolving nothing at all. It is the fixture that makes "verified server-side authority is the
-source" mean something.
+well-formed, unexpired, correctly-audienced credential whose signature does not verify against the
+issuer's published keys. Every shape assertion passes, so a consumer can satisfy all twelve other
+fixtures by validating structure and resolving nothing at all. Fed to a resolver as-is it separates
+an implementation that verifies from one that inspects, which is what makes "verified server-side
+authority is the source" mean something.
 
-Each denial also carries `maxOutboundCalls: 0`, and that is a measurement rather than a claim. A 401
-is identical whether the refusal ran before the request left or after it, so the status code alone
-cannot tell them apart — only the call count can. Assert it against a recording client. A boolean
-saying side effects are not permitted cannot distinguish no calls from nobody counting.
+Every credential states `signatureVerifies` explicitly. A fixture that only *says* a credential was
+unverified is indistinguishable from a verified one that fails later, so a consumer could produce
+the expected refusal only by branching on the denial class — testing the fixture rather than the
+resolver.
+
+Each denial also carries `maxProtectedOperationCalls: 0`, and that is a measurement rather than a
+claim. A 401 is identical whether the refusal ran before the protected operation was invoked or
+after it, so the status code alone cannot tell them apart — only the call count can. Assert it
+against a recording client; a boolean cannot distinguish no calls from nobody counting.
+
+The budget covers **the protected operation the request was trying to perform**, not the resolution
+lookups that reach the refusal. Key discovery, tenant membership and the grant store are how a
+denial is *found* — `grant_store_unavailable` can only be discovered by attempting that call — so
+counting them would make the one compliant implementation fail its own fixture.
 
 ### Two ways to prove nothing
 

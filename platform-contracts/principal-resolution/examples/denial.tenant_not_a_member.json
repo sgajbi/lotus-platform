@@ -12,7 +12,8 @@
       "keyId": "key-2026-09",
       "expired": false,
       "revoked": false,
-      "subjectKind": "user"
+      "subjectKind": "user",
+      "signatureVerifies": true
     },
     "tenantRef": "tenant:another-private-bank",
     "requiredCapability": "manage.write",
@@ -23,6 +24,6 @@
     "outcome": "denied",
     "status": 403,
     "failsAtStep": 2,
-    "maxOutboundCalls": 0
+    "maxProtectedOperationCalls": 0
   }
 }

@@ -4,7 +4,7 @@
   "principalKind": "user",
   "environmentPosture": "verified",
   "request": {
-    "description": "A well-formed, unexpired, correctly-audienced credential whose signature was never checked against the issuer's keys. Every shape assertion passes: the fields are present, the values are plausible, and the expiry is in the future. Only verification distinguishes it from a genuine principal, which is why a consumer can satisfy every other fixture in this set by validating structure and resolving nothing.",
+    "description": "A credential that is well-formed, unexpired and correctly audienced, and whose signature does not verify against the issuer's published keys. Every shape assertion passes: the fields are present, the values plausible, the expiry in the future. Only verification distinguishes it from a genuine principal, which is why a consumer can satisfy every other fixture in this set by validating structure and resolving nothing. Fed to a resolver as-is, it separates an implementation that verifies from one that inspects.",
     "credential": {
       "present": true,
       "issuer": "https://identity.lotus.bank/example-idp",
@@ -12,7 +12,8 @@
       "keyId": "key-2026-09",
       "expired": false,
       "revoked": false,
-      "subjectKind": "user"
+      "subjectKind": "user",
+      "signatureVerifies": false
     },
     "tenantRef": "tenant:private-bank-sg",
     "requiredCapability": "manage.write",
@@ -23,6 +24,6 @@
     "status": 401,
     "failsAtStep": 1,
     "revealsReasonDetail": false,
-    "maxOutboundCalls": 0
+    "maxProtectedOperationCalls": 0
   }
 }
