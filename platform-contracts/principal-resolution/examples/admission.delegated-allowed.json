@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "lotus-platform.principal-admission-fixture.v1",
+  "schemaVersion": "lotus-platform.principal-admission-fixture.v2",
   "principalKind": "delegated",
   "environmentPosture": "verified",
   "request": {
@@ -12,7 +12,7 @@
       "expired": false,
       "revoked": false,
       "subjectKind": "service",
-      "signatureVerifies": true
+      "verifierOutcome": "accept"
     },
     "assertedHeaders": {
       "x-caller-capabilities": "manage.write,manage.admin",

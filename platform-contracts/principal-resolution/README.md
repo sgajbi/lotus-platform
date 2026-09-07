@@ -68,10 +68,23 @@ fixtures by validating structure and resolving nothing at all. Fed to a resolver
 an implementation that verifies from one that inspects, which is what makes "verified server-side
 authority is the source" mean something.
 
-Every credential states `signatureVerifies` explicitly. A fixture that only *says* a credential was
-unverified is indistinguishable from a verified one that fails later, so a consumer could produce
-the expected refusal only by branching on the denial class — testing the fixture rather than the
-resolver.
+Every credential states `verifierOutcome` explicitly — `accept` or `reject`. A fixture that only
+*says* a credential was unverified is indistinguishable from a verified one that fails later, so a
+consumer could produce the expected refusal only by branching on the denial class, testing the
+fixture rather than the resolver.
+
+### What this fixture set cannot compel, stated plainly
+
+`verifierOutcome` is an **instruction to the test harness, not a property of the payload**. These
+fixtures carry no signed bytes and no verification keys, so nothing here can make a real verifier
+fail. A consumer that maps `verifierOutcome` to a result — rather than configuring its verifier to
+produce that outcome from its own key material — satisfies the fixture and proves nothing.
+
+That limit is real and is not worked around, because a contract that shipped its own key material
+would be shipping identity, which is the first thing this contract says it does not do. It means
+`present_but_unverified` is the one class where the fixture describes the case and the **consumer**
+owns the proof. Say so in your evidence rather than citing this fixture as if it had verified
+anything.
 
 Each denial also carries `maxProtectedOperationCalls: 0`, and that is a measurement rather than a
 claim. A 401 is identical whether the refusal ran before the protected operation was invoked or
