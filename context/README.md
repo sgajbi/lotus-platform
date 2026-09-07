@@ -73,4 +73,4 @@ Update this directory when:
 
 If a change is repository-local only, update the repository-local context document instead.
 
-Use `automation/Sync-AgentOperatingContract.ps1` to synchronize the deployed global `AGENTS.md` from the governed source contract.
+Use `automation/Sync-AgentOperatingContract.ps1` to synchronize the repository-root `AGENTS.md` files from the governed source contract. Add `-IncludeDeployedTarget` for the deployed global copy, which exists only on a developer machine.

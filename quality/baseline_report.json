@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 371552
+    "total_source_lines": 372602
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,8 +147,8 @@
       },
       {
         "complexity": 16,
-        "end_line": 1283,
-        "line": 1244,
+        "end_line": 1292,
+        "line": 1253,
         "lines": 40,
         "name": "_broad_context_policy_errors",
         "path": "tests/unit/test_engineering_context_system_contract.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3328
+    "python_function_count": 3356
   },
-  "generated_at_utc": "2026-09-07T00:43:15Z",
+  "generated_at_utc": "2026-09-07T01:09:58Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -433,7 +433,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1583,
+      "lines": 1592,
       "path": "tests/unit/test_engineering_context_system_contract.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1421,
+    "collected_tests": 1440,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1421 tests collected"
+    "summary": "1440 tests collected"
   }
 }

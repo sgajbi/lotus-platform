@@ -788,13 +788,22 @@ def test_a_disk_target_is_compared_to_the_committed_source(tmp_path: Path) -> No
 
 
 def _governed_source_text() -> str:
-    """The governed contract exactly as committed, with its bytes preserved."""
-    # `Path.read_text` only gained a `newline` argument in Python 3.13, and the
-    # lanes run an older interpreter. Opening explicitly keeps the bytes intact
-    # on every version rather than on the one this was written against.
-    source = ROOT / "context" / "AGENTS-OPERATING-CONTRACT.md"
-    with source.open(encoding="utf-8", newline="") as handle:
-        return handle.read()
+    """The governed contract as committed, which is what the script compares against.
+
+    Reading the working tree instead made these fixtures fail for the duration
+    of any change to the contract source: the script compares a target against
+    the source at HEAD, so a fixture built from an uncommitted edit disagrees
+    with it by construction and the failure describes the checkout rather than
+    the behaviour under test.
+    """
+    git = shutil.which("git")
+    assert git is not None, "git is required for governed-contract tests"
+    completed = subprocess.run(
+        [git, "-C", str(ROOT), "show", "HEAD:context/AGENTS-OPERATING-CONTRACT.md"],
+        check=True,
+        capture_output=True,
+    )
+    return completed.stdout.decode("utf-8").replace(chr(13) + chr(10), chr(10))
 
 
 def _write_exact(path: Path, content: str) -> None:
@@ -883,3 +892,151 @@ def test_a_deployed_target_need_not_be_committed_to_be_verified(tmp_path: Path) 
 
     assert result.returncode == 0, _readable(result)
     assert not _says(result, "is not committed"), _readable(result)
+
+
+def _link_directory(link: Path, target: Path) -> bool:
+    """Create a directory link, or report that this machine will not.
+
+    Windows refuses symbolic links without elevation but allows a junction, and
+    a junction reproduces the case exactly: the path a caller writes differs
+    from the physical path Git reports.
+    """
+    try:
+        link.symlink_to(target, target_is_directory=True)
+        return True
+    except (OSError, NotImplementedError):
+        pass
+    if os.name != "nt":
+        return False
+    completed = subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+        capture_output=True,
+        text=True,
+    )
+    return completed.returncode == 0 and link.exists()
+
+
+def test_check_refuses_a_source_that_is_in_a_repository_but_not_committed(
+    tmp_path: Path,
+) -> None:
+    """An untracked source has no governed version for any other clone to pull.
+
+    Falling back to its bytes on disk compared the target against a version that
+    exists on one machine, and could report a deployed copy as synchronized with
+    a contract that was never committed.
+    """
+    source_repo = tmp_path / "source"
+    source_contract = source_repo / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    _write_exact(source_repo / "README.md", "# source" + chr(10))
+    _commit_all(source_repo)
+    # Written after the commit, so the file is inside the repository and absent
+    # from HEAD -- which is exactly the untracked case.
+    _write_exact(source_contract, "# uncommitted contract" + chr(10))
+
+    deployed = tmp_path / "deployed" / "AGENTS.md"
+    _write_exact(deployed, "# uncommitted contract" + chr(10))
+
+    result = _run_sync_result(
+        "-CheckOnly", "-SourcePath", str(source_contract), "-TargetPath", str(deployed)
+    )
+
+    assert result.returncode != 0, _readable(result)
+    assert _says(result, "no committed content at HEAD"), _readable(result)
+
+
+def test_check_still_accepts_a_source_that_lives_outside_any_repository(
+    tmp_path: Path,
+) -> None:
+    """The paired acceptance: outside Git, the bytes are the only answer there is."""
+    source_contract = tmp_path / "loose" / "AGENTS-OPERATING-CONTRACT.md"
+    _write_exact(source_contract, "# loose contract" + chr(10))
+    deployed = tmp_path / "deployed" / "AGENTS.md"
+    _write_exact(deployed, "# loose contract" + chr(10))
+
+    result = _run_sync_result(
+        "-CheckOnly", "-SourcePath", str(source_contract), "-TargetPath", str(deployed)
+    )
+
+    assert result.returncode == 0, _readable(result)
+
+
+def test_a_target_reached_through_a_linked_path_is_still_verified(
+    tmp_path: Path,
+) -> None:
+    """Git reports the physical worktree; the caller wrote the link-facing path.
+
+    Comparing the two rejected a perfectly synchronized target, so every check
+    through a linked workspace failed.
+    """
+    physical = tmp_path / "physical"
+    nested_target = physical / "config" / "AGENTS.md"
+    _write_exact(nested_target, _governed_source_text())
+    _commit_all(physical)
+
+    linked = tmp_path / "linked"
+    if not _link_directory(linked, physical):
+        pytest.skip("this machine does not permit creating a directory link")
+
+    result = _run_sync_result("-CheckOnly", "-TargetPath", str(linked / "config" / "AGENTS.md"))
+
+    assert result.returncode == 0, _readable(result)
+
+
+def test_sync_refuses_a_nested_target_whose_directory_does_not_exist_yet(
+    tmp_path: Path,
+) -> None:
+    """Provenance is not bypassed by the directory simply being absent.
+
+    Probing a directory that does not exist answered "not a work tree", which
+    skipped the refusal and wrote branch-only contract content into another
+    repository. That is the outcome no flag is allowed to override, so the
+    absence of a directory must not override it either.
+    """
+    git = shutil.which("git")
+    assert git is not None
+
+    source_origin = tmp_path / "source-origin.git"
+    source_repo = tmp_path / "source"
+    source_contract = source_repo / "context" / "AGENTS-OPERATING-CONTRACT.md"
+    target_repo = tmp_path / "sibling"
+    nested_target = target_repo / "config" / "AGENTS.md"
+
+    subprocess.run([git, "init", "--bare", str(source_origin)], check=True, capture_output=True)
+    source_contract.parent.mkdir(parents=True)
+    subprocess.run([git, "init", str(source_repo)], check=True, capture_output=True)
+    _run_git(source_repo, "checkout", "-b", "main")
+    _run_git(source_repo, "config", "user.email", "test@example.com")
+    _run_git(source_repo, "config", "user.name", "Test User")
+    _run_git(source_repo, "remote", "add", "origin", str(source_origin))
+    source_contract.write_text("# main contract" + chr(10), encoding="utf-8")
+    _run_git(source_repo, "add", ".")
+    _run_git(source_repo, "commit", "-m", "main contract")
+    _run_git(source_repo, "push", "-u", "origin", "main")
+    _run_git(source_repo, "checkout", "-b", "topic")
+    source_contract.write_text("# branch-only contract" + chr(10), encoding="utf-8")
+    _run_git(source_repo, "add", ".")
+    _run_git(source_repo, "commit", "-m", "branch contract")
+
+    target_repo.mkdir(parents=True)
+    subprocess.run([git, "init", str(target_repo)], check=True, capture_output=True)
+    _run_git(target_repo, "config", "user.email", "test@example.com")
+    _run_git(target_repo, "config", "user.name", "Test User")
+    (target_repo / "README.md").write_text("# sibling" + chr(10), encoding="utf-8")
+    _run_git(target_repo, "add", ".")
+    _run_git(target_repo, "commit", "-m", "seed")
+
+    assert not nested_target.parent.exists()
+
+    result = _run_sync_result(
+        "-Force", "-SourcePath", str(source_contract), "-TargetPath", str(nested_target)
+    )
+
+    assert result.returncode != 0, _readable(result)
+    assert not nested_target.exists(), (
+        "unmerged contract content must not be written into another repository, "
+        "and -Force does not override that"
+    )
+    assert _says(result, "differs from or cannot be verified against origin/main"), _readable(
+        result
+    )
+
