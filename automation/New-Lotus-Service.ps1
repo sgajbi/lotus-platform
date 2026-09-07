@@ -1880,6 +1880,41 @@ def log_event(event_name: str, service: str, level: LogLevel = "INFO", **fields:
     )
 
 
+def emit_request_completed_event(
+    *,
+    correlation_id: str,
+    trace_id: str,
+    method: str,
+    route: str,
+    status_code: int,
+    duration_ms: float,
+) -> None:
+    """Record that a request was served, so it can be correlated afterwards.
+
+    Response headers travel back to one caller and are gone. Without an event a
+    served request leaves no trace, so neither an operator nor platform QA can
+    ask what happened to a particular call. The route template is recorded
+    rather than the raw path, and no query string, body or business identifier
+    is accepted, so a correlated request cannot become a way to read data out of
+    the logs.
+    """
+    if not route.startswith("/") or "?" in route:
+        raise ValueError("route must be a route template without query string")
+    if not method.strip():
+        raise ValueError("method is required")
+    log_event(
+        "request.completed",
+        SERVICE_NAME,
+        "INFO",
+        correlation_id=correlation_id,
+        trace_id=trace_id,
+        method=method,
+        route=route,
+        status_code=status_code,
+        duration_ms=round(float(duration_ms), 3),
+    )
+
+
 def emit_request_diagnostic_event(
     event_name: str,
     *,
@@ -1950,7 +1985,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from app.observability.logging import log_event
+from app.observability.logging import emit_request_completed_event
 
 
 class CorrelationIdMiddleware(BaseHTTPMiddleware):
@@ -1980,10 +2015,7 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         # about the request path can be causal. The route template is logged
         # rather than the raw path, and no query string, body or identifier is
         # included.
-        log_event(
-            "request.completed",
-            self._service_name,
-            "INFO",
+        emit_request_completed_event(
             correlation_id=correlation_id,
             trace_id=trace_id,
             method=request.method,
@@ -1991,7 +2023,7 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
             if request.scope.get("route") is not None
             else request.url.path,
             status_code=response.status_code,
-            duration_ms=round(duration_ms, 3),
+            duration_ms=duration_ms,
         )
         return response
 "@
