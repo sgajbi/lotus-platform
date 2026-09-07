@@ -330,7 +330,12 @@ def _without_code(text: str) -> str:
     rendered: list[str] = []
     fence_marker = ""
     for line in text.split(chr(10)):
-        stripped = line.lstrip()
+        # At most three leading spaces open a fence. A fourth makes the line
+        # indented code, and treating it as an opener suppressed every link in
+        # the rest of the document -- the exact silence this check exists to
+        # break.
+        indent = len(line) - len(line.lstrip(" "))
+        stripped = line.lstrip() if indent <= 3 else ""
         if fence_marker:
             if stripped.startswith(fence_marker):
                 fence_marker = ""
@@ -974,7 +979,18 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
             # Any scheme means the destination is not a path in this repository.
             # Matching literal lowercase prefixes resolved `HTTPS://example.com`
             # as a relative path and reported a valid external link as missing.
-            if _URI_SCHEME.match(href.strip("<>")):
+            scheme_candidate = href.strip("<>")
+            # `file:` is a scheme, and it is also the same portability defect
+            # the absolute-path branch rejects: it names a location on one
+            # machine. Exempting it as "external" would let the one form of
+            # absolute path that carries a scheme through unchecked.
+            if scheme_candidate.lower().startswith("file:"):
+                errors.append(
+                    f"{label} links to a file URI, which names a location on "
+                    f"one machine rather than a route in this repository: {href}"
+                )
+                continue
+            if _URI_SCHEME.match(scheme_candidate):
                 continue
             # A destination may carry a fragment and a query, and neither is
             # part of the filename. `guide.md?plain=1` names `guide.md`.

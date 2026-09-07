@@ -2058,3 +2058,73 @@ def test_link_check_resumes_after_the_longer_fence_actually_closes(
     assert len(errors) == 1, errors
     assert "./absent-route.md" in errors[0]
 
+
+def test_link_check_does_not_treat_indented_code_as_a_fence(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """Four leading spaces make a line indented code, not a fence opener.
+
+    Stripping all indentation before classifying the opener let a literal fence
+    line inside an indented example open a block that never closed, and every
+    link after it went unchecked -- the silence this gate exists to break.
+    """
+    body = (
+        "An indented example:"
+        + chr(10) * 2
+        + "    "
+        + chr(96) * 3
+        + chr(10) * 2
+        + "See [the guide](missing.md)."
+        + chr(10)
+    )
+
+    errors = _link_errors(tmp_path, monkeypatch=monkeypatch, body=body)
+
+    assert len(errors) == 1, errors
+    assert "missing.md" in errors[0]
+
+
+def test_link_check_still_honours_a_fence_indented_by_three_spaces(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: three spaces is still a fence, so a list item works."""
+    body = (
+        "1. an example:"
+        + chr(10) * 2
+        + "   "
+        + chr(96) * 3
+        + chr(10)
+        + "   [example](not-a-real-file.md)"
+        + chr(10)
+        + "   "
+        + chr(96) * 3
+        + chr(10)
+    )
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
+
+def test_link_check_rejects_a_file_uri(tmp_path: Path, monkeypatch) -> None:
+    """A `file:` URI is a scheme and an absolute path at the same time.
+
+    Exempting it as external let the one form of machine-specific absolute path
+    that carries a scheme through unchecked, whether or not it exists.
+    """
+    errors = _link_errors(
+        tmp_path,
+        monkeypatch=monkeypatch,
+        body="See [the guide](file:///home/user/lotus-platform/guide.md)." + chr(10),
+    )
+
+    assert len(errors) == 1, errors
+    assert "file URI" in errors[0], errors
+
+
+def test_link_check_still_accepts_a_genuinely_external_scheme(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The paired acceptance: rejecting `file:` must not reject the web."""
+    body = "See [the repo](https://github.com/sgajbi/lotus-platform)." + chr(10)
+
+    assert _link_errors(tmp_path, monkeypatch=monkeypatch, body=body) == []
+
