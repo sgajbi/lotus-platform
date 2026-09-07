@@ -224,6 +224,69 @@ that passes on SQLite is unreachable on PostgreSQL.
 backend the lane actually uses: confirm the old call fails there and the replacement works. Verifying
 against the environment you write in proves only that you can run your own code.
 
+### 12. A rename outlives every sentence that described it
+
+Contributed by the `lotus-render` / `lotus-performance` / `lotus-advise` seat.
+
+**Claimed:** `lotus-performance`'s container supply-chain evidence was complete and its acceptance
+workflow was documented for operators. The gate wiring had been reviewed and the unit lane was
+green.
+
+**Evidence:** consolidating two container scans into one folded the acceptance validation into
+`make container-vulnerability-gate` and removed the fixable-only report. Seven documents still
+directed operators to `make container-acceptance-gate`, for which `make -n` answers "No rule to make
+target", and to a fixable-only artifact for which a repo-wide search finds no producer — the wiki,
+the quality scorecard, the CI gate map, the refactor health report, the repository context and two
+quality reports. Three more still described the runtime image as installing `requirements.txt` only,
+after a second requirements file was added and retained so the licence inventory would cover the
+shipped `setuptools`. Every one of those sentences was written while the design was still the
+*planned* shape, and nothing re-read them when the shape changed. Found by review, not by any gate.
+
+**Check:** when a change renames or consolidates a target, artifact, command or index, grep the old
+name across `*.md`, `wiki/`, scorecards, gate maps and repository context *as part of that change*.
+Grep the new name too: a document stating a property for one route family or backend and silent for
+its sibling reads as a deliberate difference rather than an omission, which is worse than a stale
+reference, because a reader concludes the asymmetry is the design. The trigger is the rename itself,
+not a judgement that meaning changed — a rename is observable and "the meaning changed" is not.
+
+Corroborated the same day in two seats within minutes of the rule being circulated, which is the
+evidence that the trigger is actionable rather than merely true. In `lotus-report` the same grep
+applied to a migration rename found the tenant-leading index shipped for PostgreSQL only, while the
+SQLite schema — the default backend — still created the old unscoped shape; contributed by the
+`lotus-report` / `lotus-risk` / `lotus-archive` seat. In `lotus-gateway` the grep for the *added*
+name found the repository context naming trusted-caller identity derivation for one route family and
+silent for the sibling that now does the same thing; contributed by the `lotus-gateway` seat.
+
+### 13. Scoping reads turns a leak into a collision unless the keys carry the scope too
+
+Contributed by the `lotus-ai` / `lotus-idea` seat.
+
+**Claimed:** adding a tenant filter to every read completed a tenancy fix.
+
+**Evidence:** `health_snapshot_id` was derived as `mh_<date>_<portfolio>`, and health snapshots
+upsert on that id alone. Two tenants scoring the same portfolio on the same business date derive one
+id, so the second write replaces the first's payload while leaving the first's tenant stamp in
+place. Every read on that path is then correctly scoped and still wrong: one tenant reads the
+other's data, and the other reads nothing. The asymmetry is what hides it — the victim sees
+plausible data, and the loser sees an empty result indistinguishable from "no evidence yet".
+
+**Check:** on any change that scopes reads, enumerate every *derived* identity on the path — primary
+and surrogate keys, content hashes, idempotency tokens, cache keys, replay keys — and confirm each
+carries the scope. Replay keys are the sharpest: a proof-pack id that *is* the replay key hands the
+second tenant the first's evidence, and it presents as a legitimate replay rather than an error.
+
+Two traps once the scope is being added to keys. Joining is not encoding: `f"{tenant}_{mandate}"` is
+ambiguous when either component may contain the separator, and as a primary key the collision
+surfaces as a unique violation between two genuinely distinct records, raised on the key rather than
+on the tenant-scoped conflict target, so it does not even present as a tenancy problem — hash a
+length-prefixed component sequence instead. And never backfill a default tenant onto existing rows:
+a nullable column with no backfill leaves pre-fence rows matching no equality predicate, so they are
+reachable from no tenant rather than silently attributed to one, including a tenant literally named
+`default`.
+
+The falsification that proves this is pinned rather than assumed: replace the derivation with a
+constant and confirm the tests claiming to check it now fail. Two did not.
+
 ## Contributing
 
 Add an entry when a failure would otherwise survive only in one session's memory and would change
