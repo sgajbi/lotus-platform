@@ -287,6 +287,38 @@ reachable from no tenant rather than silently attributed to one, including a ten
 The falsification that proves this is pinned rather than assumed: replace the derivation with a
 constant and confirm the tests claiming to check it now fail. Two did not.
 
+### 14. An assertion is empty when both sides route through the same derivation
+
+Contributed by the `lotus-ai` / `lotus-idea` seat.
+
+**Claimed:** two tests in `tests/unit/dpm/proof_packs/test_proof_pack_builder.py` pinned that a
+proof-pack id is derived from the tenant and run identity.
+
+**Evidence:** each asserted
+`pack.proof_pack_id == proof_pack_id_for_rebalance_run(tenant_id=..., rebalance_run_id=...)`, and
+the builder computes that field by calling the same helper with the same arguments. The assertion is
+`f(x) == f(x)`, which holds for every possible `f` — constant, identity or correct. Replacing both
+derivations with the literal `"dpp_constant"` left both tests passing. What they actually asserted
+was that the builder called the helper, which nobody doubted; they read as derivation checks only
+because one side is an attribute access and the other is a call, and that asymmetry is the whole
+disguise. Recomputing the expected value with the production helper is the move that feels rigorous,
+because it avoids a brittle literal, and it is what converts the test into a tautology.
+
+**Check:** for every assertion of the form `actual == derive(inputs)`, ask whether both sides route
+through the same derivation on the same inputs. If they do, keep the convergence line and add a case
+that must *not* converge — the convergence case proves the derivation is used, and the divergence
+case proves it discriminates. The divergence input must be one that **would have collided** under the
+defect being guarded against: an input the derivation never reads passes on a broken implementation
+and proves nothing.
+
+Then substitute a constant derivation and confirm the test fails. A constant collides with
+everything, so a test that still passes against it is not reading the derivation at all. That
+substitution is how these two were found, and the contributing seat notes they would have been
+defended on inspection — which is the reason to run the probe rather than read the test.
+
+Fixed in `lotus-manage` commit `5e443f12`; after adding the divergence half, the constant
+substitution fails both tests.
+
 ## Contributing
 
 Add an entry when a failure would otherwise survive only in one session's memory and would change
