@@ -147,6 +147,45 @@ function New-TestGap {
   }
 }
 
+function Get-CausalLogEvidence {
+  <#
+    .SYNOPSIS
+    Decide whether a log window proves a request emitted an expected event.
+
+    .DESCRIPTION
+    Returns the verdict for one log invariant: `correlated` when a line carries
+    the run-scoped marker and matches the pattern, `uncorrelated` when the
+    marker appears on no line at all, and `unmatched` when the request produced
+    a correlated event that does not match.
+
+    The three are deliberately distinct. Searching a log window for a bare word
+    conflates them: `service` appears in almost every structured line, so the
+    assertion passes without the request path emitting anything, and `audit` is
+    absent from a healthy service nobody asked to audit, so the assertion fails
+    with no defect present. Requiring the marker makes the evidence causal, and
+    separating `uncorrelated` from `unmatched` says whether the request was
+    logged at all.
+  #>
+  param(
+    [string]$LogText,
+    [string]$Marker,
+    [string]$Pattern
+  )
+
+  $lines = ([string]$LogText) -split "`n"
+  $correlated = @($lines | Where-Object { $_ -match [regex]::Escape($Marker) })
+  if ($correlated.Count -eq 0) {
+    return [pscustomobject]@{ verdict = "uncorrelated"; lines = @() }
+  }
+
+  $matching = @($correlated | Where-Object { $_ -match $Pattern })
+  if ($matching.Count -eq 0) {
+    return [pscustomobject]@{ verdict = "unmatched"; lines = $correlated }
+  }
+
+  return [pscustomobject]@{ verdict = "correlated"; lines = $matching }
+}
+
 function Add-Finding {
   param(
     [System.Collections.Generic.List[object]]$Findings,
@@ -471,11 +510,52 @@ foreach ($entry in $selected) {
   }
 
   if ($entry.startup.log_command) {
-    $logResult = Invoke-CommandCapture -RepoPath $repoPath -Command ([string]$entry.startup.log_command)
-    $logOutput = $logResult.output
-    foreach ($pattern in $entry.checks.observability.required_log_patterns) {
-      if (($logOutput -as [string]) -notmatch [string]$pattern) {
-        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-pattern-" + [string]$pattern) -Type "logs" -Expected "Log output matches pattern '$pattern'" -Actual "Pattern '$pattern' not found in logs" -Evidence $logOutput -Steps @("cd $repoPath", ([string]$entry.startup.log_command))
+    # A log invariant is proven by provoking it, not by searching whatever the
+    # last log window happens to hold. Scanning recent output for a bare word
+    # fails in both directions: `audit` is absent from a healthy service that
+    # was never asked to audit anything, and `service` is present in almost
+    # every structured line, so the assertion passes without the request path
+    # ever emitting it. Each invariant therefore names a side-effect-free probe,
+    # carries a run-scoped marker into it, and requires a single log line
+    # carrying both that marker and the pattern.
+    foreach ($invariant in $entry.checks.observability.required_log_patterns) {
+      $invariantId = if ($invariant -is [string]) { [string]$invariant } else { [string]$invariant.id }
+      $probe = if ($invariant -is [string]) { $null } else { $invariant.probe }
+
+      if (-not $probe) {
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-invariant-unproven-" + $invariantId) -Type "logs" -Expected "A side-effect-free probe that provokes the '$invariantId' invariant, so a matching event proves the request path emitted it" -Actual "The invariant declares no probe, so it can only be matched against unrelated recent output; that distinguishes nothing between a service defect and an unexercised log path" -Evidence ($invariant | ConvertTo-Json -Depth 5) -Steps @("Give this invariant a probe in automation/qa-matrix.json", "Re-run this QA lane")
+        continue
+      }
+
+      $patternText = [string]$invariant.pattern
+      $marker = "lotus-qa-" + $runId + "-" + $repoName + "-" + $invariantId
+      $correlationHeader = if ([string]::IsNullOrWhiteSpace([string]$probe.correlation_header)) { "X-Correlation-Id" } else { [string]$probe.correlation_header }
+      $probeMethod = if ([string]::IsNullOrWhiteSpace([string]$probe.method)) { "GET" } else { [string]$probe.method }
+      $probeHeaders = @{ $correlationHeader = $marker }
+      $probeBody = if ($null -ne $probe.body) { ($probe.body | ConvertTo-Json -Depth 8 -Compress) } else { $null }
+
+      $probeResult = Invoke-HttpCheck -Method $probeMethod -Url ([string]$probe.url) -Headers $probeHeaders -Body $probeBody -TimeoutSec $HttpTimeoutSeconds
+      $probeExpected = if ($null -ne $probe.expected_status) { [int]$probe.expected_status } else { 200 }
+
+      if ([int]$probeResult.status -ne $probeExpected) {
+        # Reported separately on purpose: a probe that did not run says nothing
+        # about observability, and calling it an observability defect is the
+        # confusion this check exists to remove.
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-probe-failed-" + $invariantId) -Type "logs" -Expected "HTTP $probeExpected from the '$invariantId' probe $probeMethod $($probe.url)" -Actual "HTTP $($probeResult.status); the invariant was not evaluated because nothing provoked it" -Evidence ([string]$probeResult.body) -Steps @("Bring up $repoName", "$probeMethod $($probe.url) with $correlationHeader=$marker")
+        continue
+      }
+
+      $logResult = Invoke-CommandCapture -RepoPath $repoPath -Command ([string]$entry.startup.log_command)
+      $evidence = Get-CausalLogEvidence -LogText ([string]$logResult.output) -Marker $marker -Pattern $patternText
+      $causalLines = $evidence.lines
+
+      if ($evidence.verdict -eq "uncorrelated") {
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-correlation-missing-" + $invariantId) -Type "logs" -Expected "A structured event carrying the run-scoped marker $marker" -Actual "No log line carries the marker, so the request was served without a correlated event and no log assertion about it can be causal" -Evidence ([string]$logResult.output) -Steps @("$probeMethod $($probe.url) with $correlationHeader=$marker", "cd $repoPath", ([string]$entry.startup.log_command))
+        continue
+      }
+
+      if ($evidence.verdict -eq "unmatched") {
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ("logs-pattern-" + $invariantId) -Type "logs" -Expected "The event correlated to $marker matches '$patternText'" -Actual "The request emitted a correlated event, and it does not match '$patternText'" -Evidence ($causalLines -join "`n") -Steps @("$probeMethod $($probe.url) with $correlationHeader=$marker", "cd $repoPath", ([string]$entry.startup.log_command))
       }
     }
   }
