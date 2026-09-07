@@ -266,10 +266,7 @@ def test_the_generated_request_event_satisfies_the_scaffolded_invariants(caplog)
     marker = "lotus-qa-20260907-031500-p0001"
 
     with caplog.at_level("INFO"):
-        namespace["log_event"](
-            "request.completed",
-            "lotus-example",
-            "INFO",
+        namespace["emit_request_completed_event"](
             correlation_id=marker,
             trace_id="trace-abc",
             method="GET",
@@ -301,8 +298,8 @@ def test_the_generated_middleware_emits_that_event() -> None:
     opening = source.index("$correlationMiddleware = @\"")
     middleware = source[opening : source.index('"@', opening)]
 
-    assert "from app.observability.logging import log_event" in middleware
-    assert '"request.completed"' in middleware
+    assert "from app.observability.logging import emit_request_completed_event" in middleware
+    assert "emit_request_completed_event(" in middleware
     assert "correlation_id=correlation_id" in middleware
     assert "trace_id=trace_id" in middleware
 

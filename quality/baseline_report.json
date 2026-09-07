@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 376918
+    "total_source_lines": 376947
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -383,7 +383,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 6004,
+      "lines": 6036,
       "path": "automation/New-Lotus-Service.ps1",
       "suffix": ".ps1"
     },

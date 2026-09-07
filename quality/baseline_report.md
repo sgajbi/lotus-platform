@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `934`
-- Total source lines: `376918`
+- Total source lines: `376947`
 - Python files: `244`
 - PowerShell files: `69`
 - Markdown files: `417`
@@ -30,7 +30,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
-| automation/New-Lotus-Service.ps1 | 6004 | .ps1 |
+| automation/New-Lotus-Service.ps1 | 6036 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
 | tests/unit/test_engineering_context_system_contract.py | 2823 | .py |
