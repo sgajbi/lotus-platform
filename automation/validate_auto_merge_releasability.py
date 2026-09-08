@@ -555,6 +555,40 @@ def _job_dispatches_matrix_revision(job: dict[str, Any], matrix_key: str) -> boo
     return False
 
 
+def _masks_the_immutable_ref_lookup(text: str, payload: dict[str, Any]) -> bool:
+    """Whether the step that looks up the dispatch ref swallows its failure.
+
+    The concern is real: `gh api .../git/ref/tags/$dispatch_ref || true` makes a
+    missing ref indistinguishable from a failed query, so the dispatcher creates
+    a tag it should have refused.
+
+    The unit is the **step**, and arriving at that took four review rounds worth
+    of being wrong in both directions.
+
+    Asking whether the whole file contained the lookup anywhere and `|| true`
+    anywhere flagged `lotus-manage`, which had adopted the range enumeration
+    this repository recommended and added a defensive
+    `git fetch origin --quiet "$BASE_SHA" || true` in a DIFFERENT job. A check
+    that flags the fix it asked for teaches operators its findings are noise.
+
+    Narrowing to the physical line then let every way of wrapping one command
+    through: a backslash continuation, a folded YAML scalar whose lines YAML
+    joins into one command, and a split after a pipeline operator. Each was a
+    separate finding, and each fix was a scan over another representation --
+    a pattern matcher chasing syntax, which the next encoding would also pass.
+
+    A step is the smallest unit that is immune to all of them: however the
+    author wraps a command, both halves are still inside the step that runs it,
+    and a tolerated failure sitting beside the lookup in the same step is
+    suspicious regardless of layout.
+    """
+    for step in _workflow_steps(payload):
+        run = _step_run(step)
+        if "git/ref/tags/$dispatch_ref" in run and "|| true" in run:
+            return True
+    return False
+
+
 def _merged_pr_dispatch_passes_exact_sha(payload: dict[str, Any]) -> bool:
     for step in _workflow_steps(payload):
         merge_commit_sha = _step_env_value(step, "MERGE_COMMIT_SHA")
@@ -696,7 +730,7 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         or not has_immutable_dispatch_ref
     ):
         violations.append("merged-pr-dispatch.wrong-main-releasability-target")
-    if "git/ref/tags/$dispatch_ref" in text and "|| true" in text:
+    if _masks_the_immutable_ref_lookup(text, payload):
         violations.append("merged-pr-dispatch.masked-immutable-ref-lookup")
     if not _merged_pr_dispatch_passes_exact_sha(payload):
         violations.append("merged-pr-dispatch.missing-expected-sha-input")

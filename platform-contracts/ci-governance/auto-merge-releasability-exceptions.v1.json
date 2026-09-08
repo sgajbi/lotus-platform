@@ -13,6 +13,18 @@
         "merged-pr-dispatch.missing-expected-sha-input",
         "merged-pr-dispatch.wrong-main-releasability-target"
       ]
+    },
+    {
+      "repository": "lotus-workbench",
+      "owner": "platform-ci-governance",
+      "expires_on_utc": "2026-09-19T00:00:00Z",
+      "issue_url": "https://github.com/sgajbi/lotus-platform/issues/772",
+      "reason": "lotus-workbench main (883899e2) dispatches through scripts/dispatch-main-releasability.mjs, so the workflow run block holds no shell literals for the validator to inspect and it reports the governed semantics as absent. Read by hand on 2026-09-08: all three violations are false. The script passes expected_sha per enumerated revision; lotus-workbench main-releasability.yml checks out ref: inputs.expected_sha, so the exact revision is built and no immutable tag ref is needed for that guarantee; and because it writes no refs, contents: read is correct least privilege rather than a missing permission -- the contents: write rule assumes tag creation, which this design deliberately avoids (a per-revision tag write is refused when the tagged commit workflow tree differs from the default branch tip, because the Actions token lacks workflows scope). Measured against origin/main, which is what the governed check evaluates; a working-tree read gives a different set. NOT covered here and raised with the owner: the script enumerates with rev-list -n commitCount, the count-bounded form tracked in lotus-platform#859. Same cause and expiry as the lotus-idea entry.",
+      "violations": [
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.wrong-main-releasability-target"
+      ]
     }
   ]
 }

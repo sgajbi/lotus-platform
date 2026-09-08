@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 381769
+    "total_source_lines": 382811
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3641
+    "python_function_count": 3665
   },
-  "generated_at_utc": "2026-09-08T13:32:55Z",
+  "generated_at_utc": "2026-09-08T18:36:07Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -428,6 +428,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 1696,
+      "path": "tests/unit/test_auto_merge_releasability_validator.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1655,
       "path": "rfcs/RFC-0104-batch-reporting-scheduler-concurrency-and-recovery.md",
       "suffix": ".md"
@@ -440,11 +445,6 @@
     {
       "lines": 1490,
       "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1487,
-      "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1682,
+    "collected_tests": 1700,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1682 tests collected"
+    "summary": "1700 tests collected"
   }
 }
