@@ -1155,7 +1155,7 @@ def test_dropping_the_ancestor_guard_is_still_rejected(tmp_path: Path) -> None:
 # An empty enumeration expands to zero matrix jobs, and zero jobs is a
 # success, so a valid workflow has to refuse one. The fixture carries that
 # guard because a fixture without it is not a workflow this control accepts.
-_ENUMERATION_RUN = chr(10).join(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"']) + chr(10)
+_ENUMERATION_RUN = chr(10).join(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'payload="$(printf %s "$revisions" | jq -R . | jq -sc .)"', 'echo "list=$payload" >> "$GITHUB_OUTPUT"']) + chr(10)
 _DISPATCH_RUN = chr(10).join(['set -euo pipefail', 'dispatch_ref="main-releasability-${revision}"', 'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" --jq .object.sha', 'gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$revision"', 'gh workflow run main-releasability.yml --ref "$dispatch_ref" -f expected_sha="$revision"']) + chr(10)
 
 
@@ -1286,7 +1286,7 @@ def test_matrix_dispatch_creating_a_ref_from_another_sha_is_rejected() -> None:
 def test_matrix_enumeration_without_a_count_bound_is_rejected() -> None:
     """An unbounded enumeration can return fewer commits than the PR contained,
     and every commit it omits is one that nothing gates."""
-    unbounded = list(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'])
+    unbounded = list(['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'payload="$(printf %s "$revisions" | jq -R . | jq -sc .)"', 'echo "list=$payload" >> "$GITHUB_OUTPUT"'])
     unbounded[3] = 'revisions="$(git rev-list "$MERGE_COMMIT_SHA")"'
 
     assert not _matrix_is_accepted(
@@ -1297,7 +1297,7 @@ def test_matrix_enumeration_without_a_count_bound_is_rejected() -> None:
 def test_matrix_enumeration_without_the_rebase_only_assertion_is_rejected() -> None:
     """Squash and merge commits make per-commit enumeration describe history
     that was never put on main."""
-    unasserted = [line for line in ['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'echo "list=$revisions" >> "$GITHUB_OUTPUT"'] if "false,false,true" not in line]
+    unasserted = [line for line in ['set -euo pipefail', 'merge_methods="$(gh api repos/$GITHUB_REPOSITORY --jq join)"', 'if [ "$merge_methods" != "false,false,true" ]; then exit 1; fi', 'revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"', 'if [ -z "$revisions" ]; then exit 1; fi', 'payload="$(printf %s "$revisions" | jq -R . | jq -sc .)"', 'echo "list=$payload" >> "$GITHUB_OUTPUT"'] if "false,false,true" not in line]
 
     assert not _matrix_is_accepted(
         _matrix_dispatch_workflow(enumeration=chr(10).join(unasserted) + chr(10))
@@ -1416,7 +1416,7 @@ def test_a_verified_step_emitting_a_constant_is_rejected() -> None:
     reported the whole PR as aligned.
     """
     constant = _ENUMERATION_RUN.replace(
-        'echo "list=$revisions" >> "$GITHUB_OUTPUT"',
+        'echo "list=$payload" >> "$GITHUB_OUTPUT"',
         'echo "list=[\\"$MERGE_COMMIT_SHA\\"]" >> "$GITHUB_OUTPUT"',
     )
 
@@ -1457,7 +1457,7 @@ def test_an_emission_derived_from_the_enumeration_is_accepted() -> None:
     so the binding follows the derivation and this pins it.
     """
     derived = _ENUMERATION_RUN.replace(
-        'echo "list=$revisions" >> "$GITHUB_OUTPUT"',
+        'echo "list=$payload" >> "$GITHUB_OUTPUT"',
         "payload=\"$(printf '%s' $revisions | jq -R . | jq -sc .)\""
         + chr(10)
         + 'echo "list=$payload" >> "$GITHUB_OUTPUT"',

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-08T11:44:43Z`
+Generated: `2026-09-08T12:29:06Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `954`
-- Total source lines: `381007`
-- Python files: `247`
+- Source files: `955`
+- Total source lines: `381229`
+- Python files: `248`
 - PowerShell files: `69`
 - Markdown files: `418`
 
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3608`
+- Python functions: `3617`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -52,8 +52,8 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/verify_principal_credential.py | resolve_principal | 245 | 22 | 106 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
-| automation/validate_auto_merge_releasability.py | _matrix_dispatch_is_verified | 440 | 22 | 61 |
 | automation/verify_principal_credential.py | verify_credential | 168 | 21 | 75 |
+| automation/validate_auto_merge_releasability.py | _matrix_dispatch_is_verified | 452 | 21 | 58 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 37 | 20 | 69 |
 
 ## Tooling Baseline
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1663`
+- Unit tests collected: `1668`
 - Collection command return code: `0`
-- Collection summary: `1663 tests collected`
+- Collection summary: `1668 tests collected`
 
 ## Security Baseline
 

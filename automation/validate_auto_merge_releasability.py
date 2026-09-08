@@ -279,40 +279,54 @@ def _enumeration_variable(step: dict[str, Any]) -> str | None:
     return None
 
 
-def _values_derived_from(run: str, seed: str) -> set[str]:
-    """The seed plus every variable transitively assigned from it.
+def _line_enumerates_revisions(line: str, step: dict[str, Any]) -> bool:
+    """Whether this line is the trusted enumeration command itself."""
+    if "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" in line:
+        return True
+    return any(
+        re.search(pattern, line) is not None
+        and expected_source in _step_env_value(step, bound)
+        for pattern, bound, expected_source in _REVISION_ENUMERATIONS
+    )
 
-    The estate's two implementations differ here: one publishes the enumeration
-    variable directly, the other reshapes it into a JSON payload first. Both are
-    correct, so the binding follows the derivation rather than demanding the
-    enumeration variable appear verbatim in the emission.
+
+def _step_emits_enumerated_revisions(step: dict[str, Any], key: str) -> bool:
+    """The value published under `key` is the one the enumeration produced.
+
+    Derivation is tracked **positionally**, because a shell variable is not a
+    fact -- it is whatever was last assigned to it. The previous version built
+    an order-free set of names reachable from the seed, so once `revisions` was
+    in that set it stayed there, and
+
+        revisions="$(git rev-list -n "$COMMIT_COUNT" "$MERGE_COMMIT_SHA" | tac)"
+        revisions="[]"
+        echo "list=$revisions" >> "$GITHUB_OUTPUT"
+
+    published an empty matrix while satisfying every check. Tracking a name
+    proves a name; the dispatcher gates whatever the value holds.
+
+    So each assignment either keeps the variable carrying the enumeration -- it
+    is the enumeration command, or it reads something that currently carries it
+    -- or takes that status away. Reassignment from a literal is the case this
+    exists to catch, and it needs no new pattern: it is simply an assignment
+    that references nothing derived.
     """
-    derived = {seed}
-    for line in _logical_lines(run):
-        assignment = _ASSIGNMENT.match(line)
-        if assignment is None:
-            continue
-        name, value = assignment.group(1), assignment.group(2)
-        if name not in derived and _references(value, derived):
-            derived.add(name)
-    return derived
-
-
-def _step_emits_derived_value(
-    step: dict[str, Any], key: str, derived: set[str]
-) -> bool:
-    """The step writes `key` to GITHUB_OUTPUT carrying the enumerated revisions.
-
-    Checking only that the key is written accepted a step that enumerated every
-    revision correctly and then published a constant or a subset under that key,
-    such as the merge commit alone. The matrix would gate one revision while the
-    validator reported the dispatcher as aligned.
-    """
+    carries: set[str] = set()
     for line in _logical_lines(_step_run(step)):
+        assignment = _ASSIGNMENT.match(line)
+        if assignment is not None:
+            name, value = assignment.group(1), assignment.group(2)
+            if _line_enumerates_revisions(line, step):
+                carries.add(name)
+            elif _references(value, carries):
+                carries.add(name)
+            else:
+                carries.discard(name)
+
         if "GITHUB_OUTPUT" not in line:
             continue
         emission = re.search(re.escape(key) + r"=(.*?)\"?\s*>>", line)
-        if emission is not None and _references(emission.group(1), derived):
+        if emission is not None and _references(emission.group(1), carries):
             return True
     return False
 
@@ -424,9 +438,7 @@ def _verified_enumeration_step(job: dict[str, Any]) -> dict[str, Any] | None:
                 or _step_enumerates_by_rev_list(step)
             )
             # An empty result must fail rather than produce zero matrix jobs.
-            and _step_refuses_an_empty_enumeration(
-                step, _values_derived_from(run, seed)
-            )
+            and _step_refuses_an_empty_enumeration(step, {seed})
             # Published through the job's declared output rather than logged.
             and "GITHUB_OUTPUT" in run
             # Addressable, so the consumed output can be bound to this step.
@@ -488,11 +500,8 @@ def _matrix_dispatch_is_verified(payload: dict[str, Any]) -> bool:
             # has to carry that step's enumerated revisions. A step can walk
             # every commit correctly and then emit a constant under the expected
             # key, gating one revision while reporting the whole PR aligned.
-            seed = _enumeration_variable(enumeration_step)
-            if seed is None or not _step_emits_derived_value(
-                enumeration_step,
-                reference.group(2),
-                _values_derived_from(_step_run(enumeration_step), seed),
+            if not _step_emits_enumerated_revisions(
+                enumeration_step, reference.group(2)
             ):
                 continue
             if _job_dispatches_matrix_revision(job, matrix_key):
