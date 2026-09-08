@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 380832
+    "total_source_lines": 380971
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -67,6 +67,14 @@
       },
       {
         "complexity": 22,
+        "end_line": 350,
+        "line": 245,
+        "lines": 106,
+        "name": "resolve_principal",
+        "path": "automation/verify_principal_credential.py"
+      },
+      {
+        "complexity": 22,
         "end_line": 560,
         "line": 492,
         "lines": 69,
@@ -88,14 +96,6 @@
         "lines": 61,
         "name": "_matrix_dispatch_is_verified",
         "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
-        "complexity": 21,
-        "end_line": 325,
-        "line": 245,
-        "lines": 81,
-        "name": "resolve_principal",
-        "path": "automation/verify_principal_credential.py"
       },
       {
         "complexity": 21,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3596
+    "python_function_count": 3606
   },
-  "generated_at_utc": "2026-09-07T13:54:22Z",
+  "generated_at_utc": "2026-09-08T11:36:42Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1656,
+    "collected_tests": 1661,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1656 tests collected"
+    "summary": "1661 tests collected"
   }
 }

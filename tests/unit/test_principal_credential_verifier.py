@@ -273,3 +273,112 @@ def test_a_denial_carries_its_class_and_nothing_about_the_resource() -> None:
     assert isinstance(result, Denial)
     assert "PB_SG_GLOBAL_INC_002" not in result.denial_class
     assert "PB_SG_GLOBAL_INC_002" not in result.detail
+
+
+# --- membership is a refusal, not an optional filter ---------------------------
+
+
+def _spy_grants():
+    """A grant callback that records whether it was reached."""
+    calls: list[tuple[str, str]] = []
+
+    def grants_for(subject: str, tenant: str) -> GrantSet:
+        calls.append((subject, tenant))
+        return GrantSet(frozenset({"portfolio.read"}), frozenset({"PB_SG_GLOBAL_BAL_001"}))
+
+    return grants_for, calls
+
+
+def test_a_member_of_the_admitted_tenant_resolves() -> None:
+    """The positive case, on a really signed credential."""
+    vector = _vector("valid.user.json")
+
+    resolved = resolve_principal(vector["credential"], _resolution_inputs(vector))
+
+    assert isinstance(resolved, ResolvedPrincipal)
+    assert resolved.tenant_id == "tenant-sg"
+
+
+def test_a_non_member_is_refused() -> None:
+    vector = _vector("valid.user.json")
+
+    result = resolve_principal(
+        vector["credential"], _resolution_inputs(vector, tenant_members=NON_MEMBER)
+    )
+
+    assert isinstance(result, Denial)
+    assert result.denial_class == "tenant_not_a_member"
+
+
+def test_an_absent_membership_resolver_refuses_rather_than_skipping_the_check() -> None:
+    """The defect this replaces: no resolver meant no membership check at all.
+
+    The condition was `tenant_members is not None and not tenant_members(...)`,
+    so a correctly signed credential naming any tenant resolved as long as
+    grants happened to be available. An unanswerable question is not a pass.
+
+    It refuses as `grant_store_unavailable` rather than `tenant_not_a_member`,
+    because the second would assert the subject is not a member and nothing
+    established that.
+    """
+    vector = _vector("valid.user.json")
+    grants_for, calls = _spy_grants()
+
+    result = resolve_principal(
+        vector["credential"],
+        _resolution_inputs(vector, tenant_members=None, grants_for=grants_for),
+    )
+
+    assert isinstance(result, Denial)
+    assert result.denial_class == "grant_store_unavailable"
+    assert result.unauthenticated is False
+    assert calls == [], "grant lookup must not run once membership is unresolvable"
+
+
+def test_an_unavailable_membership_lookup_refuses_instead_of_raising() -> None:
+    """Rule 5, on the one callback it did not cover.
+
+    `tenant_members` was invoked outside the handler wrapping the other grant
+    callbacks, so the documented GrantStoreUnavailable escaped to the caller as
+    an exception rather than becoming the governed denial.
+    """
+    vector = _vector("valid.user.json")
+    grants_for, calls = _spy_grants()
+
+    def unavailable(subject: str, tenant: str) -> bool:
+        raise GrantStoreUnavailable("membership store unreachable")
+
+    result = resolve_principal(
+        vector["credential"],
+        _resolution_inputs(vector, tenant_members=unavailable, grants_for=grants_for),
+    )
+
+    assert isinstance(result, Denial)
+    assert result.denial_class == "grant_store_unavailable"
+    assert calls == [], "grant lookup must not run once membership is unavailable"
+
+
+def test_membership_is_resolved_before_any_grant_lookup() -> None:
+    """Ordering, asserted rather than assumed.
+
+    A refusal that happens after the protected lookup has already run is not a
+    refusal of the effect, only of the response.
+    """
+    vector = _vector("valid.user.json")
+    order: list[str] = []
+
+    def members(subject: str, tenant: str) -> bool:
+        order.append("membership")
+        return False
+
+    def grants_for(subject: str, tenant: str) -> GrantSet:
+        order.append("grants")
+        return GrantSet(frozenset(), frozenset())
+
+    result = resolve_principal(
+        vector["credential"],
+        _resolution_inputs(vector, tenant_members=members, grants_for=grants_for),
+    )
+
+    assert isinstance(result, Denial)
+    assert order == ["membership"]

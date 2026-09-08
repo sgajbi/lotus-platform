@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-07T13:54:22Z`
+Generated: `2026-09-08T11:36:42Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `954`
-- Total source lines: `380832`
+- Total source lines: `380971`
 - Python files: `247`
 - PowerShell files: `69`
 - Markdown files: `418`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3596`
+- Python functions: `3606`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -49,10 +49,10 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
+| automation/verify_principal_credential.py | resolve_principal | 245 | 22 | 106 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 | automation/validate_auto_merge_releasability.py | _matrix_dispatch_is_verified | 440 | 22 | 61 |
-| automation/verify_principal_credential.py | resolve_principal | 245 | 21 | 81 |
 | automation/verify_principal_credential.py | verify_credential | 168 | 21 | 75 |
 | automation/resolve_canonical_cash_evidence.py | cash_evidence_from_overview | 37 | 20 | 69 |
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1656`
+- Unit tests collected: `1661`
 - Collection command return code: `0`
-- Collection summary: `1656 tests collected`
+- Collection summary: `1661 tests collected`
 
 ## Security Baseline
 
