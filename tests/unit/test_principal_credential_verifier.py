@@ -382,3 +382,33 @@ def test_membership_is_resolved_before_any_grant_lookup() -> None:
 
     assert isinstance(result, Denial)
     assert order == ["membership"]
+
+
+def test_a_non_delegated_credential_resolves_without_an_application_resolver() -> None:
+    """`application_grants_for` is required only where authority is an intersection.
+
+    A `user` or `service` credential has no acting application, so there is no
+    second grant set to intersect with. The published contract briefly said all
+    three resolvers were required, which would have had consumers reject valid
+    non-delegated requests -- a doc asserting a stricter rule than the code.
+    """
+    vector = _vector("valid.user.json")
+
+    resolved = resolve_principal(
+        vector["credential"], _resolution_inputs(vector, application_grants_for=None)
+    )
+
+    assert isinstance(resolved, ResolvedPrincipal)
+    assert resolved.principal_kind == "user"
+
+
+def test_a_delegated_credential_still_requires_the_application_resolver() -> None:
+    """The intersection cannot be computed from one side of it."""
+    vector = _vector("valid.delegated.json")
+
+    result = resolve_principal(
+        vector["credential"], _resolution_inputs(vector, application_grants_for=None)
+    )
+
+    assert isinstance(result, Denial)
+    assert result.denial_class == "grant_store_unavailable"
