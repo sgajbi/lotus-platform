@@ -99,6 +99,11 @@ grants_for(subject: str, tenant_id: str) -> GrantSet          # capabilities, po
 application_grants_for(actor: str, tenant_id: str) -> GrantSet # delegated calls only
 ```
 
+**All three are required, and an absent one is a denial rather than a skipped step.** A resolver that
+is not supplied leaves membership or entitlement *unanswerable*, which is not the same as answered
+negatively: the refusal is `grant_store_unavailable`, not `tenant_not_a_member`, because the second
+would assert the subject is not a member when nothing established that.
+
 Any of these may raise `GrantStoreUnavailable`, which is a denial — never an empty grant set. An
 empty set is indistinguishable from a principal holding nothing, and the request would be refused
 for the wrong reason, or by a permissive consumer not refused at all.

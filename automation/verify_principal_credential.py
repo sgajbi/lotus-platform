@@ -272,7 +272,32 @@ def resolve_principal(
             MALFORMED_CREDENTIAL, unauthenticated=True, detail="delegated credential names no actor"
         )
 
-    if inputs.tenant_members is not None and not inputs.tenant_members(subject, tenant_id):
+    # Rule 4: resolution is five refusals, not five filters, and membership is
+    # the second. It was previously skipped entirely when no resolver was
+    # supplied -- `tenant_members is not None and ...` -- so a correctly signed
+    # credential naming any tenant resolved as long as grants happened to be
+    # available. An absent resolver is an unanswerable question, not a pass.
+    #
+    # Membership is resolved from the grant store, which the tenant-membership
+    # owner owns, so its absence is `grant_store_unavailable` rather than a
+    # membership refusal: refusing as `tenant_not_a_member` would assert that
+    # the subject is not a member, which nothing established.
+    if inputs.tenant_members is None:
+        return Denial(
+            GRANT_STORE_UNAVAILABLE,
+            unauthenticated=False,
+            detail="no membership resolver: tenant membership could not be established",
+        )
+    try:
+        is_member = inputs.tenant_members(subject, tenant_id)
+    except GrantStoreUnavailable:
+        # Rule 5: unavailability is a denial. This call sat outside the handler
+        # covering the other grant-store callbacks, so the documented exception
+        # escaped to the caller instead of becoming the governed refusal.
+        return Denial(
+            GRANT_STORE_UNAVAILABLE, unauthenticated=False, detail="membership lookup failed"
+        )
+    if not is_member:
         return Denial(TENANT_NOT_A_MEMBER, unauthenticated=False, detail="not a member")
 
     if inputs.grants_for is None:
