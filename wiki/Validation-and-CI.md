@@ -20,7 +20,36 @@ deployment, client demo readiness, or supported feature promotion.
 1. `Remote Feature Lane`
 2. `Pull Request Merge Gate`
 3. `Main Releasability Gate`
-4. `Platform End-to-End Validation`
+4. `Main Gate Coverage Audit`
+5. `Platform End-to-End Validation`
+
+`Main Releasability Gate` is dispatched **per merged revision**, not per merged
+pull request. This repository merges by rebase, so a pull request holding N
+commits puts N commits on `main`, and a commit that was never the pull request
+head still becomes the deployed tree under rollback and bisect. The dispatcher
+enumerates every revision the merge added and dispatches one gate run for each,
+sequentially so that concurrent dispatch-tag creation cannot drop a revision's
+run. The enumeration asserts rebase-only merge settings at run time and fails
+loudly if they change: under squash or merge-commit the walk names the wrong
+commits, and gating the wrong trees while reporting success is worse than the
+gap it closes.
+
+`Main Gate Coverage Audit` is the watchdog for that, because *a run that is
+never created is not a failure* -- nothing goes red, so only something looking
+for absence can see it. It walks `main`'s recent history and fails when any
+commit has no verdict-bearing gate run. It is fail-closed: a commit whose run
+listing cannot be fetched is unverified rather than fine, a cancelled or
+in-progress run is not a verdict, and a truncated window is not the window.
+
+`Platform End-to-End Validation` is **not currently producing evidence**, and
+has not since 2026-06-01: it declares `runs-on: self-hosted`, no self-hosted
+runner is registered, and each scheduled run is reaped by GitHub after
+twenty-four hours queued. Ninety-nine of its last hundred runs are `cancelled`
+and none succeeded. `service-cost-attribution-evidence.yml` shares that
+dependency and has never run at all. Both are tracked on issue #647, and until
+it is resolved **neither lane's evidence may be cited as satisfied** -- a
+daily cadence of cancelled runs reads, in any run listing, like a lane that
+works.
 
 ## Repo-native command mapping
 
@@ -76,7 +105,13 @@ deployment, client demo readiness, or supported feature promotion.
 - cross-repository governance posture
 - auto-merge releasability convergence: `LOTUS_AUTOMERGE_TOKEN` rebase auto-merge, merged-PR
   `main-releasability.yml` dispatch pinned to either the merge SHA or every ancestry-proven
-  rebase-added revision, workflow-dispatch support, and expiring rollout exceptions
+  rebase-added revision, workflow-dispatch support, and expiring rollout exceptions. The validator
+  binds the dispatched matrix to the value the enumeration **published**, not to a variable name:
+  a step can enumerate every revision, reassign the variable to `[]`, and publish that, and
+  `fromJson("[]")` expands to zero matrix jobs -- a workflow that succeeds having gated nothing.
+  Both forms remain permitted by policy, so a repository choosing the merge-SHA form is compliant
+  and still leaves every non-head revision without a verdict; the coverage audit, not the
+  validator, is what detects that
 - mainline commit provenance: GitHub-verified exact commits, local signed-commit fallback for
   unpushed work, and exact expiring exceptions for unsigned mainline output. The shared platform
   repo check entrypoint runs this as a blocking gate only for `main-releasability`, and platform CI

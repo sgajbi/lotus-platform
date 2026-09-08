@@ -140,8 +140,23 @@ Platform uses these GitHub lanes:
 
 1. Remote Feature Lane;
 2. Pull Request Merge Gate;
-3. Main Releasability Gate;
-4. Platform End-to-End Validation.
+3. Main Releasability Gate, dispatched per merged **revision**, not per merged pull request;
+4. Main Gate Coverage Audit, which fails when any commit on `main` has no gate verdict;
+5. Platform End-to-End Validation -- **currently producing no evidence; see below.**
+
+Lane 3 enumerates every revision a rebase merge added and dispatches one run for each. Gating only
+the merge tip left the rest of `main` with no verdict at all, measured here at 212 of 268 commits
+over fourteen days. Lane 4 exists because that absence is invisible: a run that is never created
+produces no red, so only a check that looks for missing runs can find it. It is fail-closed --
+unfetchable listings, cancelled runs and truncated windows all count against coverage rather than
+for it.
+
+Lane 5 declares `runs-on: self-hosted` and no self-hosted runner is registered, so every scheduled
+run is reaped by GitHub after twenty-four hours queued. Ninety-nine of its last hundred runs are
+`cancelled` and none has succeeded since 2026-06-01;
+`service-cost-attribution-evidence.yml` shares the dependency and has never run. Until issue #647
+is resolved, **neither lane's evidence may be cited as satisfied**, including by the CI standard
+and the delivery skills that name it as a pre-merge check.
 
 A change is complete only when the evidence matches its claim:
 
@@ -165,7 +180,9 @@ powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-PR-Checks.ps1
 powershell -ExecutionPolicy Bypass -File automation/Detect-Stalled-Workflow-Runs.ps1
 ```
 
-A queued protected-runner lane is evidence debt, not a passing result.
+A queued protected-runner lane is evidence debt, not a passing result. So is a **cancelled**
+one: a queued run that GitHub reaps reports `cancelled`, which in a run listing is
+indistinguishable from a deliberate cancel and looks like activity rather than absence.
 
 ## Standards And RFCs That Govern This Repository
 

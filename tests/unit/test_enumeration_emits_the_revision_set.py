@@ -211,3 +211,70 @@ def test_the_jq_shim_matches_the_two_invocations_used(tmp_path: Path) -> None:
 
     assert completed.returncode == 0, completed.stderr
     assert json.loads(completed.stdout) == ["one", "two"]
+
+
+DISPATCHER = ROOT / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+
+
+def _dispatcher() -> str:
+    return DISPATCHER.read_text(encoding="utf-8")
+
+
+def test_the_window_is_the_merge_range_not_a_commit_count() -> None:
+    """The estate permits two enumeration forms; this repository requires one.
+
+    `validate_auto_merge_releasability.py` accepts both `rev-list -n
+    "$COMMIT_COUNT"` and `rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA"`,
+    so reverting this file to the count-bounded form passes every governed
+    check -- measured, not assumed. Nothing else in the repository would notice.
+
+    The count is not the window. `pull_request.commits` describes the branch
+    when the event fired, not what landed, so a rebase that drops a commit
+    already on main leaves the count larger than the window and the walk runs
+    past this PR's history into commits earlier merges put there. Those are
+    real ancestors of main and they really do number COMMIT_COUNT, so the
+    ancestry guard and the count assertion both pass on a wrong enumeration.
+
+    lotus-gateway hit this on its PR #744: count 3, two revisions landed, the
+    walk reached base.sha, and because a commit is its own ancestor the guard
+    refused the entire dispatch -- nothing was gated.
+    """
+    run = _dispatcher()
+
+    assert 'git rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA"' in run
+    assert 'rev-list -n "$COMMIT_COUNT"' not in run
+    assert "BASE_SHA: ${{ github.event.pull_request.base.sha }}" in run
+
+
+def test_a_count_mismatch_is_refused_upward_and_tolerated_downward() -> None:
+    """The two directions mean opposite things and must not be treated alike.
+
+    Fewer revisions than the count is a stale count over a complete window --
+    everything that landed is still gated. More means the range spans revisions
+    this PR did not add, and dispatching them stamps this PR's number onto
+    another PR's commits. Refusing both would make ordinary rebases fail;
+    tolerating both would let the over-claim through.
+    """
+    run = _dispatcher()
+
+    assert '"$enumerated" -gt "$COMMIT_COUNT"' in run
+    assert '"$enumerated" -lt "$COMMIT_COUNT"' in run
+    upward = run.index('"$enumerated" -gt "$COMMIT_COUNT"')
+    downward = run.index('"$enumerated" -lt "$COMMIT_COUNT"')
+    assert "exit 1" in run[upward : upward + 400], "over-claiming must be refused"
+    assert "::notice::" in run[downward : downward + 400], "a stale count must not fail"
+
+
+def test_a_squashed_merge_cannot_claim_earlier_revisions() -> None:
+    """Linearity and contiguity pass on a squash; reachability from base does not.
+
+    A squash lands one commit while `pull_request.commits` still reports many,
+    so the window picks up older main commits. Those are single-parent and
+    perfectly contiguous -- every structural check accepts them. What separates
+    them is that an earlier merge put them there, so they are reachable from
+    the base, while a rebased commit never is however far main moved.
+    """
+    run = _dispatcher()
+
+    assert 'git merge-base --is-ancestor "$revision" "$BASE_SHA"' in run
+    assert 'git merge-base --is-ancestor "$revision" HEAD' in run
