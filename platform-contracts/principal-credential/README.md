@@ -99,8 +99,14 @@ grants_for(subject: str, tenant_id: str) -> GrantSet          # capabilities, po
 application_grants_for(actor: str, tenant_id: str) -> GrantSet # delegated calls only
 ```
 
-**All three are required, and an absent one is a denial rather than a skipped step.** A resolver that
-is not supplied leaves membership or entitlement *unanswerable*, which is not the same as answered
+**`tenant_members` and `grants_for` are required for every credential.
+`application_grants_for` is required only for `delegated` credentials**, which are the only kind
+whose authority is an intersection with an application's grants; a `user` or `service` credential
+resolves without it, and demanding it everywhere would have consumers reject valid non-delegated
+requests.
+
+**Where a resolver is required, an absent one is a denial rather than a skipped step.** Not
+supplying it leaves membership or entitlement *unanswerable*, which is not the same as answered
 negatively: the refusal is `grant_store_unavailable`, not `tenant_not_a_member`, because the second
 would assert the subject is not a member when nothing established that.
 
