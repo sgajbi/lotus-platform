@@ -32,6 +32,14 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The wiki parity check asks git whether a page was authored in
+          # `wiki/` and then deleted, which a depth-1 checkout cannot answer:
+          # the page existed only in the unavailable parent, so `git log` exits
+          # successfully with no commits and an intentional deletion is
+          # indistinguishable from a page that was never in source. That made
+          # the gate reject every deliberate page-removal PR.
+          fetch-depth: 0
       - name: Checkout governed domain-product source repositories
         uses: actions/checkout@v7
         with:

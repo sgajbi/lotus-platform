@@ -511,6 +511,215 @@ def test_auto_merge_releasability_rejects_masked_immutable_ref_lookup(
     assert results[0].violations == ("merged-pr-dispatch.masked-immutable-ref-lookup",)
 
 
+def test_a_mask_split_after_a_pipeline_operator_is_still_a_mask(
+    tmp_path: Path,
+) -> None:
+    """A split after `|` is a third encoding of the same masked command.
+
+    Bash treats the two lines as one pipeline. Backslash rejoining does not
+    apply and YAML folding is not involved, so both earlier fixes miss it --
+    and the original whole-file check caught it, which is what made the
+    line-scoped version a regression rather than a refinement.
+
+    Scoping to the step ends the sequence: however a command is wrapped, both
+    halves remain inside the step that runs it.
+    """
+    from automation.validate_auto_merge_releasability import (
+        _masks_the_immutable_ref_lookup,
+    )
+
+    piped = (
+        'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref" |'
+        + chr(10)
+        + 'jq .object.sha || true'
+    )
+    payload = {
+        "jobs": {"dispatch": {"steps": [{"run": piped}]}}
+    }
+
+    assert _masks_the_immutable_ref_lookup("", payload)
+
+def test_a_mask_folded_by_yaml_is_still_a_mask(tmp_path: Path) -> None:
+    """A folded scalar joins the lines before the shell ever sees them.
+
+    `_logical_lines` rejoins backslash continuations, which is the opposite
+    problem: with `run: >` the lookup and its `|| true` sit on separate YAML
+    lines that YAML folds into ONE shell command, so the raw text never shows
+    them together while the shell runs them together.
+
+    Reading the parsed step command resolves the folding first. Found in
+    review of the continuation fix, which is what made the raw-text scan look
+    sufficient.
+    """
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    original = workflow_path.read_text(encoding="utf-8")
+    needle = '2>/dev/null)"; then'
+    assert needle in original, "fixture no longer contains the lookup tail"
+    # A folded step whose two YAML lines become one shell command.
+    folded = original.replace(
+        needle,
+        '2>/dev/null)"; then'
+        + chr(10)
+        + '          # yaml-folded continuation follows',
+        1,
+    )
+    assert folded != original, "fixture was not modified"
+    folded = folded.replace(
+        "        run: |",
+        "        run: >" + chr(10) + "          ",
+        1,
+    )
+    workflow_path.write_text(folded, encoding="utf-8")
+
+    # The assertion is about the helper, not this particular fixture: the
+    # parsed command must be what is scanned.
+    from automation.validate_auto_merge_releasability import (
+        _masks_the_immutable_ref_lookup,
+        _load_yaml,
+    )
+
+    masked_text = (
+        'gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$dispatch_ref"'
+        + chr(10)
+        + '--jq .object.sha || true'
+    )
+    payload = {
+        "jobs": {
+            "dispatch": {
+                "steps": [
+                    {"name": "Dispatch main releasability gate",
+                     "run": masked_text.replace(chr(10), " ")},
+                ]
+            }
+        }
+    }
+
+    assert _masks_the_immutable_ref_lookup("unrelated raw text", payload)
+    assert not _masks_the_immutable_ref_lookup(
+        "unrelated raw text", {"jobs": {}}
+    )
+
+def test_a_mask_split_across_a_continuation_is_still_a_mask(
+    tmp_path: Path,
+) -> None:
+    """A backslash continuation must not hide the mask from the check.
+
+    Scoping the check to physical lines fixed one defect and introduced its
+    mirror, which review of that same change caught: with the lookup wrapped
+    across a continuation, no physical line holds both the command and its
+    tolerated failure, while the command is masked exactly as before.
+
+    The unit under test is the shell command, not the line the author
+    happened to wrap it on.
+    """
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    original = workflow_path.read_text(encoding="utf-8")
+    needle = '2>/dev/null)"; then'
+    assert needle in original, "fixture no longer contains the lookup tail"
+    continuation = chr(92)
+    wrapped = (
+        continuation
+        + chr(10)
+        + '            2>/dev/null || true)"; then'
+    )
+    split = original.replace(needle, wrapped, 1)
+    assert split != original, "fixture was not modified"
+    workflow_path.write_text(split, encoding="utf-8")
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert (
+        "merged-pr-dispatch.masked-immutable-ref-lookup" in results[0].violations
+    )
+
+def test_an_unrelated_tolerated_command_is_not_a_masked_lookup(
+    tmp_path: Path,
+) -> None:
+    """`|| true` elsewhere in the file is not a masked dispatch-ref lookup.
+
+    The check used to ask whether the file contained the lookup path anywhere
+    and `|| true` anywhere -- two independent substrings, so any tolerated
+    command in the workflow implicated a lookup it had not touched.
+
+    This is the shape that actually occurred. `lotus-manage` adopted the range
+    enumeration this repository recommended and added a defensive
+    `git fetch origin --quiet "$BASE_SHA" || true` in its enumeration job, while
+    the lookup lives in its dispatch job; the validator reported it as masking,
+    and that blocked an unrelated platform pull request. A check that flags the
+    fix it asked for teaches operators to read its findings as noise, which
+    costs more than the finding was worth.
+
+    The separation is the point. A tolerated failure in the step that performs
+    the lookup IS suspicious, however it is laid out, and is asserted elsewhere.
+
+    The genuine case is asserted directly above and must keep failing: the two
+    together are what make this a scope fix rather than a weakening.
+    """
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-example"
+    _write_policy(policy, ["lotus-example"])
+    _write_exceptions(exceptions, [])
+    _write_aligned_workflows(repo_root)
+    workflow_path = (
+        repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    )
+    original = workflow_path.read_text(encoding="utf-8")
+    # The tolerated command goes in a SEPARATE step, which is where the real one
+    # was: lotus-manage put `git fetch ... || true` in its enumeration job and
+    # the lookup in its dispatch job. Placing both in one step would model a
+    # different situation -- a tolerated failure sitting beside the lookup that
+    # runs it -- which the step-scoped check flags, correctly.
+    anchor = "    steps:\n"
+    separate_step = (
+        "    steps:\n"
+        "      - name: Enumerate merged revisions\n"
+        "        run: |\n"
+        '          git fetch origin --quiet "$BASE_SHA" || true\n'
+        '          revisions="$(git rev-list --reverse "$BASE_SHA..$MERGE_COMMIT_SHA")"\n'
+    )
+    mutated = original.replace(anchor, separate_step, 1)
+    # Assert the fixture actually changed. A `replace` that matches nothing
+    # leaves a workflow with no `|| true` at all, and the assertion below then
+    # passes under any check -- a test that cannot fail.
+    assert mutated != original, "fixture anchor did not match"
+    assert "|| true" in mutated
+    workflow_path.write_text(mutated, encoding="utf-8")
+
+    results = validate_repositories(
+        policy_path=policy,
+        exception_path=exceptions,
+        repos_root=repos_root,
+        today=datetime(2026, 7, 14, tzinfo=UTC),
+    )
+
+    assert "merged-pr-dispatch.masked-immutable-ref-lookup" not in results[0].violations
+
+
 def test_auto_merge_releasability_rejects_dispatch_without_main_assertion(
     tmp_path: Path,
 ) -> None:
