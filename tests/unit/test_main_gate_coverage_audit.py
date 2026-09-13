@@ -63,16 +63,19 @@ def _install_transport(
         if command[0] == "git":
             return _Completed(stdout="".join(f"{line}\n" for line in commits))
         assert command[0] == "gh", command
-        # Pin the REST query shape: it must select both the governed workflow
-        # and the source SHA, while retaining run IDs, attempts and chronology.
+        # The complete governed workflow history is required: immutable-ref
+        # runs bind through head_sha, while mainline-ref runs bind through their
+        # verified source-bearing title.
         assert command[:4] == ["gh", "api", "--paginate", "--slurp"]
         endpoint = command[4]
-        assert f"actions/workflows/{audit.WORKFLOW}/runs?head_sha=" in endpoint
-        sha = endpoint.split("head_sha=", 1)[1].split("&", 1)[0]
-        entry = runs_by_sha.get(sha, [])
-        if entry == "unfetchable":
+        assert endpoint.endswith(f"actions/workflows/{audit.WORKFLOW}/runs?per_page=100")
+        if any(entry == "unfetchable" for entry in runs_by_sha.values()):
             return _Completed(stdout="", returncode=1)
-        return _Completed(stdout=json.dumps([{"workflow_runs": entry}]))
+        all_runs = []
+        for sha, entry in runs_by_sha.items():
+            for run in entry:
+                all_runs.append({"head_sha": sha, **run})
+        return _Completed(stdout=json.dumps([{"workflow_runs": all_runs}]))
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
@@ -93,6 +96,29 @@ def test_full_coverage_passes(monkeypatch: pytest.MonkeyPatch) -> None:
         {
             SHA_A: [{"conclusion": "success", "status": "completed"}],
             SHA_B: [{"conclusion": "success", "status": "completed"}],
+        },
+    )
+
+    assert _audit(monkeypatch, ["--fail-on-gap"]) == 0
+
+
+def test_mainline_ref_title_binds_source_separately_from_workflow_definition(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _install_transport(
+        monkeypatch,
+        [_commit_line(SHA_A), _commit_line(SHA_B)],
+        {
+            SHA_A: [
+                {
+                    "head_sha": SHA_B,
+                    "head_branch": "main",
+                    "display_title": f"Main Releasability \u00c2\u00b7 {SHA_A}",
+                    "conclusion": "success",
+                    "status": "completed",
+                }
+            ],
+            SHA_B: [{"conclusion": "failure", "status": "completed"}],
         },
     )
 

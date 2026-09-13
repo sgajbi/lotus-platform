@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-13T11:34:14Z`
+Generated: `2026-09-13T11:43:50Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `970`
-- Total source lines: `386865`
+- Total source lines: `386955`
 - Python files: `259`
 - PowerShell files: `69`
 - Markdown files: `418`
@@ -35,11 +35,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
 | tests/unit/test_engineering_context_system_contract.py | 2823 | .py |
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2525 | .py |
-| platform-contracts/domain-data-products/validate_domain_data_product_contracts.py | 1908 | .py |
+| tests/unit/test_auto_merge_releasability_validator.py | 1918 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3802`
+- Python functions: `3804`
 - Highest measured cyclomatic complexity: `55`
 - Largest Python function length: `903`
 
@@ -48,7 +48,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
-| automation/audit_main_gate_coverage.py | main | 248 | 31 | 179 |
+| automation/audit_main_gate_coverage.py | main | 259 | 31 | 179 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | automation/verify_principal_credential.py | resolve_principal | 245 | 22 | 106 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1796`
+- Unit tests collected: `1798`
 - Collection command return code: `0`
-- Collection summary: `1796 tests collected`
+- Collection summary: `1798 tests collected`
 
 ## Security Baseline
 

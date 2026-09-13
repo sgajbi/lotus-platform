@@ -306,6 +306,34 @@ def test_source_pinned_mainline_dispatch_rejects_nonfatal_fetch_failure(
     assert result.violations == ("main-releasability.missing-expected-sha-assertion",)
 
 
+def test_source_pinned_mainline_dispatch_rejects_fetch_after_ancestry_proof(
+    tmp_path: Path,
+) -> None:
+    """A later fetch cannot make an earlier ancestry verdict fresh evidence."""
+    repo_root, validate = _source_pinned_mainline_results(tmp_path)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "git fetch origin main --quiet\n          if [ \"$actual_sha\" != \"$EXPECTED_SHA\" ]; then",
+            "if [ \"$actual_sha\" != \"$EXPECTED_SHA\" ]; then",
+        ).replace(
+            '          if ! git merge-base --is-ancestor "$EXPECTED_SHA" FETCH_HEAD; then\n'
+            "            exit 1\n"
+            "          fi\n",
+            '          if ! git merge-base --is-ancestor "$EXPECTED_SHA" FETCH_HEAD; then\n'
+            "            exit 1\n"
+            "          fi\n"
+            "          git fetch origin main --quiet\n",
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate()
+
+    assert result.status == "drift"
+    assert result.violations == ("main-releasability.missing-expected-sha-assertion",)
+
+
 def test_source_pinned_mainline_dispatch_rejects_lookalike_main_ref(
     tmp_path: Path,
 ) -> None:

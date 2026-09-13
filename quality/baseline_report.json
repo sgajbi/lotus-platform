@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 386865
+    "total_source_lines": 386955
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -59,8 +59,8 @@
       },
       {
         "complexity": 31,
-        "end_line": 426,
-        "line": 248,
+        "end_line": 437,
+        "line": 259,
         "lines": 179,
         "name": "main",
         "path": "automation/audit_main_gate_coverage.py"
@@ -123,8 +123,16 @@
       },
       {
         "complexity": 20,
-        "end_line": 1030,
-        "line": 978,
+        "end_line": 785,
+        "line": 720,
+        "lines": 66,
+        "name": "_main_releasability_has_source_pinned_assertion",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
+        "complexity": 20,
+        "end_line": 1036,
+        "line": 984,
         "lines": 53,
         "name": "_declaration_assessment",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -136,14 +144,6 @@
         "lines": 69,
         "name": "load_manifest",
         "path": "automation/validate_sibling_source_manifest.py"
-      },
-      {
-        "complexity": 19,
-        "end_line": 780,
-        "line": 720,
-        "lines": 61,
-        "name": "_main_releasability_has_source_pinned_assertion",
-        "path": "automation/validate_auto_merge_releasability.py"
       },
       {
         "complexity": 18,
@@ -186,12 +186,12 @@
         "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
       },
       {
-        "complexity": 16,
-        "end_line": 270,
-        "line": 183,
-        "lines": 88,
-        "name": "_validate_observability",
-        "path": "automation/validate_platform_stack.py"
+        "complexity": 17,
+        "end_line": 123,
+        "line": 68,
+        "lines": 56,
+        "name": "_run_evidence",
+        "path": "automation/audit_main_gate_coverage.py"
       }
     ],
     "largest_functions": [
@@ -301,8 +301,8 @@
       },
       {
         "complexity": 31,
-        "end_line": 426,
-        "line": 248,
+        "end_line": 437,
+        "line": 259,
         "lines": 179,
         "name": "main",
         "path": "automation/audit_main_gate_coverage.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3802
+    "python_function_count": 3804
   },
-  "generated_at_utc": "2026-09-13T11:34:14Z",
+  "generated_at_utc": "2026-09-13T11:43:50Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -408,13 +408,13 @@
       "suffix": ".py"
     },
     {
-      "lines": 1908,
-      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
+      "lines": 1918,
+      "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
     },
     {
-      "lines": 1890,
-      "path": "tests/unit/test_auto_merge_releasability_validator.py",
+      "lines": 1908,
+      "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1796,
+    "collected_tests": 1798,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1796 tests collected"
+    "summary": "1798 tests collected"
   }
 }

@@ -730,9 +730,14 @@ def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> 
     if not isinstance(jobs, dict):
         return False
 
-    def has_fatal_main_fetch(run: str) -> bool:
+    def has_fatal_main_fetch(run: str, before: int) -> bool:
         """Accept normal fetch options/refspecs, never an early successful exit."""
-        for line in run.splitlines():
+        offset = 0
+        for line in run.splitlines(keepends=True):
+            line_start = offset
+            offset += len(line)
+            if line_start >= before:
+                break
             if not re.search(r"\bgit\s+fetch\b.*\borigin\b.*\bmain(?:\b|:)", line):
                 continue
             # A tolerated fetch failure means the subsequent ancestry proof is
@@ -772,9 +777,9 @@ def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> 
             if (
                 "inputs.expected_sha" in expected_sha
                 and 'actual_sha="$(git rev-parse HEAD)"' in run
-                and has_fatal_main_fetch(run)
                 and mismatch_fails
                 and ancestry_fails
+                and has_fatal_main_fetch(run, ancestry_fails.start())
             ):
                 return True
     return False
@@ -912,6 +917,7 @@ class DispatchAssessment:
     form: str
     advisories: tuple[str, ...]
     unverified: bool
+    tested_source_identity: str | None = None
 
 
 def _merged_main_jobs(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1050,7 +1056,11 @@ def _assess_merged_pr_dispatch(workflow_path: Path, repo_root: Path) -> Dispatch
     if identity == "immutable-ref" and "merged-pr-dispatch.missing-contents-write" in shell_violations:
         violations.add("merged-pr-dispatch.missing-contents-write")
     return DispatchAssessment(
-        tuple(sorted(violations)), "script", declaration.advisories, declaration.unverified
+        tuple(sorted(violations)),
+        "script",
+        declaration.advisories,
+        declaration.unverified,
+        identity,
     )
 
 
@@ -1109,7 +1119,7 @@ def validate_repository(
     workflow_dir = repo_root / ".github" / "workflows"
     merged_pr_dispatch_path = workflow_dir / "merged-pr-main-releasability.yml"
     dispatch = _assess_merged_pr_dispatch(merged_pr_dispatch_path, repo_root)
-    source_pinned_mainline_dispatch = (
+    source_pinned_mainline_dispatch = dispatch.tested_source_identity == "mainline-ref" or (
         merged_pr_dispatch_path.exists()
         and _merged_pr_dispatch_has_mainline_ref(_load_yaml(merged_pr_dispatch_path))
     )

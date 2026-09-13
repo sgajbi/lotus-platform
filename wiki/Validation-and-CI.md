@@ -151,7 +151,9 @@ works.
   and still leaves every non-head revision without a verdict; the coverage audit, not the
   validator, is what detects that. The forms a per-revision dispatcher may take -- one shell step,
   a shell array, a two-job matrix, or a repository-owned program -- and the semantics each must
-  keep are stated in `platform-contracts/ci-governance/merged-revision-dispatch-conformance.v1.json`.
+  preserve are evaluated source identity: immutable-ref evidence binds through `head_sha`, while
+  mainline-ref evidence binds through its exact source-bearing run title and `headBranch: main`; the
+  semantics to keep are stated in `platform-contracts/ci-governance/merged-revision-dispatch-conformance.v1.json`.
   Shell forms are recognised from the workflow text; a program is verified through the
   declaration its repository commits at `.github/merged-revision-dispatch.conformance.json`, and
   without one the repository is `unverified` -- reported by the per-commit lanes, failed only by

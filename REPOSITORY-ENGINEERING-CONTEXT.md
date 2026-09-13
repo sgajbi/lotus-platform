@@ -207,7 +207,10 @@ Lane 4's rolling window cannot say what happened to a gap once the window moved 
 `quality/main-gate-coverage-ledger.v1.json` is the fixed-range record: every first-parent commit
 between two exact SHAs with its current verdict, historical-coverage state, latest applicable
 terminal verdict, and ordered run IDs/timestamps/attempts, produced by
-`python automation/audit_main_gate_coverage.py --range <baseline>..<end> --ledger-out <path>`,
+`python automation/audit_main_gate_coverage.py --range <baseline>..<end> --ledger-out <path>`
+against the complete governed workflow history. Immutable-ref runs bind through `head_sha`; mainline-ref
+runs bind through their exact source-bearing title and a recorded `main` workflow definition,
+so a later definition revision cannot hide an earlier evaluated source.
 with the reviewer's `dispositions` (what an ungated or failing revision means) preserved across
 re-measurement. A gap is closed by updating the ledger through a reviewed pull request, never by
 the window moving.
