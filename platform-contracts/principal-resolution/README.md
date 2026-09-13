@@ -19,7 +19,8 @@ any consumer, choose an identity provider, or certify production identity.
 | --- | --- |
 | Authenticated session or service credential issuance | External IdP / bank security authority |
 | Versioned resolved-principal contract, fixtures, and validator | `lotus-platform` |
-| Grant store implementation | The service that owns tenant membership |
+| Grant store implementation | `lotus-platform` identity and access governance, as a platform identity capability behind the injected `GrantStore` port, hosted by a designated Lotus identity service; `lotus-core` declined on 2026-09-08 because its relationships are financial facts, not tenant grants (RFC-0109 question 2) |
+| Grant store operations | The bank security authority / identity-provider operator (external, unclaimed) |
 | Resolution and enforcement per write family | `lotus-gateway`, then each domain service |
 | Session resolution and delegated calls | `lotus-workbench` and other BFF owners |
 
@@ -40,7 +41,9 @@ any consumer, choose an identity provider, or certify production identity.
    entitlement scope. A request for something outside scope is denied rather than silently narrowed,
    because a narrowed result is indistinguishable from a correct one to both the caller and the
    audit record.
-5. **The grant store is owned by the tenant-membership owner**, and its unavailability is a denial.
+5. **The grant store is a platform identity capability, not a domain table**, and its
+   unavailability is a denial. No repository holds tenant membership today; until the store exists,
+   `grant_store_unavailable` is the honest resolution outcome.
 6. **A denial states its class and nothing further.** It distinguishes unauthenticated from
    unauthorized, and reveals neither which capability was missing nor whether a named resource
    exists — a "no such portfolio" that differs from "not entitled to this portfolio" is an
@@ -53,6 +56,9 @@ any consumer, choose an identity provider, or certify production identity.
 - [`denial-fixture.schema.json`](denial-fixture.schema.json)
 - [`admission-fixture.schema.json`](admission-fixture.schema.json)
 - [`examples/`](examples) — one fixture per denial class (13), plus an admitted delegated call
+- [`pilot-acceptance.v1.json`](pilot-acceptance.v1.json) — the corrected ownership, the pilot
+  consumer (Workbench BFF, lotus-workbench #1042), and the finite admission/denial acceptance with
+  the test in this repository that measures each proof and the live boundaries that stay `false`
 
 ## What a consumer must prove
 

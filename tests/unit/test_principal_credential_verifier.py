@@ -220,6 +220,21 @@ def test_a_capability_the_application_holds_but_the_person_does_not_is_refused()
     assert result.denial_class == "delegated_capability_not_held_by_user"
 
 
+def test_a_capability_not_granted_to_the_person_is_refused() -> None:
+    """Rule 4. The route's required capability is intersected with the grant set,
+    and a user credential holding only `portfolio.read` cannot satisfy a write."""
+    vector = _vector("valid.user.json")
+
+    result = resolve_principal(
+        vector["credential"],
+        _resolution_inputs(vector, required_capabilities=("portfolio.write",)),
+    )
+
+    assert isinstance(result, Denial)
+    assert result.denial_class == "capability_not_granted"
+    assert result.unauthenticated is False
+
+
 def test_an_unavailable_grant_store_denies_rather_than_returning_nothing() -> None:
     """Rule 5. An empty grant set is indistinguishable from holding nothing."""
     vector = _vector("valid.user.json")
