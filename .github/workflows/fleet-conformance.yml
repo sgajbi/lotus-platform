@@ -111,3 +111,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane fleet-conformance
+      # The validators publish their reports under output/ whether or not they
+      # passed; a failing lane must still hand its owner the evidence.
+      - name: Upload fleet conformance evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fleet-conformance-evidence
+          path: output/
+          if-no-files-found: warn

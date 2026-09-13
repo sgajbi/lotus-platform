@@ -44,17 +44,64 @@ try {
         # branches as they are now, so a sibling regression or convergence stays
         # visible somewhere, and reports how far each pin lags. A red here names a
         # fleet owner; it never blocks an unrelated platform pull request.
-        $driftArguments = @("--report-drift")
-        if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
-            $driftArguments += @("--summary", $env:GITHUB_STEP_SUMMARY)
+        #
+        # Every check runs to completion whatever the earlier ones found: a drift
+        # finding must not hide the conformance verdicts behind it. Only one of
+        # the validators writes its own report under output/; the rest speak on
+        # stdout, so each check's combined output is captured under
+        # output/fleet-conformance/<check>.log with its exit code preserved, and
+        # that directory is what the lane uploads. The outcome is the aggregate
+        # -- one table, written there too, and a failure if any check failed.
+        $evidenceDirectory = Join-Path $repoRoot "output/fleet-conformance"
+        New-Item -ItemType Directory -Force -Path $evidenceDirectory | Out-Null
+        Get-ChildItem -Path $evidenceDirectory -File | Remove-Item -Force
+        $driftReport = Join-Path $evidenceDirectory "pin-drift.md"
+        $driftArguments = @("--report-drift", "--summary", $driftReport)
+        $fleetOutcomes = [ordered]@{}
+        function Invoke-RecordedFleetCheck {
+            param(
+                [Parameter(Mandatory = $true)]
+                [string]$Name,
+
+                [Parameter(Mandatory = $true)]
+                [string[]]$Arguments
+            )
+
+            $log = Join-Path $evidenceDirectory "$Name.log"
+            Write-Output "::group::fleet-conformance/$Name"
+            # Native stderr becomes error records under 2>&1; they are evidence
+            # here, not a reason to stop, so the preference is relaxed for the
+            # invocation only. $LASTEXITCODE is the native process's, untouched
+            # by Tee-Object.
+            $ErrorActionPreference = "Continue"
+            & $toolingPython @Arguments 2>&1 | Tee-Object -FilePath $log
+            $exitCode = $LASTEXITCODE
+            $ErrorActionPreference = "Stop"
+            $fleetOutcomes[$Name] = $exitCode
+            Write-Output "::endgroup::"
         }
-        Invoke-CheckedCommand $toolingPython automation/validate_sibling_source_manifest.py @driftArguments
-        # A script dispatcher without a conformance declaration is `unverified`:
-        # a status in the per-commit lanes, a finding here, where its owner is
-        # the one who can act on it.
-        Invoke-CheckedCommand $toolingPython automation/validate_auto_merge_releasability.py --require-local-repos --fail-on-unverified
-        Invoke-CheckedCommand $toolingPython automation/validate_workflow_pipeline_exit_codes.py --require-local-repos
-        Invoke-CheckedCommand $toolingPython automation/validate_canonical_front_office_demo_data_contract.py
+        Invoke-RecordedFleetCheck -Name "sibling-pin-drift" -Arguments (@("automation/validate_sibling_source_manifest.py") + $driftArguments)
+        Invoke-RecordedFleetCheck -Name "auto-merge-releasability" -Arguments @("automation/validate_auto_merge_releasability.py", "--require-local-repos", "--fail-on-unverified")
+        Invoke-RecordedFleetCheck -Name "workflow-pipeline-exit-codes" -Arguments @("automation/validate_workflow_pipeline_exit_codes.py", "--require-local-repos")
+        Invoke-RecordedFleetCheck -Name "canonical-front-office-demo-data" -Arguments @("automation/validate_canonical_front_office_demo_data_contract.py")
+
+        $summaryLines = @("## Fleet conformance outcomes", "", "| Check | Exit code | Outcome | Evidence |", "| --- | --- | --- | --- |")
+        foreach ($entry in $fleetOutcomes.GetEnumerator()) {
+            $outcome = if ($entry.Value -eq 0) { "pass" } else { "FAIL" }
+            $summaryLines += "| $($entry.Key) | $($entry.Value) | $outcome | ``output/fleet-conformance/$($entry.Key).log`` |"
+        }
+        $summaryLines | ForEach-Object { Write-Output $_ }
+        ($summaryLines + "") | Set-Content -Path (Join-Path $evidenceDirectory "outcomes.md")
+        if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+            if (Test-Path $driftReport) {
+                Get-Content -Path $driftReport | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+            }
+            ($summaryLines + "") | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+        }
+        $failedChecks = @($fleetOutcomes.GetEnumerator() | Where-Object { $_.Value -ne 0 } | ForEach-Object { $_.Key })
+        if ($failedChecks.Count -gt 0) {
+            throw "Fleet conformance failed: $($failedChecks -join ', ')"
+        }
         return
     }
 

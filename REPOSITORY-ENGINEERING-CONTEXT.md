@@ -156,7 +156,8 @@ manifest before any validator runs. A lane verdict is therefore a function of th
 commit it certifies -- unpinned, it was a function of every sibling's `main` at run time, so one
 revision could be re-gated later and answer differently, and a sibling merge could turn `main` red
 with no change here. The pin also freezes the estate view, which is why lane 6 exists: it runs the
-cross-repository validators against current sibling `main`s and reports pin drift, and a red there
+drift report and every cross-repository validator against current sibling `main`s to completion,
+publishes each outcome and the `output/` evidence, and fails on the aggregate, so a red there
 names a fleet owner rather than blocking an unrelated pull request. A pin moves only through a
 reviewed pull request.
 

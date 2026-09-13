@@ -1445,12 +1445,15 @@ sibling registered in `automation/repos.json` exactly once with a full lowercase
 entry would let a lane checkout fall back to the default branch silently, which is the unpinned
 behaviour the manifest ends. `--verify-checkouts` reads `git rev-parse HEAD` of each checkout rather
 than trusting the ref that was requested. `--report-drift` is the scheduled fleet lane's view. Each
-sibling gets one posture: `CURRENT` (main equals the pin), `DRIFTED` (main is ahead of the pin;
-information), `STALE` (ahead, and the manifest's `recorded_at_utc` is older than
-`--max-pin-age-days`; a refresh PR clears it), `DIVERGED` (main no longer descends from the pin),
-`UNRESOLVED` (unequal SHAs but no trustworthy comparison) or `UNREAD` (the sibling could not be
-measured). Only `CURRENT` and `DRIFTED` pass; a pin that equals main is never stale, however quiet
-the sibling has been.
+sibling gets one posture: `CURRENT` (main equals the pin — established identity, never inferred),
+`DRIFTED` (main is ahead of the pin on the pin's own history; information), `STALE` (drifted, and
+the manifest's `recorded_at_utc` is older than `--max-pin-age-days`; a refresh PR clears it),
+`BEHIND` (main was rolled back to an ancestor of the pin), `DIVERGED` (main is on a rewritten
+history with commits on both sides of the pin), `UNRESOLVED` (unequal SHAs with no trustworthy
+two-way comparison, including one that claims they are identical) or `UNREAD` (the sibling could
+not be measured). Only `CURRENT` and `DRIFTED` pass; a pin that equals main is never stale, however
+quiet the sibling has been. In the fleet lane every check runs to completion whatever the drift
+report found, each publishes its `output/` evidence, and the lane fails on the aggregate.
 
 Validate exact-commit GitHub verification before accepting mainline provenance:
 

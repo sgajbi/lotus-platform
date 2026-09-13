@@ -34,8 +34,10 @@ was a function of every sibling's `main` at run time: one revision could be
 re-gated a week later and answer differently, and a sibling merge could turn
 this repository's `main` red with no change here. The pin also freezes the
 estate view, which is what `Fleet Conformance` is for: on a schedule it reads
-sibling default branches as they are now, runs the cross-repository validators
-against them, and reports how far each pin lags. A red there names a fleet
+sibling default branches as they are now, runs the drift report and every
+cross-repository validator against them to completion (publishing each
+outcome and its `output/` evidence, failing on the aggregate), and reports how
+far each pin lags. A red there names a fleet
 owner; it never blocks an unrelated pull request. A pin moves only through a
 reviewed pull request.
 
