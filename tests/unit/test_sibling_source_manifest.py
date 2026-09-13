@@ -199,26 +199,52 @@ def test_verify_checkouts_measures_head_against_the_pin(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    ("current", "ahead_by", "refresh_age_days", "expected", "fails"),
+    ("current", "ahead_by", "behind_by", "refresh_age_days", "expected", "fails"),
     [
-        ("c" * 40, 0, 2, "CURRENT", False),
+        ("c" * 40, 0, 0, 2, "CURRENT", False),
         # A sibling quiet for a month whose pin still equals its main is not stale,
         # however old the refresh: there is nothing a refresh would change.
-        ("c" * 40, 0, 400, "CURRENT", False),
-        ("b" * 40, 3, 2, "DRIFTED", False),
-        ("b" * 40, 3, 19, "STALE", True),
-        ("b" * 40, None, 1, "UNRESOLVED", True),
-        ("b" * 40, 0, 1, "DIVERGED", True),
-        (None, None, 1, "UNREAD", True),
+        ("c" * 40, 0, 0, 400, "CURRENT", False),
+        ("b" * 40, 3, 0, 2, "DRIFTED", False),
+        ("b" * 40, 3, 0, 19, "STALE", True),
+        ("b" * 40, None, 0, 1, "UNRESOLVED", True),
+        ("b" * 40, 3, None, 1, "UNRESOLVED", True),
+        # A comparison that calls two different SHAs identical is not trustworthy.
+        ("b" * 40, 0, 0, 1, "UNRESOLVED", True),
+        ("b" * 40, 0, 2, 1, "BEHIND", True),
+        ("b" * 40, 2, 1, 1, "DIVERGED", True),
+        # Divergence is a finding about the sibling's history, never softened by age.
+        ("b" * 40, 2, 1, 400, "DIVERGED", True),
+        (None, None, None, 1, "UNREAD", True),
     ],
-    ids=["current", "quiet-but-current", "drifted-fresh", "stale", "unresolved-compare", "rewritten-main", "unread"],
+    ids=[
+        "current",
+        "quiet-but-current",
+        "drifted-fresh",
+        "stale",
+        "no-ahead-count",
+        "no-behind-count",
+        "identical-compare-unequal-shas",
+        "rolled-back-main",
+        "diverged",
+        "diverged-old-refresh",
+        "unread",
+    ],
 )
 def test_every_drift_posture_is_explicit_and_only_positive_answers_pass(
-    current: str | None, ahead_by: int | None, refresh_age_days: int, expected: str, fails: bool
+    current: str | None,
+    ahead_by: int | None,
+    behind_by: int | None,
+    refresh_age_days: int,
+    expected: str,
+    fails: bool,
 ) -> None:
-    """Unequal SHAs need a trustworthy comparison; a failed or zero one is a finding, not
-    `CURRENT`, and staleness is measured from the manifest refresh, which a refresh clears."""
-    drift = manifest_validator.PinDrift("lotus-core", "c" * 40, current, ahead_by, refresh_age_days)
+    """Unequal SHAs need a trustworthy two-way comparison; a missing, one-sided or
+    self-contradicting one is a finding, not `CURRENT`, and staleness is measured from the
+    manifest refresh, which a refresh clears."""
+    drift = manifest_validator.PinDrift(
+        "lotus-core", "c" * 40, current, ahead_by, behind_by, refresh_age_days
+    )
 
     posture = drift.posture(max_pin_age_days=14)
 
@@ -282,3 +308,168 @@ def test_the_fleet_lane_reads_current_mains_on_purpose_and_reports_pin_drift() -
     assert "schedule:" in text
     assert "ref: ${{ steps.sibling-pins" not in text, "the fleet lane is the unpinned view"
     assert "-Lane fleet-conformance" in text
+    # Evidence reaches the owner even when the lane fails.
+    assert "if: always()" in text and "path: output/" in text
+
+
+def test_the_fleet_lane_runs_every_check_to_completion_and_fails_on_the_aggregate() -> None:
+    """A drift finding must not hide the conformance verdicts behind it, and no
+    check may pass on the strength of an earlier one having thrown."""
+    runner = (ROOT / "automation" / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+    fleet = runner.split('if ($Lane -eq "fleet-conformance")')[1].split("\n        return\n")[0]
+
+    assert "Invoke-CheckedCommand" not in fleet, "a throwing runner stops the later checks"
+    for check in (
+        "sibling-pin-drift",
+        "auto-merge-releasability",
+        "workflow-pipeline-exit-codes",
+        "canonical-front-office-demo-data",
+    ):
+        assert f'-Name "{check}"' in fleet, f"{check} is not run as a recorded check"
+    # The native exit code is read straight after the invocation and before
+    # anything else can reset it, then recorded per check.
+    assert "$exitCode = $LASTEXITCODE" in fleet and "$fleetOutcomes[$Name] = $exitCode" in fleet
+    # Evidence: only one validator writes its own report under output/; the rest
+    # speak on stdout, so each check's combined output is captured to a log the
+    # lane uploads, the drift table is always written there, and so is the
+    # outcome table.
+    assert "2>&1 | Tee-Object -FilePath $log" in fleet
+    assert 'output/fleet-conformance' in fleet
+    assert '"pin-drift.md"' in fleet and '"outcomes.md"' in fleet
+    assert '"--summary", $driftReport' in fleet, "the drift table must be evidence, not only a step summary"
+    assert 'throw "Fleet conformance failed:' in fleet
+    assert fleet.index("Fleet conformance outcomes") < fleet.index('throw "Fleet conformance failed:'), (
+        "the outcome table must be published before the aggregate failure is raised"
+    )
+
+
+# --- the CLI boundary: what the fleet lane actually runs --------------------
+
+
+def _drift_cli(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    recorded_at_utc: str,
+    current_by_repo: dict[str, str | None],
+    compare_by_repo: dict[str, object],
+) -> tuple[int, str, str]:
+    """Run `--report-drift` end to end with the GitHub boundary scripted per sibling."""
+    payload = _committed_manifest()
+    payload["recorded_at_utc"] = recorded_at_utc
+    manifest = _write(tmp_path, payload)
+    github_of = {source["repository"]: source["github"] for source in payload["sources"]}
+    repo_of = {github: repository for repository, github in github_of.items()}
+
+    def gh_json(*args: str) -> object | None:
+        path = args[0]
+        for github, repository in repo_of.items():
+            if path.startswith(f"repos/{github}/branches/"):
+                current = current_by_repo.get(repository, "pinned")
+                if current == "pinned":
+                    current = next(s["revision"] for s in payload["sources"] if s["repository"] == repository)
+                return None if current is None else {"commit": {"sha": current}}
+            if path.startswith(f"repos/{github}/compare/"):
+                return compare_by_repo.get(repository)
+        raise AssertionError(f"unexpected gh api call: {path}")
+
+    monkeypatch.setattr(manifest_validator, "_gh_json", gh_json)
+    summary = tmp_path / "summary.md"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "validate_sibling_source_manifest.py",
+            "--manifest", str(manifest),
+            "--registry", str(COMMITTED_REGISTRY),
+            "--report-drift",
+            "--summary", str(summary),
+        ],
+    )
+    import io
+    from contextlib import redirect_stdout
+
+    captured = io.StringIO()
+    with redirect_stdout(captured):
+        exit_code = manifest_validator.main()
+    return exit_code, captured.getvalue(), summary.read_text(encoding="utf-8")
+
+
+def test_cli_an_unavailable_comparison_is_unresolved_and_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    exit_code, out, summary = _drift_cli(
+        tmp_path,
+        monkeypatch,
+        recorded_at_utc="2026-09-13T00:00:00Z",
+        current_by_repo={"lotus-core": "b" * 40},
+        compare_by_repo={"lotus-core": None},
+    )
+
+    assert exit_code == 1
+    assert "lotus-core=UNRESOLVED" in out
+    assert "| lotus-core |" in summary and "| UNRESOLVED |" in summary
+    assert "CURRENT" not in [line.split("|")[-2].strip() for line in summary.splitlines() if "lotus-core" in line]
+
+
+def test_cli_an_old_refresh_with_unchanged_current_shas_passes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The reviewer's case at the boundary: nothing to refresh, so nothing is stale."""
+    exit_code, out, summary = _drift_cli(
+        tmp_path,
+        monkeypatch,
+        recorded_at_utc="2026-01-01T00:00:00Z",
+        current_by_repo={},
+        compare_by_repo={},
+    )
+
+    assert exit_code == 0
+    assert "Fleet drift findings" not in out
+    assert summary.count("| CURRENT |") == len(_registry())
+
+
+@pytest.mark.parametrize(
+    ("compare", "expected"),
+    [
+        ({"ahead_by": 0, "behind_by": 3}, "BEHIND"),
+        ({"ahead_by": 4, "behind_by": 2}, "DIVERGED"),
+        ({"ahead_by": 0, "behind_by": 0}, "UNRESOLVED"),
+        ({"ahead_by": "many", "behind_by": 0}, "UNRESOLVED"),
+    ],
+    ids=["rolled-back", "diverged", "identical-claim", "malformed-count"],
+)
+def test_cli_behind_diverged_and_malformed_comparisons_fail_with_their_own_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, compare: dict, expected: str
+) -> None:
+    exit_code, out, _summary = _drift_cli(
+        tmp_path,
+        monkeypatch,
+        recorded_at_utc="2026-09-13T00:00:00Z",
+        current_by_repo={"lotus-risk": "d" * 40},
+        compare_by_repo={"lotus-risk": compare},
+    )
+
+    assert exit_code == 1
+    assert f"lotus-risk={expected}" in out
+
+
+def test_cli_combined_failures_are_all_named_and_information_is_not(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    exit_code, out, summary = _drift_cli(
+        tmp_path,
+        monkeypatch,
+        recorded_at_utc="2026-09-13T00:00:00Z",
+        current_by_repo={"lotus-ai": None, "lotus-render": "e" * 40, "lotus-report": "f" * 40},
+        compare_by_repo={
+            "lotus-render": {"ahead_by": 2, "behind_by": 1},
+            "lotus-report": {"ahead_by": 5, "behind_by": 0},
+        },
+    )
+
+    assert exit_code == 1
+    findings = next(line for line in out.splitlines() if line.startswith("Fleet drift findings:"))
+    assert "lotus-ai=UNREAD" in findings and "lotus-render=DIVERGED" in findings
+    assert "lotus-report" not in findings, "DRIFTED is information, not a finding"
+    assert "| lotus-report |" in summary and "| DRIFTED |" in summary

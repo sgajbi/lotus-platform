@@ -205,31 +205,46 @@ class PinDrift:
     pinned: str
     current: str | None
     ahead_by: int | None
+    behind_by: int | None
     refresh_age_days: int
 
     def posture(self, *, max_pin_age_days: int) -> str:
         """One word per state, and every state that is not a positive answer fails.
 
-        `CURRENT` needs equal SHAs. Unequal SHAs need a trustworthy comparison:
-        none (`UNRESOLVED`) or zero commits ahead (`DIVERGED` -- the branch was
-        rewritten past the pin) are findings, not a current posture. `DRIFTED` is
-        information; it becomes `STALE` only when the manifest itself has not
-        been refreshed within the policy age, which a refresh PR clears.
+        `CURRENT` needs equal SHAs -- established identity, not an inference.
+        Unequal SHAs need a trustworthy comparison in both directions: a missing
+        one, or one that claims the two are identical, is `UNRESOLVED`. Main
+        ahead of the pin on the pin's own history is `DRIFTED` (information), or
+        `STALE` when the manifest itself has not been refreshed within the policy
+        age, which a refresh PR clears. Main behind the pin (`BEHIND`, rolled back
+        to an ancestor) or on a rewritten history (`DIVERGED`, commits on both
+        sides) are findings about the sibling, not about the pin.
         """
         if self.current is None:
             return "UNREAD"
         if self.current == self.pinned:
             return "CURRENT"
-        if self.ahead_by is None:
+        if self.ahead_by is None or self.behind_by is None:
             return "UNRESOLVED"
-        if self.ahead_by == 0:
+        if self.ahead_by > 0 and self.behind_by > 0:
             return "DIVERGED"
+        if self.behind_by > 0:
+            return "BEHIND"
+        if self.ahead_by == 0:
+            return "UNRESOLVED"
         if self.refresh_age_days > max_pin_age_days:
             return "STALE"
         return "DRIFTED"
 
 
-FAILING_POSTURES = frozenset({"UNREAD", "UNRESOLVED", "DIVERGED", "STALE"})
+FAILING_POSTURES = frozenset({"UNREAD", "UNRESOLVED", "BEHIND", "DIVERGED", "STALE"})
+POSTURE_MEANINGS = {
+    "UNREAD": "the sibling's current revision could not be read",
+    "UNRESOLVED": "the SHAs differ and no trustworthy comparison was obtained",
+    "BEHIND": "the sibling's main was rolled back to an ancestor of the pin",
+    "DIVERGED": "the sibling's main is on a rewritten history with commits on both sides of the pin",
+    "STALE": "main is ahead and the manifest has not been refreshed within the policy age",
+}
 
 
 def _gh_json(*args: str) -> object | None:
@@ -264,35 +279,44 @@ def report_drift(
             if isinstance(candidate, str) and FULL_SHA.fullmatch(candidate):
                 current = candidate
         ahead_by: int | None = None
+        behind_by: int | None = None
         if current is not None:
             if current == source.revision:
-                ahead_by = 0
+                ahead_by = behind_by = 0
             else:
                 compare = _gh_json(f"repos/{source.github}/compare/{source.revision}...{current}")
-                if isinstance(compare, dict) and isinstance(compare.get("ahead_by"), int):
-                    ahead_by = int(compare["ahead_by"])
+                if isinstance(compare, dict):
+                    if isinstance(compare.get("ahead_by"), int):
+                        ahead_by = int(compare["ahead_by"])
+                    if isinstance(compare.get("behind_by"), int):
+                        behind_by = int(compare["behind_by"])
         drifts.append(
             PinDrift(
                 repository=source.repository,
                 pinned=source.revision,
                 current=current,
                 ahead_by=ahead_by,
+                behind_by=behind_by,
                 refresh_age_days=refresh_age_days,
             )
         )
     return drifts
 
 
+def _count(value: int | None) -> str:
+    return "?" if value is None else str(value)
+
+
 def drift_markdown(drifts: list[PinDrift], *, max_pin_age_days: int) -> str:
     lines = [
-        "| Repository | Pinned | Current main | Ahead of pin | Refresh age (days) | Posture |",
-        "| --- | --- | --- | --- | --- | --- |",
+        "| Repository | Pinned | Current main | Ahead of pin | Behind pin | Refresh age (days) | Posture |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for drift in drifts:
         lines.append(
             f"| {drift.repository} | `{drift.pinned[:12]}` | "
             f"`{(drift.current or 'unread')[:12]}` | "
-            f"{'?' if drift.ahead_by is None else drift.ahead_by} | "
+            f"{_count(drift.ahead_by)} | {_count(drift.behind_by)} | "
             f"{drift.refresh_age_days} | {drift.posture(max_pin_age_days=max_pin_age_days)} |"
         )
     return "\n".join(lines) + "\n"
@@ -322,7 +346,10 @@ def main() -> int:
         "--max-pin-age-days",
         type=int,
         default=14,
-        help="with --report-drift, fail when any pin's committed_at_utc is older than this",
+        help=(
+            "with --report-drift, a drifted pin is STALE when the manifest's recorded_at_utc "
+            "is older than this many days; a pin equal to current main is never stale"
+        ),
     )
     parser.add_argument(
         "--summary",
@@ -369,9 +396,13 @@ def main() -> int:
             print(
                 "Fleet drift findings: "
                 + ", ".join(f"{name}={posture}" for name, posture in sorted(failing.items()))
-                + ". UNREAD/UNRESOLVED: the sibling could not be measured; DIVERGED: its main "
-                "no longer descends from the pin; STALE: refresh the manifest through a reviewed "
-                f"pull request (older than {arguments.max_pin_age_days} day(s))."
+                + ". "
+                + " ".join(
+                    f"{posture}: {POSTURE_MEANINGS[posture]}."
+                    for posture in sorted(set(failing.values()))
+                )
+                + f" Policy age: {arguments.max_pin_age_days} day(s); a refresh through a reviewed "
+                "pull request clears STALE only."
             )
             return 1
     return 0

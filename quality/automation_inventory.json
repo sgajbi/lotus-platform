@@ -489,9 +489,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 17,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
-      "reference_count": 28,
+      "reference_count": 29,
       "suffix": ".ps1",
-      "test_reference_count": 9
+      "test_reference_count": 10
     },
     {
       "classification": "covered",
@@ -1254,6 +1254,6 @@
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-13T06:47:31Z",
+  "generated_at_utc": "2026-09-13T07:41:01Z",
   "script_count": 156
 }
