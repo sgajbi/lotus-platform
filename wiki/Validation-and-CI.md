@@ -88,6 +88,10 @@ works.
 - main-gate coverage over a fixed range, written as a committed ledger (the scheduled audit's
   rolling window cannot say what happened to a gap once the window moved past it):
   `python automation\audit_main_gate_coverage.py --range <baseline>..<end> --ledger-out quality\main-gate-coverage-ledger.v1.json`
+  The ledger retains every run ID, attempt and timestamp. `historical_coverage` records whether
+  the source was ever evaluated, while `verdict` follows the newest evidence and
+  `latest_applicable_verdict` retains the last terminal result. A later failure therefore
+  supersedes an earlier success without erasing it; a newer non-terminal run remains unknown.
 - platform validation lane:
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
 - platform demo-readiness certification, report-only:

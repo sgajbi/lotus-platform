@@ -303,10 +303,12 @@ Active. Resolves #563 and #775 into one principal design. The authenticated BFF 
 ships as `platform-contracts/bff-principal-session/`; the downstream contract, fixtures, signed
 Ed25519 vectors and a runnable verifier ship as `platform-contracts/principal-resolution/`,
 `platform-contracts/principal-credential/` and `automation/verify_principal_credential.py`. The
-Workbench BFF is the pilot consumer (lotus-workbench #1042). The grant store is owned by Platform
-identity and access governance as a platform identity capability — `lotus-core` declined it on
+Workbench BFF is the pilot consumer (lotus-workbench #1042). The grant-store implementation is
+owned by Platform identity and access governance as a platform identity capability; its dedicated
+Lotus hosting service remains undesignated and operations remain external — `lotus-core` declined it on
 2026-09-08 because its relationships are financial facts, not tenant grants — and is unimplemented;
-`pilot-acceptance.v1.json` records the finite acceptance and the live boundaries that stay `false`.
+`pilot-acceptance.v1.json` and its immutable Workbench proof-file receipt record the finite
+acceptance and the live boundaries that stay `false`.
 
 Grants are resolved from a store rather than carried in the credential, so an entitlement withdrawn
 during a session takes effect without waiting for expiry; the cost, accepted explicitly, is that a
