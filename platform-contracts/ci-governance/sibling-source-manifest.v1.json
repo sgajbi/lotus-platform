@@ -1,0 +1,92 @@
+{
+  "schema_version": "lotus.sibling-source-manifest.v1",
+  "purpose": "The exact sibling revisions the per-commit lanes (feature, pr-merge, main-releasability) read. A lane verdict is a function of the lotus-platform commit alone only when every sibling input is pinned here; a pin is refreshed by a reviewed pull request, never by a lane. Current-main drift is reported by the scheduled fleet-conformance lane, which reads sibling default branches on purpose.",
+  "recorded_at_utc": "2026-09-13T05:18:26Z",
+  "recorded_from": "GitHub API repos/<github>/branches/main at recorded_at_utc",
+  "sources": [
+    {
+      "repository": "lotus-core",
+      "github": "sgajbi/lotus-core",
+      "branch": "main",
+      "revision": "71cc20a254bc18cd613577ea13e5668e08bbfd11",
+      "committed_at_utc": "2026-09-11T06:07:23Z"
+    },
+    {
+      "repository": "lotus-performance",
+      "github": "sgajbi/lotus-performance",
+      "branch": "main",
+      "revision": "8f933a842397d3e9ab27643c815e0817b560ec39",
+      "committed_at_utc": "2026-09-09T01:02:23Z"
+    },
+    {
+      "repository": "lotus-risk",
+      "github": "sgajbi/lotus-risk",
+      "branch": "main",
+      "revision": "9fba15248a09227c1277f5370d1bb523147a3382",
+      "committed_at_utc": "2026-09-08T13:54:13Z"
+    },
+    {
+      "repository": "lotus-advise",
+      "github": "sgajbi/lotus-advise",
+      "branch": "main",
+      "revision": "01cc655db1de2d2b07529a2f70d559d0abb8e287",
+      "committed_at_utc": "2026-09-09T00:42:00Z"
+    },
+    {
+      "repository": "lotus-report",
+      "github": "sgajbi/lotus-report",
+      "branch": "main",
+      "revision": "8d06b34668dab520c48458d483c0881849dfe9a7",
+      "committed_at_utc": "2026-09-08T23:24:11Z"
+    },
+    {
+      "repository": "lotus-render",
+      "github": "sgajbi/lotus-render",
+      "branch": "main",
+      "revision": "0719e6dddb6c115ed9f86589587fa04bf3012f9f",
+      "committed_at_utc": "2026-09-08T23:51:29Z"
+    },
+    {
+      "repository": "lotus-archive",
+      "github": "sgajbi/lotus-archive",
+      "branch": "main",
+      "revision": "c9fdbfbfade4afa98a2459c4c2b7a8d98c231e14",
+      "committed_at_utc": "2026-09-11T03:02:47Z"
+    },
+    {
+      "repository": "lotus-manage",
+      "github": "sgajbi/lotus-manage",
+      "branch": "main",
+      "revision": "d5c92dbf6d0750b96c1f03fef77212d8922edb50",
+      "committed_at_utc": "2026-09-09T13:57:22Z"
+    },
+    {
+      "repository": "lotus-idea",
+      "github": "sgajbi/lotus-idea",
+      "branch": "main",
+      "revision": "e52c6d7bbea28097e0541d9450df4746a96322ee",
+      "committed_at_utc": "2026-09-11T02:35:12Z"
+    },
+    {
+      "repository": "lotus-ai",
+      "github": "sgajbi/lotus-ai",
+      "branch": "main",
+      "revision": "06b360cabfe8fc405f2351acd0fecf441288cdd8",
+      "committed_at_utc": "2026-09-08T13:03:55Z"
+    },
+    {
+      "repository": "lotus-gateway",
+      "github": "sgajbi/lotus-gateway",
+      "branch": "main",
+      "revision": "ec5c421ba22aaec765524aa807f6c4a2dc8a0a29",
+      "committed_at_utc": "2026-09-09T12:02:21Z"
+    },
+    {
+      "repository": "lotus-workbench",
+      "github": "sgajbi/lotus-workbench",
+      "branch": "main",
+      "revision": "5224283d9b37b98df5369f88beb35414913ce292",
+      "committed_at_utc": "2026-09-11T04:48:39Z"
+    }
+  ]
+}

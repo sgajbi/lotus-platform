@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("feature", "pr-merge", "main-releasability")]
+    [ValidateSet("feature", "pr-merge", "main-releasability", "fleet-conformance")]
     [string]$Lane
 )
 
@@ -37,6 +37,28 @@ Push-Location $repoRoot
 try {
     $toolingPython = & (Join-Path $PSScriptRoot "Resolve-PlatformAutomationPython.ps1")
 
+    if ($Lane -eq "fleet-conformance") {
+        # The current-estate view. The per-commit lanes read every sibling at the
+        # revision pinned in platform-contracts/ci-governance/sibling-source-manifest.v1.json,
+        # which freezes their view of the estate; this lane reads sibling default
+        # branches as they are now, so a sibling regression or convergence stays
+        # visible somewhere, and reports how far each pin lags. A red here names a
+        # fleet owner; it never blocks an unrelated platform pull request.
+        $driftArguments = @("--report-drift")
+        if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+            $driftArguments += @("--summary", $env:GITHUB_STEP_SUMMARY)
+        }
+        Invoke-CheckedCommand $toolingPython automation/validate_sibling_source_manifest.py @driftArguments
+        Invoke-CheckedCommand $toolingPython automation/validate_auto_merge_releasability.py --require-local-repos
+        Invoke-CheckedCommand $toolingPython automation/validate_workflow_pipeline_exit_codes.py --require-local-repos
+        Invoke-CheckedCommand $toolingPython automation/validate_canonical_front_office_demo_data_contract.py
+        return
+    }
+
+    # Repository-local: the manifest must name every registered sibling exactly
+    # once with a full revision, or a lane checkout would fall back to a default
+    # branch and the verdict would stop being a function of this commit.
+    Invoke-CheckedCommand $toolingPython automation/validate_sibling_source_manifest.py
     Invoke-CheckedCommand $toolingPython -m pytest tests/unit -q
     Invoke-CheckedCommand $toolingPython automation/validate_engineering_context_system.py
     Invoke-CheckedCommand $toolingPython automation/validate_agent_engineering_contracts.py

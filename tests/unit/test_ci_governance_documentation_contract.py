@@ -595,7 +595,10 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
         main_releasability
     )
 
-    assert 'ValidateSet("feature", "pr-merge", "main-releasability")' in repo_checks
+    assert (
+        'ValidateSet("feature", "pr-merge", "main-releasability", "fleet-conformance")'
+        in repo_checks
+    )
     assert "Resolve-PlatformAutomationPython.ps1" in repo_checks
     assert "Invoke-CheckedCommand $toolingPython -m pytest tests/unit -q" in repo_checks
     assert "validate_auto_merge_releasability.py --require-local-repos" in repo_checks

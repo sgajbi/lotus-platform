@@ -1,22 +1,25 @@
 # Automation Inventory
 
-Generated: `2026-09-07T03:26:54Z`
+Generated: `2026-09-13T05:32:01Z`
 
 This report is a cleanup aid. `review` and `undocumented` entries are candidates for
 documentation, consolidation, tests, or removal after behavior-specific evidence is inspected.
 
 ## Summary
 
-- Scripts inventoried: `152`
-- Covered: `126`
+- Scripts inventoried: `156`
+- Covered: `127`
 - Undocumented: `25`
-- Review candidates: `1`
+- Review candidates: `4`
 
 ## Lowest-Discoverability Scripts
 
 | Script | References | Tests | Operator docs | Classification |
 | --- | ---: | ---: | ---: | --- |
+| automation/audit_main_gate_coverage.py | 1 | 1 | 0 | review |
+| automation/generate_principal_credential_vectors.py | 1 | 1 | 0 | review |
 | automation/generate_service_cost_attribution.py | 1 | 1 | 0 | review |
+| automation/verify_principal_credential.py | 1 | 1 | 0 | review |
 | automation/Bootstrap-Repo-Env.ps1 | 2 | 0 | 0 | undocumented |
 | automation/Cleanup-Legacy-Workspace.ps1 | 2 | 0 | 0 | undocumented |
 | automation/Prune-MergedRemoteBranches.ps1 | 2 | 0 | 0 | undocumented |

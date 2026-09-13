@@ -123,6 +123,10 @@ python automation/generate_enterprise_backend_quality_baseline.py --check
 # Regenerate only after a healthy test collection
 python automation/generate_enterprise_backend_quality_baseline.py --write --check
 
+# Prove the sibling revisions the per-commit lanes read are pinned, and see how far they lag
+python automation/validate_sibling_source_manifest.py
+python automation/validate_sibling_source_manifest.py --report-drift
+
 # Verify this repository's operating contract without changing it
 powershell -ExecutionPolicy Bypass -File automation/Sync-AgentOperatingContract.ps1 -CheckOnly
 
@@ -142,7 +146,19 @@ Platform uses these GitHub lanes:
 2. Pull Request Merge Gate;
 3. Main Releasability Gate, dispatched per merged **revision**, not per merged pull request;
 4. Main Gate Coverage Audit, which fails when any commit on `main` has no gate verdict;
-5. Platform End-to-End Validation -- **currently producing no evidence; see below.**
+5. Platform End-to-End Validation -- **currently producing no evidence; see below;**
+6. Fleet Conformance, scheduled, which reads sibling default branches on purpose.
+
+Lanes 1-3 read the twelve sibling repositories at the revisions pinned in
+`platform-contracts/ci-governance/sibling-source-manifest.v1.json`: the pins are published as step
+outputs, every sibling checkout binds `ref:` to them, and the checkouts are measured against the
+manifest before any validator runs. A lane verdict is therefore a function of the `lotus-platform`
+commit it certifies -- unpinned, it was a function of every sibling's `main` at run time, so one
+revision could be re-gated later and answer differently, and a sibling merge could turn `main` red
+with no change here. The pin also freezes the estate view, which is why lane 6 exists: it runs the
+cross-repository validators against current sibling `main`s and reports pin drift, and a red there
+names a fleet owner rather than blocking an unrelated pull request. A pin moves only through a
+reviewed pull request.
 
 Lane 3 enumerates every revision a rebase merge added and dispatches one run for each. Gating only
 the merge tip left the rest of `main` with no verdict at all, measured here at 212 of 268 commits
@@ -196,7 +212,9 @@ Use the RFC index for deeper or historical decisions.
 ## Known Constraints And Implementation Notes
 
 - Repository inventory drift changes cross-repo validation scope; update `automation/repos.json`
-  deliberately and test the resulting discovery behavior.
+  deliberately, pin the new sibling in
+  `platform-contracts/ci-governance/sibling-source-manifest.v1.json` in the same change, and test
+  the resulting discovery behavior.
 - Scaffold changes belong in `automation/New-Lotus-Service.ps1` with generated-output contract
   tests, not hand-copied into applications.
 - A standard is not implemented merely because prose exists. Consider its contract, validator,

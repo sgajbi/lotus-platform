@@ -1,0 +1,113 @@
+name: Fleet Conformance
+
+# Current-estate posture, on purpose. The per-commit lanes (feature, pr-merge,
+# main-releasability) read every sibling at the revision pinned in
+# platform-contracts/ci-governance/sibling-source-manifest.v1.json, so a lane
+# verdict is a function of the lotus-platform commit it certifies (#858, #708).
+# That pin also freezes the estate view: a sibling regression, or a sibling
+# converging on the governed dispatcher, stops being visible to those lanes
+# until the pin moves. This lane is where it stays visible. It reads sibling
+# default branches as they are now, runs the cross-repository validators against
+# them, and reports how far each pin lags. A red here is actionable by the
+# fleet owner it names; it never blocks an unrelated platform pull request.
+
+on:
+  schedule:
+    - cron: "40 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GIT_CONFIG_COUNT: "1"
+  GIT_CONFIG_KEY_0: "init.defaultBranch"
+  GIT_CONFIG_VALUE_0: "main"
+
+jobs:
+  fleet-conformance:
+    name: Fleet Conformance / Current Sibling Mains
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # Unpinned by design: this is the one lane whose subject is the estate as it
+      # is today. Every other lane binds `ref:` to the manifest.
+      - name: Checkout governed sibling repositories at their current default branch
+        uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-core
+          path: _federated/lotus-core
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-performance
+          path: _federated/lotus-performance
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-risk
+          path: _federated/lotus-risk
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-advise
+          path: _federated/lotus-advise
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-report
+          path: _federated/lotus-report
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-render
+          path: _federated/lotus-render
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-archive
+          path: _federated/lotus-archive
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-manage
+          path: _federated/lotus-manage
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-idea
+          path: _federated/lotus-idea
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-ai
+          path: _federated/lotus-ai
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-gateway
+          path: _federated/lotus-gateway
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-workbench
+          path: _federated/lotus-workbench
+      - name: Record the sibling revisions this run read
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "## Sibling revisions read by this run"
+            echo
+            echo "| Repository | Revision |"
+            echo "| --- | --- |"
+            for repo in lotus-core lotus-performance lotus-risk lotus-advise lotus-report lotus-render lotus-archive lotus-manage lotus-idea lotus-ai lotus-gateway lotus-workbench; do
+              echo "| $repo | \`$(git -C "_federated/$repo" rev-parse HEAD)\` |"
+            done
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Link governed source repositories into federated workspace
+        shell: bash
+        run: |
+          for repo in lotus-core lotus-performance lotus-risk lotus-advise lotus-report lotus-render lotus-archive lotus-manage lotus-idea lotus-ai lotus-gateway lotus-workbench; do
+            ln -s "$GITHUB_WORKSPACE/_federated/$repo" "$GITHUB_WORKSPACE/../$repo"
+          done
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Run cross-repository conformance against current sibling mains
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane fleet-conformance

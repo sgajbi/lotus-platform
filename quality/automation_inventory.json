@@ -1,7 +1,7 @@
 {
   "classification_counts": {
-    "covered": 126,
-    "review": 1,
+    "covered": 127,
+    "review": 4,
     "undocumented": 25
   },
   "entries": [
@@ -20,6 +20,14 @@
       "reference_count": 3,
       "suffix": ".ps1",
       "test_reference_count": 0
+    },
+    {
+      "classification": "review",
+      "operator_doc_reference_count": 0,
+      "path": "automation/audit_main_gate_coverage.py",
+      "reference_count": 1,
+      "suffix": ".py",
+      "test_reference_count": 1
     },
     {
       "classification": "covered",
@@ -368,6 +376,14 @@
     {
       "classification": "review",
       "operator_doc_reference_count": 0,
+      "path": "automation/generate_principal_credential_vectors.py",
+      "reference_count": 1,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "review",
+      "operator_doc_reference_count": 0,
       "path": "automation/generate_service_cost_attribution.py",
       "reference_count": 1,
       "suffix": ".py",
@@ -457,9 +473,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/Invoke-Platform-QA.ps1",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".ps1",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -521,9 +537,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 8,
       "path": "automation/New-Lotus-Service.ps1",
-      "reference_count": 16,
+      "reference_count": 17,
       "suffix": ".ps1",
-      "test_reference_count": 5
+      "test_reference_count": 6
     },
     {
       "classification": "covered",
@@ -961,9 +977,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/validate_auto_merge_releasability.py",
-      "reference_count": 6,
+      "reference_count": 7,
       "suffix": ".py",
-      "test_reference_count": 2
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
@@ -1152,6 +1168,14 @@
     {
       "classification": "covered",
       "operator_doc_reference_count": 2,
+      "path": "automation/validate_sibling_source_manifest.py",
+      "reference_count": 5,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/validate_stacked_refactor_campaign_manifest.py",
       "reference_count": 4,
       "suffix": ".py",
@@ -1220,8 +1244,16 @@
       "reference_count": 7,
       "suffix": ".ps1",
       "test_reference_count": 0
+    },
+    {
+      "classification": "review",
+      "operator_doc_reference_count": 0,
+      "path": "automation/verify_principal_credential.py",
+      "reference_count": 1,
+      "suffix": ".py",
+      "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-07T03:26:54Z",
-  "script_count": 152
+  "generated_at_utc": "2026-09-13T05:32:01Z",
+  "script_count": 156
 }
