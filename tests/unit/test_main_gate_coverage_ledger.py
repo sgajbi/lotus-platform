@@ -72,11 +72,23 @@ def _audit(monkeypatch: pytest.MonkeyPatch, argv: list[str]) -> int:
 
 
 def _fake_runs(monkeypatch: pytest.MonkeyPatch, runs: dict[str, object]) -> None:
-    def conclusions(sha: str) -> list[str] | None:
+    def evidence(sha: str) -> list[dict[str, object]] | None:
         entry = runs.get(sha, [])
-        return None if entry == "unfetchable" else list(entry)  # type: ignore[arg-type]
+        if entry == "unfetchable":
+            return None
+        return [
+            {
+                "run_id": index,
+                "attempt": 1,
+                "started_at": f"2026-09-13T00:00:0{index}Z",
+                "updated_at": f"2026-09-13T00:00:0{index}Z",
+                "status": "completed",
+                "conclusion": conclusion,
+            }
+            for index, conclusion in enumerate(entry, start=1)  # type: ignore[arg-type]
+        ]
 
-    monkeypatch.setattr(audit, "_run_conclusions", conclusions)
+    monkeypatch.setattr(audit, "_run_evidence", evidence)
 
 
 def test_the_range_walks_first_parent_oldest_first_and_excludes_the_baseline(
@@ -113,7 +125,15 @@ def test_the_range_walks_first_parent_oldest_first_and_excludes_the_baseline(
         "failing",
         "unknown",
     ]
-    assert payload["counts"] == {"examined": 4, "passing": 1, "failing": 1, "ungated": 1, "unknown": 1}
+    assert payload["counts"] == {
+        "examined": 4,
+        "passing": 1,
+        "failing": 1,
+        "ungated": 1,
+        "unknown": 1,
+        "historically_covered": 2,
+        "pending": 0,
+    }
     assert payload["dispositions"] == []
     assert payload["measured_at_utc"].endswith("Z")
 
@@ -153,6 +173,48 @@ def test_hand_recorded_dispositions_survive_re_measurement(
     assert payload["revisions"][0]["verdict"] == "ungated"
 
 
+def test_a_later_failure_supersedes_an_earlier_success_without_erasing_history(
+    repo: Repo, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Run 34107086914 must not be masked by run 34103149281's old success."""
+    base = repo.commit("baseline")
+    tip = repo.commit("replayed source")
+    repo.publish_main()
+    monkeypatch.setattr(
+        audit,
+        "_run_evidence",
+        lambda sha: [
+            {
+                "run_id": 34103149281,
+                "attempt": 1,
+                "started_at": "2026-09-12T09:00:00Z",
+                "updated_at": "2026-09-12T09:10:00Z",
+                "status": "completed",
+                "conclusion": "success",
+            },
+            {
+                "run_id": 34107086914,
+                "attempt": 2,
+                "started_at": "2026-09-12T12:00:00Z",
+                "updated_at": "2026-09-12T12:20:00Z",
+                "status": "completed",
+                "conclusion": "failure",
+            },
+        ]
+        if sha == tip
+        else [],
+    )
+    ledger = tmp_path / "ledger.json"
+
+    assert _audit(monkeypatch, ["--range", f"{base}..{tip}", "--ledger-out", str(ledger)]) == 0
+
+    entry = json.loads(ledger.read_text(encoding="utf-8"))["revisions"][0]
+    assert entry["verdict"] == "failing"
+    assert entry["historical_coverage"] == "covered"
+    assert entry["latest_applicable_verdict"] == "failing"
+    assert [run["run_id"] for run in entry["run_evidence"]] == [34103149281, 34107086914]
+
+
 @pytest.mark.parametrize(
     "shape",
     ["baseline-not-an-ancestor", "merge-commit-inside", "end-not-on-main", "unresolvable-endpoint"],
@@ -183,7 +245,7 @@ def test_a_range_that_is_not_main_history_is_refused_before_any_lookup(
         repo.publish_main()
         base, end = root, "0" * 40
     looked_up: list[str] = []
-    monkeypatch.setattr(audit, "_run_conclusions", lambda sha: looked_up.append(sha) or [])
+    monkeypatch.setattr(audit, "_run_evidence", lambda sha: looked_up.append(sha) or [])
     ledger = tmp_path / "ledger.json"
 
     exit_code = _audit(monkeypatch, ["--range", f"{base}..{end}", "--ledger-out", str(ledger)])

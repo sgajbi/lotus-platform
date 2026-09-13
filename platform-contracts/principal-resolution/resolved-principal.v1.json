@@ -1,7 +1,7 @@
 {
   "schemaVersion": "lotus-platform.resolved-principal.v1",
   "contractId": "lotus-platform-resolved-principal-and-capability-grant",
-  "contractVersion": "2.0.0",
+  "contractVersion": "3.0.0",
   "issueRefs": [
     "sgajbi/lotus-platform#775",
     "sgajbi/lotus-platform#563",
@@ -102,7 +102,10 @@
     }
   ],
   "grantStore": {
-    "ownedBy": "the service that owns tenant membership",
+    "implementationOwnedBy": "lotus-platform identity and access governance",
+    "hostingService": null,
+    "hostingServiceDesignated": false,
+    "operationsOwnedBy": "bank security authority / identity-provider operator",
     "hostedByPlatform": false,
     "unavailableBehaviour": "deny",
     "revocationWindowSeconds": 300
@@ -252,7 +255,7 @@
   },
   "nonGoals": [
     "selecting or deploying a bank identity provider",
-    "hosting the grant store, which belongs to the tenant-membership owner",
+    "hosting the grant store before a dedicated Lotus identity service is designated",
     "implementing resolution inside any consumer",
     "promoting a Lotus Idea supported feature",
     "clearing production identity certification",

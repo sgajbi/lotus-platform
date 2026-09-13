@@ -10,11 +10,15 @@ from __future__ import annotations
 
 import json
 import re
+from copy import deepcopy
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RECORD_PATH = ROOT / "platform-contracts" / "principal-resolution" / "pilot-acceptance.v1.json"
 RFC_PATH = ROOT / "rfcs" / "RFC-0109-lotus-production-principal-and-capability-resolution.md"
+CONTRACT_PATH = ROOT / "platform-contracts" / "principal-resolution" / "resolved-principal.v1.json"
+SCHEMA_PATH = ROOT / "platform-contracts" / "principal-resolution" / "resolved-principal.schema.json"
+README_PATH = ROOT / "platform-contracts" / "principal-resolution" / "README.md"
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 DENIAL_CLASSES = (
     "missing_credential",
@@ -39,6 +43,29 @@ def _record() -> dict:
 
 def _test_functions(path: Path) -> set[str]:
     return set(re.findall(r"^def (test_[A-Za-z0-9_]+)\(", path.read_text(encoding="utf-8"), re.M))
+
+
+def _pilot_evidence_errors(record: dict) -> list[str]:
+    pilot = record["pilot"]
+    receipt_path = RECORD_PATH.parent / pilot.get("consumer_proof_receipt", "")
+    errors: list[str] = []
+    if pilot.get("consumer_repository") != "sgajbi/lotus-workbench":
+        errors.append("consumer repository is not the accepted Workbench pilot")
+    if not FULL_SHA.fullmatch(str(pilot.get("consumer_proof_revision", ""))):
+        errors.append("consumer proof revision is not immutable")
+    if not receipt_path.is_file():
+        return [*errors, "consumer proof receipt is missing"]
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    if receipt.get("repository") != pilot.get("consumer_repository"):
+        errors.append("receipt repository does not match pilot")
+    if receipt.get("revision") != pilot.get("consumer_proof_revision"):
+        errors.append("receipt revision does not match pilot")
+    proof_files = receipt.get("proof_files")
+    if not isinstance(proof_files, dict) or set(proof_files) != set(pilot.get("consumer_proof_files", [])):
+        errors.append("receipt proof files do not exactly match pilot")
+    elif not all(FULL_SHA.fullmatch(str(blob)) for blob in proof_files.values()):
+        errors.append("receipt contains a non-Git proof object")
+    return errors
 
 
 def test_every_cited_platform_test_exists_in_the_named_file() -> None:
@@ -81,6 +108,18 @@ def test_the_pilot_and_its_revisions_are_exact() -> None:
     assert FULL_SHA.fullmatch(pilot["consumer_proof_revision"])
     assert pilot["consumer_proof_files"], "a pilot with no named proof files is a pilot by assertion"
     assert all(path.startswith("tests/") for path in pilot["consumer_proof_files"])
+    assert _pilot_evidence_errors(record) == []
+
+
+def test_the_pilot_rejects_a_wrong_revision_or_missing_proof_file() -> None:
+    record = _record()
+    wrong_revision = deepcopy(record)
+    wrong_revision["pilot"]["consumer_proof_revision"] = "0" * 40
+    assert "receipt revision does not match pilot" in _pilot_evidence_errors(wrong_revision)
+
+    missing_file = deepcopy(record)
+    missing_file["pilot"]["consumer_proof_files"] = missing_file["pilot"]["consumer_proof_files"][:-1]
+    assert "receipt proof files do not exactly match pilot" in _pilot_evidence_errors(missing_file)
 
 
 def test_live_boundaries_all_stay_false_until_separately_evidenced() -> None:
@@ -103,3 +142,15 @@ def test_ownership_names_the_declined_owner_and_the_corrected_one_consistently()
     assert "declined on 2026-09-08" in section
     assert "`lotus-platform` identity and access governance" in section
     assert "pilot-acceptance.v1.json" in rfc
+    contract = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+    schema = SCHEMA_PATH.read_text(encoding="utf-8")
+    readme = README_PATH.read_text(encoding="utf-8")
+    grant_store = contract["grantStore"]
+    assert grant_store["implementationOwnedBy"] == "lotus-platform identity and access governance"
+    assert grant_store["hostingService"] is None
+    assert grant_store["hostingServiceDesignated"] is False
+    assert grant_store["operationsOwnedBy"] == "bank security authority / identity-provider operator"
+    assert "tenant-membership owner" not in schema
+    assert "tenant-membership owner" not in contract["nonGoals"]
+    assert "still undesignated" in readme
+    assert "once one is designated" in section

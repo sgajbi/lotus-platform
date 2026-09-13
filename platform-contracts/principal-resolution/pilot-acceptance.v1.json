@@ -20,6 +20,7 @@
     "consumer": "lotus-workbench",
     "kind": "bff-delegated",
     "consumer_issue": "https://github.com/sgajbi/lotus-workbench/issues/436",
+    "consumer_repository": "sgajbi/lotus-workbench",
     "pull_request": "https://github.com/sgajbi/lotus-workbench/pull/1042",
     "merged_revision": "551fcd7bbbf453f3812a7e2820f8e889c5400ff5",
     "consumer_proof_revision": "5224283d9b37b98df5369f88beb35414913ce292",
@@ -29,6 +30,7 @@
       "tests/unit/bff-principal-authority.test.ts",
       "tests/unit/configured-bff-principal.test.ts"
     ],
+    "consumer_proof_receipt": "evidence/lotus-workbench-pilot-proof-receipt.v1.json",
     "why_this_pilot": "The BFF is the delegated shape RFC-0109 requires rather than permits, it already consumed the signed vectors, JWKS, revocation inputs and verifier delivered by #850/#854, and its merged slice is on main. Gateway (composition front door) is the second adopter and a domain service the third; neither is claimed here."
   },
   "platform_evidence_file": "tests/unit/test_principal_credential_verifier.py",
