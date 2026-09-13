@@ -266,6 +266,46 @@ def test_source_pinned_mainline_dispatch_rejects_unpinned_assertion_checkout(
     assert result.violations == ("main-releasability.missing-expected-sha-assertion",)
 
 
+def test_source_pinned_mainline_dispatch_accepts_refspec_fetch(
+    tmp_path: Path,
+) -> None:
+    """Normal explicit refspecs still establish fresh mainline ancestry."""
+    repo_root, validate = _source_pinned_mainline_results(tmp_path)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "git fetch origin main --quiet",
+            "git fetch --no-tags origin main:refs/remotes/origin/main",
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate()
+
+    assert result.status == "aligned"
+    assert result.violations == ()
+
+
+def test_source_pinned_mainline_dispatch_rejects_nonfatal_fetch_failure(
+    tmp_path: Path,
+) -> None:
+    """An ancestry proof cannot be trusted after a tolerated fetch failure."""
+    repo_root, validate = _source_pinned_mainline_results(tmp_path)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "git fetch origin main --quiet",
+            "git fetch origin main --quiet || exit 0",
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate()
+
+    assert result.status == "drift"
+    assert result.violations == ("main-releasability.missing-expected-sha-assertion",)
+
+
 def test_source_pinned_mainline_dispatch_rejects_lookalike_main_ref(
     tmp_path: Path,
 ) -> None:
