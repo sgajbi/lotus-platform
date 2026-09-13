@@ -60,12 +60,18 @@ function Get-FleetValidators {
         throw "Fleet validator manifest must contain a non-empty validators array."
     }
     $validated = @()
+    $validatorNames = @{}
     foreach ($validator in @($manifest.validators)) {
         if ([string]::IsNullOrWhiteSpace([string]$validator.name) -or $null -eq $validator.arguments -or @($validator.arguments).Count -eq 0) {
             throw "Each fleet validator must name itself and provide non-empty arguments."
         }
+        $name = [string]$validator.name
+        if ($validatorNames.ContainsKey($name)) {
+            throw "Fleet validator manifest contains duplicate name: $name"
+        }
+        $validatorNames[$name] = $true
         $validated += [pscustomobject]@{
-            Name = [string]$validator.name
+            Name = $name
             Arguments = @($validator.arguments | ForEach-Object { [string]$_ })
         }
     }
