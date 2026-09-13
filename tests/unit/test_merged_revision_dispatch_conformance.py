@@ -153,10 +153,14 @@ jobs:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
         run: |
           actual_sha="$(git rev-parse HEAD)"
+          git fetch origin main --quiet
           if [ -z "$EXPECTED_SHA" ]; then
             exit 0
           fi
           if [ "$actual_sha" != "$EXPECTED_SHA" ]; then
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$EXPECTED_SHA" FETCH_HEAD; then
             exit 1
           fi
 """
