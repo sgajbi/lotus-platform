@@ -686,7 +686,9 @@ def _merged_pr_dispatch_has_mainline_ref(payload: dict[str, Any]) -> bool:
             run = _step_run(step)
             if (
                 "gh workflow run main-releasability.yml" in run
-                and re.search(r"--ref\\s+(?:main|['\"]main['\"])(?=\\s|$)", run)
+                # `--ref main-unreviewed` is a different, mutable branch.  The
+                # command token must be exactly `main`, not merely start with it.
+                and re.search(r"--ref\s+(?:main|['\"]main['\"])(?=\s|$)", run)
                 and _merged_pr_dispatch_passes_exact_sha(
                     {"jobs": {"dispatch": {"steps": [step]}}}
                 )
@@ -695,7 +697,8 @@ def _merged_pr_dispatch_has_mainline_ref(payload: dict[str, Any]) -> bool:
     return False
 
 
-def _main_releasability_has_exact_sha_assertion(payload: dict[str, Any]) -> bool:
+def _main_releasability_has_expected_sha_assertion(payload: dict[str, Any]) -> bool:
+    """Recognise the established assertion used by immutable-ref dispatch."""
     for step in _workflow_steps(payload):
         expected_sha = _step_env_value(step, "EXPECTED_SHA")
         run = _step_run(step)
@@ -711,6 +714,57 @@ def _main_releasability_has_exact_sha_assertion(payload: dict[str, Any]) -> bool
             and mismatch_fails
         ):
             return True
+    return False
+
+
+def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> bool:
+    """Require one dedicated assertion job to pin and prove its source.
+
+    Main-defined runs deliberately need not pin every quality or build job:
+    those jobs execute the governed workflow definition selected from `main`.
+    What cannot be delegated is the source identity claim.  The assertion job
+    therefore has to check out the supplied source, compare HEAD to it, and
+    prove it remains an ancestor of freshly fetched `main`.
+    """
+    jobs = payload.get("jobs")
+    if not isinstance(jobs, dict):
+        return False
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        steps = _job_steps(job)
+        has_source_pinned_checkout = any(
+            isinstance(step.get("uses"), str)
+            and str(step["uses"]).startswith("actions/checkout@")
+            and isinstance(step.get("with"), dict)
+            and "inputs.expected_sha" in str(step["with"].get("ref") or "")
+            for step in steps
+        )
+        if not has_source_pinned_checkout:
+            continue
+        for step in steps:
+            expected_sha = _step_env_value(step, "EXPECTED_SHA")
+            run = _step_run(step)
+            mismatch_fails = re.search(
+                r'^\s*if\s+\[\s+"\$actual_sha"\s+!=\s+"\$EXPECTED_SHA"\s+\];\s*then'
+                r".*?^\s*exit\s+1\b",
+                run,
+                re.DOTALL | re.MULTILINE,
+            )
+            ancestry_fails = re.search(
+                r'if\s+!\s+git\s+merge-base\s+--is-ancestor\s+"\$EXPECTED_SHA"\s+(?:FETCH_HEAD|origin/main);\s+then'
+                r".*?^\s*exit\s+1\b",
+                run,
+                re.DOTALL | re.MULTILINE,
+            )
+            if (
+                "inputs.expected_sha" in expected_sha
+                and 'actual_sha="$(git rev-parse HEAD)"' in run
+                and "git fetch origin main" in run
+                and mismatch_fails
+                and ancestry_fails
+            ):
+                return True
     return False
 
 
@@ -989,7 +1043,10 @@ def _assess_merged_pr_dispatch(workflow_path: Path, repo_root: Path) -> Dispatch
 
 
 def _main_releasability_violations(
-    workflow_path: Path, *, merged_pr_dispatch_exists: bool
+    workflow_path: Path,
+    *,
+    merged_pr_dispatch_exists: bool,
+    source_pinned_mainline_dispatch: bool,
 ) -> list[str]:
     if not workflow_path.exists():
         return ["main-releasability.missing"]
@@ -1002,7 +1059,11 @@ def _main_releasability_violations(
     if merged_pr_dispatch_exists:
         inputs = _workflow_dispatch_inputs(payload)
         has_expected_sha_input = "expected_sha" in inputs
-        has_exact_sha_assertion = _main_releasability_has_exact_sha_assertion(payload)
+        has_exact_sha_assertion = (
+            _main_releasability_has_source_pinned_assertion(payload)
+            if source_pinned_mainline_dispatch
+            else _main_releasability_has_expected_sha_assertion(payload)
+        )
         if not has_expected_sha_input or not has_exact_sha_assertion:
             violations.append("main-releasability.missing-expected-sha-assertion")
         concurrency_group = _workflow_concurrency_group(payload)
@@ -1036,6 +1097,10 @@ def validate_repository(
     workflow_dir = repo_root / ".github" / "workflows"
     merged_pr_dispatch_path = workflow_dir / "merged-pr-main-releasability.yml"
     dispatch = _assess_merged_pr_dispatch(merged_pr_dispatch_path, repo_root)
+    source_pinned_mainline_dispatch = (
+        merged_pr_dispatch_path.exists()
+        and _merged_pr_dispatch_has_mainline_ref(_load_yaml(merged_pr_dispatch_path))
+    )
     violations = tuple(
         sorted(
             [
@@ -1044,6 +1109,7 @@ def validate_repository(
                 *_main_releasability_violations(
                     workflow_dir / "main-releasability.yml",
                     merged_pr_dispatch_exists=merged_pr_dispatch_path.exists(),
+                    source_pinned_mainline_dispatch=source_pinned_mainline_dispatch,
                 ),
             ]
         )

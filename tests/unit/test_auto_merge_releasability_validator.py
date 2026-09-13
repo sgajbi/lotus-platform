@@ -131,6 +131,160 @@ jobs:
     )
 
 
+def _write_source_pinned_mainline_workflows(repo_root: Path) -> None:
+    """Write the Gateway #789 main-defined shape without pinning seven gate jobs.
+
+    The first job is the source-identity boundary.  Later jobs intentionally
+    use the workflow definition selected from `main`; requiring each one to
+    repeat `inputs.expected_sha` would reject the governed mainline design.
+    """
+    _write_aligned_workflows(repo_root)
+    workflow_dir = repo_root / ".github" / "workflows"
+    (workflow_dir / "merged-pr-main-releasability.yml").write_text(
+        """
+name: Merged PR Main Releasability Dispatch
+on:
+  pull_request_target:
+    types: [closed]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: gh workflow run main-releasability.yml --repo "$GITHUB_REPOSITORY" --ref main -f expected_sha="$MERGE_COMMIT_SHA"
+""",
+        encoding="utf-8",
+    )
+    quality_jobs = "\n".join(
+        f"""
+  {name}:
+    needs: [exact-revision-assertion]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+"""
+        for name in (
+            "duplicate-code",
+            "workflow-lint",
+            "lint-typecheck-unit",
+            "integration",
+            "coverage",
+            "docker-build",
+            "ci-local-docker",
+        )
+    )
+    (workflow_dir / "main-releasability.yml").write_text(
+        """
+name: Main Releasability Gate
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.expected_sha || github.sha }}
+  cancel-in-progress: true
+jobs:
+  exact-revision-assertion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.expected_sha || github.sha }}
+          fetch-depth: 0
+      - env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          actual_sha="$(git rev-parse HEAD)"
+          git fetch origin main --quiet
+          if [ "$actual_sha" != "$EXPECTED_SHA" ]; then
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$EXPECTED_SHA" FETCH_HEAD; then
+            exit 1
+          fi
+"""
+        + quality_jobs,
+        encoding="utf-8",
+    )
+
+
+def _source_pinned_mainline_results(tmp_path: Path):
+    policy = tmp_path / "policy.json"
+    exceptions = tmp_path / "exceptions.json"
+    repos_root = tmp_path / "repos"
+    repo_root = repos_root / "lotus-gateway"
+    _write_policy(policy, ["lotus-gateway"])
+    _write_exceptions(exceptions, [])
+    _write_source_pinned_mainline_workflows(repo_root)
+    return (
+        repo_root,
+        lambda: validate_repositories(
+            policy_path=policy,
+            exception_path=exceptions,
+            repos_root=repos_root,
+            today=datetime(2026, 9, 13, tzinfo=UTC),
+        )[0],
+    )
+
+
+def test_source_pinned_mainline_dispatch_allows_main_defined_quality_jobs(
+    tmp_path: Path,
+) -> None:
+    """Gateway #789 remains aligned when seven downstream jobs lose source refs."""
+    _repo_root, validate = _source_pinned_mainline_results(tmp_path)
+
+    result = validate()
+
+    assert result.status == "aligned"
+    assert result.violations == ()
+
+
+def test_source_pinned_mainline_dispatch_rejects_unpinned_assertion_checkout(
+    tmp_path: Path,
+) -> None:
+    repo_root, validate = _source_pinned_mainline_results(tmp_path)
+    workflow_path = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace(
+            "ref: ${{ inputs.expected_sha || github.sha }}", "ref: main", 1
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate()
+
+    assert result.status == "drift"
+    assert result.violations == ("main-releasability.missing-expected-sha-assertion",)
+
+
+def test_source_pinned_mainline_dispatch_rejects_lookalike_main_ref(
+    tmp_path: Path,
+) -> None:
+    repo_root, validate = _source_pinned_mainline_results(tmp_path)
+    workflow_path = repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
+    workflow_path.write_text(
+        workflow_path.read_text(encoding="utf-8").replace("--ref main ", "--ref main-unreviewed "),
+        encoding="utf-8",
+    )
+
+    result = validate()
+
+    assert result.status == "drift"
+    assert result.violations == (
+        "merged-pr-dispatch.missing-contents-write",
+        "merged-pr-dispatch.wrong-main-releasability-target",
+    )
+
+
 def _write_per_revision_dispatch(repo_root: Path) -> Path:
     workflow_path = (
         repo_root / ".github" / "workflows" / "merged-pr-main-releasability.yml"
