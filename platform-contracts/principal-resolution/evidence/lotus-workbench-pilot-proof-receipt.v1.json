@@ -1,0 +1,13 @@
+{
+  "schema_version": "lotus.principal-consumer-proof-receipt.v1",
+  "repository": "sgajbi/lotus-workbench",
+  "revision": "5224283d9b37b98df5369f88beb35414913ce292",
+  "proof_files": {
+    "tests/fixtures/platform-principal-credential-vectors.ts": "9acab06de3ee35f96f588d0b99164824d6f26b8d",
+    "tests/unit/principal-credential.test.ts": "5262c9081e1e98b20a4019a6d4e81dd092bbb2be",
+    "tests/unit/bff-principal-authority.test.ts": "d5ae5cdd0f8cef37aad3d16b8d64accd4134f892",
+    "tests/unit/configured-bff-principal.test.ts": "398449abab58f34c6728459969225806445f2320"
+  },
+  "measurement": "Git tree objects at the immutable consumer_proof_revision; this receipt records consumer-claimed proof files and does not represent local execution of the consumer suite.",
+  "recorded_at_utc": "2026-09-13T19:16:00Z"
+}

@@ -51,7 +51,7 @@
       "properties": {
         "evidenceClass": { "type": "string", "const": "source_contract" },
         "grantStoreImplemented": {
-          "description": "False until the tenant-membership owner implements it. A contract is not an implementation.",
+          "description": "False until the platform identity-governance implementation owner delivers it. A contract is not an implementation.",
           "type": "boolean"
         },
         "productionIdentityCertified": { "type": "boolean" },
@@ -127,12 +127,25 @@
     "grantStore": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ownedBy", "hostedByPlatform", "unavailableBehaviour", "revocationWindowSeconds"],
+      "required": ["implementationOwnedBy", "hostingService", "hostingServiceDesignated", "operationsOwnedBy", "hostedByPlatform", "unavailableBehaviour", "revocationWindowSeconds"],
       "properties": {
-        "ownedBy": {
-          "description": "The service that owns tenant membership owns the grant store. Platform defines the contract and does not host it.",
+        "implementationOwnedBy": {
+          "description": "Platform identity and access governance owns the grant-store implementation; this does not designate a hosting service.",
           "type": "string",
-          "minLength": 1
+          "const": "lotus-platform identity and access governance"
+        },
+        "hostingService": {
+          "description": "No Lotus hosting service is designated yet; this is deliberately null rather than inferred from domain relationships.",
+          "type": "null"
+        },
+        "hostingServiceDesignated": {
+          "type": "boolean",
+          "const": false
+        },
+        "operationsOwnedBy": {
+          "description": "External identity operations remain unclaimed by Lotus source code.",
+          "type": "string",
+          "const": "bank security authority / identity-provider operator"
         },
         "hostedByPlatform": { "type": "boolean", "const": false },
         "unavailableBehaviour": { "type": "string", "const": "deny" },

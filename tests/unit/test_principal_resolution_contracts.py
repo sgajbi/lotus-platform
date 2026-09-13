@@ -367,7 +367,9 @@ def test_breaking_fixture_changes_carry_a_new_version() -> None:
         assert _denial(denial_class)["schemaVersion"].endswith(".v2"), denial_class
 
     assert _admission()["schemaVersion"].endswith(".v2")
-    assert _contract()["contractVersion"] == "2.0.0"
+    # Ownership fields are a breaking machine-contract correction: consumers
+    # must not continue reading the retired tenant-membership owner field.
+    assert _contract()["contractVersion"] == "3.0.0"
 
 
 def test_a_present_credential_without_a_verifier_outcome_is_reported() -> None:

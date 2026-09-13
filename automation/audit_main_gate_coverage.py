@@ -64,20 +64,21 @@ def _git_succeeds(*args: str) -> bool:
     return subprocess.run(["git", *args], capture_output=True, text=True).returncode == 0
 
 
-def _run_conclusions(sha: str) -> list[str] | None:
-    """Conclusions of every gate run for one commit, or None when unknowable."""
+def _run_evidence(sha: str) -> list[dict[str, object]] | None:
+    """Every main-gate run for one source SHA, or ``None`` when unknowable.
 
+    ``gh run list`` exposes only a flattened conclusion list.  That loses the
+    order which decides the current verdict, as well as run identifiers and
+    attempts needed to audit a replay.  The workflow-runs endpoint retains
+    those facts and is scoped to the named workflow and evaluated source SHA.
+    """
     completed = subprocess.run(
         [
             "gh",
-            "run",
-            "list",
-            "--workflow",
-            WORKFLOW,
-            "--commit",
-            sha,
-            "--json",
-            "conclusion,status",
+            "api",
+            "--paginate",
+            "--slurp",
+            f"repos/{_repository_name()}/actions/workflows/{WORKFLOW}/runs?head_sha={sha}&per_page=100",
         ],
         capture_output=True,
         text=True,
@@ -85,21 +86,68 @@ def _run_conclusions(sha: str) -> list[str] | None:
     if completed.returncode != 0:
         return None
     try:
-        runs = json.loads(completed.stdout or "[]")
+        pages = json.loads(completed.stdout or "[]")
     except json.JSONDecodeError:
         return None
-    return [str(run.get("conclusion") or run.get("status") or "") for run in runs]
+    if not isinstance(pages, list):
+        return None
+    evidence: list[dict[str, object]] = []
+    for page in pages:
+        page_runs = page.get("workflow_runs") if isinstance(page, dict) else None
+        if not isinstance(page_runs, list):
+            return None
+        for run in page_runs:
+            if not isinstance(run, dict):
+                return None
+            evidence.append(
+                {
+                    "run_id": run.get("id"),
+                    "attempt": run.get("run_attempt"),
+                    "started_at": run.get("run_started_at"),
+                    "updated_at": run.get("updated_at"),
+                    "status": str(run.get("status") or ""),
+                    "conclusion": str(run.get("conclusion") or ""),
+                }
+            )
+    return evidence
 
 
-def _classify(conclusions: list[str] | None) -> str:
-    """One verdict vocabulary for both windows, so the ledger and the scheduled
-    audit cannot disagree about what counts as coverage."""
-    if conclusions is None:
-        return "unknown"
-    verdicts = [conclusion for conclusion in conclusions if conclusion in _VERDICT_CONCLUSIONS]
-    if verdicts:
-        return "passing" if "success" in verdicts else "failing"
-    return "unknown" if conclusions else "ungated"
+def _run_order(run: dict[str, object]) -> tuple[str, int, int]:
+    """Stable chronology: completion time, then run ID and retry attempt."""
+    timestamp = str(run.get("updated_at") or run.get("started_at") or "")
+    run_id = run.get("run_id")
+    attempt = run.get("attempt")
+    return (
+        timestamp,
+        int(run_id) if isinstance(run_id, int) else -1,
+        int(attempt) if isinstance(attempt, int) else -1,
+    )
+
+
+def _classify(runs: list[dict[str, object]] | None) -> tuple[str, str, str | None]:
+    """Return current state, historical coverage, and latest terminal verdict.
+
+    Historical coverage answers whether the source was ever evaluated.  The
+    current state answers what the newest evidence permits us to claim.  They
+    differ when a successful run is followed by a failing replay (failure is
+    current) or a still-running replay (unknown until it concludes).
+    """
+    if runs is None:
+        return "unknown", "unknown", None
+    if not runs:
+        return "ungated", "ungated", None
+    ordered = sorted(runs, key=_run_order)
+    terminal = [run for run in ordered if str(run.get("conclusion") or "") in _VERDICT_CONCLUSIONS]
+    if not terminal:
+        return "unknown", "unknown", None
+    latest_terminal = terminal[-1]
+    latest_verdict = "passing" if latest_terminal["conclusion"] == "success" else "failing"
+    # A more recent cancelled or in-progress run is not a new verdict.  Its
+    # presence remains visible as unknown rather than silently borrowing the
+    # older result, while `latest_verdict` preserves the recorded history.
+    if ordered[-1] is not latest_terminal:
+        return "unknown", "covered", latest_verdict
+    return latest_verdict, "covered", latest_verdict
 
 
 def _rolling_window(since_days: int, limit: int) -> tuple[list[str], bool]:
@@ -266,22 +314,34 @@ def main() -> int:
     unknown: list[str] = []
     failing: list[str] = []
     passing = 0
+    historically_covered = 0
+    pending = 0
     ledger_revisions: list[dict[str, object]] = []
 
     for entry in commits:
         sha, short, subject = entry.split(" ", 2)
-        conclusions = _run_conclusions(sha)
-        verdict = _classify(conclusions)
+        runs = _run_evidence(sha)
+        verdict, historical_coverage, latest_verdict = _classify(runs)
+        run_evidence = list(runs or [])
+        has_newer_nonverdict = bool(
+            runs
+            and latest_verdict is not None
+            and verdict == "unknown"
+        )
         ledger_revisions.append(
             {
                 "sha": sha,
                 "short": short,
                 "subject": subject,
                 "verdict": verdict,
-                "run_conclusions": list(conclusions or []),
+                "historical_coverage": historical_coverage,
+                "latest_applicable_verdict": latest_verdict,
+                "run_evidence": run_evidence,
             }
         )
-        if conclusions is None:
+        if historical_coverage == "covered":
+            historically_covered += 1
+        if runs is None:
             unknown.append(short)
             print(f"UNKNOWN  {short}  (run listing could not be fetched)")
             continue
@@ -291,11 +351,24 @@ def main() -> int:
         if verdict == "failing":
             failing.append(f"{short}  {subject[:70]}")
             continue
-        if conclusions:
+        if has_newer_nonverdict:
+            pending += 1
+            unknown.append(short)
+            print(
+                f"UNKNOWN  {short}  (newer run has no verdict; latest applicable verdict: {latest_verdict})"
+            )
+            continue
+        if runs:
             # Runs exist but none reached a verdict (cancelled / in progress):
             # not proven ungated, but not verified either.
             unknown.append(short)
-            print(f"UNKNOWN  {short}  (runs exist without a verdict: {sorted(set(conclusions))})")
+            states = sorted(
+                {
+                    str(run.get("conclusion") or run.get("status") or "")
+                    for run in runs
+                }
+            )
+            print(f"UNKNOWN  {short}  (runs exist without a verdict: {states})")
             continue
         ungated.append(f"{short}  {subject[:70]}")
         print(f"UNGATED  {short}  {subject[:70]}")
@@ -343,6 +416,8 @@ def main() -> int:
                 "failing": len(failing),
                 "ungated": len(ungated),
                 "unknown": len(unknown),
+                "historically_covered": historically_covered,
+                "pending": pending,
             },
         )
         print(f"ledger written: {arguments.ledger_out}")

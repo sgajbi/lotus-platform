@@ -57,19 +57,22 @@ def _install_transport(
     monkeypatch.setattr(
         audit.shutil, "which", lambda name: "/usr/bin/gh" if gh_present else None
     )
+    monkeypatch.setenv("GITHUB_REPOSITORY", "sgajbi/lotus-platform")
 
     def fake_run(command: list[str], **_: Any) -> _Completed:
         if command[0] == "git":
             return _Completed(stdout="".join(f"{line}\n" for line in commits))
         assert command[0] == "gh", command
-        # Pin the real query shape: a different workflow name or a missing
-        # --commit would audit something other than this commit's runs.
-        assert "--workflow" in command and audit.WORKFLOW in command
-        sha = command[command.index("--commit") + 1]
+        # Pin the REST query shape: it must select both the governed workflow
+        # and the source SHA, while retaining run IDs, attempts and chronology.
+        assert command[:4] == ["gh", "api", "--paginate", "--slurp"]
+        endpoint = command[4]
+        assert f"actions/workflows/{audit.WORKFLOW}/runs?head_sha=" in endpoint
+        sha = endpoint.split("head_sha=", 1)[1].split("&", 1)[0]
         entry = runs_by_sha.get(sha, [])
         if entry == "unfetchable":
             return _Completed(stdout="", returncode=1)
-        return _Completed(stdout=json.dumps(entry))
+        return _Completed(stdout=json.dumps([{"workflow_runs": entry}]))
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 

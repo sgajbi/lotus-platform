@@ -19,7 +19,7 @@ any consumer, choose an identity provider, or certify production identity.
 | --- | --- |
 | Authenticated session or service credential issuance | External IdP / bank security authority |
 | Versioned resolved-principal contract, fixtures, and validator | `lotus-platform` |
-| Grant store implementation | `lotus-platform` identity and access governance, as a platform identity capability behind the injected `GrantStore` port, hosted by a designated Lotus identity service; `lotus-core` declined on 2026-09-08 because its relationships are financial facts, not tenant grants (RFC-0109 question 2) |
+| Grant store implementation | `lotus-platform` identity and access governance, as a platform identity capability behind the injected `GrantStore` port; a dedicated Lotus identity hosting service is still undesignated. `lotus-core` declined on 2026-09-08 because its relationships are financial facts, not tenant grants (RFC-0109 question 2) |
 | Grant store operations | The bank security authority / identity-provider operator (external, unclaimed) |
 | Resolution and enforcement per write family | `lotus-gateway`, then each domain service |
 | Session resolution and delegated calls | `lotus-workbench` and other BFF owners |
@@ -59,6 +59,9 @@ any consumer, choose an identity provider, or certify production identity.
 - [`pilot-acceptance.v1.json`](pilot-acceptance.v1.json) — the corrected ownership, the pilot
   consumer (Workbench BFF, lotus-workbench #1042), and the finite admission/denial acceptance with
   the test in this repository that measures each proof and the live boundaries that stay `false`
+- [`evidence/lotus-workbench-pilot-proof-receipt.v1.json`](evidence/lotus-workbench-pilot-proof-receipt.v1.json)
+  — immutable consumer revision and Git object receipt for the consumer-claimed proof files; it is
+  not evidence that this repository executed the Workbench suite.
 
 ## What a consumer must prove
 
