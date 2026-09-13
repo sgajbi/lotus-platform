@@ -22,6 +22,22 @@ deployment, client demo readiness, or supported feature promotion.
 3. `Main Releasability Gate`
 4. `Main Gate Coverage Audit`
 5. `Platform End-to-End Validation`
+6. `Fleet Conformance`
+
+The first three lanes read the twelve sibling repositories at the revisions
+pinned in `platform-contracts/ci-governance/sibling-source-manifest.v1.json`.
+Each lane publishes the pins as step outputs, binds every sibling checkout's
+`ref:` to them, and measures the checkouts against the manifest before any
+validator runs, so a lane verdict is a function of the `lotus-platform` commit
+it certifies and a re-run reproduces the original inputs. Unpinned, the verdict
+was a function of every sibling's `main` at run time: one revision could be
+re-gated a week later and answer differently, and a sibling merge could turn
+this repository's `main` red with no change here. The pin also freezes the
+estate view, which is what `Fleet Conformance` is for: on a schedule it reads
+sibling default branches as they are now, runs the cross-repository validators
+against them, and reports how far each pin lags. A red there names a fleet
+owner; it never blocks an unrelated pull request. A pin moves only through a
+reviewed pull request.
 
 `Main Releasability Gate` is dispatched **per merged revision**, not per merged
 pull request. This repository merges by rebase, so a pull request holding N
@@ -59,6 +75,11 @@ works.
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge`
 - main releasability:
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane main-releasability`
+- fleet conformance against current sibling `main`s, with pin drift:
+  `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformRepoChecks.ps1 -Lane fleet-conformance`
+- sibling source pins the per-commit lanes read, and how far they lag:
+  `python automation\validate_sibling_source_manifest.py` and
+  `python automation\validate_sibling_source_manifest.py --report-drift`
 - platform validation lane:
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
 - platform demo-readiness certification, report-only:
@@ -103,6 +124,11 @@ works.
   repository's default branch; pre-merge enforcement in a sibling repository needs a repo-local
   equivalent there
 - cross-repository governance posture
+- immutable sibling inputs for the per-commit lanes: every registered sibling is pinned to one
+  full revision in the sibling source manifest, each lane checkout binds `ref:` to that pin and is
+  measured against it, and a missing or malformed pin fails the lane before a checkout can fall
+  back to a default branch; current-estate drift is the scheduled fleet lane's finding, not the
+  per-commit lane's
 - auto-merge releasability convergence: `LOTUS_AUTOMERGE_TOKEN` rebase auto-merge, merged-PR
   `main-releasability.yml` dispatch pinned to either the merge SHA or every ancestry-proven
   rebase-added revision, workflow-dispatch support, and expiring rollout exceptions. The validator

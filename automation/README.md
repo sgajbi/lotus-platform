@@ -1411,6 +1411,28 @@ immutable `main-releasability-<sha>` ref, and be passed as `expected_sha`. Main 
 revision-aware concurrency and asserts that its checkout matches that expected SHA. Manual operator
 dispatch remains valid without `expected_sha`.
 
+Prove the sibling revisions the per-commit lanes read are pinned, publish them to a lane, measure the
+checkouts against them, or report how far each pin lags current `main`:
+
+```powershell
+python automation/validate_sibling_source_manifest.py
+python automation/validate_sibling_source_manifest.py --github-output $env:GITHUB_OUTPUT
+python automation/validate_sibling_source_manifest.py --verify-checkouts _federated
+python automation/validate_sibling_source_manifest.py --report-drift --max-pin-age-days 14
+```
+
+The manifest at `platform-contracts/ci-governance/sibling-source-manifest.v1.json` must name every
+sibling registered in `automation/repos.json` exactly once with a full lowercase revision; a missing
+entry would let a lane checkout fall back to the default branch silently, which is the unpinned
+behaviour the manifest ends. `--verify-checkouts` reads `git rev-parse HEAD` of each checkout rather
+than trusting the ref that was requested. `--report-drift` is the scheduled fleet lane's view. Each
+sibling gets one posture: `CURRENT` (main equals the pin), `DRIFTED` (main is ahead of the pin;
+information), `STALE` (ahead, and the manifest's `recorded_at_utc` is older than
+`--max-pin-age-days`; a refresh PR clears it), `DIVERGED` (main no longer descends from the pin),
+`UNRESOLVED` (unequal SHAs but no trustworthy comparison) or `UNREAD` (the sibling could not be
+measured). Only `CURRENT` and `DRIFTED` pass; a pin that equals main is never stale, however quiet
+the sibling has been.
+
 Validate exact-commit GitHub verification before accepting mainline provenance:
 
 ```powershell

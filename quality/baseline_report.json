@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 418,
     "powershell_file_count": 69,
-    "python_file_count": 250,
-    "source_file_count": 957,
+    "python_file_count": 252,
+    "source_file_count": 960,
     "suffix_counts": {
-      ".json": 171,
+      ".json": 172,
       ".md": 418,
       ".ps1": 69,
-      ".py": 250,
+      ".py": 252,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 383080
+    "total_source_lines": 383921
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -114,6 +114,14 @@
         "path": "automation/resolve_canonical_cash_evidence.py"
       },
       {
+        "complexity": 19,
+        "end_line": 158,
+        "line": 90,
+        "lines": 69,
+        "name": "load_manifest",
+        "path": "automation/validate_sibling_source_manifest.py"
+      },
+      {
         "complexity": 18,
         "end_line": 335,
         "line": 273,
@@ -184,14 +192,6 @@
         "lines": 67,
         "name": "compare_live_to_policy",
         "path": "automation/check_branch_protection_policy.py"
-      },
-      {
-        "complexity": 16,
-        "end_line": 1327,
-        "line": 1288,
-        "lines": 40,
-        "name": "_broad_context_policy_errors",
-        "path": "tests/unit/test_engineering_context_system_contract.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3674
+    "python_function_count": 3704
   },
-  "generated_at_utc": "2026-09-13T05:25:30Z",
+  "generated_at_utc": "2026-09-13T07:25:26Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1756,
+      "lines": 1778,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1703,
+    "collected_tests": 1726,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1703 tests collected"
+    "summary": "1726 tests collected"
   }
 }

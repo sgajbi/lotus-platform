@@ -36,64 +36,94 @@ jobs:
           # indistinguishable from a page that was never in source. That made
           # the gate reject every deliberate page-removal PR.
           fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      # Every sibling below is read at the revision pinned in
+      # platform-contracts/ci-governance/sibling-source-manifest.v1.json, so
+      # this lane's verdict is a function of the lotus-platform commit alone.
+      # Unpinned, it was a function of every sibling's main at run time: one
+      # revision could be re-gated a week later and answer differently, and a
+      # sibling merge could turn this repository red with no change here
+      # (#858, #708). The pin is published as a step output and each checkout
+      # binds `ref:` to it, so no revision is retyped in this file; the checkouts
+      # are then measured against the manifest, because an empty or wrong ref
+      # falls back to the default branch silently. The scheduled Fleet
+      # Conformance lane reads current sibling mains and reports pin drift.
+      - name: Resolve governed sibling source revisions from the immutable manifest
+        id: sibling-pins
+        shell: bash
+        run: python automation/validate_sibling_source_manifest.py --github-output "$GITHUB_OUTPUT"
       - name: Checkout governed domain-product source repositories
         uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-core
+          ref: ${{ steps.sibling-pins.outputs.lotus-core }}
           path: _federated/lotus-core
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-performance
+          ref: ${{ steps.sibling-pins.outputs.lotus-performance }}
           path: _federated/lotus-performance
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-risk
+          ref: ${{ steps.sibling-pins.outputs.lotus-risk }}
           path: _federated/lotus-risk
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-advise
+          ref: ${{ steps.sibling-pins.outputs.lotus-advise }}
           path: _federated/lotus-advise
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-report
+          ref: ${{ steps.sibling-pins.outputs.lotus-report }}
           path: _federated/lotus-report
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-render
+          ref: ${{ steps.sibling-pins.outputs.lotus-render }}
           path: _federated/lotus-render
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-archive
+          ref: ${{ steps.sibling-pins.outputs.lotus-archive }}
           path: _federated/lotus-archive
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-manage
+          ref: ${{ steps.sibling-pins.outputs.lotus-manage }}
           path: _federated/lotus-manage
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-idea
+          ref: ${{ steps.sibling-pins.outputs.lotus-idea }}
           path: _federated/lotus-idea
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-ai
+          ref: ${{ steps.sibling-pins.outputs.lotus-ai }}
           path: _federated/lotus-ai
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-gateway
+          ref: ${{ steps.sibling-pins.outputs.lotus-gateway }}
           path: _federated/lotus-gateway
       - uses: actions/checkout@v7
         with:
           repository: sgajbi/lotus-workbench
+          ref: ${{ steps.sibling-pins.outputs.lotus-workbench }}
           path: _federated/lotus-workbench
+      - name: Verify every sibling checkout is at its manifest revision
+        shell: bash
+        run: python automation/validate_sibling_source_manifest.py --verify-checkouts _federated
       - name: Link governed source repositories into federated workspace
         shell: bash
         run: |
           for repo in lotus-core lotus-performance lotus-risk lotus-advise lotus-report lotus-render lotus-archive lotus-manage lotus-idea lotus-ai lotus-gateway lotus-workbench; do
             ln -s "$GITHUB_WORKSPACE/_federated/$repo" "$GITHUB_WORKSPACE/../$repo"
           done
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
       - name: Run platform feature-lane checks
         shell: pwsh
         env:
