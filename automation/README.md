@@ -1430,6 +1430,20 @@ advisory finding printed beside the verdict and written to the report, never a v
 python automation/validate_auto_merge_releasability.py --require-local-repos --fail-on-unverified
 ```
 
+Audit which commits on `main` the Main Releasability Gate evaluated, over the scheduled rolling
+window or over a fixed range written as a committed ledger:
+
+```powershell
+python automation/audit_main_gate_coverage.py --since-days 7 --fail-on-gap
+python automation/audit_main_gate_coverage.py --range <baseline>..<end> --ledger-out quality/main-gate-coverage-ledger.v1.json
+```
+
+The rolling window says whether recent `main` is gated and fails closed on any ungated,
+unverifiable or truncated result. It cannot say what happened to a gap once the window moved past
+it, so the fixed range is the record: exact endpoints, a first-parent walk that refuses a
+non-ancestor baseline, a merge commit inside the range or an end that is not on `origin/main`, and
+a ledger whose hand-recorded `dispositions` survive re-measurement.
+
 Prove the sibling revisions the per-commit lanes read are pinned, publish them to a lane, measure the
 checkouts against them, or report how far each pin lags current `main`:
 

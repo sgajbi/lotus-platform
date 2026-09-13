@@ -82,6 +82,9 @@ works.
 - sibling source pins the per-commit lanes read, and how far they lag:
   `python automation\validate_sibling_source_manifest.py` and
   `python automation\validate_sibling_source_manifest.py --report-drift`
+- main-gate coverage over a fixed range, written as a committed ledger (the scheduled audit's
+  rolling window cannot say what happened to a gap once the window moved past it):
+  `python automation\audit_main_gate_coverage.py --range <baseline>..<end> --ledger-out quality\main-gate-coverage-ledger.v1.json`
 - platform validation lane:
   `powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformValidationLane.ps1 -ValidationProfile core-performance-green-lanes`
 - platform demo-readiness certification, report-only:

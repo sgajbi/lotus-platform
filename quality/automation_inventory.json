@@ -1,7 +1,7 @@
 {
   "classification_counts": {
-    "covered": 127,
-    "review": 4,
+    "covered": 129,
+    "review": 2,
     "undocumented": 25
   },
   "entries": [
@@ -22,12 +22,12 @@
       "test_reference_count": 0
     },
     {
-      "classification": "review",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
       "path": "automation/audit_main_gate_coverage.py",
-      "reference_count": 1,
+      "reference_count": 5,
       "suffix": ".py",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -1246,14 +1246,14 @@
       "test_reference_count": 0
     },
     {
-      "classification": "review",
-      "operator_doc_reference_count": 0,
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
       "path": "automation/verify_principal_credential.py",
-      "reference_count": 1,
+      "reference_count": 2,
       "suffix": ".py",
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-13T07:41:01Z",
+  "generated_at_utc": "2026-09-13T08:00:03Z",
   "script_count": 156
 }
