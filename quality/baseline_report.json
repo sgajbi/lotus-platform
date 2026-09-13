@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 418,
     "powershell_file_count": 69,
-    "python_file_count": 256,
-    "source_file_count": 966,
+    "python_file_count": 259,
+    "source_file_count": 970,
     "suffix_counts": {
-      ".json": 174,
+      ".json": 175,
       ".md": 418,
       ".ps1": 69,
-      ".py": 256,
+      ".py": 259,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 386145
+    "total_source_lines": 386738
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -58,10 +58,10 @@
         "path": "automation/check_branch_protection_policy.py"
       },
       {
-        "complexity": 25,
-        "end_line": 351,
-        "line": 200,
-        "lines": 152,
+        "complexity": 31,
+        "end_line": 426,
+        "line": 248,
+        "lines": 179,
         "name": "main",
         "path": "automation/audit_main_gate_coverage.py"
       },
@@ -123,8 +123,8 @@
       },
       {
         "complexity": 20,
-        "end_line": 964,
-        "line": 912,
+        "end_line": 1018,
+        "line": 966,
         "lines": 53,
         "name": "_declaration_assessment",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -300,6 +300,14 @@
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
       {
+        "complexity": 31,
+        "end_line": 426,
+        "line": 248,
+        "lines": 179,
+        "name": "main",
+        "path": "automation/audit_main_gate_coverage.py"
+      },
+      {
         "complexity": 1,
         "end_line": 197,
         "line": 25,
@@ -346,21 +354,13 @@
         "lines": 156,
         "name": "scaffold_domain_product_onboarding",
         "path": "automation/generate_domain_product_onboarding.py"
-      },
-      {
-        "complexity": 25,
-        "end_line": 351,
-        "line": 200,
-        "lines": 152,
-        "name": "main",
-        "path": "automation/audit_main_gate_coverage.py"
       }
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3783
+    "python_function_count": 3796
   },
-  "generated_at_utc": "2026-09-13T09:45:09Z",
+  "generated_at_utc": "2026-09-13T11:17:26Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,6 +413,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 1850,
+      "path": "tests/unit/test_auto_merge_releasability_validator.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1818,
       "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
       "suffix": ".md"
@@ -425,11 +430,6 @@
     {
       "lines": 1735,
       "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1696,
-      "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1785,
+    "collected_tests": 1792,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1785 tests collected"
+    "summary": "1792 tests collected"
   }
 }
