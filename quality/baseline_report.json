@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 386123
+    "total_source_lines": 386145
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -123,8 +123,8 @@
       },
       {
         "complexity": 20,
-        "end_line": 942,
-        "line": 890,
+        "end_line": 964,
+        "line": 912,
         "lines": 53,
         "name": "_declaration_assessment",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3782
+    "python_function_count": 3783
   },
-  "generated_at_utc": "2026-09-13T09:26:22Z",
+  "generated_at_utc": "2026-09-13T09:45:09Z",
   "largest_files": [
     {
       "lines": 79939,

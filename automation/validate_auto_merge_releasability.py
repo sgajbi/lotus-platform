@@ -674,6 +674,27 @@ def _merged_pr_dispatch_has_immutable_ref(payload: dict[str, Any]) -> bool:
     return _matrix_dispatch_is_verified(payload)
 
 
+def _merged_pr_dispatch_has_mainline_ref(payload: dict[str, Any]) -> bool:
+    """Recognise the contract's source-pinned, main-defined dispatch form.
+
+    This form creates no tag, so it must not be judged by immutable-ref
+    permissions. Its expected SHA remains mandatory and the paired main gate
+    independently verifies its exact checkout.
+    """
+    for job in _merged_main_jobs(payload):
+        for step in _job_steps(job):
+            run = _step_run(step)
+            if (
+                "gh workflow run main-releasability.yml" in run
+                and '--ref main' in run
+                and _merged_pr_dispatch_passes_exact_sha(
+                    {"jobs": {"dispatch": {"steps": [step]}}}
+                )
+            ):
+                return True
+    return False
+
+
 def _main_releasability_has_exact_sha_assertion(payload: dict[str, Any]) -> bool:
     for step in _workflow_steps(payload):
         expected_sha = _step_env_value(step, "EXPECTED_SHA")
@@ -764,12 +785,13 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
         violations.append("merged-pr-dispatch.missing-closed-trigger")
     if _permissions(payload).get("actions") != "write":
         violations.append("merged-pr-dispatch.missing-actions-write")
-    if _permissions(payload).get("contents") != "write":
+    mainline_ref = _merged_pr_dispatch_has_mainline_ref(payload)
+    if _permissions(payload).get("contents") != "write" and not mainline_ref:
         violations.append("merged-pr-dispatch.missing-contents-write")
     has_immutable_dispatch_ref = _merged_pr_dispatch_has_immutable_ref(payload)
     if (
         "gh workflow run main-releasability.yml" not in text
-        or not has_immutable_dispatch_ref
+        or not (has_immutable_dispatch_ref or mainline_ref)
     ):
         violations.append("merged-pr-dispatch.wrong-main-releasability-target")
     if _masks_the_immutable_ref_lookup(text, payload):
