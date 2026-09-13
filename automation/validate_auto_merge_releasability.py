@@ -686,7 +686,7 @@ def _merged_pr_dispatch_has_mainline_ref(payload: dict[str, Any]) -> bool:
             run = _step_run(step)
             if (
                 "gh workflow run main-releasability.yml" in run
-                and '--ref main' in run
+                and re.search(r"--ref\\s+(?:main|['\"]main['\"])(?=\\s|$)", run)
                 and _merged_pr_dispatch_passes_exact_sha(
                     {"jobs": {"dispatch": {"steps": [step]}}}
                 )
