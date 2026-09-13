@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 386738
+    "total_source_lines": 386792
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -123,8 +123,8 @@
       },
       {
         "complexity": 20,
-        "end_line": 1018,
-        "line": 966,
+        "end_line": 1030,
+        "line": 978,
         "lines": 53,
         "name": "_declaration_assessment",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -136,6 +136,14 @@
         "lines": 69,
         "name": "load_manifest",
         "path": "automation/validate_sibling_source_manifest.py"
+      },
+      {
+        "complexity": 19,
+        "end_line": 780,
+        "line": 720,
+        "lines": 61,
+        "name": "_main_releasability_has_source_pinned_assertion",
+        "path": "automation/validate_auto_merge_releasability.py"
       },
       {
         "complexity": 18,
@@ -184,14 +192,6 @@
         "lines": 88,
         "name": "_validate_observability",
         "path": "automation/validate_platform_stack.py"
-      },
-      {
-        "complexity": 16,
-        "end_line": 2504,
-        "line": 2428,
-        "lines": 77,
-        "name": "_case_library_entry_errors",
-        "path": "tests/unit/test_engineering_context_system_contract.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3796
+    "python_function_count": 3799
   },
-  "generated_at_utc": "2026-09-13T11:17:26Z",
+  "generated_at_utc": "2026-09-13T11:26:03Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,7 +413,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1850,
+      "lines": 1890,
       "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1792,
+    "collected_tests": 1794,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1792 tests collected"
+    "summary": "1794 tests collected"
   }
 }
