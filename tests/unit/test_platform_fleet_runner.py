@@ -87,3 +87,21 @@ def test_fleet_runner_returns_success_only_when_every_validator_succeeds(tmp_pat
     assert "FAIL" not in summary
     assert "| first-success | 0 | pass |" in summary
     assert "| second-success | 0 | pass |" in summary
+
+
+@pytest.mark.skipif(shutil.which("pwsh") is None, reason="PowerShell is required for the shipped runner")
+def test_fleet_runner_rejects_duplicate_manifest_names_before_execution(tmp_path: Path) -> None:
+    """A later result must never overwrite a failed result under the same key."""
+    result = _run_fleet(
+        tmp_path,
+        [
+            ("same-name", FIXTURES / "fails.py"),
+            ("same-name", FIXTURES / "succeeds.py"),
+        ],
+    )
+
+    assert result.returncode != 0
+    assert "Fleet validator manifest contains duplicate name: same-name" in (
+        result.stdout + result.stderr
+    )
+    assert not (tmp_path / "evidence" / "same-name.log").exists()

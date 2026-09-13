@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from copy import deepcopy
 from pathlib import Path
 
@@ -45,6 +46,38 @@ def _test_functions(path: Path) -> set[str]:
     return set(re.findall(r"^def (test_[A-Za-z0-9_]+)\(", path.read_text(encoding="utf-8"), re.M))
 
 
+def _consumer_git_tree_errors(receipt: dict, checkout: Path) -> list[str]:
+    """Verify consumer-claimed files against the immutable checked-out tree."""
+    revision = receipt.get("revision")
+    if not isinstance(revision, str) or not FULL_SHA.fullmatch(revision):
+        return ["receipt revision is not an immutable Git revision"]
+    if not checkout.is_dir():
+        return [f"pinned consumer checkout is unavailable: {checkout}"]
+    exists = subprocess.run(
+        ["git", "-C", str(checkout), "cat-file", "-e", f"{revision}^{{commit}}"],
+        capture_output=True,
+        text=True,
+    )
+    if exists.returncode != 0:
+        return ["receipt revision is absent from the pinned consumer checkout"]
+
+    errors: list[str] = []
+    for path, expected_blob in receipt.get("proof_files", {}).items():
+        tree = subprocess.run(
+            ["git", "-C", str(checkout), "ls-tree", revision, "--", path],
+            capture_output=True,
+            text=True,
+        )
+        entries = tree.stdout.rstrip("\n").split("\n") if tree.stdout else []
+        if len(entries) != 1:
+            errors.append(f"receipt proof file is absent from consumer tree: {path}")
+            continue
+        fields = entries[0].split(maxsplit=3)
+        if len(fields) != 4 or fields[1] != "blob" or fields[2] != expected_blob:
+            errors.append(f"receipt proof blob does not match consumer tree: {path}")
+    return errors
+
+
 def _pilot_evidence_errors(record: dict) -> list[str]:
     pilot = record["pilot"]
     receipt_path = RECORD_PATH.parent / pilot.get("consumer_proof_receipt", "")
@@ -65,6 +98,8 @@ def _pilot_evidence_errors(record: dict) -> list[str]:
         errors.append("receipt proof files do not exactly match pilot")
     elif not all(FULL_SHA.fullmatch(str(blob)) for blob in proof_files.values()):
         errors.append("receipt contains a non-Git proof object")
+    else:
+        errors.extend(_consumer_git_tree_errors(receipt, ROOT.parent / "lotus-workbench"))
     return errors
 
 
@@ -120,6 +155,20 @@ def test_the_pilot_rejects_a_wrong_revision_or_missing_proof_file() -> None:
     missing_file = deepcopy(record)
     missing_file["pilot"]["consumer_proof_files"] = missing_file["pilot"]["consumer_proof_files"][:-1]
     assert "receipt proof files do not exactly match pilot" in _pilot_evidence_errors(missing_file)
+
+
+def test_receipt_rejects_a_blob_that_is_not_in_the_pinned_consumer_tree() -> None:
+    receipt = json.loads(
+        (RECORD_PATH.parent / _record()["pilot"]["consumer_proof_receipt"]).read_text(
+            encoding="utf-8"
+        )
+    )
+    receipt["proof_files"] = dict(receipt["proof_files"])
+    receipt["proof_files"]["tests/unit/principal-credential.test.ts"] = "0" * 40
+
+    errors = _consumer_git_tree_errors(receipt, ROOT.parent / "lotus-workbench")
+
+    assert "receipt proof blob does not match consumer tree: tests/unit/principal-credential.test.ts" in errors
 
 
 def test_live_boundaries_all_stay_false_until_separately_evidenced() -> None:
