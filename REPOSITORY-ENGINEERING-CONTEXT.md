@@ -205,7 +205,8 @@ indistinguishable from a deliberate cancel and looks like activity rather than a
 
 Lane 4's rolling window cannot say what happened to a gap once the window moved past it.
 `quality/main-gate-coverage-ledger.v1.json` is the fixed-range record: every first-parent commit
-between two exact SHAs with its verdict, produced by
+between two exact SHAs with its current verdict, historical-coverage state, latest applicable
+terminal verdict, and ordered run IDs/timestamps/attempts, produced by
 `python automation/audit_main_gate_coverage.py --range <baseline>..<end> --ledger-out <path>`,
 with the reviewer's `dispositions` (what an ungated or failing revision means) preserved across
 re-measurement. A gap is closed by updating the ledger through a reviewed pull request, never by
