@@ -161,6 +161,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          LOTUS_PRINCIPAL_PROOF_CHECKOUT: ${{ github.workspace }}/_federated/lotus-workbench
           LOTUS_BRANCH_SIGNATURES_REQUIRED: "false"
           LOTUS_MAINLINE_POLICY_BRANCH: "main"
         run: |

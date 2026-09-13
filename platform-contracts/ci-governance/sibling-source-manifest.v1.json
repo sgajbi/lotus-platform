@@ -78,8 +78,8 @@
       "repository": "lotus-gateway",
       "github": "sgajbi/lotus-gateway",
       "branch": "main",
-      "revision": "73e519506e69d4181c60fbbc67b86bc35b9ab28e",
-      "committed_at_utc": "2026-09-13T06:25:21Z"
+      "revision": "48ee0136b514e726253a9ae5cf34a7c10e30f7ad",
+      "committed_at_utc": "2026-09-13T11:59:37Z"
     },
     {
       "repository": "lotus-workbench",

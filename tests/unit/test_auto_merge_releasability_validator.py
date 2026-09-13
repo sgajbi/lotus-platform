@@ -132,12 +132,7 @@ jobs:
 
 
 def _write_source_pinned_mainline_workflows(repo_root: Path) -> None:
-    """Write the Gateway #789 main-defined shape without pinning seven gate jobs.
-
-    The first job is the source-identity boundary.  Later jobs intentionally
-    use the workflow definition selected from `main`; requiring each one to
-    repeat `inputs.expected_sha` would reject the governed mainline design.
-    """
+    """Write the Gateway #789 main-defined shape with every source checkout pinned."""
     _write_aligned_workflows(repo_root)
     workflow_dir = repo_root / ".github" / "workflows"
     (workflow_dir / "merged-pr-main-releasability.yml").write_text(
@@ -167,6 +162,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{{{ inputs.expected_sha || github.sha }}}}
 """
         for name in (
             "duplicate-code",
@@ -236,10 +233,10 @@ def _source_pinned_mainline_results(tmp_path: Path):
     )
 
 
-def test_source_pinned_mainline_dispatch_allows_main_defined_quality_jobs(
+def test_source_pinned_mainline_dispatch_requires_source_pinned_quality_jobs(
     tmp_path: Path,
 ) -> None:
-    """Gateway #789 remains aligned when seven downstream jobs lose source refs."""
+    """Main-defined workflow code does not authorize unpinned evaluated sources."""
     _repo_root, validate = _source_pinned_mainline_results(tmp_path)
 
     result = validate()

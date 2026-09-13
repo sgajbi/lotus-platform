@@ -10,6 +10,7 @@ environment, or bank operation.
 | --- | --- |
 | Classify ingress or local routing | `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1` |
 | Prove the canonical front-office flow | `Invoke-Canonical-FrontOffice-QA.ps1` after reading the cleanup plan |
+| Reserve a shared canonical runtime window | [canonical runtime reservation control](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/canonical-runtime-reservation.md), then Workbench `npm run live:stack:preflight` |
 | Validate BFF principal-session contract posture | `validate_bff_principal_session_contracts.py` and the BFF principal-session runbook |
 | Inspect mesh posture | `mesh_certification_gate.py` and the operating report |
 | Inspect CI or background work | `Platform-Pulse.ps1`, heartbeat evidence, and GitHub truth |
@@ -82,6 +83,9 @@ python automation\validate_analytics_ui_entitlement_certification.py
    service map must preserve non-secret coexistence environment and published ports; Manage must
    retain host port 8001 and its canonical Core source/workflow settings while Advise remains on
    host port 8000. A refresh is incomplete until running, health, and port verification passes.
+10. a named runtime holder does not acquire foreign containers. Record holder, UTC window, exact
+    projects/ports, acquisition/preflight, and release/teardown receipts before changing a shared
+    canonical resource; a failed preflight is a refusal, not partial runtime acceptance.
 
 ## Canonical DPM command-center seed
 

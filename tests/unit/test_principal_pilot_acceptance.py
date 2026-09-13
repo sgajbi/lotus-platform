@@ -9,10 +9,15 @@ read as evidence.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from copy import deepcopy
 from pathlib import Path
+
+import pytest
+
+from automation import validate_auto_merge_releasability as releasability
 
 ROOT = Path(__file__).resolve().parents[2]
 RECORD_PATH = ROOT / "platform-contracts" / "principal-resolution" / "pilot-acceptance.v1.json"
@@ -20,6 +25,11 @@ RFC_PATH = ROOT / "rfcs" / "RFC-0109-lotus-production-principal-and-capability-r
 CONTRACT_PATH = ROOT / "platform-contracts" / "principal-resolution" / "resolved-principal.v1.json"
 SCHEMA_PATH = ROOT / "platform-contracts" / "principal-resolution" / "resolved-principal.schema.json"
 README_PATH = ROOT / "platform-contracts" / "principal-resolution" / "README.md"
+CANONICAL_PROOF_LANES = (
+    ROOT / ".github" / "workflows" / "feature-lane.yml",
+    ROOT / ".github" / "workflows" / "pr-merge-gate.yml",
+    ROOT / ".github" / "workflows" / "main-releasability.yml",
+)
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 DENIAL_CLASSES = (
     "missing_credential",
@@ -91,7 +101,7 @@ def _consumer_git_tree_errors(receipt: dict, checkout: Path) -> list[str]:
     return errors
 
 
-def _pilot_evidence_errors(record: dict) -> list[str]:
+def _pilot_evidence_errors(record: dict, checkout: Path | None = None) -> list[str]:
     pilot = record["pilot"]
     receipt_path = RECORD_PATH.parent / pilot.get("consumer_proof_receipt", "")
     errors: list[str] = []
@@ -112,8 +122,45 @@ def _pilot_evidence_errors(record: dict) -> list[str]:
     elif not all(FULL_SHA.fullmatch(str(blob)) for blob in proof_files.values()):
         errors.append("receipt contains a non-Git proof object")
     else:
-        errors.extend(_consumer_git_tree_errors(receipt, ROOT.parent / "lotus-workbench"))
+        if checkout is None:
+            errors.append("pinned consumer checkout was not explicitly provisioned")
+        else:
+            errors.extend(_consumer_git_tree_errors(receipt, checkout))
     return errors
+
+
+def _temporary_consumer_checkout(tmp_path: Path) -> tuple[Path, dict]:
+    """A real Git tree makes receipt tests hermetic and exercises Git object lookup."""
+    checkout = tmp_path / "consumer"
+    proof_files = {
+        "tests/fixtures/vector.ts": "export const vector = true;\n",
+        "tests/unit/principal.test.ts": "export const principal = true;\n",
+    }
+    for relative, content in proof_files.items():
+        path = checkout / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    for command in (
+        ["git", "init", str(checkout)],
+        ["git", "-C", str(checkout), "config", "user.email", "receipt@example.test"],
+        ["git", "-C", str(checkout), "config", "user.name", "Receipt Fixture"],
+        ["git", "-C", str(checkout), "add", "."],
+        ["git", "-C", str(checkout), "commit", "-m", "fixture"],
+    ):
+        subprocess.run(command, check=True, capture_output=True, text=True)
+    revision = subprocess.run(
+        ["git", "-C", str(checkout), "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+    ).stdout.strip()
+    blobs = {
+        path: subprocess.run(
+            ["git", "-C", str(checkout), "rev-parse", f"{revision}:{path}"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        for path in proof_files
+    }
+    return checkout, {"revision": revision, "proof_files": blobs}
 
 
 def test_every_cited_platform_test_exists_in_the_named_file() -> None:
@@ -156,7 +203,8 @@ def test_the_pilot_and_its_revisions_are_exact() -> None:
     assert FULL_SHA.fullmatch(pilot["consumer_proof_revision"])
     assert pilot["consumer_proof_files"], "a pilot with no named proof files is a pilot by assertion"
     assert all(path.startswith("tests/") for path in pilot["consumer_proof_files"])
-    assert _pilot_evidence_errors(record) == []
+    errors = _pilot_evidence_errors(record)
+    assert errors == ["pinned consumer checkout was not explicitly provisioned"]
 
 
 def test_the_pilot_rejects_a_wrong_revision_or_missing_proof_file() -> None:
@@ -170,18 +218,100 @@ def test_the_pilot_rejects_a_wrong_revision_or_missing_proof_file() -> None:
     assert "receipt proof files do not exactly match pilot" in _pilot_evidence_errors(missing_file)
 
 
-def test_receipt_rejects_a_blob_that_is_not_in_the_pinned_consumer_tree() -> None:
-    receipt = json.loads(
-        (RECORD_PATH.parent / _record()["pilot"]["consumer_proof_receipt"]).read_text(
-            encoding="utf-8"
-        )
+def test_receipt_git_tree_validation_is_self_contained_and_refuses_wrong_or_missing_proof(
+    tmp_path: Path,
+) -> None:
+    checkout, receipt = _temporary_consumer_checkout(tmp_path)
+    assert _consumer_git_tree_errors(receipt, checkout) == []
+
+    wrong_blob = deepcopy(receipt)
+    wrong_blob["proof_files"]["tests/unit/principal.test.ts"] = "0" * 40
+    assert "receipt proof blob does not match consumer tree: tests/unit/principal.test.ts" in _consumer_git_tree_errors(
+        wrong_blob, checkout
     )
-    receipt["proof_files"] = dict(receipt["proof_files"])
-    receipt["proof_files"]["tests/unit/principal-credential.test.ts"] = "0" * 40
 
-    errors = _consumer_git_tree_errors(receipt, ROOT.parent / "lotus-workbench")
+    missing_file = deepcopy(receipt)
+    missing_file["proof_files"]["tests/unit/missing.test.ts"] = next(
+        iter(receipt["proof_files"].values())
+    )
+    assert "receipt proof file is absent from consumer tree: tests/unit/missing.test.ts" in _consumer_git_tree_errors(
+        missing_file, checkout
+    )
 
-    assert "receipt proof blob does not match consumer tree: tests/unit/principal-credential.test.ts" in errors
+
+def test_checked_in_receipt_verifies_only_against_an_explicit_provisioned_consumer_checkout() -> None:
+    checkout_value = os.environ.get("LOTUS_PRINCIPAL_PROOF_CHECKOUT")
+    if not checkout_value:
+        pytest.skip("cross-repository proof requires an explicitly provisioned immutable checkout")
+    assert _pilot_evidence_errors(_record(), Path(checkout_value)) == []
+
+
+def test_canonical_lanes_explicitly_provision_the_immutable_receipt_checkout() -> None:
+    """A hermetic unit fixture does not replace verification of the checked-in receipt."""
+    expected = "${{ github.workspace }}/_federated/lotus-workbench"
+
+    def is_provisioned(payload: dict) -> bool:
+        def is_unconditional_and_blocking(node: dict) -> bool:
+            return node.get("if") is None and node.get("continue-on-error") in (None, False)
+
+        return any(
+            is_unconditional_and_blocking(job)
+            and is_unconditional_and_blocking(step)
+            and re.search(
+                r"(?m)^\s*&\s+\.\\automation\\Invoke-PlatformRepoChecks\.ps1\b",
+                releasability._step_run(step),
+            )
+            and step.get("env", {}).get("LOTUS_PRINCIPAL_PROOF_CHECKOUT") == expected
+            for job in payload.get("jobs", {}).values()
+            if isinstance(job, dict)
+            for step in releasability._job_steps(job)
+        )
+
+    missing = [path.name for path in CANONICAL_PROOF_LANES if not is_provisioned(releasability._load_yaml(path))]
+    assert missing == [], f"canonical receipt lane(s) do not provision Workbench: {missing}"
+
+    mutated = releasability._load_yaml(CANONICAL_PROOF_LANES[0])
+    step = next(
+        step
+        for job in mutated["jobs"].values()
+        for step in releasability._job_steps(job)
+        if "Invoke-PlatformRepoChecks.ps1" in releasability._step_run(step)
+    )
+    step["env"].pop("LOTUS_PRINCIPAL_PROOF_CHECKOUT")
+    assert not is_provisioned(mutated)
+
+    comment_only = releasability._load_yaml(CANONICAL_PROOF_LANES[0])
+    step = next(
+        step
+        for job in comment_only["jobs"].values()
+        for step in releasability._job_steps(job)
+        if "Invoke-PlatformRepoChecks.ps1" in releasability._step_run(step)
+    )
+    step["run"] = "# Invoke-PlatformRepoChecks.ps1"
+    assert not is_provisioned(comment_only)
+
+    for target, key, value in (
+        ("step", "if", "${{ false }}"),
+        ("step", "continue-on-error", True),
+        ("job", "if", "${{ false }}"),
+        ("job", "continue-on-error", True),
+    ):
+        unreachable = releasability._load_yaml(CANONICAL_PROOF_LANES[0])
+        job = next(
+            job
+            for job in unreachable["jobs"].values()
+            if any(
+                "Invoke-PlatformRepoChecks.ps1" in releasability._step_run(candidate)
+                for candidate in releasability._job_steps(job)
+            )
+        )
+        step = next(
+            candidate
+            for candidate in releasability._job_steps(job)
+            if "Invoke-PlatformRepoChecks.ps1" in releasability._step_run(candidate)
+        )
+        (step if target == "step" else job)[key] = value
+        assert not is_provisioned(unreachable)
 
 
 def test_live_boundaries_all_stay_false_until_separately_evidenced() -> None:

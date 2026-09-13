@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -717,44 +718,236 @@ def _main_releasability_has_expected_sha_assertion(payload: dict[str, Any]) -> b
     return False
 
 
-def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> bool:
-    """Require one dedicated assertion job to pin and prove its source.
+def _main_releasability_has_source_pinned_assertion(
+    payload: dict[str, Any], *, repository_name: str | None = None
+) -> bool:
+    """Require every source checkout, plus a dedicated asserted source identity.
 
-    Main-defined runs deliberately need not pin every quality or build job:
-    those jobs execute the governed workflow definition selected from `main`.
-    What cannot be delegated is the source identity claim.  The assertion job
-    therefore has to check out the supplied source, compare HEAD to it, and
-    prove it remains an ancestor of freshly fetched `main`.
+    A main-defined workflow may have a different *definition* SHA, but it
+    cannot silently test or build that definition tree. Every job that checks
+    out this repository must evaluate ``inputs.expected_sha``. The assertion
+    job additionally proves that source was freshly observed on remote main.
     """
     jobs = payload.get("jobs")
     if not isinstance(jobs, dict):
         return False
+    if any(
+        isinstance(job, dict) and isinstance(job.get("uses"), str) and job["uses"].strip()
+        for job in jobs.values()
+    ):
+        # A reusable workflow's internal checkout tree is not present in this
+        # payload. Reject delegation until its evaluated-source contract is
+        # inspected rather than assuming the caller input pins hidden jobs.
+        return False
 
-    def has_fatal_main_fetch(run: str, before: int) -> bool:
-        """Accept normal fetch options/refspecs, never an early successful exit."""
+    def is_expected_source_ref(value: object) -> bool:
+        """Accept only expressions that select the supplied SHA when it exists."""
+        if not isinstance(value, str):
+            return False
+        return bool(
+            re.fullmatch(
+                r"\$\{\{\s*inputs\.expected_sha\s*(?:\|\|\s*github\.sha\s*)?\}\}",
+                value.strip(),
+            )
+        )
+
+    def has_fatal_main_fetch(run: str, before: int, ancestry_target: str) -> bool:
+        """Accept only a fatal fetch of remote main before the ancestry check."""
+        long_options_with_values = (
+            "--deepen",
+            "--depth",
+            "--filter",
+            "--jobs",
+            "--negotiation-tip",
+            "--refmap",
+            "--server-option",
+            "--shallow-exclude",
+            "--shallow-since",
+            "--submodule-prefix",
+            "--upload-pack",
+        )
+
+        def matches_long_option(token: str, option: str) -> bool:
+            """Match an exact or Git-accepted abbreviated long option."""
+            return token == option or (
+                token.startswith("--") and len(token) > 2 and option.startswith(token)
+            )
+
+        def short_option_shape(token: str) -> tuple[set[str], bool]:
+            """Return parsed flag names and whether the final option needs a separate value."""
+            flags: set[str] = set()
+            options = token[1:]
+            for offset, option in enumerate(options):
+                flags.add(option)
+                if option in {"j", "o"}:
+                    return flags, offset == len(options) - 1
+            return flags, False
+
+        def fetch_positionals(tokens: list[str]) -> list[str] | None:
+            """Remove fetch options, their values and safe output redirections."""
+            positionals: list[str] = []
+            index = 2
+            parse_options = True
+            while index < len(tokens):
+                token = tokens[index]
+                if re.fullmatch(r"(?:[12]|&)?>>?", token):
+                    if index + 1 >= len(tokens):
+                        return None
+                    index += 2
+                    continue
+                if re.fullmatch(r"(?:[12]|&)?>>?.+", token) or re.fullmatch(
+                    r"[12]?>&[12]", token
+                ):
+                    index += 1
+                    continue
+                if parse_options and token == "--":
+                    parse_options = False
+                    index += 1
+                    continue
+                if parse_options and token.startswith("--"):
+                    option_name, separator, _ = token.partition("=")
+                    takes_value = any(
+                        matches_long_option(option_name, option)
+                        for option in long_options_with_values
+                    )
+                    if takes_value and not separator:
+                        if index + 1 >= len(tokens):
+                            return None
+                        index += 2
+                    else:
+                        index += 1
+                    continue
+                if parse_options and token.startswith("-") and token != "-":
+                    _, needs_separate_value = short_option_shape(token)
+                    if needs_separate_value:
+                        if index + 1 >= len(tokens):
+                            return None
+                        index += 2
+                    else:
+                        index += 1
+                    continue
+                positionals.append(token)
+                index += 1
+            return positionals
+
         offset = 0
         for line in run.splitlines(keepends=True):
             line_start = offset
             offset += len(line)
             if line_start >= before:
                 break
-            if not re.search(r"\bgit\s+fetch\b.*\borigin\b.*\bmain(?:\b|:)", line):
+            command = line.strip()
+            if not command.startswith("git fetch "):
                 continue
-            # A tolerated fetch failure means the subsequent ancestry proof is
-            # not fresh evidence.  `|| exit 1` remains fatal; no `||` is the
-            # normal shell form.
-            if "||" not in line or re.search(r"\|\|\s+exit\s+(?:[1-9][0-9]*)\b", line):
+            fatal_handler = (
+                re.fullmatch(r".+\|\|\s*exit\s+([0-9]+)", command)
+                if command.count("||") == 1
+                else None
+            )
+            fatal = "||" not in command or bool(
+                fatal_handler and 1 <= int(fatal_handler.group(1)) <= 255
+            )
+            if not fatal or command.startswith("if ") or ";" in command:
+                continue
+            try:
+                tokens = shlex.split(command.split("||", 1)[0])
+            except ValueError:
+                continue
+            if len(tokens) < 4 or tokens[0:2] != ["git", "fetch"]:
+                continue
+            # A dry run writes neither FETCH_HEAD nor a remote-tracking ref;
+            # its success cannot establish fresh ancestry evidence.
+            if any(
+                matches_long_option(token, option)
+                for token in tokens[2:]
+                for option in ("--dry-run", "--multiple", "--negotiate-only")
+            ):
+                continue
+            short_flags = set().union(
+                *(
+                    short_option_shape(token)[0]
+                    for token in tokens[2:]
+                    if token.startswith("-") and not token.startswith("--") and token != "-"
+                )
+            )
+            if "m" in short_flags:
+                continue
+            if ancestry_target == "FETCH_HEAD" and any(
+                matches_long_option(token, "--no-write-fetch-head")
+                or matches_long_option(token, "--append")
+                for token in tokens[2:]
+            ) or (ancestry_target == "FETCH_HEAD" and "a" in short_flags):
+                continue
+            if ancestry_target == "origin/main" and any(
+                matches_long_option(token, "--prefetch") for token in tokens[2:]
+            ):
+                continue
+            positionals = fetch_positionals(tokens)
+            if positionals is None or len(positionals) != 2 or positionals[0] != "origin":
+                continue
+            source, separator, destination = positionals[1].partition(":")
+            if source not in {"main", "refs/heads/main"}:
+                continue
+            if separator and destination not in {
+                "main",
+                "refs/heads/main",
+                "refs/remotes/origin/main",
+            }:
+                continue
+            # `FETCH_HEAD` is written by every successful fetch. A named
+            # ancestry target is fresh only when this refspec wrote that exact
+            # remote-tracking destination; fetching `main:main` cannot refresh
+            # an old `origin/main`.
+            if ancestry_target == "FETCH_HEAD":
                 return True
+            if ancestry_target == "origin/main" and destination == "refs/remotes/origin/main":
+                return True
+        return False
+
+    def is_checkout_step(step: dict[str, Any]) -> bool:
+        uses = step.get("uses")
+        return isinstance(uses, str) and uses.strip().casefold().startswith("actions/checkout@")
+
+    def is_primary_repository_checkout(step: dict[str, Any]) -> bool:
+        checkout_options = step.get("with")
+        if not isinstance(checkout_options, dict):
+            return True
+        checkout_repository = str(checkout_options.get("repository") or "").strip()
+        if not checkout_repository:
+            return True
+        if "${{" in checkout_repository:
+            # Dynamic expressions may resolve to this repository at runtime;
+            # only a well-formed, different literal can prove a sibling.
+            return True
+        if repository_name is None:
+            return True
+        literal = re.fullmatch(r"[A-Za-z0-9_.-]+/([A-Za-z0-9_.-]+)", checkout_repository)
+        if literal is None:
+            return True
+        return literal.group(1).casefold() == repository_name.casefold()
+
+    source_checkouts = [
+        step
+        for job in jobs.values()
+        if isinstance(job, dict)
+        for step in _job_steps(job)
+        if is_checkout_step(step)
+        and is_primary_repository_checkout(step)
+    ]
+    if not source_checkouts or any(
+        not isinstance(step.get("with"), dict)
+        or not is_expected_source_ref(step["with"].get("ref"))
+        for step in source_checkouts
+    ):
         return False
     for job in jobs.values():
         if not isinstance(job, dict):
             continue
         steps = _job_steps(job)
         has_source_pinned_checkout = any(
-            isinstance(step.get("uses"), str)
-            and str(step["uses"]).startswith("actions/checkout@")
+            is_checkout_step(step)
             and isinstance(step.get("with"), dict)
-            and "inputs.expected_sha" in str(step["with"].get("ref") or "")
+            and is_expected_source_ref(step["with"].get("ref"))
             for step in steps
         )
         if not has_source_pinned_checkout:
@@ -769,7 +962,7 @@ def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> 
                 re.DOTALL | re.MULTILINE,
             )
             ancestry_fails = re.search(
-                r'if\s+!\s+git\s+merge-base\s+--is-ancestor\s+"\$EXPECTED_SHA"\s+(?:FETCH_HEAD|origin/main);\s+then'
+                r'if\s+!\s+git\s+merge-base\s+--is-ancestor\s+"\$EXPECTED_SHA"\s+(FETCH_HEAD|origin/main);\s+then'
                 r".*?^\s*exit\s+1\b",
                 run,
                 re.DOTALL | re.MULTILINE,
@@ -779,7 +972,7 @@ def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> 
                 and 'actual_sha="$(git rev-parse HEAD)"' in run
                 and mismatch_fails
                 and ancestry_fails
-                and has_fatal_main_fetch(run, ancestry_fails.start())
+                and has_fatal_main_fetch(run, ancestry_fails.start(), ancestry_fails.group(1))
             ):
                 return True
     return False
@@ -1082,7 +1275,9 @@ def _main_releasability_violations(
         inputs = _workflow_dispatch_inputs(payload)
         has_expected_sha_input = "expected_sha" in inputs
         has_exact_sha_assertion = (
-            _main_releasability_has_source_pinned_assertion(payload)
+            _main_releasability_has_source_pinned_assertion(
+                payload, repository_name=workflow_path.parents[2].name
+            )
             if source_pinned_mainline_dispatch
             else _main_releasability_has_expected_sha_assertion(payload)
         )

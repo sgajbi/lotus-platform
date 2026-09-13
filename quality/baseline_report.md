@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-13T11:43:50Z`
+Generated: `2026-09-14T22:25:15Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `970`
-- Total source lines: `386955`
+- Source files: `971`
+- Total source lines: `387576`
 - Python files: `259`
 - PowerShell files: `69`
-- Markdown files: `418`
+- Markdown files: `419`
 
 ## Largest Files
 
@@ -35,16 +35,18 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
 | tests/unit/test_engineering_context_system_contract.py | 2823 | .py |
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2525 | .py |
-| tests/unit/test_auto_merge_releasability_validator.py | 1918 | .py |
+| tests/unit/test_auto_merge_releasability_validator.py | 1915 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3804`
-- Highest measured cyclomatic complexity: `55`
+- Python functions: `3819`
+- Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
 | Path | Function | Line | Complexity | Lines |
 | --- | --- | --- | --- | --- |
+| automation/validate_auto_merge_releasability.py | _main_releasability_has_source_pinned_assertion | 721 | 82 | 258 |
+| automation/validate_auto_merge_releasability.py | has_fatal_main_fetch | 754 | 55 | 152 |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
@@ -53,8 +55,6 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/verify_principal_credential.py | resolve_principal | 245 | 22 | 106 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
 | codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
-| automation/verify_principal_credential.py | verify_credential | 168 | 21 | 75 |
-| automation/validate_auto_merge_releasability.py | _matrix_dispatch_is_verified | 494 | 21 | 58 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1798`
+- Unit tests collected: `1830`
 - Collection command return code: `0`
-- Collection summary: `1798 tests collected`
+- Collection summary: `1830 tests collected`
 
 ## Security Baseline
 

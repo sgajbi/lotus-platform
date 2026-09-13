@@ -15,7 +15,9 @@ than as violations.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
+from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -32,6 +34,8 @@ EXCEPTIONS_PATH = (
     ROOT / "platform-contracts" / "ci-governance" / "auto-merge-releasability-exceptions.v1.json"
 )
 TODAY = datetime(2026, 9, 13, tzinfo=UTC)
+GATEWAY_MAIN_RELEASABILITY = ROOT.parent / "lotus-gateway" / ".github" / "workflows" / "main-releasability.yml"
+GATEWAY_SOURCE_REVISION = "48ee0136b514e726253a9ae5cf34a7c10e30f7ad"
 
 # lotus-performance main 8f933a842397, comments stripped: the dispatcher the recognizer
 # rejected. Kept verbatim so the acceptance is of the shipped form, not of a restatement.
@@ -485,6 +489,197 @@ def test_a_program_outside_the_merged_main_job_is_not_a_dispatcher(tmp_path: Pat
     assert result.status == "drift"
     assert result.form == "unknown"
     assert "merged-pr-dispatch.wrong-main-releasability-target" in result.violations
+
+
+def test_shipped_gateway_mainline_gate_pins_every_source_checkout_and_refuses_each_unpinned_mutation() -> None:
+    """A definition selected from main never substitutes for an evaluated source tree."""
+    gateway_root = GATEWAY_MAIN_RELEASABILITY.parents[2]
+    if not GATEWAY_MAIN_RELEASABILITY.is_file() or not (gateway_root / ".git").exists():
+        pytest.skip("Gateway source checkout is not provisioned for this cross-repository audit")
+    revision = subprocess.run(
+        ["git", "-C", str(gateway_root), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if revision != GATEWAY_SOURCE_REVISION:
+        pytest.skip(
+            "Gateway checkout is not the reviewed #790 exact-main source; "
+            f"observed {revision}, expected {GATEWAY_SOURCE_REVISION}"
+        )
+    payload = validator._load_yaml(GATEWAY_MAIN_RELEASABILITY)
+    checkouts = [
+        step
+        for job in payload["jobs"].values()
+        for step in validator._job_steps(job)
+        if str(step.get("uses", "")).startswith("actions/checkout@")
+    ]
+
+    assert len(checkouts) == 8
+    assert validator._main_releasability_has_source_pinned_assertion(
+        payload, repository_name="lotus-gateway"
+    )
+    for index in range(len(checkouts)):
+        mutated = deepcopy(payload)
+        mutated_checkouts = [
+            step
+            for job in mutated["jobs"].values()
+            for step in validator._job_steps(job)
+            if str(step.get("uses", "")).startswith("actions/checkout@")
+        ]
+        del mutated_checkouts[index]["with"]["ref"]
+        assert not validator._main_releasability_has_source_pinned_assertion(
+            mutated, repository_name="lotus-gateway"
+        )
+
+    semantic_bypass = deepcopy(payload)
+    semantic_bypass["jobs"]["coverage"]["steps"][0]["with"]["ref"] = (
+        "${{ inputs.expected_sha && github.sha }}"
+    )
+    assert not validator._main_releasability_has_source_pinned_assertion(
+        semantic_bypass, repository_name="lotus-gateway"
+    )
+
+    sibling_checkout = deepcopy(payload)
+    sibling_checkout["jobs"]["coverage"]["steps"].append(
+        {
+            "uses": "actions/checkout@v7",
+            "with": {"repository": "sgajbi/lotus-advise", "ref": "governed-sibling-sha"},
+        }
+    )
+    assert validator._main_releasability_has_source_pinned_assertion(
+        sibling_checkout, repository_name="lotus-gateway"
+    )
+
+    for repository in (
+        "${{ github.repository }}",
+        "${{ github.event.repository.full_name }}",
+        "sgajbi/lotus-gateway",
+        "unproven-repository-value",
+    ):
+        explicit_primary_checkout = deepcopy(payload)
+        explicit_primary_checkout["jobs"]["coverage"]["steps"].append(
+            {
+                "uses": "actions/checkout@v7",
+                "with": {"repository": repository},
+            }
+        )
+        assert not validator._main_releasability_has_source_pinned_assertion(
+            explicit_primary_checkout, repository_name="lotus-gateway"
+        )
+
+    case_variant = deepcopy(payload)
+    case_variant_checkout = case_variant["jobs"]["coverage"]["steps"][0]
+    case_variant_checkout["uses"] = "Actions/Checkout@v7"
+    del case_variant_checkout["with"]["ref"]
+    assert not validator._main_releasability_has_source_pinned_assertion(
+        case_variant, repository_name="lotus-gateway"
+    )
+
+    delegated_quality = deepcopy(payload)
+    delegated_quality["jobs"]["reusable-quality"] = {
+        "uses": "./.github/workflows/reusable-quality.yml",
+        "with": {"expected_sha": "${{ inputs.expected_sha }}"},
+    }
+    assert not validator._main_releasability_has_source_pinned_assertion(
+        delegated_quality, repository_name="lotus-gateway"
+    )
+
+
+@pytest.mark.parametrize(
+    ("replacement", "ancestry_target", "accepted"),
+    [
+        ("git fetch origin refs/heads/main:refs/remotes/origin/main --quiet", "origin/main", True),
+        ("git fetch origin --depth 1 main", "FETCH_HEAD", True),
+        ("git fetch --depth=1 origin main > /dev/null 2>&1", "FETCH_HEAD", True),
+        ("git fetch -j 2 origin main --quiet", "FETCH_HEAD", True),
+        ("git fetch -u origin main", "FETCH_HEAD", True),
+        ("git fetch -o trace=1 origin main", "FETCH_HEAD", True),
+        ("git fetch --upload-pack /usr/bin/git-upload-pack origin main", "FETCH_HEAD", True),
+        ("git fetch -u /usr/bin/git-upload-pack origin main", "FETCH_HEAD", False),
+        ("git fetch origin main:main --quiet", "origin/main", False),
+        ("git fetch -n origin main --quiet", "FETCH_HEAD", True),
+        ("git fetch --dry-run origin main --quiet", "FETCH_HEAD", False),
+        ("git fetch --dry-r origin main --quiet", "FETCH_HEAD", False),
+        ("git fetch --no-write-fetch-head origin main --quiet", "FETCH_HEAD", False),
+        ("git fetch --negotiate-only origin main --quiet", "FETCH_HEAD", False),
+        ("git fetch --multiple origin main", "FETCH_HEAD", False),
+        ("git fetch -m origin main", "FETCH_HEAD", False),
+        ("git fetch -qm origin main", "FETCH_HEAD", False),
+        ("git fetch --append origin main --quiet", "FETCH_HEAD", False),
+        ("git fetch -a origin main --quiet", "FETCH_HEAD", False),
+        ("git fetch -aq origin main", "FETCH_HEAD", False),
+        ("git fetch origin main || exit 255", "FETCH_HEAD", True),
+        ("git fetch origin main || exit 256", "FETCH_HEAD", False),
+        ("git fetch origin main || exit 1 &", "FETCH_HEAD", False),
+        ("git fetch --prefetch origin main:refs/remotes/origin/main --quiet", "origin/main", False),
+        ("git fetch origin main-unreviewed --quiet", "FETCH_HEAD", False),
+        ("git fetch origin refs/tags/main --quiet", "FETCH_HEAD", False),
+        ("git fetch origin maintenance/main --quiet", "FETCH_HEAD", False),
+    ],
+)
+def test_source_assertion_accepts_only_exact_main_fetch_refspecs(
+    replacement: str, ancestry_target: str, accepted: bool
+) -> None:
+    gateway_root = GATEWAY_MAIN_RELEASABILITY.parents[2]
+    if not GATEWAY_MAIN_RELEASABILITY.is_file() or not (gateway_root / ".git").exists():
+        pytest.skip("Gateway source checkout is not provisioned for this cross-repository audit")
+    revision = subprocess.run(
+        ["git", "-C", str(gateway_root), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if revision != GATEWAY_SOURCE_REVISION:
+        pytest.skip("Gateway checkout is not the reviewed #790 exact-main source")
+    payload = validator._load_yaml(GATEWAY_MAIN_RELEASABILITY)
+    assertion = next(
+        step
+        for step in validator._job_steps(payload["jobs"]["exact-revision-assertion"])
+        if validator._step_run(step)
+    )
+    assertion["run"] = validator._step_run(assertion).replace(
+        "git fetch origin main --quiet", replacement
+    ).replace("FETCH_HEAD", ancestry_target)
+    assert (
+        validator._main_releasability_has_source_pinned_assertion(
+            payload, repository_name="lotus-gateway"
+        )
+        is accepted
+    )
+
+
+def test_mainline_script_dispatch_refuses_an_unpinned_quality_checkout(tmp_path: Path) -> None:
+    """The all-checkout invariant applies equally to declared program dispatchers."""
+    repos_root, policy, exceptions = _repository(tmp_path, _script_workflow("node scripts/dispatch.mjs"))
+    repo_root = repos_root / "lotus-example"
+    _write_declaration(repo_root)
+    main_gate = repo_root / ".github" / "workflows" / "main-releasability.yml"
+    pinned_quality = """
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.expected_sha || github.sha }}
+"""
+    main_gate.write_text(MAIN_RELEASABILITY + pinned_quality, encoding="utf-8")
+
+    assert validate_repositories(
+        policy_path=policy, exception_path=exceptions, repos_root=repos_root, today=TODAY
+    )[0].status == "aligned"
+
+    main_gate.write_text(
+        (MAIN_RELEASABILITY + pinned_quality).replace(
+            "        with:\n          ref: ${{ inputs.expected_sha || github.sha }}\n", ""
+        ),
+        encoding="utf-8",
+    )
+    result = validate_repositories(
+        policy_path=policy, exception_path=exceptions, repos_root=repos_root, today=TODAY
+    )[0]
+    assert result.status == "drift"
+    assert "main-releasability.missing-expected-sha-assertion" in result.violations
 
 
 # --- lane posture ---------------------------------------------------------

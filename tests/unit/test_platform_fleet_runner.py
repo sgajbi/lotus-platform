@@ -105,3 +105,33 @@ def test_fleet_runner_rejects_duplicate_manifest_names_before_execution(tmp_path
         result.stdout + result.stderr
     )
     assert not (tmp_path / "evidence" / "same-name.log").exists()
+
+
+@pytest.mark.skipif(shutil.which("pwsh") is None, reason="PowerShell is required for the shipped runner")
+def test_fleet_runner_default_governed_manifest_passes_summary_a_single_time(tmp_path: Path) -> None:
+    """Exercise production defaults; an injected validator manifest cannot cover this seam."""
+    evidence = tmp_path / "evidence"
+    result = subprocess.run(
+        [
+            "pwsh",
+            "-NoProfile",
+            "-File",
+            str(RUNNER),
+            "-Lane",
+            "fleet-conformance",
+            "-FleetEvidenceDirectory",
+            str(evidence),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    drift_log = (evidence / "sibling-pin-drift.log").read_text(encoding="utf-8")
+    assert "argument --summary: expected one argument" not in drift_log
+    assert (evidence / "pin-drift.md").is_file()
+    assert (evidence / "outcomes.md").is_file()
+    # Fleet truth is intentionally live and may be red; the runner must still
+    # execute every governed validator and preserve its aggregate status.
+    assert "| sibling-pin-drift |" in (evidence / "outcomes.md").read_text(encoding="utf-8")
+    assert result.returncode in {0, 1}
