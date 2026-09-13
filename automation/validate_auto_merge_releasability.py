@@ -729,6 +729,18 @@ def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> 
     jobs = payload.get("jobs")
     if not isinstance(jobs, dict):
         return False
+
+    def has_fatal_main_fetch(run: str) -> bool:
+        """Accept normal fetch options/refspecs, never an early successful exit."""
+        for line in run.splitlines():
+            if not re.search(r"\bgit\s+fetch\b.*\borigin\b.*\bmain(?:\b|:)", line):
+                continue
+            # A tolerated fetch failure means the subsequent ancestry proof is
+            # not fresh evidence.  `|| exit 1` remains fatal; no `||` is the
+            # normal shell form.
+            if "||" not in line or re.search(r"\|\|\s+exit\s+(?:[1-9][0-9]*)\b", line):
+                return True
+        return False
     for job in jobs.values():
         if not isinstance(job, dict):
             continue
@@ -760,7 +772,7 @@ def _main_releasability_has_source_pinned_assertion(payload: dict[str, Any]) -> 
             if (
                 "inputs.expected_sha" in expected_sha
                 and 'actual_sha="$(git rev-parse HEAD)"' in run
-                and "git fetch origin main" in run
+                and has_fatal_main_fetch(run)
                 and mismatch_fails
                 and ancestry_fails
             ):
