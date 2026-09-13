@@ -40,6 +40,7 @@ python automation/validate_auto_merge_releasability.py
 python automation/validate_mainline_commit_provenance.py
 python automation/validate_sibling_source_manifest.py
 python automation/validate_sibling_source_manifest.py --report-drift
+python automation/validate_sibling_source_manifest.py --refresh
 ```
 
 Exceptions are temporary rollout records, not approval to keep weaker merge or releasability

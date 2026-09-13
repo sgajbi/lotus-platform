@@ -126,6 +126,8 @@ python automation/generate_enterprise_backend_quality_baseline.py --write --chec
 # Prove the sibling revisions the per-commit lanes read are pinned, and see how far they lag
 python automation/validate_sibling_source_manifest.py
 python automation/validate_sibling_source_manifest.py --report-drift
+# Move every pin to current sibling main for a reviewed refresh pull request (writes nothing if any sibling is unreadable)
+python automation/validate_sibling_source_manifest.py --refresh
 
 # Verify this repository's operating contract without changing it
 powershell -ExecutionPolicy Bypass -File automation/Sync-AgentOperatingContract.ps1 -CheckOnly

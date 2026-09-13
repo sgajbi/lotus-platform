@@ -1452,6 +1452,7 @@ python automation/validate_sibling_source_manifest.py
 python automation/validate_sibling_source_manifest.py --github-output $env:GITHUB_OUTPUT
 python automation/validate_sibling_source_manifest.py --verify-checkouts _federated
 python automation/validate_sibling_source_manifest.py --report-drift --max-pin-age-days 14
+python automation/validate_sibling_source_manifest.py --refresh
 ```
 
 The manifest at `platform-contracts/ci-governance/sibling-source-manifest.v1.json` must name every
