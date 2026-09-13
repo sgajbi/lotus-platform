@@ -59,7 +59,20 @@ def _consumer_git_tree_errors(receipt: dict, checkout: Path) -> list[str]:
         text=True,
     )
     if exists.returncode != 0:
-        return ["receipt revision is absent from the pinned consumer checkout"]
+        fetched = subprocess.run(
+            ["git", "-C", str(checkout), "fetch", "--depth=1", "origin", revision],
+            capture_output=True,
+            text=True,
+        )
+        if fetched.returncode != 0:
+            return ["receipt revision is absent from the pinned consumer checkout"]
+        exists = subprocess.run(
+            ["git", "-C", str(checkout), "cat-file", "-e", f"{revision}^{{commit}}"],
+            capture_output=True,
+            text=True,
+        )
+        if exists.returncode != 0:
+            return ["receipt revision is absent from the pinned consumer checkout"]
 
     errors: list[str] = []
     for path, expected_blob in receipt.get("proof_files", {}).items():

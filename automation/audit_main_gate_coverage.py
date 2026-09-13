@@ -48,6 +48,7 @@ WORKFLOW = "main-releasability.yml"
 LEDGER_SCHEMA_VERSION = "lotus.main-gate-coverage-ledger.v1"
 _VERDICT_CONCLUSIONS = {"success", "failure"}
 _RANGE = re.compile(r"^(?P<base>[^.\s]+)\.\.(?P<end>[^.\s]+)$")
+_MAINLINE_TITLE = re.compile(r"^Main Releasability (?:\u00b7|\u00c2\u00b7) ([0-9a-f]{40})$")
 
 
 def _git(*args: str) -> list[str]:
@@ -70,7 +71,9 @@ def _run_evidence(sha: str) -> list[dict[str, object]] | None:
     ``gh run list`` exposes only a flattened conclusion list.  That loses the
     order which decides the current verdict, as well as run identifiers and
     attempts needed to audit a replay.  The workflow-runs endpoint retains
-    those facts and is scoped to the named workflow and evaluated source SHA.
+    those facts. Immutable-ref runs bind through `head_sha`; mainline-ref runs
+    bind through the exact source-bearing title and `head_branch=main`, because
+    their `head_sha` identifies the workflow definition selected from main.
     """
     completed = subprocess.run(
         [
@@ -78,7 +81,7 @@ def _run_evidence(sha: str) -> list[dict[str, object]] | None:
             "api",
             "--paginate",
             "--slurp",
-            f"repos/{_repository_name()}/actions/workflows/{WORKFLOW}/runs?head_sha={sha}&per_page=100",
+            f"repos/{_repository_name()}/actions/workflows/{WORKFLOW}/runs?per_page=100",
         ],
         capture_output=True,
         text=True,
@@ -99,6 +102,14 @@ def _run_evidence(sha: str) -> list[dict[str, object]] | None:
         for run in page_runs:
             if not isinstance(run, dict):
                 return None
+            title_match = _MAINLINE_TITLE.fullmatch(str(run.get("display_title") or ""))
+            evaluated_source = (
+                title_match.group(1)
+                if title_match is not None and run.get("head_branch") == "main"
+                else str(run.get("head_sha") or "")
+            )
+            if evaluated_source != sha:
+                continue
             evidence.append(
                 {
                     "run_id": run.get("id"),
