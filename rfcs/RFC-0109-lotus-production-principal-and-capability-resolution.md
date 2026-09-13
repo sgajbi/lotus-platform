@@ -1,6 +1,10 @@
 # RFC-0109: Lotus Production Principal And Capability Resolution
 
-- Status: Draft — session half implemented, downstream half specified and unimplemented
+- Status: Active — session half implemented; downstream contract, fixtures, signed vectors and
+  verifier delivered (#835, #841, #850, #854); Workbench BFF slice 4 delivered
+  (lotus-workbench #1042 at `551fcd7`); grant store re-owned to Platform identity and access
+  governance after `lotus-core` declined (2026-09-08) and still unimplemented; pilot acceptance
+  recorded in `platform-contracts/principal-resolution/pilot-acceptance.v1.json`
 - Date: 2026-09-06
 - Owners:
   - `lotus-platform` identity and access governance
@@ -166,12 +170,29 @@ server-side application making calls on behalf of a signed-in adviser.
 
 ### 2. Who owns the grant store
 
-**The service that owns tenant membership owns the grant store.** Platform defines the contract and
-does not host it. That follows the estate's existing rule that a fact has one authoritative owner,
-and tenant membership already has one.
+**Corrected 2026-09-13.** This section first said "the service that owns tenant membership owns
+the grant store" and that membership "already has one". Measured across all thirteen repositories
+on 2026-09-07, no repository defines a tenants or tenant-membership table, so the premise had no
+artifact behind it. `lotus-core` was then nominated as the closest existing authority and
+**declined on 2026-09-08**: `portfolio_party_role_assignments` and portfolio-manager-book
+memberships are financial business relationships, not authentication tenant grants, and reusing
+them would put a second, semantically wrong IAM authority inside the financial system of record.
+Core consumes the verified decision and fails closed when it is unavailable.
 
-This is now decided rather than open, because leaving it open blocks the consumers this RFC exists
-to unblock: a resolver cannot be implemented against an unnamed authority.
+The owners are therefore:
+
+| Responsibility | Owner |
+| --- | --- |
+| Contract, fixtures, signed vectors, verifier | `lotus-platform` identity and access governance |
+| Grant store implementation | `lotus-platform` identity and access governance, as a platform identity capability behind the injected `GrantStore` port of `automation/verify_principal_credential.py`; hosted by a dedicated Lotus identity service once one is designated. It is new capability, not exposure of a domain table. |
+| Grant store operations | The bank security authority / identity-provider operator: issuer provisioning, key custody and rotation, the membership source of record, revocation feeds. External; nothing in this repository evidences it. |
+| Resolution and enforcement | Each consumer, per write family, fail-closed under `verified` |
+
+Tenant admission is not tenant membership: a service that scopes rows by an admitted tenant id has
+not verified that the caller belongs to that tenant. Until the store exists, resolution answers
+`grant_store_unavailable`, which is a published denial class, so a consumer completes its source
+slice against a stub and still proves every refusal. That is the honest current behaviour and is
+not to be replaced by a permissive default.
 
 ### 3. Audience and scope binding
 
@@ -249,9 +270,20 @@ and not this RFC, may describe schema and fixture availability as working authen
 | 2 | Gateway resolves rather than accepts, per write family, fail-closed under `verified` |
 | 3 | Manage authorizes writes against the resolved set |
 | 4 | Workbench resolves the session and makes delegated calls without projecting authority headers |
-| 5 | Grant store implemented by the tenant-membership owner, with the availability denial proven |
+| 5 | Grant store implemented by `lotus-platform` identity and access governance as a platform identity capability (see question 2), hosted by a designated identity service, with the availability denial proven |
 | 6 | **Second-last: code review and governance tightening** — review and loose-end tightening, dead-code and duplicate-logic cleanup, API certification-pattern conformance, OpenAPI/vocabulary/contract/migration/platform-governance conformance, and final test-quality review before closure |
 | 7 | **Final: documentation, context, skills, wiki, branch hygiene** — documentation and agent-context updates, wiki updates for operator-facing behaviour, an explicit keep/tighten/add/remove/no-change decision on the identity and access skills and guidance, and branch hygiene with truthful PR/CI evidence |
+
+## Pilot
+
+The pilot consumer is the **Workbench BFF** (slice 4): the delegated shape this RFC requires rather
+than permits, already consuming the signed vectors, JWKS, revocation inputs and verifier, merged as
+lotus-workbench #1042 at `551fcd7`. The finite admission/denial acceptance — all thirteen denial
+classes, real verification of `present_but_unverified`, one admitted delegated call, zero protected
+calls on denial, browser-authority refusal and principal-change isolation — is published in
+`platform-contracts/principal-resolution/pilot-acceptance.v1.json`, which names for each proof the
+test in this repository that measures it and whether the consumer has claimed it. Gateway is the
+second adopter and one domain service the third; neither is claimed by the record.
 
 ## Supported-features and evidence posture
 

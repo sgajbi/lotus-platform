@@ -1,0 +1,63 @@
+{
+  "schema_version": "lotus.principal-pilot-acceptance.v1",
+  "contract_id": "lotus-platform:principal-pilot-acceptance:v1",
+  "rfc": "RFC-0109",
+  "issue": "https://github.com/sgajbi/lotus-platform/issues/775",
+  "recorded_at_utc": "2026-09-13T07:30:00Z",
+  "ownership": {
+    "contract_and_verifier": "lotus-platform identity and access governance (this repository)",
+    "grant_store_implementation": "lotus-platform identity and access governance: a platform identity capability behind the injected GrantStore port of automation/verify_principal_credential.py, to be hosted by a dedicated Lotus identity service once one is designated. It is not a domain service's table. Until it exists, resolution answers grant_store_unavailable, which is a published denial.",
+    "grant_store_operations": "The bank security authority / identity-provider operator: issuer provisioning, key custody and rotation, the membership source of record, and revocation feeds. External and unclaimed; nothing in this repository is evidence of it.",
+    "declined": {
+      "lotus-core": "2026-09-08: portfolio_party_role_assignments and portfolio-manager-book memberships are financial business relationships, not authentication tenant grants; Core consumes the verified decision and fails closed when it is unavailable. Recorded on #775."
+    },
+    "accepted_by": {
+      "lotus-workbench": "2026-09-08 consumer response on #775: Core's decline accepted as the correct domain boundary; Platform to publish the corrected owner."
+    },
+    "premise_corrected": "RFC-0109 originally assigned the store to 'the service that owns tenant membership' and asserted membership 'already has one'. Measured across all thirteen repositories on 2026-09-07: no repository defines a tenants or tenant-membership table. Tenant admission (scoping rows by an admitted tenant id) is not tenant membership (verifying the caller belongs to that tenant)."
+  },
+  "pilot": {
+    "consumer": "lotus-workbench",
+    "kind": "bff-delegated",
+    "consumer_issue": "https://github.com/sgajbi/lotus-workbench/issues/436",
+    "pull_request": "https://github.com/sgajbi/lotus-workbench/pull/1042",
+    "merged_revision": "551fcd7bbbf453f3812a7e2820f8e889c5400ff5",
+    "consumer_proof_revision": "5224283d9b37b98df5369f88beb35414913ce292",
+    "consumer_proof_files": [
+      "tests/fixtures/platform-principal-credential-vectors.ts",
+      "tests/unit/principal-credential.test.ts",
+      "tests/unit/bff-principal-authority.test.ts",
+      "tests/unit/configured-bff-principal.test.ts"
+    ],
+    "why_this_pilot": "The BFF is the delegated shape RFC-0109 requires rather than permits, it already consumed the signed vectors, JWKS, revocation inputs and verifier delivered by #850/#854, and its merged slice is on main. Gateway (composition front door) is the second adopter and a domain service the third; neither is claimed here."
+  },
+  "platform_evidence_file": "tests/unit/test_principal_credential_verifier.py",
+  "finite_acceptance": [
+    {"proof": "missing_credential is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "malformed_credential is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "expired_credential is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "wrong_audience is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "wrong_issuer is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "unknown_key_id is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "revoked_principal is refused", "platform_evidence": ["test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "present_but_unverified is refused by real signature verification, and the same bytes verify once the key is trusted", "platform_evidence": ["test_a_structure_only_inspector_accepts_the_unverified_credential", "test_the_same_bytes_verify_when_the_foreign_key_is_trusted", "test_one_flipped_signature_byte_is_refused", "test_an_unverifiable_credential_is_refused_before_its_claims_are_read"], "consumer": "claimed"},
+    {"proof": "tenant_not_a_member is refused, resolved rather than read from the credential", "platform_evidence": ["test_a_non_member_is_refused", "test_tenant_membership_is_resolved_rather_than_taken_from_the_credential", "test_membership_is_resolved_before_any_grant_lookup"], "consumer": "claimed"},
+    {"proof": "capability_not_granted is refused", "platform_evidence": ["test_a_capability_not_granted_to_the_person_is_refused"], "consumer": "claimed"},
+    {"proof": "portfolio_outside_scope is refused rather than narrowed", "platform_evidence": ["test_a_portfolio_outside_scope_is_refused_rather_than_narrowed"], "consumer": "claimed"},
+    {"proof": "delegated_capability_not_held_by_user is refused", "platform_evidence": ["test_a_capability_the_application_holds_but_the_person_does_not_is_refused"], "consumer": "claimed"},
+    {"proof": "grant_store_unavailable is a denial, never an empty grant set, and an absent resolver refuses rather than skips", "platform_evidence": ["test_an_unavailable_grant_store_denies_rather_than_returning_nothing", "test_an_absent_membership_resolver_refuses_rather_than_skipping_the_check", "test_an_unavailable_membership_lookup_refuses_instead_of_raising"], "consumer": "claimed"},
+    {"proof": "one admitted delegated call resolves to the intersection of application and person grants", "platform_evidence": ["test_a_delegated_credential_resolves_to_the_intersection", "test_each_vector_produces_its_published_outcome"], "consumer": "claimed"},
+    {"proof": "zero protected upstream calls on any denial", "platform_evidence": [], "consumer": "claimed", "note": "A fixture property (maxProtectedOperationCalls: 0 on every denial fixture); provable only at the consumer, against a recording client."},
+    {"proof": "browser-supplied authority is refused and never projected", "platform_evidence": [], "consumer": "claimed", "note": "Consumer-side by construction; the admission fixture asserts a header-carried tenant and capability the resolved principal does not hold."},
+    {"proof": "principal change clears all protected client state", "platform_evidence": [], "consumer": "claimed", "note": "Consumer-side by construction."}
+  ],
+  "consumer_claims_note": "'claimed' means the consumer stated the proof on #775 and the named test files exist at consumer_proof_revision; this repository has not executed the consumer's suite and does not certify it. The consumer records its own evidence on lotus-workbench #436.",
+  "live_boundaries": {
+    "issuer_provisioned": false,
+    "key_custody_established": false,
+    "membership_source_of_record_exists": false,
+    "grant_store_implemented": false,
+    "production_identity_certified": false,
+    "supported_feature_promoted": false
+  }
+}

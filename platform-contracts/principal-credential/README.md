@@ -77,15 +77,21 @@ is outside its window, not which end, consistent with rule 6.
 
 Answering lotus-workbench#436's third question.
 
-**Owner: `lotus-core`.** RFC-0109 assigned the grant store to "the service that owns tenant
-membership" and asserted that membership "already has one". Measured across the estate on
-2026-09-07, **no repository defines a tenants or tenant-membership table**, so that premise was not
-backed by an artifact. `lotus-core` is named because it holds the closest existing authority —
-`portfolio_party_role_assignments` and `/integration/portfolio-manager-books/{portfolio_manager_id}/memberships`
-— and is already the tenant-scoping authority for portfolio data.
+**Owner: `lotus-platform` identity and access governance, as a platform identity capability.**
+RFC-0109 first assigned the grant store to "the service that owns tenant membership" and asserted
+that membership "already has one". Measured across the estate on 2026-09-07, **no repository defines
+a tenants or tenant-membership table**, so that premise was not backed by an artifact. `lotus-core`
+was then named for holding the closest existing authority — `portfolio_party_role_assignments` and
+`/integration/portfolio-manager-books/{portfolio_manager_id}/memberships` — and **declined on
+2026-09-08**: those are financial business relationships, not authentication tenant grants, and
+reusing them would put a second, semantically wrong IAM authority inside the financial system of
+record. Core consumes the verified decision and fails closed.
 
-This is a naming decision that requires `lotus-core`'s acceptance, and it needs new capability
-rather than exposure of an existing table.
+The store is therefore new capability owned where the contract is owned, implemented behind the
+`GrantStore` port below and hosted by a dedicated Lotus identity service once one is designated.
+Issuer provisioning, key custody, the membership source of record and revocation feeds belong to the
+bank security authority and remain external. The pilot consumer and the finite acceptance are
+recorded in `../principal-resolution/pilot-acceptance.v1.json`.
 
 **Tenant admission is not tenant membership**, and the distinction is the reason the store is
 needed. Core's `TenantContext` admits a tenant id and scopes rows by it; nothing verifies that the
