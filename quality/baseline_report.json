@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 418,
+    "markdown_file_count": 419,
     "powershell_file_count": 69,
     "python_file_count": 259,
-    "source_file_count": 970,
+    "source_file_count": 971,
     "suffix_counts": {
       ".json": 175,
-      ".md": 418,
+      ".md": 419,
       ".ps1": 69,
       ".py": 259,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 386955
+    "total_source_lines": 387576
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -33,6 +33,22 @@
   },
   "function_hotspots": {
     "highest_complexity_functions": [
+      {
+        "complexity": 82,
+        "end_line": 978,
+        "line": 721,
+        "lines": 258,
+        "name": "_main_releasability_has_source_pinned_assertion",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
+        "complexity": 55,
+        "end_line": 905,
+        "line": 754,
+        "lines": 152,
+        "name": "has_fatal_main_fetch",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
       {
         "complexity": 55,
         "end_line": 349,
@@ -107,8 +123,8 @@
       },
       {
         "complexity": 21,
-        "end_line": 551,
-        "line": 494,
+        "end_line": 552,
+        "line": 495,
         "lines": 58,
         "name": "_matrix_dispatch_is_verified",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -123,16 +139,8 @@
       },
       {
         "complexity": 20,
-        "end_line": 785,
-        "line": 720,
-        "lines": 66,
-        "name": "_main_releasability_has_source_pinned_assertion",
-        "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
-        "complexity": 20,
-        "end_line": 1036,
-        "line": 984,
+        "end_line": 1229,
+        "line": 1177,
         "lines": 53,
         "name": "_declaration_assessment",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -163,6 +171,14 @@
       },
       {
         "complexity": 18,
+        "end_line": 831,
+        "line": 786,
+        "lines": 46,
+        "name": "fetch_positionals",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
+        "complexity": 18,
         "end_line": 508,
         "line": 466,
         "lines": 43,
@@ -176,22 +192,6 @@
         "lines": 116,
         "name": "main",
         "path": "automation/validate_sibling_source_manifest.py"
-      },
-      {
-        "complexity": 17,
-        "end_line": 1384,
-        "line": 1319,
-        "lines": 66,
-        "name": "_validate_dependency_failure_posture_conditions",
-        "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py"
-      },
-      {
-        "complexity": 17,
-        "end_line": 123,
-        "line": 68,
-        "lines": 56,
-        "name": "_run_evidence",
-        "path": "automation/audit_main_gate_coverage.py"
       }
     ],
     "largest_functions": [
@@ -276,6 +276,14 @@
         "path": "automation/core_performance_twr_benchmark_validation.py"
       },
       {
+        "complexity": 82,
+        "end_line": 978,
+        "line": 721,
+        "lines": 258,
+        "name": "_main_releasability_has_source_pinned_assertion",
+        "path": "automation/validate_auto_merge_releasability.py"
+      },
+      {
         "complexity": 53,
         "end_line": 654,
         "line": 440,
@@ -346,21 +354,13 @@
         "lines": 157,
         "name": "test_rfc_0104_preserves_batch_reporting_gold_standard_contract",
         "path": "tests/unit/test_rfc_closure_governance.py"
-      },
-      {
-        "complexity": 2,
-        "end_line": 777,
-        "line": 622,
-        "lines": 156,
-        "name": "scaffold_domain_product_onboarding",
-        "path": "automation/generate_domain_product_onboarding.py"
       }
     ],
-    "max_complexity": 55,
+    "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3804
+    "python_function_count": 3819
   },
-  "generated_at_utc": "2026-09-13T11:43:50Z",
+  "generated_at_utc": "2026-09-14T22:25:15Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -408,7 +408,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1918,
+      "lines": 1915,
       "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
     },
@@ -448,6 +448,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 1451,
+      "path": "automation/validate_auto_merge_releasability.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1354,
       "path": "automation/validate_engineering_context_system.py",
       "suffix": ".py"
@@ -455,11 +460,6 @@
     {
       "lines": 1320,
       "path": "automation/generate_enterprise_backend_quality_baseline.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1300,
-      "path": "automation/mesh_certification_gate.py",
       "suffix": ".py"
     }
   ],
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1798,
+    "collected_tests": 1830,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1798 tests collected"
+    "summary": "1830 tests collected"
   }
 }

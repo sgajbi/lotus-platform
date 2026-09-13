@@ -44,7 +44,11 @@ function Get-FleetValidators {
     param([string]$ManifestPath)
 
     $governed = @(
-        [pscustomobject]@{ Name = "sibling-pin-drift"; Arguments = @("automation/validate_sibling_source_manifest.py", "--report-drift", "--summary") },
+        # The governed report options (including the summary destination) are
+        # assembled at invocation time below.  Keeping this base command bare
+        # prevents an option being present once without its value and again
+        # with the fleet evidence path.
+        [pscustomobject]@{ Name = "sibling-pin-drift"; Arguments = @("automation/validate_sibling_source_manifest.py") },
         [pscustomobject]@{ Name = "auto-merge-releasability"; Arguments = @("automation/validate_auto_merge_releasability.py", "--require-local-repos", "--fail-on-unverified") },
         [pscustomobject]@{ Name = "workflow-pipeline-exit-codes"; Arguments = @("automation/validate_workflow_pipeline_exit_codes.py", "--require-local-repos") },
         [pscustomobject]@{ Name = "canonical-front-office-demo-data"; Arguments = @("automation/validate_canonical_front_office_demo_data_contract.py") }

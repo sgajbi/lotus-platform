@@ -132,5 +132,6 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          LOTUS_PRINCIPAL_PROOF_CHECKOUT: ${{ github.workspace }}/_federated/lotus-workbench
         run: |
           & .\automation\Invoke-PlatformRepoChecks.ps1 -Lane pr-merge
