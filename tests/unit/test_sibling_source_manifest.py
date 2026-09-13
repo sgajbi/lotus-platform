@@ -319,13 +319,15 @@ def test_the_fleet_lane_runs_every_check_to_completion_and_fails_on_the_aggregat
     fleet = runner.split('if ($Lane -eq "fleet-conformance")')[1].split("\n        return\n")[0]
 
     assert "Invoke-CheckedCommand" not in fleet, "a throwing runner stops the later checks"
+    # The production list lives in the runner's validator factory; the
+    # executable test exercises the loop itself with controlled validators.
     for check in (
         "sibling-pin-drift",
         "auto-merge-releasability",
         "workflow-pipeline-exit-codes",
         "canonical-front-office-demo-data",
     ):
-        assert f'-Name "{check}"' in fleet, f"{check} is not run as a recorded check"
+        assert f'Name = "{check}"' in runner, f"{check} is not in the governed validator list"
     # The native exit code is read straight after the invocation and before
     # anything else can reset it, then recorded per check.
     assert "$exitCode = $LASTEXITCODE" in fleet and "$fleetOutcomes[$Name] = $exitCode" in fleet
@@ -336,7 +338,7 @@ def test_the_fleet_lane_runs_every_check_to_completion_and_fails_on_the_aggregat
     assert "2>&1 | Tee-Object -FilePath $log" in fleet
     assert 'output/fleet-conformance' in fleet
     assert '"pin-drift.md"' in fleet and '"outcomes.md"' in fleet
-    assert '"--summary", $driftReport' in fleet, "the drift table must be evidence, not only a step summary"
+    assert '"--summary", (Join-Path $evidenceDirectory "pin-drift.md")' in fleet, "the drift table must be evidence, not only a step summary"
     assert 'throw "Fleet conformance failed:' in fleet
     assert fleet.index("Fleet conformance outcomes") < fleet.index('throw "Fleet conformance failed:'), (
         "the outcome table must be published before the aggregate failure is raised"
