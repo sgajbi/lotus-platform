@@ -588,6 +588,13 @@ def test_platform_repo_lane_workflows_and_shared_entrypoint_exist() -> None:
     assert "GH_TOKEN: ${{ github.token }}" in main_releasability
     assert 'LOTUS_BRANCH_SIGNATURES_REQUIRED: "false"' in main_releasability
     assert 'LOTUS_MAINLINE_POLICY_BRANCH: "main"' in main_releasability
+    # The wiki parity check needs full history to classify a deleted page and
+    # refuses on a shallow clone; the release gate is the lane whose red is
+    # release evidence, so it must not be the one lane left shallow (#876).
+    repo_contracts_primary_checkout = main_releasability.split("  repo-contracts:")[1].split(
+        "Checkout governed domain-product"
+    )[0]
+    assert "fetch-depth: 0" in repo_contracts_primary_checkout
     assert (
         "git fetch --no-tags origin main:refs/remotes/origin/main" in main_releasability
     )

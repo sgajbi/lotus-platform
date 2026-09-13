@@ -69,6 +69,13 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The wiki parity check asks git whether a page was authored in
+          # `wiki/` and then deleted, which a depth-1 checkout cannot answer,
+          # and it refuses rather than guesses. The other two lanes fetch full
+          # history for that reason; this one did not, so the first merge
+          # deleting a wiki page failed only the release gate (#876).
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
