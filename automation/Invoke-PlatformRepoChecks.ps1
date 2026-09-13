@@ -1,7 +1,14 @@
 param(
     [Parameter(Mandatory = $true)]
     [ValidateSet("feature", "pr-merge", "main-releasability", "fleet-conformance")]
-    [string]$Lane
+    [string]$Lane,
+
+    # A checked-in or caller-supplied manifest is used only to exercise the
+    # fleet executor itself.  The production workflow supplies neither value
+    # and always runs the static governed validator list below.
+    [string]$FleetValidatorManifest,
+
+    [string]$FleetEvidenceDirectory
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,6 +40,38 @@ function Assert-LastExitCode {
     }
 }
 
+function Get-FleetValidators {
+    param([string]$ManifestPath)
+
+    $governed = @(
+        [pscustomobject]@{ Name = "sibling-pin-drift"; Arguments = @("automation/validate_sibling_source_manifest.py", "--report-drift", "--summary") },
+        [pscustomobject]@{ Name = "auto-merge-releasability"; Arguments = @("automation/validate_auto_merge_releasability.py", "--require-local-repos", "--fail-on-unverified") },
+        [pscustomobject]@{ Name = "workflow-pipeline-exit-codes"; Arguments = @("automation/validate_workflow_pipeline_exit_codes.py", "--require-local-repos") },
+        [pscustomobject]@{ Name = "canonical-front-office-demo-data"; Arguments = @("automation/validate_canonical_front_office_demo_data_contract.py") }
+    )
+    if ([string]::IsNullOrWhiteSpace($ManifestPath)) {
+        return $governed
+    }
+    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
+        throw "Fleet validator manifest does not exist: $ManifestPath"
+    }
+    $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+    if ($null -eq $manifest.validators -or @($manifest.validators).Count -eq 0) {
+        throw "Fleet validator manifest must contain a non-empty validators array."
+    }
+    $validated = @()
+    foreach ($validator in @($manifest.validators)) {
+        if ([string]::IsNullOrWhiteSpace([string]$validator.name) -or $null -eq $validator.arguments -or @($validator.arguments).Count -eq 0) {
+            throw "Each fleet validator must name itself and provide non-empty arguments."
+        }
+        $validated += [pscustomobject]@{
+            Name = [string]$validator.name
+            Arguments = @($validator.arguments | ForEach-Object { [string]$_ })
+        }
+    }
+    return $validated
+}
+
 Push-Location $repoRoot
 try {
     $toolingPython = & (Join-Path $PSScriptRoot "Resolve-PlatformAutomationPython.ps1")
@@ -52,11 +91,13 @@ try {
         # output/fleet-conformance/<check>.log with its exit code preserved, and
         # that directory is what the lane uploads. The outcome is the aggregate
         # -- one table, written there too, and a failure if any check failed.
-        $evidenceDirectory = Join-Path $repoRoot "output/fleet-conformance"
+        $evidenceDirectory = if ([string]::IsNullOrWhiteSpace($FleetEvidenceDirectory)) {
+            Join-Path $repoRoot "output/fleet-conformance"
+        } else {
+            $FleetEvidenceDirectory
+        }
         New-Item -ItemType Directory -Force -Path $evidenceDirectory | Out-Null
         Get-ChildItem -Path $evidenceDirectory -File | Remove-Item -Force
-        $driftReport = Join-Path $evidenceDirectory "pin-drift.md"
-        $driftArguments = @("--report-drift", "--summary", $driftReport)
         $fleetOutcomes = [ordered]@{}
         function Invoke-RecordedFleetCheck {
             param(
@@ -80,10 +121,14 @@ try {
             $fleetOutcomes[$Name] = $exitCode
             Write-Output "::endgroup::"
         }
-        Invoke-RecordedFleetCheck -Name "sibling-pin-drift" -Arguments (@("automation/validate_sibling_source_manifest.py") + $driftArguments)
-        Invoke-RecordedFleetCheck -Name "auto-merge-releasability" -Arguments @("automation/validate_auto_merge_releasability.py", "--require-local-repos", "--fail-on-unverified")
-        Invoke-RecordedFleetCheck -Name "workflow-pipeline-exit-codes" -Arguments @("automation/validate_workflow_pipeline_exit_codes.py", "--require-local-repos")
-        Invoke-RecordedFleetCheck -Name "canonical-front-office-demo-data" -Arguments @("automation/validate_canonical_front_office_demo_data_contract.py")
+        $validators = Get-FleetValidators -ManifestPath $FleetValidatorManifest
+        foreach ($validator in $validators) {
+            $arguments = @($validator.Arguments)
+            if ($validator.Name -eq "sibling-pin-drift" -and [string]::IsNullOrWhiteSpace($FleetValidatorManifest)) {
+                $arguments += @("--report-drift", "--summary", (Join-Path $evidenceDirectory "pin-drift.md"))
+            }
+            Invoke-RecordedFleetCheck -Name $validator.Name -Arguments $arguments
+        }
 
         $summaryLines = @("## Fleet conformance outcomes", "", "| Check | Exit code | Outcome | Evidence |", "| --- | --- | --- | --- |")
         foreach ($entry in $fleetOutcomes.GetEnumerator()) {
@@ -93,6 +138,7 @@ try {
         $summaryLines | ForEach-Object { Write-Output $_ }
         ($summaryLines + "") | Set-Content -Path (Join-Path $evidenceDirectory "outcomes.md")
         if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+            $driftReport = Join-Path $evidenceDirectory "pin-drift.md"
             if (Test-Path $driftReport) {
                 Get-Content -Path $driftReport | Add-Content -Path $env:GITHUB_STEP_SUMMARY
             }
