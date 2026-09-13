@@ -1169,9 +1169,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/validate_sibling_source_manifest.py",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".py",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -1254,6 +1254,6 @@
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-13T08:00:03Z",
+  "generated_at_utc": "2026-09-13T08:07:09Z",
   "script_count": 156
 }

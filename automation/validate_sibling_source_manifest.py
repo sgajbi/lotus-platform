@@ -303,6 +303,57 @@ def report_drift(
     return drifts
 
 
+@dataclass(frozen=True)
+class PinRefresh:
+    repository: str
+    previous: str
+    current: str
+    committed_at_utc: str
+
+
+def refresh_manifest(
+    manifest_path: Path, sources: list[SiblingSource], *, now: datetime
+) -> tuple[list[PinRefresh], list[str]]:
+    """Move every pin to the sibling's current default-branch revision.
+
+    A refresh is a reviewed change: this rewrites the committed file for a pull
+    request to carry, it never runs inside a lane. Fail closed -- if any sibling's
+    current revision or commit date cannot be read, nothing is written, because
+    a manifest that is half new and half old describes an estate that never
+    existed together.
+    """
+    refreshes: list[PinRefresh] = []
+    errors: list[str] = []
+    for source in sources:
+        branch = _gh_json(f"repos/{source.github}/branches/{source.branch}")
+        current = committed_at = None
+        if isinstance(branch, dict) and isinstance(branch.get("commit"), dict):
+            commit = branch["commit"]
+            candidate = commit.get("sha")
+            if isinstance(candidate, str) and FULL_SHA.fullmatch(candidate):
+                current = candidate
+            inner = commit.get("commit") if isinstance(commit.get("commit"), dict) else {}
+            committer = inner.get("committer") if isinstance(inner.get("committer"), dict) else {}
+            if _parse_utc(committer.get("date")) is not None:
+                committed_at = str(committer["date"])
+        if current is None or committed_at is None:
+            errors.append(f"{source.repository}: current revision or commit date unreadable")
+            continue
+        refreshes.append(PinRefresh(source.repository, source.revision, current, committed_at))
+    if errors:
+        return [], errors
+
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    by_repository = {refresh.repository: refresh for refresh in refreshes}
+    for entry in payload["sources"]:
+        refresh = by_repository[entry["repository"]]
+        entry["revision"] = refresh.current
+        entry["committed_at_utc"] = refresh.committed_at_utc
+    payload["recorded_at_utc"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    manifest_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return refreshes, []
+
+
 def _count(value: int | None) -> str:
     return "?" if value is None else str(value)
 
@@ -356,6 +407,14 @@ def main() -> int:
         type=Path,
         help="with --report-drift, append the drift table as Markdown to this file",
     )
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help=(
+            "rewrite every pin to the sibling's current default-branch revision via gh, for a "
+            "reviewed pull request to carry; writes nothing if any sibling cannot be read"
+        ),
+    )
     arguments = parser.parse_args()
 
     registry = registered_siblings(arguments.registry)
@@ -366,6 +425,30 @@ def main() -> int:
             print(f"- {error}")
         return 1
     print(f"Sibling source manifest pins {len(sources)} registered sibling(s).")
+
+    if arguments.refresh:
+        refreshes, refresh_errors = refresh_manifest(
+            arguments.manifest, sources, now=datetime.now(UTC)
+        )
+        if refresh_errors:
+            print("Refresh refused; the manifest is unchanged:")
+            for error in refresh_errors:
+                print(f"- {error}")
+            return 1
+        moved = [refresh for refresh in refreshes if refresh.previous != refresh.current]
+        for refresh in refreshes:
+            marker = "moved" if refresh.previous != refresh.current else "unchanged"
+            print(
+                f"{marker:9} {refresh.repository}: {refresh.previous[:12]} -> "
+                f"{refresh.current[:12]} ({refresh.committed_at_utc})"
+            )
+        print(f"Refreshed {len(refreshes)} pin(s); {len(moved)} moved.")
+        sources, errors = load_manifest(arguments.manifest, registry)
+        if errors:
+            print("Refreshed manifest failed validation:")
+            for error in errors:
+                print(f"- {error}")
+            return 1
 
     if arguments.github_output is not None:
         emit_github_output(sources, arguments.github_output)
