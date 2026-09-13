@@ -1,0 +1,1370 @@
+{
+  "schema_version": "lotus.main-gate-coverage-ledger.v1",
+  "repository": "sgajbi/lotus-platform",
+  "workflow": "main-releasability.yml",
+  "range": {
+    "baseline_sha": "472d412cb4af8572d5c18f91629f0e1616bba11e",
+    "end_sha": "3ba7bda7ff46569f01717943a61f3a2999a29891"
+  },
+  "measured_at_utc": "2026-09-13T07:10:15Z",
+  "counts": {
+    "examined": 174,
+    "passing": 44,
+    "failing": 14,
+    "ungated": 116,
+    "unknown": 0
+  },
+  "dispositions": [
+    {
+      "verdict": "ungated",
+      "class": "accepted-historical-gap",
+      "reason": "Revisions that landed before, or in the same days as, this repository's move to per-merged-revision dispatch (#847, #857; matrix dispatch landed 2026-09-08). They carry no verdict because no run was ever created for them. Not backfilled: #858 measured that backfilling twenty historical trees against the current estate produced an exact split by validator age, not by tree, so a blanket backfill would record verdicts about the validator rather than about the revision. A revision backfilled deliberately is recorded here by re-measuring through a reviewed pull request; the rolling scheduled audit moving past it records nothing.",
+      "recorded_at_utc": "2026-09-13T08:00:00Z",
+      "recorded_by": "lotus-platform Cycle 6 seat; evidence on #858 (comment 5651426767) and the steering checkpoint"
+    },
+    {
+      "verdict": "failing",
+      "class": "historical-failing-verdict",
+      "reason": "Verdict-bearing runs that failed: intermediate revisions of rebase-merged pull requests, or backfilled trees measured against a newer estate. Retained as recorded history and not rerun; a failing verdict is information beside coverage, not a gap.",
+      "recorded_at_utc": "2026-09-13T08:00:00Z",
+      "recorded_by": "lotus-platform Cycle 6 seat"
+    }
+  ],
+  "revisions": [
+    {
+      "sha": "81ad43859d98c9063c838ef11d6e820d10f6728f",
+      "short": "81ad438",
+      "subject": "fix(contracts): name the governed unreconciled status",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "2332ca9a4bb19f40a7db69469bb91b04981b870f",
+      "short": "2332ca9",
+      "subject": "fix(contracts): enumerate reconciliation statuses",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "27242dea4d3ba7d6f489c010ab88b7bf680cb19a",
+      "short": "27242de",
+      "subject": "chore(catalog): refresh accepted trust metadata",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "0e7305e0921123f7cf59a4f38a76c5dcd735e845",
+      "short": "0e7305e",
+      "subject": "fix(mesh): correct report certification posture",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "df9225a908b0660da4687ad67ee861ecfa599b4b",
+      "short": "df9225a",
+      "subject": "fix(mesh): enforce candidate telemetry truth",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "3bc9e3d49acd916ca3607d5a25787044f654b07b",
+      "short": "3bc9e3d",
+      "subject": "docs(governance): promote retry replay-identity and semantic admission patterns",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a9ea92e25ca1c54cc452288a16163dd86eea2ece",
+      "short": "a9ea92e",
+      "subject": "docs(governance): condense the reference routing entry under the skill size audit",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a7e57bfc028ac5214a7fc81c380af78c4f1551c9",
+      "short": "a7e57bf",
+      "subject": "docs(governance): distinguish safe redirect semantics",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3063949659f3e52b1ad6772b3d07f8e73701c05d",
+      "short": "3063949",
+      "subject": "docs(context): align redirect retry summary",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "3e904d409dac85d5724c542b5d0b5c0582d82322",
+      "short": "3e904d4",
+      "subject": "docs: refine platform README entry point",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "cad793a5e85404c3dc2023807b867bf68151db0e",
+      "short": "cad793a",
+      "subject": "docs: clarify local feature lane scope",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "3997992bccf673b50c6cdefafbbb9003c7c161a3",
+      "short": "3997992",
+      "subject": "chore(catalog): retire the pack's synthetic fingerprint from the federation",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "8c729e86745a7ed111cd6ee24bad8dbb5682d1e4",
+      "short": "8c729e8",
+      "subject": "fix(skills): align issue-discovery repository flag",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "38cb2ae15b649a64a5f0b81f2d992d6e84249801",
+      "short": "38cb2ae",
+      "subject": "docs(skills): anchor label helper example",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "bcfbe98738454cf93ed1de65a6b3ee6534d6c095",
+      "short": "bcfbe98",
+      "subject": "fix(mesh): require observed trust metadata",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "29f166e02bddfca6c7b7c185a9e7ca0abe28ba49",
+      "short": "29f166e",
+      "subject": "fix(wiki): publish durable repository links",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "09709c084f538574af562b5b0b753db17be8a22e",
+      "short": "09709c0",
+      "subject": "fix(wiki): validate publication refs",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "3da976cb698546048b4571f0e6cbe85d3fc8fb04",
+      "short": "3da976c",
+      "subject": "fix(wiki): harden repository link validation",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "b8c937eb78b3d730e43adb5f05b9c3a259605d2d",
+      "short": "b8c937e",
+      "subject": "chore(quality): refresh platform baseline",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "4935617c4dec071a9f73bbc44e61c407afa84f93",
+      "short": "4935617",
+      "subject": "fix(wiki): parse repository links safely",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "415724bd9d8d4cb548cdbe3cfb3e4b0a65281693",
+      "short": "415724b",
+      "subject": "fix(wiki): reject unpublished repository paths",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "1c9f536c8535960631c4f07cc392b1780ad414ac",
+      "short": "1c9f536",
+      "subject": "fix(wiki): close publication link edge cases",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "1d152c064d8ab2be5fac7c213f812815be487f5b",
+      "short": "1d152c0",
+      "subject": "fix(wiki): honor reference link semantics",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "0c11324551a5c80f899b7e2955742a6eb3a71b15",
+      "short": "0c11324",
+      "subject": "fix(wiki): parse reference definitions strictly",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "ccb5d540224ac2156e46d2289dae38451b560beb",
+      "short": "ccb5d54",
+      "subject": "fix(wiki): validate reference destination grammar",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "6909148513888036aefa4ab697fcab81a12c61ef",
+      "short": "6909148",
+      "subject": "fix(wiki): accept terminal destination backslashes",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "eb6ceae2ba3980e099b9f558bc245af72503d8a1",
+      "short": "eb6ceae",
+      "subject": "docs(governance): promote the branch-protection policy gate pattern",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "c801ac970b955f25c98f606d48e9ed0eed8b52a1",
+      "short": "c801ac9",
+      "subject": "docs(governance): state the blocking-lane and PAT trust-boundary rules",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "97732193f06b8e5a450c97cedf123c565c53ea4b",
+      "short": "9773219",
+      "subject": "docs(governance): allow the drift-first adoption transition state",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "d58ca0520b12ad3fc078c14db9eea5d57946d1de",
+      "short": "d58ca05",
+      "subject": "docs(governance): keep the multi-contributor split pre-merge and approved",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ca0bb7da353f06b1fd3a3486f9f6685a156e1cf2",
+      "short": "ca0bb7d",
+      "subject": "docs(governance): candidate-policy comparison and the self-anchor residual",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "e23fa98325ffb7c1e577ae7cbd1789496f9f4c8d",
+      "short": "e23fa98",
+      "subject": "docs(governance): handle Dependabot and fork actors before requiring the check",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "f75ad3f91023c99bea05847caaf102c4bc8b55d5",
+      "short": "f75ad3f",
+      "subject": "docs(governance): correct the fork path and publish centrally",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "690a43bd51eb7b877144c6dacf2809868f07d6b7",
+      "short": "690a43b",
+      "subject": "docs(governance): single authority, bootstrap sequence, truthful rollout",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "722159bb148e8a38c674eb7bcfc4b14991162068",
+      "short": "722159b",
+      "subject": "docs(governance): reconcile every centrally owned field, not just contexts",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "17f1ad094d7e89606b8531d9f2609d680e7318cd",
+      "short": "17f1ad0",
+      "subject": "docs(governance): bind the isolated gate to workflow identity, not name",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ed03634de7884990c1e23b7bfa028f09811237fd",
+      "short": "ed03634",
+      "subject": "docs(governance): candidate-SHA publication and ruleset comparison",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "7ec2257e489c7fb0ffbc7dc0799684db1714d5d8",
+      "short": "7ec2257",
+      "subject": "docs(governance): write-scope approval and per-repo posture divergence",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "1f211df75e8247e26dd4817ceceef59776960884",
+      "short": "1f211df",
+      "subject": "docs(governance): App source binding, machine-checked centrality, honest step two",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "8e3cb14ae62425871c6276b3996484eddf5ef739",
+      "short": "8e3cb14",
+      "subject": "docs(governance): org ruleset scope, App-binding preservation, reverse rename",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "03dffd048dc9d2f60713fedcd2eab9b8d4777f22",
+      "short": "03dffd0",
+      "subject": "docs(governance): central policy joins bootstrap step 1; field set defers to enforcer",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "6f57af52495d9f7f943fb45671dadde870ddd148",
+      "short": "6f57af5",
+      "subject": "docs(governance): define trusted central-policy acquisition for sibling checkers",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3257fdbc51f5b24a879f4ca756bfb739fc3b296d",
+      "short": "3257fdb",
+      "subject": "docs(governance): complete central declaration, dispatch re-evaluation, cross-repo bootstrap order",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "6bb847734a901619527daef2f272aa42e662c723",
+      "short": "6bb8477",
+      "subject": "docs(governance): stale-verdict rule covers live edits; red window opens at 1b",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "07e09b5f57605a9728a87f7e9069cce9d49abeef",
+      "short": "07e09b5",
+      "subject": "docs(governance): ruleset edits need their own re-evaluation hook",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "046f6e5aa1b490948ef663ac1101a6ee6da90e1a",
+      "short": "046f6e5",
+      "subject": "docs(governance): separate implemented baseline from specified extensions; digest states full central authority",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "35b74a37c22bdcf85576037e384918c8e2aa007e",
+      "short": "35b74a3",
+      "subject": "docs(governance): checker parity against canonical source; wiki governance surface entry",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "1cdf7d874547425f94d16222c9917e0c521681ef",
+      "short": "1cdf7d8",
+      "subject": "docs(governance): digest carries identity-binding requirements; wiki states render transition",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "0680c63368f9a024a962e4cf7b5612bbafa7bf2d",
+      "short": "0680c63",
+      "subject": "docs(governance): correct PAT premise and add the exit-code wiring rule",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "40c9f1a646a8aea9d379f71fb490f122a2255ed1",
+      "short": "40c9f1a",
+      "subject": "docs(governance): CODEOWNERS precedence; adoptions are partial scaffolding",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "497042cf9da71bd23ad123e9fb5cc4428aab298a",
+      "short": "497042c",
+      "subject": "chore(quality): refresh baseline for the added reference file",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "0691aa7f8ae588aa2fd0c46fa55f2850a5b64083",
+      "short": "0691aa7",
+      "subject": "docs(governance): self-hosting central-policy exception; fork runs are not approval-gated",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "83c685819d23e85b6b03ad8175e14667f97c9de6",
+      "short": "83c6858",
+      "subject": "feat(ci): fail when a workflow step hides a gate's exit code",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "90c30a52193b265dcd626ee1827a2752828b7864",
+      "short": "90c30a5",
+      "subject": "fix(ci): judge each pipeline on its own guard, and widen the sink set",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "ffe425fe5c0f38fee9ad31ee33cbd4a36a649444",
+      "short": "ffe425f",
+      "subject": "fix(ci): analyse conditions, join continuations, require real propagation",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3ca990cdf60a9307368b9fa10b01bc479385cf53",
+      "short": "3ca990c",
+      "subject": "fix(ci): inspect command substitutions, wrapper options, unconditional exits",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "eab17bdc4b22e9eedf08abd3db6593ae7f1b09b4",
+      "short": "eab17bd",
+      "subject": "chore(quality): refresh baseline after rebase onto main",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "398140736dfcd7fa5971016a6b6a6d534ed59176",
+      "short": "3981407",
+      "subject": "docs(ci): record the workflow exit-code gate in the wiki",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "886e56986b1e28b6146c7a204b35d5af8c43c6ee",
+      "short": "886e569",
+      "subject": "fix(ci): track shell scope for pipefail, and require PIPESTATUS to survive",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "3f951a8dc189c5da3f4217de460948964e06439c",
+      "short": "3f951a8",
+      "subject": "feat(context): measure the corpus against the contracts that govern it",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "71b03c13db2a93e3a9b48a762ea99b872d9cc2fa",
+      "short": "71b03c1",
+      "subject": "docs(context): portable paths, discoverable skills, safer contract sync",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ce66574f7728409ee83a1742feb0bd2100b47b52",
+      "short": "ce66574",
+      "subject": "docs(context): establish progressive agent discovery",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "2314bb48526745a506a3df935822237acad0fdd9",
+      "short": "2314bb4",
+      "subject": "docs: remove workstation-specific paths",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "24a007891d7c70deaf94f8353f1aee6cf26c95e8",
+      "short": "24a0078",
+      "subject": "chore(quality): refresh documentation baseline",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "857f49bd5795d9241d99c211909a7eb34bcc5877",
+      "short": "857f49b",
+      "subject": "fix(docs): align gates with portable entrypoints",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "b73afa7a2026ea1bc6d9285eef993632154a4f48",
+      "short": "b73afa7",
+      "subject": "chore(quality): rebaseline exact committed tree",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "f4ff109d7499a4bd8638349c0a4d58e78f66d1c8",
+      "short": "f4ff109",
+      "subject": "fix(context): enforce merged-source workspace ownership",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "3eb4895a9a8f29b1bf1892e64290f31eab8e3b90",
+      "short": "3eb4895",
+      "subject": "feat(automation): deploy to every agent runtime, and detect deployed drift",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "85eaae962834abe2b49a7cb574ccfbc12741b676",
+      "short": "85eaae9",
+      "subject": "chore(quality): rebaseline context ownership tests",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "f58cf7d1861b79b74c6fc6d3542712aaf4a5aff3",
+      "short": "f58cf7d",
+      "subject": "Revert \"feat(automation): deploy to every agent runtime, and detect deployed drift\"",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "c97d9a30be3a8e5eecdea4a9b3225d5cb06bc763",
+      "short": "c97d9a3",
+      "subject": "test(context): reject unknown repository references",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "61d6167df1fe0f6fec7e03dda7e1ef7d2d300152",
+      "short": "61d6167",
+      "subject": "chore(quality): record healthy context gate baseline",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "1ea1cc276672e432cf8980f40a354e532ed8e5fe",
+      "short": "1ea1cc2",
+      "subject": "fix(automation): restore multi-runtime deploy and deployed-drift detection",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ad68b99475184a7e2f11c7a2a738df846260e92f",
+      "short": "ad68b99",
+      "subject": "revert: keep unverified multi-runtime deployment out of docs",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3a3c56a447e1245e75a5a7038a56e871e572e9c9",
+      "short": "3a3c56a",
+      "subject": "docs(testing): codify database-specific proof",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "8072882b3225f9158b1aed2f6e71d40b05085eb9",
+      "short": "8072882",
+      "subject": "fix(agents): clear successful probe exit status",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3f132775e34708bb72506aff1033e8b01d8ecaba",
+      "short": "3f13277",
+      "subject": "fix(quality): reject failed collection, drop an invalid heading guard",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "e14742ffdc4a1d4975cb1c397f4de86d4143197f",
+      "short": "e14742f",
+      "subject": "fix(context): stop treating issue references as headings",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "d211748c6e8287866ac8c90a55ebcf23cd093d77",
+      "short": "d211748",
+      "subject": "docs(testing): route database-specific proof",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "6ae61c82548148d745a42d314fc2c827520a8cd9",
+      "short": "6ae61c8",
+      "subject": "docs(context): replace platform history with current guidance",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "8225d1b8cb06326bba5827785fcb86fa6ff28ae8",
+      "short": "8225d1b",
+      "subject": "chore(quality): rebaseline progressive context gates",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "6e8d57108a5155e9e63d72ed5fec8d18c63dfcb1",
+      "short": "6e8d571",
+      "subject": "fix(tests): a missing sibling checkout must not hide the whole suite",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "57dfc44494200aaf3223529cd179681bd0dfa30b",
+      "short": "57dfc44",
+      "subject": "chore(quality): rebaseline optional sibling collection",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "5fe217a5c8ccae978b61688a281989309d0e4e66",
+      "short": "5fe217a",
+      "subject": "docs(context): retain canonical idea QA boundary",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "bb9d38ba1e899c8016adf01ce87f5f114152c79a",
+      "short": "bb9d38b",
+      "subject": "chore(quality): rebaseline from committed state in the CI layout",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ba8dc512c49ae77bbf5117c5c81e2a41e8dac4a6",
+      "short": "ba8dc51",
+      "subject": "docs(testing): keep database proof route discoverable",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "9bf2903a61480821413742a8f30b5e94efbb7633",
+      "short": "9bf2903",
+      "subject": "test(context): prove specialist guidance is reachable",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "c522c4400c2b0e8fe662a3add691994c15ee6c38",
+      "short": "c522c44",
+      "subject": "chore(quality): rebaseline context reachability gate",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "d795eb231001d2483639abbc04645078596bf2da",
+      "short": "d795eb2",
+      "subject": "fix(quality): remove volatile collection timing",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "2c90f1c220e6d92c7dcf5b596ff69ee3434d94c6",
+      "short": "2c90f1c",
+      "subject": "docs(skills): keep backend routing concise",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "d054fcf5e916ea60695c9cc0ab23f7d7aa4c7b7d",
+      "short": "d054fcf",
+      "subject": "chore(quality): rebaseline deterministic collection",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a7c63ef6bffb656e2d7f83bc0a4afac9e6baf9d0",
+      "short": "a7c63ef",
+      "subject": "fix(context): preserve direct task discovery contracts",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "73a2bf51efb0c212806886885d9c776d1bae072b",
+      "short": "73a2bf5",
+      "subject": "fix(automation): make the sync guard work on the interpreter that runs it",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "19b4b54ff42dde832d376c819459e8d7c0128ce0",
+      "short": "19b4b54",
+      "subject": "chore(quality): rebaseline from committed state (1,291 collected, rc 0)",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3a8243e626e19f75efd45dfe7459967d5b3f583e",
+      "short": "3a8243e",
+      "subject": "docs(context): keep mandatory agent entry concise",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "f6776b3c1b1808b57658e754f378fe515a886e62",
+      "short": "f6776b3",
+      "subject": "chore(quality): rebaseline concise agent contract",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "9765030e690cde65aee60c707996013e00a87965",
+      "short": "9765030",
+      "subject": "fix(agents): prove source scope across PowerShell runtimes",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "f1aae9b82f2f29c1cb0d7ecc3c4bdbcfe4ea3806",
+      "short": "f1aae9b",
+      "subject": "docs(context): retain guard failure rationale",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "126adcd19feaf21526b2726791983fb01a6f67e6",
+      "short": "126adcd",
+      "subject": "chore(quality): record PowerShell sync proof size",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "8a24180fdaecc60e53009f7798afbb2aa97d344c",
+      "short": "8a24180",
+      "subject": "feat(quality): recover the control-byte gate; document unverifiable setup steps",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "dd4ce9e1916e87de0b81c9ca0dd674977137200e",
+      "short": "dd4ce9e",
+      "subject": "fix(quality): scan the scaffold templates the control-byte gate skipped",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "9b07437bfb5d2b4b2a848bd5dea2a9b8e9c2812b",
+      "short": "9b07437",
+      "subject": "chore(quality): rebaseline after the scaffold coverage regressions",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a9f11f025710a5087907f8d09a333972ca269237",
+      "short": "a9f11f0",
+      "subject": "test(quality): derive the template count instead of asserting a floor",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "14daed0d18e3edffd7c4b1103e6ff8a17bbbf53e",
+      "short": "14daed0",
+      "subject": "test(quality): recognise scaffold copies whatever the variable casing",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "8097215518ed6c8156ea6b7ba097e1eeb01d094a",
+      "short": "8097215",
+      "subject": "fix(ci): recognise revision enumeration by range, not only by count",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a55498245caf87410cb8a6d5b7a1ba930d592223",
+      "short": "a554982",
+      "subject": "fix(ci): check each enumeration form's bound, not only its command text",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "c19f8bd562498ab5e4a9c972bdbd6390eb08ac4d",
+      "short": "c19f8bd",
+      "subject": "fix(ci): judge pipefail guards by whether they are certain to run",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "091ea7320cd455028398b2da264baa2a8ec5f145",
+      "short": "091ea73",
+      "subject": "docs(rfc): resolve the principal and capability design into one RFC",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "cad4a86daeb7f4bc6752165885a728baabfad248",
+      "short": "cad4a86",
+      "subject": "fix(agents): say which repository owns each path the contract names",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "7e7923b698e7f822d7747fffdad8b397e585cb17",
+      "short": "7e7923b",
+      "subject": "docs(context): route tasks from the startup set the contract defines",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "911c775cc03260c1815f9faebafb6ea8721e54a0",
+      "short": "911c775",
+      "subject": "fix(context): carry the conditional policy into the documents the routes lead to",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "5555116f6b57b1e5214bd7b03d3b1b998a526f69",
+      "short": "5555116",
+      "subject": "test(context): check every load instruction, not that an approved one exists",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "85a0afcdadf7b3b57bcfc85d33fde58050f0c778",
+      "short": "85a0afc",
+      "subject": "fix(quality): report a missing platform baseline instead of skipping it",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "8a0a8d26ac82a51242584af17839bb9d5f6848a5",
+      "short": "8a0a8d2",
+      "subject": "fix(quality): name the collected count in the missing-baseline report",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "aef8ba983f762b6fe21b3da2b6567d3a48e54b99",
+      "short": "aef8ba9",
+      "subject": "fix(quality): keep every platform's baseline and compare against the right one",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "245055758925a053443cbc78cd0e2ee18f2fc79b",
+      "short": "2450557",
+      "subject": "fix(context): make routed documents additive and drop the per-platform test count",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "f8420e00009511b3aa4cf7e9c23f5436f8dfb17e",
+      "short": "f8420e0",
+      "subject": "feat(governance): adopt the branch-protection policy gate",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "768e40892a03f7578c7fab769d9c3893b10f76d6",
+      "short": "768e408",
+      "subject": "fix(governance): make the adopted gate truthful about where it runs",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "c4c33ffc62cb7cf9ae6163c205934c540baa55ea",
+      "short": "c4c33ff",
+      "subject": "fix(agents): check the committed contract, and stop Force reaching provenance",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ff724a1fbe9aec4baf8024684657c1cae068dba6",
+      "short": "ff724a1",
+      "subject": "fix(agents): read deployed copies from disk and nested targets from HEAD",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "9112a7b4b8c35efa699a38a724bb83b7d6502192",
+      "short": "9112a7b",
+      "subject": "fix(tests): open the governed source instead of using a 3.13-only argument",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "7ac8c6bc5e23d05a12f244c0323235dd84d02549",
+      "short": "7ac8c6b",
+      "subject": "fix(agents): close four gaps the deployed/committed split left open",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "eaa8c8e0e970fe3274668b4488bc63af8181eb55",
+      "short": "eaa8c8e",
+      "subject": "fix(agents): decide by the resolved repository, and keep blob drift as drift",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "fa09d21de69de9434154e9a924c487275839b65f",
+      "short": "fa09d21",
+      "subject": "docs(context): make every governed route resolve without a sibling checkout",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "2f95c0765548e2ef1675fdefc7f042be98804322",
+      "short": "2f95c07",
+      "subject": "fix(context): check every governed route, and only what a reader follows",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "2de73022b46f23cdea699ef3a32b908ce284bd1b",
+      "short": "2de7302",
+      "subject": "fix(context): keep the whole fence, any URI case, and report absent routes",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "52dd64ce9334203349c00b51cee43f22d0014fd4",
+      "short": "52dd64c",
+      "subject": "fix(context): honour fence indentation limits and reject file URIs",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "3eb2f7971871d29c99ec394292a4399f198922d8",
+      "short": "3eb2f79",
+      "subject": "fix(context): scan link destinations, close fences properly, skip comments",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "9652b501b2f0e2e56e712c91f3e6f4a0cc60f6c7",
+      "short": "9652b50",
+      "subject": "fix(context): containment, escaped syntax, footnotes, and HTML anchors",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "46af4d4dcb5c964ce0d1c84df0cdb153b2fc2e7f",
+      "short": "46af4d4",
+      "subject": "docs(rfc): correct the slice 2A record of what the repo gate checks",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "ee008af9f91a5ba69cd74d5db9c3dd0307abca90",
+      "short": "ee008af",
+      "subject": "docs(context): add the agent failure case library and govern its shape",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "f611a9ede83d9942cf335ffcf27029a2c476c21d",
+      "short": "f611a9e",
+      "subject": "fix(tests): measure case-field content, and record the wiki disposition",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "49ca1319de45567df5f01f4341222043648149c4",
+      "short": "49ca131",
+      "subject": "fix(tests): measure every check in the entry guard, not just the fields",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "18c6638a760fb70e6d2793a5c1f71e440c8920c3",
+      "short": "18c6638",
+      "subject": "fix(tests): anchor every pattern in the entry guard to its field position",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "03e5fad4ae3a835dcdd2e5e1ff65637b262dbda1",
+      "short": "03e5fad",
+      "subject": "fix(tests): split case entries on headings a reader would actually see",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "f4282a3e3c4714f24771370c66eef8b689a5c446",
+      "short": "f4282a3",
+      "subject": "fix(tests): decide entry structure from one shared fence mask",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "47e5ae2e54b72bdb4c032ca538c312848b78b9f4",
+      "short": "47e5ae2",
+      "subject": "feat(contracts): publish the resolved-principal contract and its denial fixtures",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "b9502b5343d258fee839303cb2944e19b00f76ba",
+      "short": "b9502b5",
+      "subject": "fix(qa): prove a log invariant by provoking it, not by searching recent output",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "af37276d7ddbfde22deab6b2f816dcf6f4e75e43",
+      "short": "af37276",
+      "subject": "fix(qa): make the marker opaque, and scaffold services with probes",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "04de0ba4cdfa20caa1760f99161ac09cded1751e",
+      "short": "04de0ba",
+      "subject": "fix(qa): strip Compose prefixes, and make scaffolded services log their requests",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "185fdba4f68513c0befcf158cf20ae426c7f515f",
+      "short": "185fdba",
+      "subject": "fix(scaffold): emit the request event through the central observability helper",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "eb6b097de93f6796d6334e620c8c9c5c3cc16ef9",
+      "short": "eb6b097",
+      "subject": "fix(scaffold): bound the logged route, and make QA markers unique per run",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a99d680509d5fd6956483afcd0cdbf319f617fe3",
+      "short": "a99d680",
+      "subject": "fix(qa): anchor the causal log capture at the probe instead of the tail",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "30c9bc63a57a883bf95fdf0405f92a670bfa3174",
+      "short": "30c9bc6",
+      "subject": "fix(qa): report a failed evidence command as a collection failure",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "cdd85a5e857484febfe287fb8ebc4d7a627ba743",
+      "short": "cdd85a5",
+      "subject": "docs(context): add two peer-contributed failure cases",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "7cfa79868ef12e2e19a6bdaafca53a2f8c1fd81f",
+      "short": "7cfa798",
+      "subject": "docs(context): add the empty-assertion case",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "13b51a44121f1db88e42d57ad25194b367fba30c",
+      "short": "13b51a4",
+      "subject": "fix(context): scope entry 13 to lookup identities, and order entry 14's probes",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "a7fefa3d3ea73c85980574ad971b815935dcf889",
+      "short": "a7fefa3",
+      "subject": "docs(context): add the unwired-rule and construction-versus-decision cases",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "75bb3c7aa04e834cd57bf1b793f3ee8fdbfdf3a5",
+      "short": "75bb3c7",
+      "subject": "docs(context): make entry 16 locatable",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "e0b0b7eeada88c8facd3fcc8d9855160582d1de0",
+      "short": "e0b0b7e",
+      "subject": "fix(ci): report a verdict in a substitution and a self-guarding discarded subshell",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "3c0d72611b060b00be4a9303a4e31699b4e14882",
+      "short": "3c0d726",
+      "subject": "fix(ci): judge only executed substitutions, and only subshells with a verdict",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "1166ef14425feb41e524f2fa7dddb45aaa3b3611",
+      "short": "1166ef1",
+      "subject": "feat(contracts): require an unverified-credential denial and a measured refusal",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "c3e09bfb134c080073fe7d06ca611dfb2e7dc45e",
+      "short": "c3e09bf",
+      "subject": "fix(contracts): encode verification in the credential, and scope the call budget",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "75484c5f80cb07d9c4f2766c4fc2f76e660553fc",
+      "short": "75484c5",
+      "subject": "fix(contracts): admit what the fixtures cannot compel, and version the break",
+      "verdict": "failing",
+      "run_conclusions": [
+        "failure"
+      ]
+    },
+    {
+      "sha": "c41f340f1b18dbcab8e4d72a7d7a8bf862984baa",
+      "short": "c41f340",
+      "subject": "fix(contracts): require a verifier outcome wherever a credential is present",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "a2491be090eeceec648db505877f9657c0dcb885",
+      "short": "a2491be",
+      "subject": "fix(contracts): derive the verifier outcome, and publish the conditional",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "829607bdc387ff064956291eb344392f1248472b",
+      "short": "829607b",
+      "subject": "docs(context): add the key-withdrawal and hand-maintained-scope cases",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "04bb6fa82357aff44a51d8e8139b5ff7b59912e3",
+      "short": "04bb6fa",
+      "subject": "docs(context): narrow entry 18 to the claim that was measured",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "dd952ff79f9ec745b70b1962664e890b9e83eca9",
+      "short": "dd952ff",
+      "subject": "docs(context): withdraw a key by publishing it revoked, not by deleting it",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "4a9ff93ebbbe5ab7df09cc3872de75fcdda3997c",
+      "short": "4a9ff93",
+      "subject": "docs(context): add the unread-neighbour case",
+      "verdict": "passing",
+      "run_conclusions": [
+        "failure",
+        "success"
+      ]
+    },
+    {
+      "sha": "ea067c782a64a82878f8a232c3cfa9020fa5ce6f",
+      "short": "ea067c7",
+      "subject": "docs(context): add the validator-pair and quoting-class cases",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "710b7287eeb773c445fc799a1e310a34c1c358b1",
+      "short": "710b728",
+      "subject": "fix(ci): recognise the dispatch property, not one repository's spellings",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "d49787c2c980c3093781e7a43c70a9e9ae105474",
+      "short": "d49787c",
+      "subject": "docs(context): prove the quoting fix with a branch name Git accepts",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "2c8e4cefa8482e78028e7d18a3ec1801ca887d4d",
+      "short": "2c8e4ce",
+      "subject": "fix(ci): bind the matrix to the output the proven enumeration emits",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "ea28dad2763cae1504b55c5cb2510a70cdac9730",
+      "short": "ea28dad",
+      "subject": "fix(automation): bind the dispatched matrix to the revisions actually enumerated",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "d8539e2ee9cf4130063a21621a527d1c7aac1841",
+      "short": "d8539e2",
+      "subject": "feat(contract): publish the source-owned Core portfolio tenant, proven against the producer",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "5362d98029d97dba61d9cd1dd2353c6ea37cd6c8",
+      "short": "5362d98",
+      "subject": "feat(contract): publish signed principal credential vectors and a real verifier",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "b39b081e4d2f007a82df68df5539e4435a1594a2",
+      "short": "b39b081",
+      "subject": "fix(ci): pin cryptography, and assert the lock covers what automation imports",
+      "verdict": "ungated",
+      "run_conclusions": []
+    },
+    {
+      "sha": "503873c5689a2906322d794a478e109135f9b63d",
+      "short": "503873c",
+      "subject": "chore(quality): rebaseline after the dependency-pin invariant",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "a2ecdc87a7a879040dc974852b58c20e8f1555d1",
+      "short": "a2ecdc8",
+      "subject": "fix(principal): require tenant membership, and fail closed when it cannot be answered",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "6137e28327bf9a97216a3c901c39c3258f4d4d5b",
+      "short": "6137e28",
+      "subject": "docs(principal): scope the third resolver to delegated credentials",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "9538974fc78819056cf4fa9fe006a01f5ebd3147",
+      "short": "9538974",
+      "subject": "fix(ci): bind the dispatched matrix to the value published, not the name",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "ec01f11bc8ab5a3a10bab88bbc393868d4a6adcb",
+      "short": "ec01f11",
+      "subject": "feat(ci): gate every merged revision, and audit that the gate ran",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    },
+    {
+      "sha": "3ba7bda7ff46569f01717943a61f3a2999a29891",
+      "short": "3ba7bda",
+      "subject": "fix(wiki): classify drift by direction, and refuse a publish that would destroy",
+      "verdict": "passing",
+      "run_conclusions": [
+        "success"
+      ]
+    }
+  ]
+}
