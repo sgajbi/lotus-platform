@@ -66,8 +66,17 @@ jobs:
           # parent, so the walk would descend into main's own history. Gating
           # the wrong trees while reporting success is worse than the coverage
           # gap this closes, so fail loudly if the setting ever changes.
-          merge_methods="$(gh api "repos/$GITHUB_REPOSITORY" \
-            --jq '[.allow_squash_merge, .allow_merge_commit, .allow_rebase_merge] | @csv')"
+          # Do not use `gh api` for this read. The hosted `gh` CLI can return
+          # an empty body as "unexpected end of JSON input" (platform run
+          # 34748875834), which prevented any exact-main gate from dispatching.
+          # curl fails on transport/HTTP errors and jq makes a malformed or
+          # incomplete response a non-zero pipeline result under pipefail.
+          merge_methods="$(curl --fail --silent --show-error \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY" \
+            | jq -r '[.allow_squash_merge, .allow_merge_commit, .allow_rebase_merge] | @csv')"
           if [ "$merge_methods" != "false,false,true" ]; then
             echo "::error::Merge methods changed ($merge_methods); per-commit enumeration assumes rebase-only merging. Update the dispatcher before merging anything."
             exit 1

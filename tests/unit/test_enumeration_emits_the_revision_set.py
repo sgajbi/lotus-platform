@@ -43,7 +43,7 @@ OUTPUT_KEY = "revisions"
 # `jq` is absent from the Git Bash toolchain this repository is developed on and
 # present on the CI runner. Rather than skip locally -- a test that cannot fail
 # is the thing this file exists to stop -- a shim stands in, and
-# `test_the_jq_shim_matches_the_two_invocations_used` pins its behaviour so the
+# `test_the_jq_shim_matches_the_invocations_used` pins its behaviour so the
 # harness is not validating against an unexamined stand-in.
 JQ_SHIM = """#!/usr/bin/env python3
 import json, sys
@@ -54,6 +54,14 @@ if "-R" in args:
         print(json.dumps(line))
 elif "-sc" in args or "-s" in args:
     print(json.dumps([json.loads(l) for l in data.splitlines() if l.strip()], separators=(",", ":")))
+elif any("allow_squash_merge" in argument for argument in args):
+    payload = json.loads(data)
+    values = [
+        payload["allow_squash_merge"],
+        payload["allow_merge_commit"],
+        payload["allow_rebase_merge"],
+    ]
+    print(",".join("true" if value else "false" for value in values))
 else:
     sys.exit("unsupported jq invocation: " + " ".join(args))
 """
@@ -108,8 +116,24 @@ def _shipped_shell() -> str:
     pytest.fail(f"no Git for Windows bash found beside {git}")  # pragma: no cover
 
 
-def _toolchain(tmp_path: Path) -> Path:
-    """A PATH prefix holding a stubbed `gh`, and `jq` when the real one is absent.
+def _shell_path(path: Path) -> str:
+    """Convert a Windows path for a value consumed *inside* Git Bash.
+
+    Arguments passed through ``subprocess`` are converted by MSYS, but an
+    environment value is not. A literal ``C:/...`` in PATH is parsed as the
+    two entries ``C`` and ``/…`` by POSIX shell, so test shims disappear.
+    """
+    if sys.platform != "win32":
+        return path.as_posix()
+    resolved = path.resolve()
+    assert resolved.drive, f"expected a drive-qualified Windows path: {resolved}"
+    return f"/{resolved.drive.rstrip(':').lower()}{resolved.as_posix()[2:]}"
+
+
+def _toolchain(
+    tmp_path: Path, *, curl_response: str | None = None, curl_exit_code: int = 0
+) -> Path:
+    """A PATH prefix holding a checked `curl` response, and `jq` when absent.
 
     `git` is deliberately not stubbed: the range form needs real commits to
     enumerate, and a stub would return whatever it was told and prove nothing
@@ -117,11 +141,56 @@ def _toolchain(tmp_path: Path) -> Path:
     """
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
+    response_path = tmp_path / "curl-response.json"
+    response_path.write_text(
+        curl_response
+        if curl_response is not None
+        else json.dumps(
+            {
+                "allow_squash_merge": False,
+                "allow_merge_commit": False,
+                "allow_rebase_merge": True,
+            }
+        ),
+        encoding="utf-8",
+    )
 
-    # The only `gh` call in the enumeration reads the repository's merge
-    # methods; the dispatcher refuses anything but rebase-only merging.
-    (bin_dir / "gh").write_text(
-        "#!/usr/bin/env bash\necho 'false,false,true'\n", encoding="utf-8", newline="\n"
+    # The rebase-only assertion deliberately uses curl rather than the hosted
+    # gh CLI. Validate the actual runner arguments before providing the API
+    # response: an empty or malformed body must not be silently accepted.
+    (bin_dir / "curl").write_text(
+        """#!/usr/bin/env bash
+set -eu
+required=(
+  "--fail"
+  "--silent"
+  "--show-error"
+  "Accept: application/vnd.github+json"
+  "Authorization: Bearer test-github-token"
+  "X-GitHub-Api-Version: 2022-11-28"
+  "https://api.github.com/repos/sgajbi/lotus-platform"
+)
+for value in "${required[@]}"; do
+  found=false
+  for argument in "$@"; do
+    if [ "$argument" = "$value" ]; then
+      found=true
+      break
+    fi
+  done
+  if [ "$found" = false ]; then
+    echo "missing curl argument: $value" >&2
+    exit 2
+  fi
+done
+if [ "$LOTUS_TEST_CURL_EXIT" -ne 0 ]; then
+  echo "controlled curl failure" >&2
+  exit "$LOTUS_TEST_CURL_EXIT"
+fi
+cat "$LOTUS_TEST_CURL_RESPONSE"
+""",
+        encoding="utf-8",
+        newline="\n",
     )
     if shutil.which("jq") is None:
         # The interpreter path must be POSIX-style and quoted. A Windows path
@@ -207,6 +276,8 @@ def _run_shipped_enumeration(
     merge_commit_sha: str,
     commit_count: int,
     script: str | None = None,
+    curl_response: str | None = None,
+    curl_exit_code: int = 0,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     """Execute the enumeration in the clone and return (result, GITHUB_OUTPUT).
 
@@ -214,15 +285,24 @@ def _run_shipped_enumeration(
     `bash --noprofile --norc -eo pipefail <file>` -- rather than `bash -c`, so
     the block runs exactly as the workflow would run it.
     """
-    bin_dir = _toolchain(tmp_path)
+    bin_dir = _toolchain(
+        tmp_path, curl_response=curl_response, curl_exit_code=curl_exit_code
+    )
     output_file = tmp_path / "github_output"
     output_file.touch()
     script_file = tmp_path / "enumerate.sh"
     script_file.write_text(script or _shipped_enumeration(), encoding="utf-8", newline="\n")
     environment = {
         **history.environment,
-        "PATH": f"{bin_dir.as_posix()}{os.pathsep}{os.environ['PATH']}",
+        # Set the POSIX path inside the shell below. Git Bash rewrites a
+        # Windows process PATH before executing the script, so prepending here
+        # would still call the machine's real curl.
+        "LOTUS_TEST_TOOLCHAIN": _shell_path(bin_dir),
         "GITHUB_OUTPUT": output_file.as_posix(),
+        "GITHUB_API_URL": "https://api.github.com",
+        "GH_TOKEN": "test-github-token",
+        "LOTUS_TEST_CURL_EXIT": str(curl_exit_code),
+        "LOTUS_TEST_CURL_RESPONSE": _shell_path(tmp_path / "curl-response.json"),
         "GITHUB_REPOSITORY": "sgajbi/lotus-platform",
         "MERGE_COMMIT_SHA": merge_commit_sha,
         "BASE_SHA": base_sha,
@@ -230,7 +310,17 @@ def _run_shipped_enumeration(
         "PR_NUMBER": "860",
     }
     completed = subprocess.run(
-        [_shipped_shell(), "--noprofile", "--norc", "-eo", "pipefail", script_file.as_posix()],
+        [
+            _shipped_shell(),
+            "--noprofile",
+            "--norc",
+            "-eo",
+            "pipefail",
+            "-c",
+            'PATH="$LOTUS_TEST_TOOLCHAIN:$PATH"; export PATH; source "$1"',
+            "enumerate",
+            script_file.as_posix(),
+        ],
         cwd=history.clone,
         env=environment,
         capture_output=True,
@@ -449,7 +539,51 @@ def test_an_overwritten_variable_publishes_an_empty_set(tmp_path: Path) -> None:
     assert parsed != landed, "only a value assertion distinguishes this from a correct run"
 
 
-def test_the_jq_shim_matches_the_two_invocations_used(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("curl_response", "curl_exit_code", "error"),
+    [
+        (None, 22, "controlled curl failure"),
+        ("{", 0, ""),
+        (
+            json.dumps(
+                {
+                    "allow_squash_merge": True,
+                    "allow_merge_commit": False,
+                    "allow_rebase_merge": True,
+                }
+            ),
+            0,
+            "Merge methods changed",
+        ),
+    ],
+    ids=("http-failure", "malformed-json", "non-rebase-configuration"),
+)
+def test_merge_method_transport_and_policy_failures_publish_nothing(
+    tmp_path: Path, curl_response: str | None, curl_exit_code: int, error: str
+) -> None:
+    """The changed transport and rebase-only guard both refuse before dispatch."""
+    history = _history(tmp_path)
+    base = history.commit("root")
+    landed = [history.commit(f"this PR, revision {n}") for n in (1, 2)]
+    history.clone_origin()
+
+    completed, output = _run_shipped_enumeration(
+        tmp_path,
+        history,
+        base_sha=base,
+        merge_commit_sha=landed[-1],
+        commit_count=len(landed),
+        curl_response=curl_response,
+        curl_exit_code=curl_exit_code,
+    )
+
+    assert completed.returncode != 0
+    assert _emitted(output) is None
+    if error:
+        assert error in f"{completed.stdout}\n{completed.stderr}"
+
+
+def test_the_jq_shim_matches_the_invocations_used(tmp_path: Path) -> None:
     """Pin the stand-in, so the harness is not validating against an unknown.
 
     When the real `jq` is present this asserts the real one. When it is absent
@@ -461,10 +595,20 @@ def test_the_jq_shim_matches_the_two_invocations_used(tmp_path: Path) -> None:
     script_file.write_text('printf %s "one\ntwo" | jq -R . | jq -sc .\n', encoding="utf-8", newline="\n")
     environment = {
         **os.environ,
-        "PATH": f"{bin_dir.as_posix()}{os.pathsep}{os.environ['PATH']}",
+        "LOTUS_TEST_TOOLCHAIN": _shell_path(bin_dir),
     }
     completed = subprocess.run(
-        [_shipped_shell(), "--noprofile", "--norc", "-eo", "pipefail", script_file.as_posix()],
+        [
+            _shipped_shell(),
+            "--noprofile",
+            "--norc",
+            "-eo",
+            "pipefail",
+            "-c",
+            'PATH="$LOTUS_TEST_TOOLCHAIN:$PATH"; export PATH; source "$1"',
+            "jq-probe",
+            script_file.as_posix(),
+        ],
         env=environment,
         capture_output=True,
         text=True,
@@ -472,6 +616,24 @@ def test_the_jq_shim_matches_the_two_invocations_used(tmp_path: Path) -> None:
 
     assert completed.returncode == 0, completed.stderr
     assert json.loads(completed.stdout) == ["one", "two"]
+
+    merge_methods = subprocess.run(
+        [
+            _shipped_shell(),
+            "--noprofile",
+            "--norc",
+            "-eo",
+            "pipefail",
+            "-c",
+            "PATH=\"$LOTUS_TEST_TOOLCHAIN:$PATH\" ; export PATH; printf '%s' '{\"allow_squash_merge\":false,\"allow_merge_commit\":false,\"allow_rebase_merge\":true}' | jq -r '[.allow_squash_merge, .allow_merge_commit, .allow_rebase_merge] | @csv'",
+        ],
+        env=environment,
+        capture_output=True,
+        text=True,
+    )
+
+    assert merge_methods.returncode == 0, merge_methods.stderr
+    assert merge_methods.stdout.strip() == "false,false,true"
 
 
 def _dispatcher() -> str:
