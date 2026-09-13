@@ -1405,11 +1405,30 @@ The validator checks local sibling repositories when they are present, records t
 exceptions from `platform-contracts/ci-governance/auto-merge-releasability-exceptions.v1.json`,
 and fails on undeclared or expired drift in `pr-auto-merge.yml`,
 `merged-pr-main-releasability.yml`, or `main-releasability.yml`. A merged-PR dispatcher may certify
-the merge SHA once or enumerate every rebase-added revision from the source-bound merge SHA and PR
-commit count. Every dispatched revision must be reachable from checked-out `main`, use its own
-immutable `main-releasability-<sha>` ref, and be passed as `expected_sha`. Main Releasability uses
-revision-aware concurrency and asserts that its checkout matches that expected SHA. Manual operator
-dispatch remains valid without `expected_sha`.
+the merge SHA once or enumerate every rebase-added revision, by count or by the
+`base.sha..merge_commit_sha` range, in any of the forms named by
+`platform-contracts/ci-governance/merged-revision-dispatch-conformance.v1.json`: one shell step, a
+shell array (`mapfile -t revisions < <(git rev-list --reverse ...)`), or a two-job matrix. Every
+dispatched revision must be reachable from checked-out `main` and be passed as `expected_sha`, on
+its own immutable `main-releasability-<sha>` ref or on `main` with the Main Releasability workflow
+checking out `inputs.expected_sha`. Main Releasability uses revision-aware concurrency and asserts
+that its checkout matches that expected SHA. Manual operator dispatch remains valid without
+`expected_sha`.
+
+A dispatcher whose logic lives in a program (`run: python scripts/<file>.py`,
+`run: node scripts/<file>.mjs`) is not parsed. It is verified through
+`.github/merged-revision-dispatch.conformance.json` in that repository, which must name the same
+entrypoint the workflow invokes, an existing program file, every contract semantic as implemented,
+existing proof files, the tested-source identity (`immutable-ref` or `mainline-ref`), the
+enumeration form and the count-check policy. Declaration defects are reported under
+`merged-pr-dispatch.declaration.*`; a missing declaration makes the repository `unverified`, which
+passes the per-commit lanes and fails only under `--fail-on-unverified` (the fleet lane), because
+cannot-verify is not verified-broken. A count-bounded enumeration or strict count equality is an
+advisory finding printed beside the verdict and written to the report, never a violation.
+
+```powershell
+python automation/validate_auto_merge_releasability.py --require-local-repos --fail-on-unverified
+```
 
 Prove the sibling revisions the per-commit lanes read are pinned, publish them to a lane, measure the
 checkouts against them, or report how far each pin lags current `main`:

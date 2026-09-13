@@ -49,7 +49,10 @@ try {
             $driftArguments += @("--summary", $env:GITHUB_STEP_SUMMARY)
         }
         Invoke-CheckedCommand $toolingPython automation/validate_sibling_source_manifest.py @driftArguments
-        Invoke-CheckedCommand $toolingPython automation/validate_auto_merge_releasability.py --require-local-repos
+        # A script dispatcher without a conformance declaration is `unverified`:
+        # a status in the per-commit lanes, a finding here, where its owner is
+        # the one who can act on it.
+        Invoke-CheckedCommand $toolingPython automation/validate_auto_merge_releasability.py --require-local-repos --fail-on-unverified
         Invoke-CheckedCommand $toolingPython automation/validate_workflow_pipeline_exit_codes.py --require-local-repos
         Invoke-CheckedCommand $toolingPython automation/validate_canonical_front_office_demo_data_contract.py
         return

@@ -137,7 +137,14 @@ works.
   `fromJson("[]")` expands to zero matrix jobs -- a workflow that succeeds having gated nothing.
   Both forms remain permitted by policy, so a repository choosing the merge-SHA form is compliant
   and still leaves every non-head revision without a verdict; the coverage audit, not the
-  validator, is what detects that
+  validator, is what detects that. The forms a per-revision dispatcher may take -- one shell step,
+  a shell array, a two-job matrix, or a repository-owned program -- and the semantics each must
+  keep are stated in `platform-contracts/ci-governance/merged-revision-dispatch-conformance.v1.json`.
+  Shell forms are recognised from the workflow text; a program is verified through the
+  declaration its repository commits at `.github/merged-revision-dispatch.conformance.json`, and
+  without one the repository is `unverified` -- reported by the per-commit lanes, failed only by
+  the fleet lane -- because cannot-verify is not verified-broken. A count-bounded enumeration or
+  strict count equality is reported as an advisory finding, not a violation
 - mainline commit provenance: GitHub-verified exact commits, local signed-commit fallback for
   unpushed work, and exact expiring exceptions for unsigned mainline output. The shared platform
   repo check entrypoint runs this as a blocking gate only for `main-releasability`, and platform CI

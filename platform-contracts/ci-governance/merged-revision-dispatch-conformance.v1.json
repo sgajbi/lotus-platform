@@ -1,0 +1,91 @@
+{
+  "schema_version": "lotus.merged-revision-dispatch-conformance.v1",
+  "contract_id": "lotus-platform:merged-revision-dispatch-conformance:v1",
+  "status": "active",
+  "owner": "platform-ci-governance",
+  "issues": [
+    "https://github.com/sgajbi/lotus-platform/issues/772",
+    "https://github.com/sgajbi/lotus-platform/issues/856",
+    "https://github.com/sgajbi/lotus-platform/issues/859"
+  ],
+  "purpose": "What a merged-pull-request dispatcher must do so that every revision a rebase merge lands on main receives its own exact-revision Main Releasability verdict, stated as behaviour rather than as a shell spelling, with the implementation forms the estate actually ships and the evidence each form leaves for the coverage audit.",
+  "verification_route": {
+    "decision": "Shell dispatchers are verified from the workflow text by the platform recognizer, which now accepts the single-step, matrix and shell-array spellings. Script dispatchers are verified through a conformance declaration committed in the consuming repository and bound to the invoked entrypoint; the platform does not parse Python or Node. A script dispatcher without a declaration is `unverified`, which is a status distinct from a measured defect: it is reported in the per-commit lanes and is a finding only in the fleet-conformance lane. Dynamic proof that a dispatcher actually gated every revision belongs to the coverage audit, which reads run evidence, not source.",
+    "why_not_parse_scripts": "Reading another repository's implementation with patterns is what produced the false verdicts on #772: a third pattern language would repeat it against Python and Node. A declaration bound to the entrypoint that the workflow measurably invokes, with the proof files it names required to exist at that revision, keeps the platform check deterministic and keeps authority for the implementation with its owner.",
+    "why_not_receipts_only": "A run receipt proves a dispatch happened; it cannot be checked before the merge that emits it. The per-commit lanes need a static answer, the audit needs the dynamic one, and the two must not be confused."
+  },
+  "semantics": {
+    "merged-main-only-trigger": "The dispatch job runs only for pull_request_target closed events with merged == true and base.ref == main.",
+    "rebase-only-merge-assertion": "Before enumerating, the repository's merge settings are read and anything other than rebase-only fails: a squash lands one commit however many the PR held, and a merge commit adds a parent the walk would descend into.",
+    "range-enumeration": "Revisions are base..tip: pull_request.base.sha to pull_request.merge_commit_sha, oldest first. The range follows rebases and cannot overshoot however stale the event's commit count is.",
+    "empty-enumeration-refusal": "An empty enumeration fails the job rather than dispatching nothing; zero dispatches is a success to GitHub and is therefore the silent-pass shape.",
+    "count-cross-check": "pull_request.commits is a cross-check, not the window. Enumerating MORE than the count means the range spans revisions this PR did not add and must be refused before anything is tagged or dispatched. Enumerating FEWER is a stale count over a complete window and must not fail.",
+    "main-ancestry-guard": "Every enumerated revision must be an ancestor of the freshly fetched main; a revision main no longer contains is never tagged or gated as main history.",
+    "exact-revision-dispatch": "Every dispatch passes expected_sha equal to the revision, and the Main Releasability workflow asserts its checkout equals expected_sha.",
+    "tested-source-identity": "Either `immutable-ref`: a `main-releasability-<revision>` tag is looked up, refused on conflict, created when absent, and the workflow is dispatched on that ref so workflow definition and tested source are the same revision; or `mainline-ref`: the workflow is dispatched on main with expected_sha and every job checks out `inputs.expected_sha`, so the tested source is the revision while the workflow definition is main's tip at dispatch time. Both are accepted; the audit must know which one a repository uses."
+  },
+  "forms": {
+    "shell-single-step": "One run step enumerates, guards, tags and dispatches in a loop.",
+    "shell-matrix": "One job enumerates and publishes a JSON array through GITHUB_OUTPUT; a second job consumes it through fromJSON(needs.<job>.outputs.<key>) and dispatches one matrix entry per revision.",
+    "shell-array": "One run step enumerates into a bash array (`mapfile -t revisions < <(git rev-list --reverse \"$BASE_SHA..$MERGE_COMMIT_SHA\")`) and iterates `\"${revisions[@]}\"`.",
+    "script": "A run step invokes a repository-owned program (`python scripts/<file>.py`, `node scripts/<file>.mjs`) that implements the semantics; conformance is declared, not parsed."
+  },
+  "script_declaration": {
+    "path": ".github/merged-revision-dispatch.conformance.json",
+    "schema_version": "lotus.merged-revision-dispatch-declaration.v1",
+    "required_fields": [
+      "schema_version",
+      "form",
+      "entrypoint",
+      "tested_source_identity",
+      "enumeration",
+      "count_cross_check",
+      "semantics",
+      "proofs"
+    ],
+    "rules": {
+      "entrypoint": "Must equal, after whitespace normalisation, the `run:` command of the dispatch step in merged-pr-main-releasability.yml. A declaration for a command the workflow does not invoke verifies nothing.",
+      "entrypoint_exists": "The program file named by the entrypoint must exist at the revision being validated.",
+      "semantics": "An object keyed by every semantic id above, each `true`; a missing or false semantic is reported under that semantic's finding code, not under a shell-recognizer code.",
+      "proofs": "A non-empty list of repository-relative test files that exercise the program; every listed file must exist at the revision. The platform does not run them.",
+      "enumeration": "`range` or `count`. `count` (rev-list -n <commits>) is the form #859 records as having mis-enumerated in two repositories; it is accepted and reported as an advisory finding until the consumer migrates.",
+      "count_cross_check": "`asymmetric` or `strict-equality`. Strict equality refuses an ordinary rebase-drop; it is accepted and reported as an advisory finding until the consumer migrates.",
+      "tested_source_identity": "`immutable-ref` or `mainline-ref`; determines the audit evidence binding below."
+    }
+  },
+  "audit_evidence_binding": {
+    "immutable-ref": "A gate run for revision R has head_sha == R (the dispatch ref names R). The audit lists runs by commit.",
+    "mainline-ref": "A gate run for revision R has head_sha == main's tip at dispatch time and carries R in its inputs; the run title is `Main Releasability · R`. The audit must attribute by title (or by inspecting the exact-revision assertion job), never by head_sha, or every non-tip revision reads as ungated.",
+    "verdict": "Only runs that reached `success` or `failure` are verdicts; cancelled, skipped or in-progress runs are unknown, and unknown fails a coverage claim closed."
+  },
+  "finding_codes": {
+    "measured_defects": [
+      "merged-pr-dispatch.missing",
+      "merged-pr-dispatch.missing-pull-request-target",
+      "merged-pr-dispatch.missing-closed-trigger",
+      "merged-pr-dispatch.missing-actions-write",
+      "merged-pr-dispatch.wrong-main-releasability-target",
+      "merged-pr-dispatch.masked-immutable-ref-lookup",
+      "merged-pr-dispatch.missing-expected-sha-input",
+      "merged-pr-dispatch.declaration.entrypoint-mismatch",
+      "merged-pr-dispatch.declaration.entrypoint-missing",
+      "merged-pr-dispatch.declaration.proof-missing",
+      "merged-pr-dispatch.declaration.semantic-missing",
+      "merged-pr-dispatch.declaration.invalid"
+    ],
+    "status_not_defect": [
+      "merged-pr-dispatch.unverified"
+    ],
+    "advisory_findings": [
+      "merged-pr-dispatch.enumeration.count-bounded",
+      "merged-pr-dispatch.count-cross-check.strict-equality"
+    ],
+    "permissions_note": "merged-pr-dispatch.missing-contents-write applies only to the immutable-ref strategy, which writes tags; a mainline-ref dispatcher needs contents: read and reporting it as missing a write permission is the false positive recorded on #772 for lotus-workbench."
+  },
+  "adoption": {
+    "lotus-performance": "shell-array, immutable-ref, range, strict-equality (advisory; owned by lotus-performance #523 / PR #524). Recognised directly from the workflow text.",
+    "lotus-workbench": "script (node scripts/dispatch-main-releasability.mjs), mainline-ref, range with --first-parent, strict-equality (advisory). Verified once the declaration exists in lotus-workbench; unverified until then.",
+    "lotus-idea": "script (python scripts/main_releasability_dispatch.py), immutable-ref, count (advisory, #859), strict-equality (advisory). Verified once the declaration exists in lotus-idea; unverified until then.",
+    "lotus-platform": "shell-matrix, immutable-ref, range, asymmetric. Recognised directly."
+  }
+}

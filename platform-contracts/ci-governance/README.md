@@ -13,7 +13,18 @@ Current contracts:
    Exact-commit exceptions for mainline commit verification loss. Each exception must be scoped to
    one repository and commit SHA, name the GitHub verification reason, include owner and issue
    evidence, and expire.
-3. `sibling-source-manifest.v1.json`
+3. `merged-revision-dispatch-conformance.v1.json`
+   What a merged-pull-request dispatcher must do so every revision a rebase merge lands on
+   `main` receives its own exact-revision Main Releasability verdict, stated as behaviour and
+   naming the implementation forms the estate ships: shell single-step, shell matrix, shell array
+   and script. Shell forms are recognised from the workflow text by
+   `validate_auto_merge_releasability.py`. A script form is verified through a declaration the
+   consuming repository commits at `.github/merged-revision-dispatch.conformance.json`, bound to
+   the entrypoint the workflow actually invokes; without one the repository is `unverified`, a
+   status the per-commit lanes report and only the fleet lane (`--fail-on-unverified`) fails on.
+   A count-bounded enumeration and strict count equality are advisory findings reported beside
+   the verdict, not violations, until the owning repositories migrate (#859).
+4. `sibling-source-manifest.v1.json`
    The exact revision of every registered sibling repository that the per-commit lanes (feature,
    PR merge, main releasability) read. The manifest is committed, so a lane verdict is a function
    of the `lotus-platform` commit it certifies and a re-run reproduces the original inputs. Each

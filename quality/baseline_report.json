@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 418,
     "powershell_file_count": 69,
-    "python_file_count": 252,
-    "source_file_count": 960,
+    "python_file_count": 253,
+    "source_file_count": 962,
     "suffix_counts": {
-      ".json": 172,
+      ".json": 173,
       ".md": 418,
       ".ps1": 69,
-      ".py": 252,
+      ".py": 253,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 383921
+    "total_source_lines": 384788
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -99,8 +99,8 @@
       },
       {
         "complexity": 21,
-        "end_line": 509,
-        "line": 452,
+        "end_line": 551,
+        "line": 494,
         "lines": 58,
         "name": "_matrix_dispatch_is_verified",
         "path": "automation/validate_auto_merge_releasability.py"
@@ -112,6 +112,14 @@
         "lines": 69,
         "name": "cash_evidence_from_overview",
         "path": "automation/resolve_canonical_cash_evidence.py"
+      },
+      {
+        "complexity": 20,
+        "end_line": 942,
+        "line": 890,
+        "lines": 53,
+        "name": "_declaration_assessment",
+        "path": "automation/validate_auto_merge_releasability.py"
       },
       {
         "complexity": 19,
@@ -184,14 +192,6 @@
         "lines": 68,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
-      },
-      {
-        "complexity": 16,
-        "end_line": 253,
-        "line": 187,
-        "lines": 67,
-        "name": "compare_live_to_policy",
-        "path": "automation/check_branch_protection_policy.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 55,
     "max_function_lines": 903,
-    "python_function_count": 3704
+    "python_function_count": 3730
   },
-  "generated_at_utc": "2026-09-13T07:25:26Z",
+  "generated_at_utc": "2026-09-13T07:27:00Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1778,
+      "lines": 1797,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1726,
+    "collected_tests": 1749,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1726 tests collected"
+    "summary": "1749 tests collected"
   }
 }
