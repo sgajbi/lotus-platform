@@ -43,6 +43,11 @@ class RepositoryAutoMergeResult:
     exception_owner: str | None
     exception_expires_on: str | None
     exception_reason: str | None
+    # The implementation form the dispatcher was recognised as, and the
+    # advisory findings the conformance contract reports beside a verdict
+    # rather than as violations (a count-bounded walk, strict count equality).
+    form: str = "unknown"
+    advisories: tuple[str, ...] = ()
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -151,6 +156,13 @@ def _step_run(step: dict[str, Any]) -> str:
 # revisions; a `BASE_SHA` from anywhere else enumerates unrelated ones. Either
 # way commits reach main without an individual releasability verdict, so the
 # pattern and the source of its bound are checked together rather than apart.
+#
+# The range form has two spellings that enumerate the same thing: a
+# command-substitution assignment, and a bash array filled by `mapfile`. The
+# array is what lotus-performance ships; rejecting it reported a correct
+# dispatcher as broken and turned this repository's own gate red (#772,
+# #858). What is checked is the range and where its bound comes from, not
+# which shell construct holds the result.
 _REVISION_ENUMERATIONS = (
     (
         r'revisions="\$\(git rev-list -n "\$COMMIT_COUNT" "\$MERGE_COMMIT_SHA"(?:\s*\|\s*tac)?\)"',
@@ -162,7 +174,24 @@ _REVISION_ENUMERATIONS = (
         "BASE_SHA",
         "github.event.pull_request.base.sha",
     ),
+    (
+        r'mapfile -t revisions < <\(git rev-list --reverse "\$BASE_SHA\.\.\$MERGE_COMMIT_SHA"\)',
+        "BASE_SHA",
+        "github.event.pull_request.base.sha",
+    ),
 )
+
+# Iterating the enumeration: a word-split scalar, or the array expansion.
+_REVISION_LOOP = re.compile(
+    r'^\s*for\s+revision\s+in\s+(?:\$revisions|"\$\{revisions\[@\]\}");\s*do', re.MULTILINE
+)
+# A count-bounded walk is the form #859 records as having mis-enumerated in
+# two repositories; it stays accepted and is reported as an advisory finding.
+_COUNT_BOUNDED_ENUMERATION = re.compile(r'git rev-list -n "\$COMMIT_COUNT"')
+# Strict equality against the event's count refuses an ordinary rebase-drop;
+# asymmetric handling refuses only the over-claim. Advisory, per the contract.
+_STRICT_COUNT_EQUALITY = re.compile(r'-ne\s+"?\$\{?(?:PR_)?COMMIT_COUNT\}?"?')
+_ASYMMETRIC_COUNT_CHECK = re.compile(r'-gt\s+"?\$\{?(?:PR_)?COMMIT_COUNT\}?"?')
 
 
 def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
@@ -176,8 +205,7 @@ def _step_enumerates_exact_rebase_revisions(step: dict[str, Any]) -> bool:
     return (
         "github.event.pull_request.merge_commit_sha" in merge_commit_sha
         and enumerates
-        and re.search(r"^\s*for\s+revision\s+in\s+\$revisions;\s*do", run, re.MULTILINE)
-        is not None
+        and _REVISION_LOOP.search(run) is not None
         and 'git merge-base --is-ancestor "$revision" HEAD' in run
     )
 
@@ -249,6 +277,20 @@ def _logical_lines(run: str) -> list[str]:
 
 
 _ASSIGNMENT = re.compile(r"\s*([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
+_MAPFILE_ASSIGNMENT = re.compile(r"\s*mapfile\s+-t\s+([A-Za-z_][A-Za-z0-9_]*)\s+<\s+<\((.*)\)\s*$")
+
+
+def _assignment(line: str) -> tuple[str, str] | None:
+    """(name, value) when the line assigns a variable, by `=` or by `mapfile`.
+
+    A `mapfile` fill is an assignment to the derivation tracker: the array
+    carries whatever the process substitution produced, exactly as a scalar
+    carries a command substitution.
+    """
+    match = _ASSIGNMENT.match(line) or _MAPFILE_ASSIGNMENT.match(line)
+    if match is None:
+        return None
+    return match.group(1), match.group(2)
 
 
 def _references(value: str, names: set[str]) -> bool:
@@ -266,16 +308,16 @@ def _enumeration_variable(step: dict[str, Any]) -> str | None:
     a key that merely shares its spelling.
     """
     for line in _logical_lines(_step_run(step)):
-        assignment = _ASSIGNMENT.match(line)
+        assignment = _assignment(line)
         if assignment is None:
             continue
         if any(
             re.search(pattern, line) is not None
             for pattern, _bound, _source in _REVISION_ENUMERATIONS
         ):
-            return assignment.group(1)
+            return assignment[0]
         if "commits?sha=$MERGE_COMMIT_SHA&per_page=$PR_COMMIT_COUNT" in line:
-            return assignment.group(1)
+            return assignment[0]
     return None
 
 
@@ -313,9 +355,9 @@ def _step_emits_enumerated_revisions(step: dict[str, Any], key: str) -> bool:
     """
     carries: set[str] = set()
     for line in _logical_lines(_step_run(step)):
-        assignment = _ASSIGNMENT.match(line)
+        assignment = _assignment(line)
         if assignment is not None:
-            name, value = assignment.group(1), assignment.group(2)
+            name, value = assignment
             if _line_enumerates_revisions(line, step):
                 carries.add(name)
             elif _references(value, carries):
@@ -737,6 +779,193 @@ def _merged_pr_dispatch_violations(workflow_path: Path) -> list[str]:
     return violations
 
 
+# --- Conformance contract: forms, declarations and advisories --------------
+#
+# platform-contracts/ci-governance/merged-revision-dispatch-conformance.v1.json
+# states the governed semantics as behaviour and names the implementation
+# forms the estate ships. Shell forms are recognised from the workflow text
+# above. A script form -- a run step that invokes a repository-owned program --
+# is verified through a declaration committed beside it and bound to the
+# entrypoint the workflow actually invokes; the platform does not parse Python
+# or Node, because reading another repository's implementation with patterns
+# is what produced the false verdicts recorded on #772.
+
+_SCRIPT_DISPATCH_COMMAND = re.compile(r"^\s*(?:python3?|node)\s+(\S+)\s*$")
+_DECLARATION_PATH = Path(".github") / "merged-revision-dispatch.conformance.json"
+_DECLARATION_SCHEMA_VERSION = "lotus.merged-revision-dispatch-declaration.v1"
+_CONTRACT_SEMANTICS = (
+    "merged-main-only-trigger",
+    "rebase-only-merge-assertion",
+    "range-enumeration",
+    "empty-enumeration-refusal",
+    "count-cross-check",
+    "main-ancestry-guard",
+    "exact-revision-dispatch",
+    "tested-source-identity",
+)
+_TESTED_SOURCE_IDENTITIES = ("immutable-ref", "mainline-ref")
+# These codes say "the shell text does not show X". For a script dispatcher
+# the shell text shows nothing by construction, so they are not evidence of a
+# defect there; the declaration answers instead, or the status is unverified.
+_FORM_DEPENDENT_CODES = frozenset(
+    {
+        "merged-pr-dispatch.wrong-main-releasability-target",
+        "merged-pr-dispatch.missing-expected-sha-input",
+        "merged-pr-dispatch.missing-contents-write",
+    }
+)
+ADVISORY_COUNT_BOUNDED = "merged-pr-dispatch.enumeration.count-bounded"
+ADVISORY_STRICT_EQUALITY = "merged-pr-dispatch.count-cross-check.strict-equality"
+
+
+@dataclass(frozen=True)
+class DispatchAssessment:
+    violations: tuple[str, ...]
+    form: str
+    advisories: tuple[str, ...]
+    unverified: bool
+
+
+def _merged_main_jobs(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    jobs = payload.get("jobs") if isinstance(payload.get("jobs"), dict) else {}
+    selected: list[dict[str, Any]] = []
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        condition = str(job.get("if") or "")
+        if (
+            "github.event.pull_request.merged == true" in condition
+            and "github.event.pull_request.base.ref == 'main'" in condition
+        ):
+            selected.append(job)
+    return selected
+
+
+def _script_dispatch_command(payload: dict[str, Any]) -> str | None:
+    """The program a merged-main job invokes as its whole dispatch step, if any.
+
+    Bound to the job with the merged-main condition, so an unrelated program
+    elsewhere in the workflow cannot stand in for the dispatcher.
+    """
+    for job in _merged_main_jobs(payload):
+        for step in _job_steps(job):
+            run = _step_run(step).strip()
+            if run and "\n" not in run and _SCRIPT_DISPATCH_COMMAND.match(run):
+                return run
+    return None
+
+
+def _dispatch_form(payload: dict[str, Any]) -> str:
+    if _matrix_dispatch_is_verified(payload):
+        return "shell-matrix"
+    for step in _workflow_steps(payload):
+        run = _step_run(step)
+        if _step_enumerates_exact_rebase_revisions(step):
+            return "shell-array" if "mapfile -t revisions" in run else "shell-single-step"
+        if 'dispatch_ref="main-releasability-${MERGE_COMMIT_SHA}"' in run:
+            return "shell-merge-sha"
+    if _script_dispatch_command(payload) is not None:
+        return "script"
+    return "unknown"
+
+
+def _shell_advisories(payload: dict[str, Any]) -> tuple[str, ...]:
+    """Contract findings reported beside a verdict, never as violations."""
+    advisories: set[str] = set()
+    for step in _workflow_steps(payload):
+        run = _step_run(step)
+        if _enumeration_variable(step) is None:
+            continue
+        if _COUNT_BOUNDED_ENUMERATION.search(run):
+            advisories.add(ADVISORY_COUNT_BOUNDED)
+        elif _STRICT_COUNT_EQUALITY.search(run) and not _ASYMMETRIC_COUNT_CHECK.search(run):
+            advisories.add(ADVISORY_STRICT_EQUALITY)
+    return tuple(sorted(advisories))
+
+
+def _normalised_command(command: object) -> str:
+    return " ".join(str(command or "").split())
+
+
+def _declaration_assessment(
+    repo_root: Path, command: str
+) -> tuple[DispatchAssessment, str | None]:
+    """Verify a script dispatcher's declaration; (assessment, tested-source identity)."""
+    path = repo_root / _DECLARATION_PATH
+    if not path.exists():
+        return DispatchAssessment((), "script", (), True), None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        payload = None
+    if not isinstance(payload, dict) or payload.get("schema_version") != _DECLARATION_SCHEMA_VERSION:
+        return DispatchAssessment(("merged-pr-dispatch.declaration.invalid",), "script", (), False), None
+
+    violations: set[str] = set()
+    advisories: set[str] = set()
+    if payload.get("form") != "script":
+        violations.add("merged-pr-dispatch.declaration.invalid")
+    if _normalised_command(payload.get("entrypoint")) != _normalised_command(command):
+        violations.add("merged-pr-dispatch.declaration.entrypoint-mismatch")
+    program = command.split()[1]
+    if not (repo_root / program).is_file():
+        violations.add("merged-pr-dispatch.declaration.entrypoint-missing")
+    semantics = payload.get("semantics")
+    if not isinstance(semantics, dict) or any(
+        semantics.get(semantic) is not True for semantic in _CONTRACT_SEMANTICS
+    ):
+        violations.add("merged-pr-dispatch.declaration.semantic-missing")
+    proofs = payload.get("proofs")
+    if (
+        not isinstance(proofs, list)
+        or not proofs
+        or any(not isinstance(proof, str) or not (repo_root / proof).is_file() for proof in proofs)
+    ):
+        violations.add("merged-pr-dispatch.declaration.proof-missing")
+    identity = payload.get("tested_source_identity")
+    if identity not in _TESTED_SOURCE_IDENTITIES:
+        violations.add("merged-pr-dispatch.declaration.invalid")
+        identity = None
+    enumeration = payload.get("enumeration")
+    if enumeration == "count":
+        advisories.add(ADVISORY_COUNT_BOUNDED)
+    elif enumeration != "range":
+        violations.add("merged-pr-dispatch.declaration.invalid")
+    count_cross_check = payload.get("count_cross_check")
+    if count_cross_check == "strict-equality":
+        advisories.add(ADVISORY_STRICT_EQUALITY)
+    elif count_cross_check != "asymmetric":
+        violations.add("merged-pr-dispatch.declaration.invalid")
+    return (
+        DispatchAssessment(tuple(sorted(violations)), "script", tuple(sorted(advisories)), False),
+        str(identity) if isinstance(identity, str) else None,
+    )
+
+
+def _assess_merged_pr_dispatch(workflow_path: Path, repo_root: Path) -> DispatchAssessment:
+    if not workflow_path.exists():
+        return DispatchAssessment(("merged-pr-dispatch.missing",), "unknown", (), False)
+    payload = _load_yaml(workflow_path)
+    shell_violations = _merged_pr_dispatch_violations(workflow_path)
+    form = _dispatch_form(payload)
+    if form != "script":
+        return DispatchAssessment(
+            tuple(sorted(shell_violations)), form, _shell_advisories(payload), False
+        )
+    command = _script_dispatch_command(payload)
+    assert command is not None
+    declaration, identity = _declaration_assessment(repo_root, command)
+    violations = {code for code in shell_violations if code not in _FORM_DEPENDENT_CODES}
+    violations.update(declaration.violations)
+    # Tag creation is what needs contents: write; a mainline-ref dispatcher
+    # writes no refs, and least privilege there is contents: read (#772).
+    if identity == "immutable-ref" and "merged-pr-dispatch.missing-contents-write" in shell_violations:
+        violations.add("merged-pr-dispatch.missing-contents-write")
+    return DispatchAssessment(
+        tuple(sorted(violations)), "script", declaration.advisories, declaration.unverified
+    )
+
+
 def _main_releasability_violations(
     workflow_path: Path, *, merged_pr_dispatch_exists: bool
 ) -> list[str]:
@@ -784,11 +1013,12 @@ def validate_repository(
 
     workflow_dir = repo_root / ".github" / "workflows"
     merged_pr_dispatch_path = workflow_dir / "merged-pr-main-releasability.yml"
+    dispatch = _assess_merged_pr_dispatch(merged_pr_dispatch_path, repo_root)
     violations = tuple(
         sorted(
             [
                 *_auto_merge_violations(workflow_dir / "pr-auto-merge.yml"),
-                *_merged_pr_dispatch_violations(merged_pr_dispatch_path),
+                *dispatch.violations,
                 *_main_releasability_violations(
                     workflow_dir / "main-releasability.yml",
                     merged_pr_dispatch_exists=merged_pr_dispatch_path.exists(),
@@ -797,7 +1027,15 @@ def validate_repository(
         )
     )
     exception = _exception_for(repository, violations, exceptions, today=today)
-    status = "aligned" if not violations else "excepted" if exception else "drift"
+    if violations:
+        status = "excepted" if exception else "drift"
+    elif dispatch.unverified:
+        # Cannot verify is not verified broken: the dispatcher's logic lives in
+        # a program and no declaration binds it to the contract. Reported here;
+        # a finding only where --fail-on-unverified asks for one.
+        status = "unverified"
+    else:
+        status = "aligned"
     return RepositoryAutoMergeResult(
         repository=repository,
         status=status,
@@ -808,6 +1046,8 @@ def validate_repository(
         if exception
         else None,
         exception_reason=str(exception.get("reason")) if exception else None,
+        form=dispatch.form,
+        advisories=dispatch.advisories,
     )
 
 
@@ -842,13 +1082,14 @@ def _write_outputs(results: list[RepositoryAutoMergeResult]) -> None:
     lines = [
         "# Auto-Merge Releasability Validation",
         "",
-        "| Repository | Status | Violations | Exception Expires |",
-        "| --- | --- | --- | --- |",
+        "| Repository | Status | Form | Violations | Advisories | Exception Expires |",
+        "| --- | --- | --- | --- | --- | --- |",
     ]
     for result in results:
         lines.append(
-            f"| `{result.repository}` | `{result.status}` | "
+            f"| `{result.repository}` | `{result.status}` | `{result.form}` | "
             f"`{', '.join(result.violations) or '-'}` | "
+            f"`{', '.join(result.advisories) or '-'}` | "
             f"`{result.exception_expires_on or '-'}` |"
         )
     OUTPUT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -862,6 +1103,14 @@ def main() -> int:
     parser.add_argument("--exception-path", type=Path, default=DEFAULT_EXCEPTION_PATH)
     parser.add_argument("--repos-root", type=Path, default=ROOT.parent)
     parser.add_argument("--require-local-repos", action="store_true")
+    parser.add_argument(
+        "--fail-on-unverified",
+        action="store_true",
+        help=(
+            "treat a script dispatcher without a conformance declaration as a failure; "
+            "for the fleet lane, where the finding reaches its owner"
+        ),
+    )
     args = parser.parse_args()
 
     results = validate_repositories(
@@ -872,11 +1121,23 @@ def main() -> int:
     )
     _write_outputs(results)
     failures = [result for result in results if result.status == "drift"]
+    unverified = [result for result in results if result.status == "unverified"]
+    for result in results:
+        if result.advisories:
+            print(f"advisory {result.repository} ({result.form}): {', '.join(result.advisories)}")
     if failures:
         print("Auto-merge releasability validation failed:")
         for result in failures:
             print(f"- {result.repository}: {', '.join(result.violations)}")
         return 1
+    if unverified:
+        print(
+            "Unverified script dispatchers (no conformance declaration at "
+            f"{_DECLARATION_PATH.as_posix()}): "
+            + ", ".join(result.repository for result in unverified)
+        )
+        if args.fail_on_unverified:
+            return 1
     print("Auto-merge releasability validation passed.")
     return 0
 

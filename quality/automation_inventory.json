@@ -977,9 +977,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/validate_auto_merge_releasability.py",
-      "reference_count": 7,
+      "reference_count": 8,
       "suffix": ".py",
-      "test_reference_count": 3
+      "test_reference_count": 4
     },
     {
       "classification": "covered",
@@ -1254,6 +1254,6 @@
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-13T05:32:01Z",
+  "generated_at_utc": "2026-09-13T06:47:31Z",
   "script_count": 156
 }
