@@ -86,6 +86,15 @@ python automation\validate_analytics_ui_entitlement_certification.py
 10. a named runtime holder does not acquire foreign containers. Record holder, UTC window, exact
     projects/ports, acquisition/preflight, and release/teardown receipts before changing a shared
     canonical resource; a failed preflight is a refusal, not partial runtime acceptance.
+11. use the single-workspace v1 reservation control for explicit acquire, preflight, interrupted
+    operation recovery, named expiry reclaim and proved release. The machine book and OS-locked
+    operation token fence runtime mutation; Docker labels never manufacture holder authority.
+    A selected Workbench override must match the admitted checkout and executing scripts.
+    Provider-owned persistent DPM seed writes hold the same operation fence across their pre-reads.
+    Workbench shipped-script adoption is separate from provider availability. Read the linked
+    reservation runbook before the commands above; startup now requires an acquired explicit
+    `LOTUS_CANONICAL_RUNTIME_HOLDER`. Level A receipts, Level B readiness and live IAM remain
+    independent acceptance boundaries.
 
 ## Canonical DPM command-center seed
 

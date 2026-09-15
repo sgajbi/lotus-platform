@@ -1,4 +1,7 @@
 param(
+  [string]$ProjectsRoot,
+  [string]$WorkbenchRepoPath,
+  [string]$RuntimeHolder = $env:LOTUS_CANONICAL_RUNTIME_HOLDER,
   [string]$ContractPath,
   [string]$ManageBaseUrl = "http://manage.dev.lotus",
   [string]$GatewayBaseUrl = "http://gateway.dev.lotus",
@@ -989,7 +992,11 @@ if ($PreflightOnly) {
   Complete-SeedSummary
 }
 
+$runtimeOperation = $null
 try {
+  if ([string]::IsNullOrWhiteSpace($ProjectsRoot)) { $ProjectsRoot = Split-Path -Parent $platformRoot }
+  Import-Module (Join-Path $PSScriptRoot 'CanonicalRuntimeReservation.psm1') -Force
+  $runtimeOperation = Enter-CanonicalRuntimeOperation -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder -WorkbenchRepoPath $WorkbenchRepoPath
   Write-Host "[dpm-seed] preflighting Manage write authorization for canonical refresh route"
   $summary.manage_authorization_preflight_response = Invoke-ManageWriteAuthorizationPreflight `
     -Uri $refreshUri `
@@ -1226,6 +1233,11 @@ try {
 } catch {
   $summary.status = "failed"
   $summary.error = $_.Exception.Message
+} finally {
+  if ($runtimeOperation) {
+    $runtimeOutcome = if ($summary.status -eq 'ok') { 'success' } else { 'failure' }
+    Exit-CanonicalRuntimeOperation -Operation $runtimeOperation -Outcome $runtimeOutcome
+  }
 }
 
 Complete-SeedSummary

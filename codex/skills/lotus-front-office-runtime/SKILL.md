@@ -85,6 +85,13 @@ Do not route those tasks through generic platform QA by default.
 16. Before recording a panel as `ready`, reconcile every required input and limitation against the
     panel registry's governed support state. A ready endpoint, calculation, membership, or source
     snapshot is not sufficient evidence to promote a composite panel by itself.
+17. Acquire the Platform-owned machine reservation before canonical mutation. Read
+    `lotus-platform/docs/operations/canonical-runtime-reservation.md` and use its explicit holder,
+    purpose, UTC expiry, exact projects/ports/source scope and operation protocol. Set
+    `LOTUS_CANONICAL_RUNTIME_HOLDER` explicitly; a free port or named project is not acquisition.
+    Refuse expired/foreign/unfinished claims, obtain digest-bound operator handover or recovery,
+    and retain the lease until successful teardown proves zero canonical containers/listeners.
+    Supplier availability is not Workbench adoption, and reservation proof is not Level B/IAM.
 
 ## Canonical Commands
 
