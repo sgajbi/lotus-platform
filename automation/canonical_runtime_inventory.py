@@ -28,16 +28,23 @@ def command(arguments: list[str], cwd: Path | None = None) -> str:
     return result.stdout
 
 
-def scope_for(projects_root: Path, workbench: Path) -> dict:
+def scope_for(projects_root: Path, workbench: Path, runtime_mode: str = "full") -> dict:
+    if runtime_mode not in {"full", "core-manage"}:
+        raise ReservationRefusal("Unknown explicit runtime mode.")
     projects = canonical_project_roots(str(projects_root), str(workbench))
+    if runtime_mode == "core-manage":
+        projects = {name: root for name, root in projects.items()
+                    if paths_match_exactly(root, str(projects_root / "lotus-core"))
+                    or paths_match_exactly(root, str(projects_root / "lotus-manage"))}
     projects["lotus-workbench"] = normalize_docker_path(str(workbench))
     projects["canonical-ingress"] = normalize_docker_path(str(projects_root / "lotus-platform"))
-    ports = {80, 8001, 8111}  # Direct ingress and supported Manage/Gateway host launchers.
+    ports = {80, 8001} if runtime_mode == "core-manage" else {80, 8001, 8111}
     sources = {}
-    for repo in (*CANONICAL_REPOSITORIES, "lotus-platform"):
+    repositories = ("lotus-core", "lotus-manage", "lotus-workbench", "lotus-platform") if runtime_mode == "core-manage" else (*CANONICAL_REPOSITORIES, "lotus-platform")
+    for repo in repositories:
         root = workbench if repo == "lotus-workbench" else projects_root / repo
         sources[repo] = command(["git", "rev-parse", "HEAD"], root).strip()
-        if repo == "lotus-platform":
+        if repo == "lotus-platform" or (runtime_mode == "core-manage" and repo == "lotus-workbench"):
             continue
         config = json.loads(command(["docker", "compose", "config", "--format", "json"], root))
         declared = config.get("name")

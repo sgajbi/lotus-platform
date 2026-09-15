@@ -288,6 +288,51 @@ def test_shipped_powershell_adapter_refuses_missing_holder_before_outbound_io():
     assert "UNAUTHORIZED-MUTATION\n" not in result.stdout
 
 
+def test_registered_partial_admission_uses_real_selected_git_and_refuses_full_or_missing_selected_proof(tmp_path, monkeypatch, capsys):
+    from automation import canonical_runtime_inventory as inventory
+    from automation import canonical_runtime_reservation as control
+    selected = ("lotus-core", "lotus-manage", "lotus-workbench", "lotus-platform")
+    for repo in selected:
+        root = tmp_path / repo
+        root.mkdir()
+        subprocess.run(["git", "init", "-q", str(root)], check=True)
+        subprocess.run(["git", "-C", str(root), "-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                        "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-qm", "immutable receipt"], check=True)
+    actual = inventory.command
+    compose_calls = []
+    def controlled(arguments, cwd=None):
+        if arguments[0] == "docker":
+            compose_calls.append(cwd.name)
+            assert cwd.name in {"lotus-core", "lotus-manage"}
+            return json.dumps({"name": cwd.name, "services": {"api": {"ports": [{"published": "8202"}]}}})
+        return actual(arguments, cwd)
+    monkeypatch.setattr(inventory, "command", controlled)
+    monkeypatch.setattr(control, "observe", lambda _: [])
+    monkeypatch.setattr(control, "__file__", str(tmp_path / "lotus-platform/automation/canonical_runtime_reservation.py"))
+    base = ["reservation", "acquire", "--projects-root", str(tmp_path), "--runtime-mode", "core-manage",
+            "--holder", "lotus-platform-47", "--purpose", "#849 selected-mode proof",
+            "--expiry-utc", (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()]
+    monkeypatch.setattr(sys, "argv", base)
+    assert control.main() == 0
+    record = json.loads(capsys.readouterr().out)
+    assert set(record["scope"]["sources"]) == set(selected)
+    assert compose_calls == ["lotus-core", "lotus-manage"]
+    assert record["scope"]["ports"] == [80, 8001, 8202]
+    assert "lotus-ai" not in record["scope"]["projects"]
+    path = tmp_path / "lotus-platform/output/canonical-runtime/reservations.v1.json"
+    before = path.read_bytes()
+    monkeypatch.setattr(sys, "argv", ["reservation", "preflight", "--projects-root", str(tmp_path),
+                                     "--holder", "lotus-platform-47"])
+    assert control.main() == 1  # Missing skipped siblings cannot turn partial authority into full authority.
+    assert path.read_bytes() == before
+    # Removing selected immutable evidence must still refuse even in explicit partial mode.
+    subprocess.run(["git", "-C", str(tmp_path / "lotus-manage"), "update-ref", "-d", "HEAD"], check=True)
+    monkeypatch.setattr(sys, "argv", ["reservation", "preflight", "--projects-root", str(tmp_path),
+                                     "--runtime-mode", "core-manage", "--holder", "lotus-platform-47"])
+    assert control.main() == 1
+    assert path.read_bytes() == before
+
+
 def test_authoritative_contract_matches_executable_fields_and_boundaries():
     root = Path(__file__).parents[2]
     contract = json.loads((root / "platform-contracts/runtime/canonical-runtime-reservation.v1.json").read_text())
@@ -297,6 +342,9 @@ def test_authoritative_contract_matches_executable_fields_and_boundaries():
     assert contract["implementationOwner"] == "lotus-platform"
     assert contract["consumerOwner"] == "lotus-workbench"
     assert "zero canonical" in contract["release"]
+    assert contract["version"] == "1.1.0"
+    assert contract["scope"]["modes"] == ["full", "core-manage"]
+    assert "registered by Enter" in contract["nestedConsumer"]
 
 
 def test_malformed_reversed_event_chronology_refuses():
@@ -416,7 +464,7 @@ def test_shipped_adapter_forwards_selected_workbench_through_begin_and_finish():
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted"])
+@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted", "partial", "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign", "nested-shared", "nested-replacement", "nested-new-process"])
 def test_shipped_dpm_seed_holds_actual_operation_fence_across_writes(tmp_path, mode):
     shell = shutil.which("pwsh") or shutil.which("powershell")
     assert shell
@@ -428,9 +476,21 @@ def test_shipped_dpm_seed_holds_actual_operation_fence_across_writes(tmp_path, m
     script = f"""
 $ErrorActionPreference='Stop'
 $global:proofWriteUris=@()
+$parentFence=$null
+if ('{mode}' -in @('nested-disposed','nested-foreign','nested-shared','nested-new-process')) {{
+  $fencePath=if ('{mode}' -eq 'nested-foreign') {{ '{tmp_path / 'foreign.lock'}' }} else {{ '{lock}' }}
+  $share=if ('{mode}' -eq 'nested-shared') {{ 'ReadWrite' }} else {{ 'None' }}
+  $parentFence=[IO.File]::Open($fencePath,'OpenOrCreate','ReadWrite',$share)
+  if ('{mode}' -eq 'nested-disposed') {{ $parentFence.Dispose() }}
+}}
 function global:python {{
   $global:LASTEXITCODE=0
   if ($args[0] -like '*canonical_runtime_reservation.py') {{
+    if ($args[1] -eq 'preflight-operation') {{
+      $token=$args[[Array]::IndexOf($args,'--operation-token')+1]
+      if ($token -ne 'admitted-dpm') {{ throw 'NESTED_AUTHORITY_CHANGED' }}
+      Write-Host 'NESTED_SOURCE_ADMITTED'; return '{{}}'
+    }}
     if ($args[1] -eq 'begin-change') {{
       if ('{mode}' -eq 'foreign') {{ $global:LASTEXITCODE=1; return 'CONTROLLED_FOREIGN_HOLDER_REFUSAL' }}
       return '{{"operation":{{"token":"admitted-dpm"}},"bindings":[]}}'
@@ -454,11 +514,26 @@ function global:Invoke-RestMethod {{
     $e=[Exception]::new('side-effect-free probe'); $e | Add-Member NoteProperty Response @{{StatusCode=422}}; throw $e
   }}
   $global:proofWriteUris += $Uri
-  if (@($global:proofWriteUris | Select-Object -Unique).Count -eq 2) {{ throw 'CONTROLLED_SECOND_WRITE_FAILURE' }}
+  if (@($global:proofWriteUris | Select-Object -Unique).Count -eq 2) {{
+    if ('{mode}' -eq 'nested') {{ Write-Host 'NESTED_FENCED_DPM_ROUTES=2' }}
+    throw 'CONTROLLED_SECOND_WRITE_FAILURE'
+  }}
   return @{{mandate=@{{}}}}
 }}
-& '{root / 'automation/Invoke-DpmCommandCenterSeed.ps1'}' -ProjectsRoot '{workspace}' `
-  -WorkbenchRepoPath 'selected-workbench' -RuntimeHolder '{holder}' -OutputDirectory '{tmp_path / 'evidence'}' -SkipGatewayValidation
+try {{
+  if ('{mode}' -in @('nested','nested-replacement','nested-partial')) {{
+    Import-Module '{root / 'automation/CanonicalRuntimeReservation.psm1'}'
+    $parent=Enter-CanonicalRuntimeOperation -ProjectsRoot '{workspace}' -WorkbenchRepoPath 'selected-workbench' -Holder '{holder}' -RuntimeMode '{"core-manage" if mode == "nested-partial" else "full"}'
+    $parentFence=$parent.Lock
+    if ('{mode}' -eq 'nested-replacement') {{
+      $parentFence.Dispose()
+      $parentFence=[IO.File]::Open('{lock}','Open','ReadWrite','None')
+    }}
+  }}
+  & '{root / 'automation/Invoke-DpmCommandCenterSeed.ps1'}' -ProjectsRoot '{workspace}' `
+    -WorkbenchRepoPath 'selected-workbench' -RuntimeHolder '{holder}' -OutputDirectory '{tmp_path / 'evidence'}' -SkipGatewayValidation -RuntimeMode '{"core-manage" if mode in {"partial", "nested-partial"} else "full"}' {"-RuntimeOperationToken admitted-dpm -RuntimeOperationFence $parentFence" if mode.startswith("nested") else ""}
+  exit $LASTEXITCODE
+}} finally {{ if ($parentFence) {{ $parentFence.Dispose() }} }}
 """
     fence = None
     if mode == "contended":
@@ -475,9 +550,20 @@ function global:Invoke-RestMethod {{
         if mode == "admitted":
             assert "FENCED_DPM_WRITES=2;OUTCOME=failure" in result.stdout, result.stdout + result.stderr
             assert "CONTROLLED_SECOND_WRITE_FAILURE" in summary["error"]
+        elif mode == "nested":
+            assert "CONTROLLED_SECOND_WRITE_FAILURE" in summary["error"], json.dumps(summary)
+            assert "NESTED_SOURCE_ADMITTED" in result.stdout
+            assert "NESTED_FENCED_DPM_ROUTES=2" in result.stdout
+            assert "FENCED_DPM_WRITES" not in result.stdout  # Caller owns finish, not this child.
+            assert "CONTROLLED_SECOND_WRITE_FAILURE" in summary["error"]
         else:
             assert "FENCED_DPM_WRITES" not in result.stdout
+            assert "NESTED_SOURCE_ADMITTED" not in result.stdout
             assert summary["steps"] == []
+            if mode in {"partial", "nested-partial"}:
+                assert "requires a full canonical reservation" in summary["error"]
+            elif mode.startswith("nested"):
+                assert "live canonical parent operation fence" in summary["error"]
     finally:
         if fence:
             _, stderr = fence.communicate(input="release\n", timeout=15)

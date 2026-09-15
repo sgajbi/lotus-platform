@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-09-15T05:38:28Z`
+Generated: `2026-09-15T06:45:57Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `976`
-- Total source lines: `388612`
+- Total source lines: `388747`
 - Python files: `263`
 - PowerShell files: `69`
 - Markdown files: `419`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3880`
+- Python functions: `3882`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `1872`
+- Unit tests collected: `1882`
 - Collection command return code: `0`
-- Collection summary: `1872 tests collected`
+- Collection summary: `1882 tests collected`
 
 ## Security Baseline
 

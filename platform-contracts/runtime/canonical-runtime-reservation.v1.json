@@ -1,12 +1,14 @@
 {
   "contractId": "lotus.canonical-runtime.reservations.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "implementationOwner": "lotus-platform",
   "consumerOwner": "lotus-workbench",
   "hostingBoundary": "one operator-owned Windows Docker Desktop canonical workspace",
   "recordPath": "lotus-platform/output/canonical-runtime/reservations.v1.json",
   "requiredReservationFields": ["id", "holder", "purpose", "teardownOwner", "startUtc", "expiryUtc", "state", "scope", "scopeDigest", "bindings", "events", "operation"],
   "scope": {
+    "modes": ["full", "core-manage"],
+    "coreManage": "explicit --runtime-mode core-manage acquires only Core/Manage Compose configuration and ports, ingress, and immutable Core/Manage/executing Workbench/Platform sources; the exact stored scope identifies this mode without changing record fields; full/partial source vectors cannot substitute for one another; listener teardown uses acquired ports; DPM seeding requires full scope and partial startup returns before invoking it",
     "projects": "explicit canonical project -> exact normalized checkout; only declared Core aliases",
     "ports": "union of actual resolved app-owned Compose publications and declared host launchers 80/8001/8111",
     "sources": "full checked-out consumer/provider HEAD revisions; selected Workbench path is carried unchanged through admission, operation and publication; not an image qualification or dirty-tree certificate"
@@ -14,6 +16,7 @@
   "resourceIdentity": "actual full container ID or host PID plus UTC process birth, exact checkout and published ports",
   "acquisition": "explicit holder, issue/PR purpose, UTC expiry within eight hours; live unreserved inventory needs operator handover bound to scope and inventory digests",
   "mutation": "whole-operation fence then locked durable admission before I/O; explicit operation token; reobserve and atomically publish actual inventory plus success/failure without masking native exit status",
+  "nestedConsumer": "execute in-process with the exact original canonical exclusive FileStream registered by Enter to its admitted token in that module instance and holder/workspace/selected Workbench unchanged; reject absent/disposed/foreign/shared/replacement/new-process fences before preflight-operation and I/O; a persisted token alone is not admission; child neither reacquires nor finishes the caller's operation",
   "expiry": "refuse new changes; original holder may teardown; explicit named reclaim always requires handover and preserves prior history",
   "interruption": "retain unfinished operation; recovery/reclaim first prove whole-operation fence free, then require explicit holder/operator receipt bound to actual inventory",
   "release": "only admitted holder, successful teardown and zero canonical containers/listeners; failure or remaining resources retains active holder",

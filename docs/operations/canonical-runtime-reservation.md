@@ -24,6 +24,23 @@ persistent POSTs, then publishes success/failure in `finally`. The QA wrapper fo
 selected Workbench and holder. Direct seed invocation accepts `-ProjectsRoot`,
 `-WorkbenchRepoPath` and `-RuntimeHolder`; it never auto-acquires. The existing `-PreflightOnly`
 side-effect-free malformed-payload authorization diagnostic remains distinct from seed execution.
+When DPM seed runs inside Workbench startup, execute it in-process and carry that caller's live
+exclusive canonical FileStream, admitted holder, workspace, selected checkout and token unchanged.
+Only the original exclusive handle registered by `Enter-CanonicalRuntimeOperation` to that token
+in the same module instance is admitted. Reopening even the same path exclusively after interruption
+does not recreate admission; new-process, replacement, shared, absent/disposed/foreign handles refuse before preflight and I/O. A persisted token survives parent
+interruption and is not admission. The caller's synchronous invocation retains its actual fence
+through every child pre-read/write; the child neither reacquires nor finishes that operation.
+
+For diagnostic `-CoreManageOnly` startup, acquire/preflight explicitly with `--runtime-mode core-manage`.
+Only Core/Manage Compose configurations are required, together with immutable Core, Manage,
+executing Workbench and Platform HEADs and ingress provenance. Skipped product checkouts/configuration
+are not consulted. Startup carries that explicit mode through begin/finish; its exact scope cannot
+substitute for a full lease. Teardown uses the acquired four-source scope and stops only Core/Manage
+and admitted ingress/listeners using only acquired ports, leaving skipped-service listeners untouched.
+DPM seed writes require the full Gateway/Advise scope: partial startup returns before DPM invocation,
+and explicit partial DPM execution refuses before admission/pre-reads/writes rather than manufacturing
+broader service authority. This partial mode never establishes populated canonical Level B acceptance.
 
 The PowerShell adapter admits an operation before runtime I/O and holds an exclusive operation handle through completion. Native failures must remain failures; `finally` publishes the observed inventory with its truthful outcome. A terminated process leaves its durable operation unfinished and new admission refuses. A finish token cannot be manufactured from a path, project name or request body. Validation inside startup uses `preflight-operation` with the admitted token and fresh source/resource observation. Standalone validation admits and finishes its own fenced operation across DNS, HTTP, evidence reads and browser execution; it does not release a momentary preflight before gathering evidence. Preflight reads do not change the book. Teardown clears the active lease only on success with zero canonical containers/listeners; retained images/volumes are separate from live ownership and still subject to the existing cleanup plan. `-CleanPlanOnly` remains read-only. In a combined `-Clean -BringUp` invocation, cleanup retains the same explicitly acquired window rather than automatically reacquiring.
 
