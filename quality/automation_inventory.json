@@ -1,6 +1,6 @@
 {
   "classification_counts": {
-    "covered": 129,
+    "covered": 132,
     "review": 2,
     "undocumented": 25
   },
@@ -65,15 +65,39 @@
       "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/canonical_docker_ownership.py",
-      "reference_count": 4,
+      "reference_count": 6,
       "suffix": ".py",
-      "test_reference_count": 2
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/canonical_orphan_retirement.py",
       "reference_count": 5,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 0,
+      "path": "automation/canonical_runtime_inventory.py",
+      "reference_count": 2,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 0,
+      "path": "automation/canonical_runtime_lease.py",
+      "reference_count": 3,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/canonical_runtime_reservation.py",
+      "reference_count": 3,
       "suffix": ".py",
       "test_reference_count": 1
     },
@@ -407,9 +431,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 19,
+      "operator_doc_reference_count": 20,
       "path": "automation/Invoke-Canonical-FrontOffice-QA.ps1",
-      "reference_count": 31,
+      "reference_count": 32,
       "suffix": ".ps1",
       "test_reference_count": 7
     },
@@ -465,9 +489,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 3,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "reference_count": 10,
+      "reference_count": 11,
       "suffix": ".ps1",
-      "test_reference_count": 2
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
@@ -489,9 +513,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 17,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
-      "reference_count": 29,
+      "reference_count": 31,
       "suffix": ".ps1",
-      "test_reference_count": 10
+      "test_reference_count": 12
     },
     {
       "classification": "covered",
@@ -977,9 +1001,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/validate_auto_merge_releasability.py",
-      "reference_count": 8,
+      "reference_count": 9,
       "suffix": ".py",
-      "test_reference_count": 4
+      "test_reference_count": 5
     },
     {
       "classification": "covered",
@@ -1254,6 +1278,6 @@
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-13T08:07:09Z",
-  "script_count": 156
+  "generated_at_utc": "2026-09-15T05:38:33Z",
+  "script_count": 159
 }

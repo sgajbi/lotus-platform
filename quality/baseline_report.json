@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 419,
     "powershell_file_count": 69,
-    "python_file_count": 259,
-    "source_file_count": 971,
+    "python_file_count": 263,
+    "source_file_count": 976,
     "suffix_counts": {
-      ".json": 175,
+      ".json": 176,
       ".md": 419,
       ".ps1": 69,
-      ".py": 259,
+      ".py": 263,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 387576
+    "total_source_lines": 388612
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -154,6 +154,14 @@
         "path": "automation/validate_sibling_source_manifest.py"
       },
       {
+        "complexity": 19,
+        "end_line": 125,
+        "line": 81,
+        "lines": 45,
+        "name": "execute",
+        "path": "automation/canonical_runtime_reservation.py"
+      },
+      {
         "complexity": 18,
         "end_line": 335,
         "line": 273,
@@ -184,14 +192,6 @@
         "lines": 43,
         "name": "render_results",
         "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
-      },
-      {
-        "complexity": 17,
-        "end_line": 491,
-        "line": 376,
-        "lines": 116,
-        "name": "main",
-        "path": "automation/validate_sibling_source_manifest.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3819
+    "python_function_count": 3880
   },
-  "generated_at_utc": "2026-09-14T22:25:15Z",
+  "generated_at_utc": "2026-09-15T05:38:28Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -552,6 +552,81 @@
         "signal": "sensitive-keyword-review"
       },
       {
+        "line": 26,
+        "path": "automation/canonical_runtime_inventory.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 106,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 107,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 201,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 202,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 205,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 211,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 215,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 216,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 223,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 228,
+        "path": "automation/canonical_runtime_lease.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 119,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 122,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 124,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 138,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
         "line": 64,
         "path": "automation/core_performance_cross_app_validation.py",
         "signal": "sensitive-keyword-review"
@@ -710,87 +785,12 @@
         "line": 327,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 332,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 334,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 337,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 88,
-        "path": "automation/generate_automation_inventory.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 92,
-        "path": "automation/generate_automation_inventory.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 22,
-        "path": "automation/generate_domain_product_onboarding.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 23,
-        "path": "automation/generate_domain_product_onboarding.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 108,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 305,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 306,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 307,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 318,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 319,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 320,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 321,
-        "path": "automation/generate_enterprise_backend_quality_baseline.py",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 1830,
+    "collected_tests": 1872,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1830 tests collected"
+    "summary": "1872 tests collected"
   }
 }

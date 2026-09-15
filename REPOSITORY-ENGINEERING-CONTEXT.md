@@ -240,6 +240,16 @@ Use the RFC index for deeper or historical decisions.
   types, constraints, locking, transaction, or persistence semantics.
 - Cleanup and targeted refresh automation must resolve declared resources, preserve the caller
   environment, affect only owned runtime state, and verify final health.
+- Canonical runtime coordination is owned by `automation/canonical_runtime_reservation.py` and
+  `automation/CanonicalRuntimeReservation.psm1`; use the single workspace book and the
+  [runtime reservation runbook](./docs/operations/canonical-runtime-reservation.md). Explicit
+  holder admission, expiry, operation identity and teardown evidence are independent of Docker
+  checkout ownership, image/source qualification and seed readiness. Workbench owns adoption in
+  its shipped startup/teardown; supplier availability alone is not consumer acceptance. Carry the
+  selected Workbench checkout through admission/publication; never approve a sibling while an
+  overridden worktree performs I/O.
+  Provider-owned DPM seed execution likewise admits an operation across pre-reads and persistent
+  writes; its side-effect-free authorization diagnostic is not seed or runtime acceptance.
 - Avoid repeating shared policy in README, wiki, context, and skills. Keep one authority and route
   readers to it.
 

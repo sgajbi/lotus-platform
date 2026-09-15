@@ -1,6 +1,7 @@
 param(
   [string]$ProjectsRoot,
   [string]$WorkbenchRepoPath,
+  [string]$RuntimeHolder = $env:LOTUS_CANONICAL_RUNTIME_HOLDER,
   [string]$PortfolioId = "PB_SG_GLOBAL_BAL_001",
   [string]$BenchmarkCode = "BMK_PB_GLOBAL_BALANCED_60_40",
   [string]$OutputDirectory = "output/front-office-qa",
@@ -19,6 +20,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+Import-Module (Join-Path $PSScriptRoot 'CanonicalRuntimeReservation.psm1') -Force
 
 $platformRoot = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($ProjectsRoot)) {
@@ -70,6 +72,15 @@ function Invoke-CanonicalRuntimeStep {
   )
 
   Write-Host "[$StepName] $ScriptPath"
+  $preflightAction = if ($ScriptPath -eq $stopScript -and -not $Arguments['KeepReservation']) {
+    'preflight-teardown'
+  } else { 'preflight' }
+  Invoke-CanonicalReservation -Action $preflightAction -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder -WorkbenchRepoPath $WorkbenchRepoPath | Out-Host
+  if ($ScriptPath -eq $startScript -or $ScriptPath -eq $stopScript -or $ScriptPath -eq $validateScript -or $ScriptPath -eq $dpmSeedScript) {
+    $Arguments['RuntimeHolder'] = $RuntimeHolder
+    $Arguments['WorkbenchRepoPath'] = $WorkbenchRepoPath
+    $Arguments['ProjectsRoot'] = $ProjectsRoot
+  }
   $global:LASTEXITCODE = 0
   & $ScriptPath @Arguments
   if ($LASTEXITCODE -ne 0) {
@@ -97,20 +108,6 @@ function Get-CanonicalDockerCleanupPlan {
     throw "Canonical Docker ownership inventory failed with exit code $LASTEXITCODE."
   }
   return ($json -join "`n") | ConvertFrom-Json
-}
-
-function Invoke-LotusIdeaDockerDown {
-  param([string]$RepoPath)
-
-  Push-Location $RepoPath
-  try {
-    docker compose down --remove-orphans | Out-Host
-    if ($LASTEXITCODE -ne 0) {
-      throw "lotus-idea Docker teardown failed with exit code $LASTEXITCODE."
-    }
-  } finally {
-    Pop-Location
-  }
 }
 
 function Invoke-MainlineSourceProvenancePreflight {
@@ -350,6 +347,7 @@ try {
       ProjectsRoot = $ProjectsRoot
       RemoveVolumes = $true
     }
+    if ($BringUp) { $cleanArguments.KeepReservation = $true }
     if ($RemoveImages) {
       $cleanArguments.RemoveImages = $true
     }
@@ -436,18 +434,8 @@ try {
 } finally {
   if ($BringUp -and -not $KeepRunning -and (-not $RequireMainlineSources -or $certifiedSourcePreflightPassed)) {
     try {
-      Invoke-LotusIdeaDockerDown -RepoPath $lotusIdeaRepoPath
-      $summary.steps += "lotus-idea-teardown"
-    } catch {
-      $teardownError = "lotus-idea teardown failed: $($_.Exception.Message)"
-      $summary.warnings += $teardownError
-      $summary.status = "failed"
-      if (-not $summary.error) {
-        $summary.error = $teardownError
-      }
-    }
-    try {
       Invoke-CanonicalRuntimeStep -StepName "teardown" -ScriptPath $stopScript -Arguments @{ ProjectsRoot = $ProjectsRoot }
+      $summary.steps += "lotus-idea-teardown"
       $summary.steps += "teardown"
     } catch {
       $summary.status = "failed"
