@@ -2,6 +2,9 @@ param(
   [string]$ProjectsRoot,
   [string]$WorkbenchRepoPath,
   [string]$RuntimeHolder = $env:LOTUS_CANONICAL_RUNTIME_HOLDER,
+  [string]$RuntimeOperationToken,
+  [System.IO.FileStream]$RuntimeOperationFence,
+  [ValidateSet('full','core-manage')][string]$RuntimeMode = 'full',
   [string]$ContractPath,
   [string]$ManageBaseUrl = "http://manage.dev.lotus",
   [string]$GatewayBaseUrl = "http://gateway.dev.lotus",
@@ -995,8 +998,19 @@ if ($PreflightOnly) {
 $runtimeOperation = $null
 try {
   if ([string]::IsNullOrWhiteSpace($ProjectsRoot)) { $ProjectsRoot = Split-Path -Parent $platformRoot }
-  Import-Module (Join-Path $PSScriptRoot 'CanonicalRuntimeReservation.psm1') -Force
-  $runtimeOperation = Enter-CanonicalRuntimeOperation -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder -WorkbenchRepoPath $WorkbenchRepoPath
+  # DPM writes use Gateway/Advise as well as Core/Manage. Partial diagnostic
+  # startup returns before DPM; its resource scope cannot authorize this seed.
+  if ($RuntimeMode -ne 'full') { throw 'DPM seeding requires a full canonical reservation; core-manage diagnostics do not admit Gateway/Advise seed I/O.' }
+  Import-Module (Join-Path $PSScriptRoot 'CanonicalRuntimeReservation.psm1')
+  if ($RuntimeOperationToken) {
+    # In-process nesting shares the parent's actual exclusive handle. A durable token
+    # alone survives interruption and therefore cannot prove a still-fenced caller.
+    Assert-CanonicalRuntimeOperationFence -ProjectsRoot $ProjectsRoot -OperationToken $RuntimeOperationToken -Fence $RuntimeOperationFence
+    Invoke-CanonicalReservation -Action preflight-operation -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder `
+      -WorkbenchRepoPath $WorkbenchRepoPath -OperationToken $RuntimeOperationToken -RuntimeMode $RuntimeMode | Out-Host
+  } else {
+    $runtimeOperation = Enter-CanonicalRuntimeOperation -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder -WorkbenchRepoPath $WorkbenchRepoPath -RuntimeMode $RuntimeMode
+  }
   Write-Host "[dpm-seed] preflighting Manage write authorization for canonical refresh route"
   $summary.manage_authorization_preflight_response = Invoke-ManageWriteAuthorizationPreflight `
     -Uri $refreshUri `

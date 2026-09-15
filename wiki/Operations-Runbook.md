@@ -91,6 +91,12 @@ python automation\validate_analytics_ui_entitlement_certification.py
     operation token fence runtime mutation; Docker labels never manufacture holder authority.
     A selected Workbench override must match the admitted checkout and executing scripts.
     Provider-owned persistent DPM seed writes hold the same operation fence across their pre-reads.
+    A nested seed runs in-process with the live canonical parent FileStream and unchanged startup
+    token registered to the original handle in that module instance. Replacement/new-process
+    handles refuse before I/O; durable tokens alone are not admission. Explicit `core-manage`
+    acquisition supports only the bounded diagnostic source/project/port scope and cannot
+    substitute for full canonical acceptance. Partial startup returns before DPM; full-scope
+    Gateway/Advise DPM seed requests explicitly refuse partial mode before I/O.
     Workbench shipped-script adoption is separate from provider availability. Read the linked
     reservation runbook before the commands above; startup now requires an acquired explicit
     `LOTUS_CANONICAL_RUNTIME_HOLDER`. Level A receipts, Level B readiness and live IAM remain

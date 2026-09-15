@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 388612
+    "total_source_lines": 388747
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -146,20 +146,20 @@
         "path": "automation/validate_auto_merge_releasability.py"
       },
       {
+        "complexity": 20,
+        "end_line": 126,
+        "line": 81,
+        "lines": 46,
+        "name": "execute",
+        "path": "automation/canonical_runtime_reservation.py"
+      },
+      {
         "complexity": 19,
         "end_line": 158,
         "line": 90,
         "lines": 69,
         "name": "load_manifest",
         "path": "automation/validate_sibling_source_manifest.py"
-      },
-      {
-        "complexity": 19,
-        "end_line": 125,
-        "line": 81,
-        "lines": 45,
-        "name": "execute",
-        "path": "automation/canonical_runtime_reservation.py"
       },
       {
         "complexity": 18,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3880
+    "python_function_count": 3882
   },
-  "generated_at_utc": "2026-09-15T05:38:28Z",
+  "generated_at_utc": "2026-09-15T06:45:57Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -607,22 +607,22 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 119,
+        "line": 120,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 122,
+        "line": 123,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 124,
+        "line": 125,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 138,
+        "line": 140,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1872,
+    "collected_tests": 1882,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1872 tests collected"
+    "summary": "1882 tests collected"
   }
 }

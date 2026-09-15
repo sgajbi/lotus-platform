@@ -102,7 +102,8 @@ def execute(args: argparse.Namespace, book: dict) -> dict:
             lease.require(paths_match_exactly(scope["projects"]["lotus-workbench"], str(workbench)),
                           "Selected Workbench checkout differs from acquired scope.")
     else:
-        scope = scope_for(root, workbench)
+        mode = getattr(args, "runtime_mode", "full")
+        scope = scope_for(root, workbench) if mode == "full" else scope_for(root, workbench, mode)
     inventory = observe(scope)
     now = datetime.now(timezone.utc)
     common = {"holder": args.holder, "scope": scope, "bindings": inventory, "now": now}
@@ -131,6 +132,7 @@ def main() -> int:
                                          "begin-teardown", "finish", "recover"])
     parser.add_argument("--projects-root", required=True)
     parser.add_argument("--workbench-repo-path", default="")
+    parser.add_argument("--runtime-mode", choices=["full", "core-manage"], default="full")
     parser.add_argument("--holder", default="")  # Missing identity refuses every mutation, never a grant.
     parser.add_argument("--purpose", default="")
     parser.add_argument("--expiry-utc", default="")

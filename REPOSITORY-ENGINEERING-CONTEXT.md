@@ -249,7 +249,14 @@ Use the RFC index for deeper or historical decisions.
   selected Workbench checkout through admission/publication; never approve a sibling while an
   overridden worktree performs I/O.
   Provider-owned DPM seed execution likewise admits an operation across pre-reads and persistent
-  writes; its side-effect-free authorization diagnostic is not seed or runtime acceptance.
+  writes. Nested startup runs in-process with its live canonical parent FileStream and explicit
+  holder/workspace/selected-checkout/token unchanged. Only Enter's original stream registered to
+  that token in the same module instance is admitted; replacement/new-process handles refuse.
+  Explicit `core-manage` diagnostic acquisition checks only Core/Manage Compose inputs plus the
+  immutable executing Workbench/Platform sources; full and partial scope cannot substitute.
+  Partial startup excludes DPM, whose Gateway/Advise seed writes require full admission;
+  the seed validates that admission and neither reacquires nor finishes the parent operation.
+  Its side-effect-free authorization diagnostic is not seed or runtime acceptance.
 - Avoid repeating shared policy in README, wiki, context, and skills. Keep one authority and route
   readers to it.
 
