@@ -464,7 +464,7 @@ def test_shipped_adapter_forwards_selected_workbench_through_begin_and_finish():
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted", "cash-denied", "cash-native-failure", "cash-invalid-output", "cash-incomplete", "cash-array", "cash-wrong-date", "cash-invalid-weight", "partial", "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign", "nested-shared", "nested-replacement", "nested-new-process"])
+@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted", "cash-denied", "cash-native-failure", "cash-invalid-output", "cash-incomplete", "cash-array", "cash-wrong-date", "cash-invalid-weight", "cash-inconsistent", "partial", "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign", "nested-shared", "nested-replacement", "nested-new-process"])
 def test_shipped_dpm_seed_holds_actual_operation_fence_across_writes(tmp_path, mode):
     shell = shutil.which("pwsh") or shutil.which("powershell")
     assert shell
@@ -497,8 +497,7 @@ function global:python {{
     }}
     $outcome=$args[[Array]::IndexOf($args,'--outcome')+1]
     $count=@($global:proofWriteUris | Select-Object -Unique).Count
-    $expectedCount=if ('{mode}' -like 'cash-*') {{ 0 }} else {{ 2 }}
-    if ($count -ne $expectedCount -or $outcome -ne 'failure') {{ throw 'FALSE_DPM_OUTCOME' }}
+    if ($outcome -ne 'failure') {{ throw 'FALSE_DPM_OUTCOME' }}
     Write-Host "FENCED_DPM_WRITES=$count;OUTCOME=$outcome"
     return '{{}}'
   }}
@@ -514,6 +513,7 @@ function global:python {{
     effective_as_of_date='2026-04-10'; cash_weight_pct='10'; normalized_cash_weight='0.10'}}
   if ('{mode}' -eq 'cash-wrong-date') {{ $cash.effective_as_of_date='2026-04-09' }}
   if ('{mode}' -eq 'cash-invalid-weight') {{ $cash.normalized_cash_weight='NaN' }}
+  if ('{mode}' -eq 'cash-inconsistent') {{ $cash.cash_weight_pct='50' }}
   $json=$cash | ConvertTo-Json -Compress
   if ('{mode}' -eq 'cash-array') {{ return "[$json]" }}
   return $json

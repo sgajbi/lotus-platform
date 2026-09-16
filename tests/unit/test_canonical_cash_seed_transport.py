@@ -34,9 +34,14 @@ def cash_source():
             }
             if tenant == "tenant-degraded":
                 payload["warnings"] = ["PRIVATE SOURCE DETAIL"]
+            if tenant in {"tenant-zero", "tenant-hundred"}:
+                payload["overview"]["cash_weight_pct"] = 0 if tenant == "tenant-zero" else 100
+            if tenant == "tenant-precision":
+                payload["overview"]["cash_weight_pct"] = "EXACT_PERCENT"
             self.send_response(status)
             self.end_headers()
-            self.wfile.write(json.dumps(payload).encode())
+            body = json.dumps(payload).replace('"EXACT_PERCENT"', '12.3456789012345678901234567890123456789')
+            self.wfile.write(body.encode())
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     thread = Thread(target=server.serve_forever, daemon=True)
@@ -111,3 +116,16 @@ def test_cheap_caller_validation_does_not_claim_live_admission(cash_source):
     assert result.returncode == 0, result.stdout + result.stderr
     assert json.loads(result.stdout) == {"state": "caller_scope_validated", "network_performed": False}
     assert requests == []
+
+
+@pytest.mark.parametrize(("tenant", "ratio"), [
+    ("tenant-zero", "0"),
+    ("tenant-hundred", "1"),
+    ("tenant-precision", "0.123456789012345678901234567890123456789"),
+])
+def test_shipped_boundary_preserves_exact_decimal_identity(cash_source, tenant, ratio):
+    url, requests = cash_source
+    result = invoke_cash_boundary(url, tenant)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout)["normalized_cash_weight"] == ratio
+    assert len(requests) == 1

@@ -109,6 +109,22 @@ function Invoke-CanonicalCashEvidence {
       $evidence.normalized_cash_weight -cnotmatch '\A(?:0(?:\.[0-9]+)?|1(?:\.0+)?)\z') {
     throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
   }
+  # Compare decimal coefficient/scale identities without floating-point conversion
+  # or .NET Decimal rounding. Percentage has two additional fractional places.
+  $identities = @()
+  foreach ($field in @('cash_weight_pct', 'normalized_cash_weight')) {
+    $parts = $evidence.$field.Split('.')
+    $coefficient = ($parts -join '').TrimStart('0')
+    $significant = $coefficient.TrimEnd('0')
+    $scale = if ($parts.Count -eq 2) { $parts[1].Length } else { 0 }
+    $scale -= $coefficient.Length - $significant.Length
+    if ($field -eq 'cash_weight_pct') { $scale += 2 }
+    $identities += @{coefficient=$significant; scale=$scale}
+  }
+  if ($identities[0].coefficient -cne $identities[1].coefficient -or
+      ($identities[0].coefficient.Length -gt 0 -and $identities[0].scale -ne $identities[1].scale)) {
+    throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
+  }
   return $evidence
 }
 
