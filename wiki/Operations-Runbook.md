@@ -11,6 +11,7 @@ environment, or bank operation.
 | Classify ingress or local routing | `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1` |
 | Prove the canonical front-office flow | `Invoke-Canonical-FrontOffice-QA.ps1` after reading the cleanup plan |
 | Reserve a shared canonical runtime window | [canonical runtime reservation control](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/canonical-runtime-reservation.md), then Workbench `npm run live:stack:preflight` |
+| Diagnose a DPM cash pre-read refusal | Read the bounded `CANONICAL_CASH_*` reason in the seed receipt and follow the [cash pre-read boundary](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/canonical-runtime-reservation.md#dpm-cash-pre-read); never substitute Manage's tenant or weaken cash readiness |
 | Validate BFF principal-session contract posture | `validate_bff_principal_session_contracts.py` and the BFF principal-session runbook |
 | Inspect mesh posture | `mesh_certification_gate.py` and the operating report |
 | Inspect CI or background work | `Platform-Pulse.ps1`, heartbeat evidence, and GitHub truth |

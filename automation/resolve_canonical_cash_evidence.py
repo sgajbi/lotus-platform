@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from decimal import Decimal, InvalidOperation
 from typing import Any, Mapping
@@ -106,8 +107,10 @@ def cash_evidence_from_overview(
 
 
 def fetch_cash_evidence(
-    *, gateway_base_url: str, portfolio_id: str, as_of_date: str, timeout_seconds: float
+    *, gateway_base_url: str, portfolio_id: str, as_of_date: str, timeout_seconds: float,
+    caller_tenant_id: str | None,
 ) -> dict[str, str]:
+    validate_caller_tenant(caller_tenant_id)
     source_uri = build_overview_uri(
         gateway_base_url=gateway_base_url,
         portfolio_id=portfolio_id,
@@ -118,6 +121,8 @@ def fetch_cash_evidence(
         headers={
             "Accept": "application/json",
             "X-Correlation-Id": f"corr-canonical-cash-{portfolio_id}-{as_of_date}",
+            # This route consumes a caller tenant fence, not Manage write authority.
+            "X-Tenant-Id": caller_tenant_id,
         },
     )
     try:
@@ -146,23 +151,40 @@ def _decimal_text(value: Decimal) -> str:
     return format(value, "f")
 
 
+def validate_caller_tenant(value: str | None) -> None:
+    """Require one explicit canonical caller fence; never resolve it from source ownership."""
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", value):
+        raise CashEvidenceError("CANONICAL_CASH_CALLER_TENANT_INVALID")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gateway-base-url", required=True)
     parser.add_argument("--portfolio-id", required=True)
     parser.add_argument("--as-of-date", required=True)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
+    parser.add_argument("--caller-tenant-id")
+    parser.add_argument("--validate-caller-only", action="store_true")
+    parser.add_argument("--json-errors", action="store_true")
     args = parser.parse_args(argv)
 
     try:
+        validate_caller_tenant(args.caller_tenant_id)
+        if args.validate_caller_only:
+            print(json.dumps({"state": "caller_scope_validated", "network_performed": False}))
+            return 0
         evidence = fetch_cash_evidence(
             gateway_base_url=args.gateway_base_url,
             portfolio_id=args.portfolio_id,
             as_of_date=args.as_of_date,
             timeout_seconds=args.timeout_seconds,
+            caller_tenant_id=args.caller_tenant_id,
         )
     except CashEvidenceError as exc:
-        print(str(exc), file=sys.stderr)
+        if args.json_errors:
+            print(json.dumps({"error_code": str(exc)}, sort_keys=True))
+        else:
+            print(str(exc), file=sys.stderr)
         return 1
 
     print(json.dumps(evidence, sort_keys=True))

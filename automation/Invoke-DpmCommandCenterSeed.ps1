@@ -52,6 +52,36 @@ function Resolve-ContractValue {
   return [string]$Fallback
 }
 
+function Invoke-CanonicalCashEvidence {
+  param([switch]$ValidateCallerOnly)
+
+  $arguments = @(
+    $canonicalCashEvidenceScript,
+    '--gateway-base-url', $gatewayApiBaseUrl,
+    '--portfolio-id', $resolvedPortfolioId,
+    '--as-of-date', $resolvedAsOfDate,
+    "--caller-tenant-id=$resolvedWorkbenchCallerTenantId",
+    '--json-errors'
+  )
+  if ($ValidateCallerOnly) { $arguments += '--validate-caller-only' }
+  $cashEvidenceJson = & python @arguments
+  $childExitCode = $LASTEXITCODE
+  $evidence = $null
+  try { $evidence = ($cashEvidenceJson -join "`n") | ConvertFrom-Json } catch { }
+  if ($childExitCode -ne 0) {
+    # Only retain the closed resolver reason vocabulary, never raw child output.
+    $reason = 'CANONICAL_CASH_RESOLVER_FAILED'
+    $safeReason = '^CANONICAL_CASH_(CALLER_TENANT_INVALID|SOURCE_HTTP_[1-5][0-9]{2}|SOURCE_UNAVAILABLE|RESPONSE_INVALID|PORTFOLIO_MISSING|PORTFOLIO_MISMATCH|DATE_MISMATCH|EFFECTIVE_DATE_MISMATCH|TEMPORAL_STATE_UNCONFIRMED|SOURCE_DEGRADED|OVERVIEW_MISSING|WEIGHT_INVALID|WEIGHT_OUT_OF_RANGE)$'
+    if ($evidence.error_code -cmatch $safeReason) { $reason = $evidence.error_code }
+    throw "Canonical cash-evidence resolution failed: $reason (exit $childExitCode) before any persistent seed write."
+  }
+  $expectedState = if ($ValidateCallerOnly) { 'caller_scope_validated' } else { 'ready' }
+  if (-not $evidence -or $evidence.error_code -or $evidence.state -cne $expectedState) {
+    throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
+  }
+  return $evidence
+}
+
 function Invoke-JsonRequest {
   param(
     [string]$Method,
@@ -983,6 +1013,7 @@ function Complete-SeedSummary {
 
 if ($PreflightOnly) {
   try {
+    [void](Invoke-CanonicalCashEvidence -ValidateCallerOnly)
     Write-Host "[dpm-seed] preflighting Manage write authorization for canonical refresh route"
     $summary.manage_authorization_preflight_response = Invoke-ManageWriteAuthorizationPreflight `
       -Uri $refreshUri `
@@ -1011,6 +1042,7 @@ try {
   } else {
     $runtimeOperation = Enter-CanonicalRuntimeOperation -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder -WorkbenchRepoPath $WorkbenchRepoPath -RuntimeMode $RuntimeMode
   }
+  [void](Invoke-CanonicalCashEvidence -ValidateCallerOnly)
   Write-Host "[dpm-seed] preflighting Manage write authorization for canonical refresh route"
   $summary.manage_authorization_preflight_response = Invoke-ManageWriteAuthorizationPreflight `
     -Uri $refreshUri `
@@ -1018,18 +1050,7 @@ try {
   $summary.steps += "manage-refresh-authorization-preflight"
 
   Write-Host "[dpm-seed] resolving date-aligned canonical cash evidence before persistent writes"
-  $cashEvidenceJson = & python $canonicalCashEvidenceScript `
-    --gateway-base-url $gatewayApiBaseUrl `
-    --portfolio-id $resolvedPortfolioId `
-    --as-of-date $resolvedAsOfDate
-  if ($LASTEXITCODE -ne 0) {
-    throw "Canonical cash-evidence resolution failed with exit code $LASTEXITCODE before any persistent seed write."
-  }
-  try {
-    $summary.cash_evidence = $cashEvidenceJson | ConvertFrom-Json
-  } catch {
-    throw "Canonical cash-evidence resolver returned invalid JSON before any persistent seed write: $($_.Exception.Message)"
-  }
+  $summary.cash_evidence = Invoke-CanonicalCashEvidence
   $summary.steps += "gateway-date-aligned-cash-evidence-preflight"
 
   Write-Host "[dpm-seed] refreshing $resolvedMandateId from lotus-core through lotus-manage"

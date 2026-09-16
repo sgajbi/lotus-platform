@@ -464,7 +464,7 @@ def test_shipped_adapter_forwards_selected_workbench_through_begin_and_finish():
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted", "partial", "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign", "nested-shared", "nested-replacement", "nested-new-process"])
+@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted", "cash-denied", "cash-native-failure", "cash-invalid-output", "partial", "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign", "nested-shared", "nested-replacement", "nested-new-process"])
 def test_shipped_dpm_seed_holds_actual_operation_fence_across_writes(tmp_path, mode):
     shell = shutil.which("pwsh") or shutil.which("powershell")
     assert shell
@@ -497,11 +497,17 @@ function global:python {{
     }}
     $outcome=$args[[Array]::IndexOf($args,'--outcome')+1]
     $count=@($global:proofWriteUris | Select-Object -Unique).Count
-    if ($count -ne 2 -or $outcome -ne 'failure') {{ throw 'FALSE_DPM_OUTCOME' }}
+    $expectedCount=if ('{mode}' -like 'cash-*') {{ 0 }} else {{ 2 }}
+    if ($count -ne $expectedCount -or $outcome -ne 'failure') {{ throw 'FALSE_DPM_OUTCOME' }}
     Write-Host "FENCED_DPM_WRITES=$count;OUTCOME=$outcome"
     return '{{}}'
   }}
-  return '{{"normalized_cash_weight":"0.10"}}'
+  if ($args -contains '--validate-caller-only') {{ return '{{"state":"caller_scope_validated","network_performed":false}}' }}
+  if ($args -notcontains '--caller-tenant-id=tenant-sg') {{ throw 'CALLER_FENCE_LOST' }}
+  if ('{mode}' -eq 'cash-denied') {{ $global:LASTEXITCODE=1; return '{{"error_code":"CANONICAL_CASH_SOURCE_HTTP_403"}}' }}
+  if ('{mode}' -eq 'cash-native-failure') {{ $global:LASTEXITCODE=23; return 'PRIVATE CHILD OUTPUT' }}
+  if ('{mode}' -eq 'cash-invalid-output') {{ return '{{"state":"failed"}}' }}
+  return '{{"state":"ready","normalized_cash_weight":"0.10"}}'
 }}
 function global:Start-Sleep {{ param($Seconds) }}
 function global:Invoke-RestMethod {{
@@ -550,6 +556,15 @@ try {{
         if mode == "admitted":
             assert "FENCED_DPM_WRITES=2;OUTCOME=failure" in result.stdout, result.stdout + result.stderr
             assert "CONTROLLED_SECOND_WRITE_FAILURE" in summary["error"]
+        elif mode.startswith("cash-"):
+            assert "FENCED_DPM_WRITES=0;OUTCOME=failure" in result.stdout
+            assert summary["refresh_response"] is None
+            assert summary["steps"] == ["manage-refresh-authorization-preflight"]
+            expected = {"cash-denied": "CANONICAL_CASH_SOURCE_HTTP_403",
+                        "cash-native-failure": "CANONICAL_CASH_RESOLVER_FAILED",
+                        "cash-invalid-output": "CANONICAL_CASH_RESOLVER_INVALID_OUTPUT"}[mode]
+            assert expected in summary["error"]
+            assert "PRIVATE CHILD OUTPUT" not in json.dumps(summary)
         elif mode == "nested":
             assert "CONTROLLED_SECOND_WRITE_FAILURE" in summary["error"], json.dumps(summary)
             assert "NESTED_SOURCE_ADMITTED" in result.stdout
