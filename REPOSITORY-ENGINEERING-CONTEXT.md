@@ -257,6 +257,11 @@ Use the RFC index for deeper or historical decisions.
   Partial startup excludes DPM, whose Gateway/Advise seed writes require full admission;
   the seed validates that admission and neither reacquires nor finishes the parent operation.
   Its side-effect-free authorization diagnostic is not seed or runtime acceptance.
+  The cash pre-read carries the contract's explicit Workbench caller tenant fence through
+  PowerShell and Python to Gateway/Core; it never substitutes Manage's command tenant or
+  source ownership. Local caller syntax validation is not live access admission. Safe typed
+  child refusals survive in the seed receipt, and every cash-source failure stops before the
+  first persistent DPM write. Exact-date/Decimal/source-quality admission remains unchanged.
 - Avoid repeating shared policy in README, wiki, context, and skills. Keep one authority and route
   readers to it.
 

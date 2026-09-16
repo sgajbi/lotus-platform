@@ -62,4 +62,30 @@ Before cleanup, run `automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOn
 
 ## Evidence boundaries
 
+### DPM cash pre-read
+
+`Invoke-DpmCommandCenterSeed.ps1` passes the explicitly configured
+`dpm_command_center.workbench_caller_tenant_id` to the cash resolver as
+`--caller-tenant-id`. The Gateway Overview route forwards this tenant fence to Core.
+It is not Manage's command tenant, a portfolio-derived grant, or production IAM evidence.
+The source ownership field `portfolio.source_tenant_id` remains independent.
+
+The existing `-PreflightOnly` diagnostic also validates the caller fence locally before
+its side-effect-free Manage authorization probe. This cheap syntax check performs no
+Gateway read and does not prove live access or financial readiness. The complete seed
+performs the actual date-aligned Gateway read under the original runtime operation fence
+before its first persistent write. Missing or ambiguous caller scope, source denial,
+degraded evidence, wrong portfolio/date and invalid cash values remain failures.
+
+The child returns a bounded JSON error code to the seed, which retains it in the seed
+receipt rather than replacing it with an exit code alone. Unknown native failures or
+malformed child output retain only a generic resolver failure; raw response bodies and
+child diagnostics are not copied into the receipt. Diagnose `CANONICAL_CASH_SOURCE_HTTP_401`
+or `_403` as a refusal, not permission to substitute a tenant. Cash conversion still
+preserves Decimal precision and requires confirmed exact-date, non-degraded evidence.
+
+Adapter and process-boundary tests are not canonical acceptance. Re-run the full governed
+runtime, including Idea, supported APIs, independent persistence checks, DPM/browser proof
+and teardown, before claiming the consumer has accepted a source-qualified correction.
+
 Hermetic tests use real temporary Git revisions, actual OS/file transactions and the shipped PowerShell adapter. The supplier control is response-ready until Workbench's shipped scripts and required checks accept it. Live acquisition/control proof is separate from Level A receipt evidence, Level B canonical validation, historical CI revision coverage and production IAM. Core's PARTIAL/null-epoch seed boundary does not become ready because a reservation or CI gate passed.

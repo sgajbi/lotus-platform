@@ -1,4 +1,6 @@
 from decimal import Decimal
+from io import BytesIO
+from urllib.error import HTTPError
 
 import pytest
 
@@ -7,6 +9,7 @@ from automation.resolve_canonical_cash_evidence import (
     build_overview_uri,
     cash_evidence_from_overview,
 )
+from automation import resolve_canonical_cash_evidence as resolver
 
 
 def _overview(*, portfolio_id: str, as_of_date: str, cash_weight_pct: object) -> dict:
@@ -223,3 +226,50 @@ def test_overview_uri_encodes_identity_date_and_source_isolation() -> None:
         "&include_performance_snapshot=false"
         "&include_rebalance_snapshot=false"
     )
+
+
+@pytest.mark.parametrize("tenant", ["tenant-a", "tenant-b"])
+def test_cash_transport_preserves_explicit_caller_fence(monkeypatch, tenant):
+    def respond(request, *, timeout):
+        assert request.get_header("X-tenant-id") == tenant
+        assert not request.has_header("X-capabilities")
+        assert timeout == 3
+        return BytesIO(b'{"portfolio":{"portfolio_id":"PB"},"as_of_date":"2026-04-10",'
+                       b'"effective_as_of_date":"2026-04-10","as_of_state":"confirmed",'
+                       b'"overview":{"cash_weight_pct":12.34567890123456789012345678901},'
+                       b'"warnings":[],"partial_failures":[]}')
+
+    monkeypatch.setattr(resolver, "urlopen", respond)
+    evidence = resolver.fetch_cash_evidence(
+        gateway_base_url="http://gateway.dev.lotus", portfolio_id="PB",
+        as_of_date="2026-04-10", timeout_seconds=3, caller_tenant_id=tenant,
+    )
+    assert evidence["normalized_cash_weight"] == "0.1234567890123456789012345678901"
+
+
+@pytest.mark.parametrize("tenant", [None, "", " ", "tenant-a,tenant-b", "tenant-a\r\nInjected: yes"])
+def test_cash_transport_rejects_missing_or_ambiguous_scope_before_io(monkeypatch, tenant):
+    def unexpected(*args, **kwargs):
+        pytest.fail("Invalid authority reached HTTP")
+
+    monkeypatch.setattr(resolver, "urlopen", unexpected)
+    with pytest.raises(CashEvidenceError, match="CANONICAL_CASH_CALLER_TENANT_INVALID"):
+        resolver.fetch_cash_evidence(
+            gateway_base_url="http://gateway.dev.lotus", portfolio_id="PB",
+            as_of_date="2026-04-10", timeout_seconds=3, caller_tenant_id=tenant,
+        )
+
+
+@pytest.mark.parametrize("status", [401, 403, 503])
+def test_cash_cli_retains_safe_typed_refusal(monkeypatch, capsys, status):
+    def refuse(request, *, timeout):
+        raise HTTPError(request.full_url, status, "PRIVATE SOURCE CONTENT", {}, None)
+
+    monkeypatch.setattr(resolver, "urlopen", refuse)
+    assert resolver.main([
+        "--gateway-base-url", "http://gateway.dev.lotus", "--portfolio-id", "PB",
+        "--as-of-date", "2026-04-10", "--caller-tenant-id", "tenant-denied", "--json-errors",
+    ]) == 1
+    captured = capsys.readouterr()
+    assert captured.out.strip() == '{"error_code": "CANONICAL_CASH_SOURCE_HTTP_' + str(status) + '"}'
+    assert captured.err == ""
