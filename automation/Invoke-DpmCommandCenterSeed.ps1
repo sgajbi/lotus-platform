@@ -67,7 +67,8 @@ function Invoke-CanonicalCashEvidence {
   $cashEvidenceJson = & python @arguments
   $childExitCode = $LASTEXITCODE
   $evidence = $null
-  try { $evidence = ($cashEvidenceJson -join "`n") | ConvertFrom-Json } catch { }
+  $cashEvidenceText = $cashEvidenceJson -join "`n"
+  try { $evidence = $cashEvidenceText | ConvertFrom-Json } catch { }
   if ($childExitCode -ne 0) {
     # Only retain the closed resolver reason vocabulary, never raw child output.
     $reason = 'CANONICAL_CASH_RESOLVER_FAILED'
@@ -76,7 +77,36 @@ function Invoke-CanonicalCashEvidence {
     throw "Canonical cash-evidence resolution failed: $reason (exit $childExitCode) before any persistent seed write."
   }
   $expectedState = if ($ValidateCallerOnly) { 'caller_scope_validated' } else { 'ready' }
-  if (-not $evidence -or $evidence.error_code -or $evidence.state -cne $expectedState) {
+  if (-not $cashEvidenceText.TrimStart().StartsWith('{') -or
+      $evidence -isnot [pscustomobject] -or $evidence.error_code -or $evidence.state -cne $expectedState) {
+    throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
+  }
+  if ($ValidateCallerOnly) {
+    if ($evidence.network_performed -isnot [bool] -or $evidence.network_performed -or
+        @($evidence.PSObject.Properties).Count -ne 2) {
+      throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
+    }
+    return $evidence
+  }
+  # Admit the complete resolver receipt before even the first refresh/monitoring write.
+  $expected = @{
+    state='ready'; source_service='lotus-gateway'; source_contract='WorkbenchOverviewResponse'
+    portfolio_id=$resolvedPortfolioId; requested_as_of_date=$resolvedAsOfDate
+    resolved_as_of_date=$resolvedAsOfDate; effective_as_of_date=$resolvedAsOfDate
+    source_uri=($gatewayApiBaseUrl.TrimEnd('/') + '/api/v1/workbench/' +
+      [Uri]::EscapeDataString($resolvedPortfolioId) + '/overview?as_of_date=' +
+      [Uri]::EscapeDataString($resolvedAsOfDate) + '&include_performance_snapshot=false&include_rebalance_snapshot=false')
+  }
+  foreach ($key in $expected.Keys) {
+    if ($evidence.$key -isnot [string] -or $evidence.$key -cne $expected[$key]) {
+      throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
+    }
+  }
+  if (@($evidence.PSObject.Properties).Count -ne 10 -or
+      $evidence.cash_weight_pct -isnot [string] -or
+      $evidence.cash_weight_pct -cnotmatch '\A(?:(?:[0-9]|[1-9][0-9])(?:\.[0-9]+)?|100(?:\.0+)?)\z' -or
+      $evidence.normalized_cash_weight -isnot [string] -or
+      $evidence.normalized_cash_weight -cnotmatch '\A(?:0(?:\.[0-9]+)?|1(?:\.0+)?)\z') {
     throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
   }
   return $evidence
