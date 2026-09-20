@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 389068
+    "total_source_lines": 389084
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -458,7 +458,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1324,
+      "lines": 1327,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
     }
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1909,
+    "collected_tests": 1912,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1909 tests collected"
+    "summary": "1912 tests collected"
   }
 }

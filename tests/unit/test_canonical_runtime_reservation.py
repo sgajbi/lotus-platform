@@ -464,7 +464,13 @@ def test_shipped_adapter_forwards_selected_workbench_through_begin_and_finish():
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.parametrize("mode", ["missing", "foreign", "contended", "admitted", "cash-denied", "cash-native-failure", "cash-invalid-output", "cash-incomplete", "cash-array", "cash-wrong-date", "cash-invalid-weight", "cash-inconsistent", "partial", "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign", "nested-shared", "nested-replacement", "nested-new-process"])
+@pytest.mark.parametrize("mode", [
+    "missing", "foreign", "contended", "admitted", "cash-denied", "cash-native-failure",
+    "cash-error-array", "cash-error-field-array", "cash-invalid-output", "cash-incomplete",
+    "cash-array", "cash-wrong-date", "cash-invalid-weight", "cash-inconsistent", "partial",
+    "nested-partial", "nested", "nested-absent", "nested-disposed", "nested-foreign",
+    "nested-shared", "nested-replacement", "nested-new-process",
+])
 def test_shipped_dpm_seed_holds_actual_operation_fence_across_writes(tmp_path, mode):
     shell = shutil.which("pwsh") or shutil.which("powershell")
     assert shell
@@ -505,6 +511,8 @@ function global:python {{
   if ($args -notcontains '--caller-tenant-id=tenant-sg') {{ throw 'CALLER_FENCE_LOST' }}
   if ('{mode}' -eq 'cash-denied') {{ $global:LASTEXITCODE=1; return '{{"error_code":"CANONICAL_CASH_SOURCE_HTTP_403"}}' }}
   if ('{mode}' -eq 'cash-native-failure') {{ $global:LASTEXITCODE=23; return 'PRIVATE CHILD OUTPUT' }}
+  if ('{mode}' -eq 'cash-error-array') {{ $global:LASTEXITCODE=1; return '[{{"error_code":"CANONICAL_CASH_SOURCE_HTTP_403"}},{{"error_code":"PRIVATE CHILD OUTPUT"}}]' }}
+  if ('{mode}' -eq 'cash-error-field-array') {{ $global:LASTEXITCODE=1; return '{{"error_code":["CANONICAL_CASH_SOURCE_HTTP_403","PRIVATE CHILD OUTPUT"]}}' }}
   if ('{mode}' -eq 'cash-invalid-output') {{ return '{{"state":"failed"}}' }}
   if ('{mode}' -eq 'cash-incomplete') {{ return '{{"state":"ready"}}' }}
   $cash=@{{state='ready'; source_service='lotus-gateway'; source_contract='WorkbenchOverviewResponse';
@@ -571,6 +579,8 @@ try {{
             assert summary["steps"] == ["manage-refresh-authorization-preflight"]
             expected = {"cash-denied": "CANONICAL_CASH_SOURCE_HTTP_403",
                         "cash-native-failure": "CANONICAL_CASH_RESOLVER_FAILED",
+                        "cash-error-array": "CANONICAL_CASH_RESOLVER_FAILED",
+                        "cash-error-field-array": "CANONICAL_CASH_RESOLVER_FAILED",
                         "cash-invalid-output": "CANONICAL_CASH_RESOLVER_INVALID_OUTPUT"}.get(mode, "CANONICAL_CASH_RESOLVER_INVALID_OUTPUT")
             assert expected in summary["error"]
             assert "PRIVATE CHILD OUTPUT" not in json.dumps(summary)

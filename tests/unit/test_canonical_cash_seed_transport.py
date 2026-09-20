@@ -38,6 +38,8 @@ def cash_source():
                 payload["overview"]["cash_weight_pct"] = 0 if tenant == "tenant-zero" else 100
             if tenant == "tenant-precision":
                 payload["overview"]["cash_weight_pct"] = "EXACT_PERCENT"
+            if tenant == "tenant-negative-zero":
+                payload["overview"]["cash_weight_pct"] = -0.0
             self.send_response(status)
             self.end_headers()
             body = json.dumps(payload).replace('"EXACT_PERCENT"', '12.3456789012345678901234567890123456789')
@@ -121,6 +123,7 @@ def test_cheap_caller_validation_does_not_claim_live_admission(cash_source):
 @pytest.mark.parametrize(("tenant", "ratio"), [
     ("tenant-zero", "0"),
     ("tenant-hundred", "1"),
+    ("tenant-negative-zero", "-0"),
     ("tenant-precision", "0.123456789012345678901234567890123456789"),
 ])
 def test_shipped_boundary_preserves_exact_decimal_identity(cash_source, tenant, ratio):
