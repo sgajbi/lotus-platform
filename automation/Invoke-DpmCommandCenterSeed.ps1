@@ -72,8 +72,11 @@ function Invoke-CanonicalCashEvidence {
   if ($childExitCode -ne 0) {
     # Only retain the closed resolver reason vocabulary, never raw child output.
     $reason = 'CANONICAL_CASH_RESOLVER_FAILED'
-    $safeReason = '^CANONICAL_CASH_(CALLER_TENANT_INVALID|SOURCE_HTTP_[1-5][0-9]{2}|SOURCE_UNAVAILABLE|RESPONSE_INVALID|PORTFOLIO_MISSING|PORTFOLIO_MISMATCH|DATE_MISMATCH|EFFECTIVE_DATE_MISMATCH|TEMPORAL_STATE_UNCONFIRMED|SOURCE_DEGRADED|OVERVIEW_MISSING|WEIGHT_INVALID|WEIGHT_OUT_OF_RANGE)$'
-    if ($evidence.error_code -cmatch $safeReason) { $reason = $evidence.error_code }
+    $safeReason = '\ACANONICAL_CASH_(CALLER_TENANT_INVALID|SOURCE_HTTP_[1-5][0-9]{2}|SOURCE_UNAVAILABLE|RESPONSE_INVALID|PORTFOLIO_MISSING|PORTFOLIO_MISMATCH|DATE_MISMATCH|EFFECTIVE_DATE_MISMATCH|TEMPORAL_STATE_UNCONFIRMED|SOURCE_DEGRADED|OVERVIEW_MISSING|WEIGHT_INVALID|WEIGHT_OUT_OF_RANGE)\z'
+    if ($cashEvidenceText.TrimStart().StartsWith('{') -and $evidence -is [pscustomobject] -and
+        $evidence.error_code -is [string] -and $evidence.error_code -cmatch $safeReason) {
+      $reason = $evidence.error_code
+    }
     throw "Canonical cash-evidence resolution failed: $reason (exit $childExitCode) before any persistent seed write."
   }
   $expectedState = if ($ValidateCallerOnly) { 'caller_scope_validated' } else { 'ready' }
@@ -104,16 +107,16 @@ function Invoke-CanonicalCashEvidence {
   }
   if (@($evidence.PSObject.Properties).Count -ne 10 -or
       $evidence.cash_weight_pct -isnot [string] -or
-      $evidence.cash_weight_pct -cnotmatch '\A(?:(?:[0-9]|[1-9][0-9])(?:\.[0-9]+)?|100(?:\.0+)?)\z' -or
+      $evidence.cash_weight_pct -cnotmatch '\A(?:(?:[0-9]|[1-9][0-9])(?:\.[0-9]+)?|100(?:\.0+)?|-0(?:\.0+)?)\z' -or
       $evidence.normalized_cash_weight -isnot [string] -or
-      $evidence.normalized_cash_weight -cnotmatch '\A(?:0(?:\.[0-9]+)?|1(?:\.0+)?)\z') {
+      $evidence.normalized_cash_weight -cnotmatch '\A(?:0(?:\.[0-9]+)?|1(?:\.0+)?|-0(?:\.0+)?)\z') {
     throw 'CANONICAL_CASH_RESOLVER_INVALID_OUTPUT before any persistent seed write.'
   }
   # Compare decimal coefficient/scale identities without floating-point conversion
   # or .NET Decimal rounding. Percentage has two additional fractional places.
   $identities = @()
   foreach ($field in @('cash_weight_pct', 'normalized_cash_weight')) {
-    $parts = $evidence.$field.Split('.')
+    $parts = $evidence.$field.TrimStart('-').Split('.') # Only signed zero can reach this point.
     $coefficient = ($parts -join '').TrimStart('0')
     $significant = $coefficient.TrimEnd('0')
     $scale = if ($parts.Count -eq 2) { $parts[1].Length } else { 0 }

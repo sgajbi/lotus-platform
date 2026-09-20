@@ -83,6 +83,10 @@ malformed child output retain only a generic resolver failure; raw response bodi
 child diagnostics are not copied into the receipt. Diagnose `CANONICAL_CASH_SOURCE_HTTP_401`
 or `_403` as a refusal, not permission to substitute a tenant. Cash conversion still
 preserves Decimal precision and requires confirmed exact-date, non-degraded evidence.
+Successful child output must be one complete receipt for the exact requested source, portfolio
+and dates. Percentage and normalized ratio must agree exactly; comparison preserves arbitrary
+decimal precision and signed zero. Error output must likewise contain one string reason in the
+closed vocabulary; arrays or nested values cannot introduce arbitrary diagnostics into evidence.
 
 Adapter and process-boundary tests are not canonical acceptance. Re-run the full governed
 runtime, including Idea, supported APIs, independent persistence checks, DPM/browser proof
