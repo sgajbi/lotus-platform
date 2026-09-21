@@ -97,6 +97,12 @@ for the detailed generated-feature and usage guide.
 
 For canonical populated front-office validation, use `lotus-workbench`:
 
+On a fresh Windows Docker machine, follow the
+[Developer Onboarding fresh-checkout and rehearsal steps](https://github.com/sgajbi/lotus-platform/blob/main/docs/onboarding/LOTUS-DEVELOPER-ONBOARDING.md#fresh-windows-checkout-for-the-docker-demo)
+first. They cover sibling checkouts, locked dependencies, ingress, explicit runtime reservation,
+source-pinned QA, and safe teardown. A successful command is local demo evidence only;
+pre-validation screenshots are diagnostic, not client-ready proof.
+
 ```powershell
 Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-workbench"
 npm run live:stack:up

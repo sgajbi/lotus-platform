@@ -54,13 +54,34 @@ Recommended layout:
   lotus-workbench\
 ```
 
-The current local examples often use:
+The parent can be on any local drive; do not copy another developer's absolute path. The
+canonical Windows Docker runtime requires these sibling repository names, not a particular parent.
 
-```text
-<workspace-root>\
+### Fresh Windows checkout for the Docker demo
+
+In a new Windows PowerShell terminal, choose an absolute folder you own. The following is a
+fresh-clone path; if any checkout already exists, inspect it rather than replacing it:
+
+```powershell
+$env:LOTUS_WORKSPACE_ROOT = Read-Host 'Absolute folder for Lotus sibling checkouts'
+New-Item -ItemType Directory -Force -Path $env:LOTUS_WORKSPACE_ROOT | Out-Null
+Set-Location $env:LOTUS_WORKSPACE_ROOT
+git clone https://github.com/sgajbi/lotus-platform.git
+if ($LASTEXITCODE -ne 0) { throw 'Platform clone failed' }
+$demoRepositories = @(
+  'lotus-core', 'lotus-performance', 'lotus-risk', 'lotus-advise',
+  'lotus-manage', 'lotus-report', 'lotus-render', 'lotus-archive',
+  'lotus-idea', 'lotus-ai', 'lotus-gateway', 'lotus-workbench'
+)
+foreach ($repository in $demoRepositories) {
+  git clone "https://github.com/sgajbi/$repository.git"
+  if ($LASTEXITCODE -ne 0) { throw "Clone failed: $repository" }
+}
 ```
 
-Do not treat that path as the only supported layout. Platform automation and documentation should be path-aware and should accept a different workspace root.
+Verify every checkout is clean on `main` before requesting `-RequireMainlineSources`. Do not
+force-reset a checkout with local changes. The full orchestration remains Windows-only while
+its listener and ingress-host controls are Windows-specific.
 
 ## First Pull Sequence
 
@@ -143,6 +164,32 @@ These may not block documentation or narrow code work, but they block local stac
 | DSN and environment posture | repo-local `.env` or platform stack `.env` | variables present, secrets not printed |
 | Seeded data | governed front-office seed scripts and runbooks | available when demo or panel validation is required |
 
+For the Windows Docker demo path, use Node 22 (Workbench declares `>=22 <23`), lock-backed
+`npm ci` in `lotus-workbench`, Python 3.12 or newer for Idea's host-side seed producer (3.12 is
+the tested baseline), and the Idea
+repository's locked contributor environment. Windows PowerShell is included with Windows;
+PowerShell 7 is optional for direct script invocation. From the named checkouts:
+
+```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-workbench"
+npm ci --no-audit --no-fund
+if ($LASTEXITCODE -ne 0) { throw 'Workbench locked dependency install failed' }
+npx playwright install chromium
+if ($LASTEXITCODE -ne 0) { throw 'Workbench browser install failed' }
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-idea"
+python -c "import sys; assert sys.version_info >= (3, 12), 'Python 3.12+ required'"
+if ($LASTEXITCODE -ne 0) { throw 'Idea Python prerequisite failed' }
+python -m venv .venv
+if ($LASTEXITCODE -ne 0) { throw 'Idea virtual environment creation failed' }
+.\.venv\Scripts\python.exe -m pip install --constraint requirements/runtime-resolved.lock.txt -e '.[dev]'
+if ($LASTEXITCODE -ne 0) { throw 'Idea locked dependency install failed' }
+```
+
+Check each command's exit status before continuing. The canonical seed invokes Idea's
+`.venv\Scripts\python.exe`; a Docker image alone does not supply that host-side interpreter.
+Configure each repository's required local-only environment using its `.env.example` and runtime
+runbook; never paste secret values into a shared document or replace an existing `.env` blindly.
+
 Use the [Canonical Front-Office Local Runtime](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md) when the task requires populated Workbench, Gateway, Manage, Risk, Performance, Advisor Brief, or Evidence product surfaces.
 
 Use the [Local Development Runbook](../operations/Local%20Development%20Runbook.md) for shared ingress and platform-stack operations rather than as the primary front-office demo bring-up path.
@@ -178,6 +225,53 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice
 The screenshot pack is valid only after canonical endpoint, calculation, and panel validation passes.
 Pre-validation screenshots must be labelled as diagnostic artifacts and kept separate from demo-ready
 evidence.
+
+### Windows Docker demo rehearsal with an explicit lease
+
+From `lotus-platform`, preview/apply the governed hosts block (apply from an elevated terminal),
+then inspect the reservation book before acquisition. The holder is a deliberate operator choice,
+not a portfolio name or an inferred grant. Choose a future UTC expiry no more than eight hours
+away. The following runs the full source-pinned build, seed and validation path; it does not
+silently skip Idea or turn a seed failure into a demo-ready screenshot:
+
+```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
+powershell -NoProfile -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1
+if ($LASTEXITCODE -ne 0) { throw 'Ingress-host preview failed' }
+```
+
+If the preview reports missing entries, open an elevated Windows PowerShell terminal, set
+`LOTUS_WORKSPACE_ROOT` to the same absolute parent folder, and apply the governed block there:
+
+```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
+powershell -NoProfile -ExecutionPolicy Bypass -File automation/Sync-Dev-Ingress-Hosts.ps1 -Apply
+if ($LASTEXITCODE -ne 0) { throw 'Ingress-host apply failed' }
+```
+
+Return to the original terminal for the reservation and QA run:
+
+```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
+python automation/canonical_runtime_reservation.py status --projects-root $env:LOTUS_WORKSPACE_ROOT
+if ($LASTEXITCODE -ne 0) { throw 'Canonical reservation status failed' }
+$env:LOTUS_CANONICAL_RUNTIME_HOLDER = Read-Host 'Unique holder for this rehearsal'
+$leaseExpiryUtc = [DateTimeOffset]::UtcNow.AddHours(6).ToString('yyyy-MM-ddTHH:mm:ssZ')
+python automation/canonical_runtime_reservation.py acquire --projects-root $env:LOTUS_WORKSPACE_ROOT --holder $env:LOTUS_CANONICAL_RUNTIME_HOLDER --purpose 'Windows Docker client-demo rehearsal' --expiry-utc $leaseExpiryUtc
+if ($LASTEXITCODE -ne 0) { throw 'Canonical reservation was not acquired' }
+$demoScreenshots = Join-Path ([IO.Path]::GetTempPath()) 'lotus-demo-screenshots'
+powershell -NoProfile -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -BuildImages -RequireMainlineSources -KeepRunning -RuntimeHolder $env:LOTUS_CANONICAL_RUNTIME_HOLDER -ScreenshotDirectory $demoScreenshots
+if ($LASTEXITCODE -ne 0) { throw 'Canonical validation failed; screenshots are diagnostic only' }
+```
+
+`-RequireMainlineSources` refuses dirty or non-mainline checkouts before builds. The QA receipt,
+not the existence of a browser image, determines whether the rehearsal passed. After the demo,
+run `npm run live:stack:down` from `lotus-workbench` with the same holder in the environment;
+verify the Platform reservation status reports released/zero live bindings. If bring-up fails,
+follow the [reservation recovery procedure](../operations/canonical-runtime-reservation.md)
+and [Workbench runtime guide](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md);
+never prune Docker globally or take over a foreign stack. This is local demo evidence, not
+production IAM, release approval or supported-feature certification.
 
 ### Optional Or Task-Specific
 

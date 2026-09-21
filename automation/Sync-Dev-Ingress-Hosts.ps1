@@ -21,3 +21,6 @@ if ($Apply) {
 }
 
 python @args
+if ($LASTEXITCODE -ne 0) {
+  throw "Ingress hosts sync failed with exit code $LASTEXITCODE."
+}
