@@ -115,9 +115,11 @@ command-center states before Workbench screenshots can be promoted.
 The governed contract separates the general command-centre query tenant from the Workbench caller
 tenant. Campaign upsert, legacy supersession, Gateway campaign verification, and PM Operating
 Quality proof use `dpm_command_center.workbench_caller_tenant_id` (`tenant-sg`); the campaign
-scenario repeats the same value to prevent drift. Other command-centre seed operations retain
-`dpm_command_center.tenant_id` (`default`). Do not replace this caller boundary with a
-query-parameter tenant override.
+scenario repeats the same value to prevent drift. Mandate command-centre refresh, monitoring,
+health and query operations retain `dpm_command_center.tenant_id` (`default`). The separate
+source-backed action-register simulation and its workflow follow-ups use the explicit
+`portfolio.source_tenant_id` (`tenant-sg`) in both the admitted header and selector. Do not infer
+that source owner from the Workbench caller or replace either boundary with a query override.
 
 Before recalculating mandate health, the seed reads the portfolio's cash percentage from the
 Gateway Workbench overview at the exact requested date. The read excludes optional Performance and
@@ -136,11 +138,13 @@ The seed must pass the Manage write-authorization preflight with
 health-recalculate, action-register, or campaign-definition writes. Use
 `Invoke-DpmCommandCenterSeed.ps1 -PreflightOnly` to diagnose the exact caller contract without
 refreshing or persisting DPM evidence. A 403 is a seed-authority defect and must not be resolved by
-disabling Manage authorization. After that preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the
-full seed is a Core source-readiness dependency rather than another auth issue; preserve the
-response body in `output/front-office-qa/dpm-command-center-seed-latest.json` and link the owning
-Core issue, currently `sgajbi/lotus-core#840` for the canonical missing eligibility, tax-lot, and
-market-data families.
+disabling Manage authorization. After preflight, `DPM_CORE_CONTEXT_INCOMPLETE` means a Core source
+request or readiness check was refused; it does not identify which one. Preserve the response body
+in `output/front-office-qa/dpm-command-center-seed-latest.json`, inspect the failing outbound
+route and admitted header/body scope, then route a source-readiness gap to Core or a malformed
+consumer request to Manage/Platform. The 2026-09-22 CoreSnapshot selector defect is tracked by
+`sgajbi/lotus-manage#711`; missing eligibility, tax-lot and market-data families are a separate
+historical Core case, `sgajbi/lotus-core#840`.
 Use `-SkipDpmCommandCenterSeed` on canonical QA only for diagnostics that intentionally validate an
 unseeded or degraded DPM state. Current governed seed proof covers populated ready, partial, and
 empty command-center supportability postures. Explicitly degraded and blocked command-center

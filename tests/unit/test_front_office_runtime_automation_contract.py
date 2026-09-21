@@ -38,6 +38,10 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
         encoding="utf-8"
     )
     root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for operator_guide in (automation_readme, automation_guide, local_dev_runbook):
+        assert "DPM_CORE_CONTEXT_INCOMPLETE" in operator_guide
+        assert "sgajbi/lotus-manage#711" in operator_guide
+        assert "Core DPM source-readiness families must be fixed" not in operator_guide
     docs_readme = (ROOT / "docs" / "README.md").read_text(encoding="utf-8")
     wiki_home = (ROOT / "wiki" / "Home.md").read_text(encoding="utf-8")
     wiki_overview = (ROOT / "wiki" / "Overview.md").read_text(encoding="utf-8")
@@ -232,11 +236,21 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-monitoring-' in dpm_seed
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-' in dpm_seed
     assert '-Headers (New-ManageRequestHeaders `' in dpm_seed
-    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-' in dpm_seed
+    assert 'corr-canonical-dpm-action-register-review-' in dpm_seed
     assert 'corr-canonical-dpm-campaign-upsert-' in dpm_seed
     assert 'corr-canonical-dpm-campaign-supersede-' in dpm_seed
     assert dpm_seed.count('-TenantId $resolvedCampaignTenantId') == 3
     assert dpm_seed.count('-Headers $campaignHeaders') == 4
+
+    action_register = dpm_seed.split(
+        'recording stateful action-register simulation evidence', 1
+    )[1].split('persisting source-backed campaign definition', 1)[0]
+    assert '$resolvedActionRegisterTenantId = Resolve-ActionRegisterSourceTenant `' in dpm_seed
+    assert '-Portfolio $contract.portfolio `' in dpm_seed
+    assert '-PortfolioId $resolvedPortfolioId' in dpm_seed
+    assert 'action_register_tenant_authority = "portfolio.source_tenant_id"' in dpm_seed
+    assert 'tenant_id = $resolvedActionRegisterTenantId' in action_register
+    assert action_register.count('-TenantId $resolvedActionRegisterTenantId') == 3
 
     cash_preflight = dpm_seed.index(
         "resolving date-aligned canonical cash evidence before persistent writes"
