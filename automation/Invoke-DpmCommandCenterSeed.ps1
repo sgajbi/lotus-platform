@@ -411,7 +411,10 @@ $campaignDefinitionUri = (
   "/versions/$resolvedCampaignVersion"
 )
 $campaignDefinitionBaseUri = "$manageApiBaseUrl/api/v1/rebalance/waves/campaign-definitions/$resolvedCampaignId"
-$manageLookupUri = "$manageApiBaseUrl/api/v1/mandates/by-portfolio/$resolvedPortfolioId"
+$manageLookupUri = (
+  "$manageApiBaseUrl/api/v1/mandates/by-portfolio/$resolvedPortfolioId" +
+  "?tenant_id=$([uri]::EscapeDataString($resolvedTenantId))"
+)
 $gatewayMandateUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/by-portfolio/$resolvedPortfolioId"
 $gatewayHealthUri = "$gatewayApiBaseUrl/api/v1/dpm/command-center/mandates/$resolvedMandateId/health"
 $gatewayCampaignDefinitionsUri = (
