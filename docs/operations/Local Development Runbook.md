@@ -222,11 +222,14 @@ Canonical DPM command-center seed authority:
   overview at the requested business date, validates portfolio/date identity, and records the
   normalized ratio. There is no hard-coded fallback; untrustworthy evidence fails before the
   health write.
-- after preflight passes, `DPM_CORE_CONTEXT_INCOMPLETE` in the full seed means source readiness is
-  incomplete rather than authorization is failing; preserve the response body in
-  `output/front-office-qa/dpm-command-center-seed-latest.json` and link the Core owner issue
-  (`sgajbi/lotus-core#840` for the current canonical missing eligibility, tax-lot, and market-data
-  families).
+- the source-backed action-register simulation and its workflow follow-ups use
+  `portfolio.source_tenant_id` for admitted Manage/Core scope; command-centre refresh and health
+  retain the separately governed `dpm_command_center.tenant_id`.
+- after preflight, `DPM_CORE_CONTEXT_INCOMPLETE` is not proof of missing Core source facts. Preserve
+  the receipt in `output/front-office-qa/dpm-command-center-seed-latest.json` and inspect the
+  failing source route, header/body scope and readiness response. A malformed Manage CoreSnapshot
+  selector is tracked in `sgajbi/lotus-manage#711`; Core #840 is an earlier, separate missing-facts
+  case. Do not bypass admission or rerun an expensive seed until the failing boundary is known.
 
 ## 3. One-Time Pull
 

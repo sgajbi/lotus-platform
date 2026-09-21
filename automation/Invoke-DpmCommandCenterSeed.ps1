@@ -52,6 +52,28 @@ function Resolve-ContractValue {
   return [string]$Fallback
 }
 
+function Resolve-ActionRegisterSourceTenant {
+  param(
+    [object]$Portfolio,
+    [string]$PortfolioId
+  )
+
+  $sourceTenantId = $Portfolio.source_tenant_id
+  if ($sourceTenantId -isnot [string] -or
+      [string]::IsNullOrWhiteSpace($sourceTenantId) -or
+      $sourceTenantId -cne $sourceTenantId.Trim()) {
+    throw "Canonical front-office data contract does not define a valid portfolio.source_tenant_id."
+  }
+  $contractPortfolioId = $Portfolio.portfolio_id
+  if ($contractPortfolioId -isnot [string] -or
+      [string]::IsNullOrWhiteSpace($contractPortfolioId) -or
+      $contractPortfolioId -cne $contractPortfolioId.Trim() -or
+      $PortfolioId -cne $contractPortfolioId) {
+    throw "Canonical action-register source tenant applies only to the governed portfolio."
+  }
+  return $sourceTenantId
+}
+
 function Invoke-CanonicalCashEvidence {
   param([switch]$ValidateCallerOnly)
 
@@ -325,6 +347,9 @@ $resolvedPortfolioId = Resolve-ContractValue -Candidate $PortfolioId -Fallback $
 $resolvedMandateId = Resolve-ContractValue -Candidate $MandateId -Fallback $dpm.mandate_id
 $resolvedAsOfDate = Resolve-ContractValue -Candidate $AsOfDate -Fallback $dpm.command_center_as_of_date
 $resolvedTenantId = Resolve-ContractValue -Candidate $TenantId -Fallback $dpm.tenant_id
+$resolvedActionRegisterTenantId = Resolve-ActionRegisterSourceTenant `
+  -Portfolio $contract.portfolio `
+  -PortfolioId $resolvedPortfolioId
 $resolvedWorkbenchCallerTenantId = [string]$dpm.workbench_caller_tenant_id
 if ([string]::IsNullOrWhiteSpace($resolvedWorkbenchCallerTenantId)) {
   throw "Canonical front-office data contract does not define dpm_command_center.workbench_caller_tenant_id."
@@ -455,6 +480,7 @@ $campaignHeaders = New-ManageRequestHeaders `
 $manageAuthoritySummary = [ordered]@{
   actor_id = $manageSeedActorId
   tenant_id = $resolvedTenantId
+  action_register_tenant_authority = "portfolio.source_tenant_id"
   workbench_caller_tenant_id = $resolvedWorkbenchCallerTenantId
   campaign_tenant_id = $resolvedCampaignTenantId
   role = $manageSeedRole
@@ -1150,6 +1176,7 @@ try {
     -Uri $actionRegisterSimulationUri `
     -Headers (New-ManageRequestHeaders `
       -CorrelationId "corr-canonical-dpm-action-register-$resolvedPortfolioId-$resolvedActionRegisterAsOfDate-$timestamp" `
+      -TenantId $resolvedActionRegisterTenantId `
       -ExtraHeaders @{
       "Idempotency-Key" = $actionRegisterIdempotencyKey
       "X-Policy-Pack-Id" = $dpm.policy_pack_id
@@ -1161,7 +1188,7 @@ try {
         as_of = $resolvedActionRegisterAsOfDate
         mandate_id = $resolvedMandateId
         model_portfolio_id = $resolvedModelPortfolioId
-        tenant_id = $resolvedTenantId
+        tenant_id = $resolvedActionRegisterTenantId
         booking_center_code = $resolvedBookingCenterCode
         policy_pack_id = $dpm.policy_pack_id
       }
@@ -1176,7 +1203,9 @@ try {
   $summary.action_register_workflow_response = Invoke-JsonRequest `
     -Method "Get" `
     -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow" `
-    -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-workflow-$resolvedPortfolioId-$timestamp")
+    -Headers (New-ManageRequestHeaders `
+      -CorrelationId "corr-canonical-dpm-action-register-workflow-$resolvedPortfolioId-$timestamp" `
+      -TenantId $resolvedActionRegisterTenantId)
   $summary.steps += "manage-action-register-workflow-posture"
 
   $workflowRequiresReview = [bool]$summary.action_register_workflow_response.requires_review
@@ -1185,7 +1214,9 @@ try {
     $summary.action_register_workflow_action_response = Invoke-JsonRequest `
       -Method "Post" `
       -Uri "$manageApiBaseUrl/api/v1/rebalance/runs/$actionRegisterRunId/workflow/actions" `
-      -Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp") `
+      -Headers (New-ManageRequestHeaders `
+        -CorrelationId "corr-canonical-dpm-action-register-review-$resolvedPortfolioId-$timestamp" `
+        -TenantId $resolvedActionRegisterTenantId) `
       -Body ([ordered]@{
         action = "APPROVE"
         reason_code = "REVIEW_APPROVED"

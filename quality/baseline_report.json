@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 419,
     "powershell_file_count": 69,
-    "python_file_count": 265,
-    "source_file_count": 978,
+    "python_file_count": 266,
+    "source_file_count": 979,
     "suffix_counts": {
       ".json": 176,
       ".md": 419,
       ".ps1": 69,
-      ".py": 265,
+      ".py": 266,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 389162
+    "total_source_lines": 389359
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -228,10 +228,10 @@
         "path": "automation/validate_service_addressing.py"
       },
       {
-        "complexity": 1,
-        "end_line": 366,
+        "complexity": 2,
+        "end_line": 380,
         "line": 26,
-        "lines": 341,
+        "lines": 355,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3901
+    "python_function_count": 3902
   },
-  "generated_at_utc": "2026-09-21T16:02:45Z",
+  "generated_at_utc": "2026-09-21T17:40:49Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -423,7 +423,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1815,
+      "lines": 1816,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -453,14 +453,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1361,
+      "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
+      "suffix": ".ps1"
+    },
+    {
       "lines": 1354,
       "path": "automation/validate_engineering_context_system.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1330,
-      "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "suffix": ".ps1"
     }
   ],
   "openapi": {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1915,
+    "collected_tests": 1926,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1915 tests collected"
+    "summary": "1926 tests collected"
   }
 }

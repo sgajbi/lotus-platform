@@ -862,11 +862,12 @@ side-effect-free authorization preflight against the exact refresh route. The se
 `X-Service-Identity=lotus-platform.canonical-dpm-command-center-seed`, and
 `X-Capabilities=manage.write`; a 403 remains a seed-authority failure, not a reason to disable
 Manage authorization. Use `-PreflightOnly` to diagnose the caller contract without refreshing or
-persisting DPM evidence. After preflight passes, a full-seed `DPM_CORE_CONTEXT_INCOMPLETE` response
-is a source-readiness dependency, not an authorization failure; preserve the response body in
-`dpm-command-center-seed-latest.json` and link the owning Core issue, currently
-`sgajbi/lotus-core#840` for the canonical `PB_SG_GLOBAL_BAL_001` missing eligibility, tax-lot, and
-market-data families.
+persisting DPM evidence. After preflight, `DPM_CORE_CONTEXT_INCOMPLETE` means a Core source request
+or readiness check was refused; it does not identify the failing owner by itself. Preserve the
+response body in `dpm-command-center-seed-latest.json`, inspect the outbound route and admitted
+header/body scope, then route a malformed consumer request to Manage/Platform or missing source
+facts to Core. `sgajbi/lotus-manage#711` tracks the 2026-09-22 CoreSnapshot selector defect;
+`sgajbi/lotus-core#840` is an earlier, separate missing eligibility/tax-lot/market-data case.
 The seed evidence records explicit `posture_checks` for the populated source-ready `ready` command
 center, selector-driven `partial` state, and empty-date `empty` state. Explicitly degraded and
 blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
