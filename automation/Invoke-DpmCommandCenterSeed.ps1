@@ -375,7 +375,10 @@ $outcomeReviewRebalanceRunId = "rr_canonical_$($resolvedPortfolioId)_$($resolved
 $outcomeReviewWaveId = "dwv_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
 $outcomeReviewWaveItemId = "dwi_canonical_$($resolvedPortfolioId)_$($resolvedAsOfDate -replace '-', '')"
 $refreshUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/refresh-from-core"
-$recalculateHealthUri = "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/health/recalculate"
+$recalculateHealthUri = (
+  "$manageApiBaseUrl/api/v1/mandates/$resolvedMandateId/health/recalculate" +
+  "?tenant_id=$([uri]::EscapeDataString($resolvedTenantId))"
+)
 $monitoringRunUri = "$manageApiBaseUrl/api/v1/dpm/monitoring/run-once"
 $actionRegisterSimulationUri = "$manageApiBaseUrl/api/v1/rebalance/simulate"
 $campaignDefinitionUri = (

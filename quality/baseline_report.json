@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 419,
     "powershell_file_count": 69,
-    "python_file_count": 264,
-    "source_file_count": 977,
+    "python_file_count": 265,
+    "source_file_count": 978,
     "suffix_counts": {
       ".json": 176,
       ".md": 419,
       ".ps1": 69,
-      ".py": 264,
+      ".py": 265,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 389084
+    "total_source_lines": 389162
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3897
+    "python_function_count": 3901
   },
-  "generated_at_utc": "2026-09-16T12:47:59Z",
+  "generated_at_utc": "2026-09-21T16:02:45Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -458,7 +458,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1327,
+      "lines": 1330,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
     }
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1912,
+    "collected_tests": 1915,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1912 tests collected"
+    "summary": "1915 tests collected"
   }
 }
