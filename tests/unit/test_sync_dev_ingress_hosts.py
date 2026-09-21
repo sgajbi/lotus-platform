@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import shutil
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from automation.sync_dev_ingress_hosts import (
     BLOCK_END,
@@ -136,3 +140,40 @@ def test_sync_dev_ingress_hosts_stages_output_when_write_is_denied(tmp_path: Pat
     assert result["staged_output_path"] == str(staged)
     assert staged.exists()
     assert "127.0.0.1 gateway.dev.lotus" in staged.read_text(encoding="utf-8")
+
+
+def test_powershell_wrapper_propagates_python_failure(tmp_path: Path) -> None:
+    shell = shutil.which("pwsh") or shutil.which("powershell")
+    if shell is None:
+        pytest.skip("PowerShell is unavailable")
+
+    repository_root = Path(__file__).resolve().parents[2]
+    script = repository_root / "automation" / "Sync-Dev-Ingress-Hosts.ps1"
+    entries = tmp_path / "hosts.example"
+    hosts = tmp_path / "hosts"
+    hosts.write_text("127.0.0.1 localhost\n", encoding="utf-8")
+    command = [
+        shell,
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        str(script),
+        "-EntriesPath",
+        str(entries),
+        "-HostsFilePath",
+        str(hosts),
+    ]
+
+    missing_entries = subprocess.run(
+        command, cwd=repository_root, capture_output=True, text=True, timeout=30
+    )
+    assert missing_entries.returncode != 0
+    assert "Ingress hosts sync failed" in missing_entries.stderr
+
+    entries.write_text("127.0.0.1 gateway.dev.lotus\n", encoding="utf-8")
+    valid_preview = subprocess.run(
+        command, cwd=repository_root, capture_output=True, text=True, timeout=30
+    )
+    assert valid_preview.returncode == 0, valid_preview.stderr
+    assert hosts.read_text(encoding="utf-8") == "127.0.0.1 localhost\n"
