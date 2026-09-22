@@ -140,6 +140,13 @@ Use app-owned commands first. For the canonical front-office flow, use:
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
+This command uses the strict `full` default. The same canonical runner accepts
+`-ValidationProfile client-demo` for a bounded client rehearsal while the non-certifying Idea
+synthetic capacity probe is tracked by `sgajbi/lotus-idea#1345`. The Platform receipt must record
+the excluded workload and its claim boundary; Idea readiness/candidate/UI, API/calculation/panel
+validation, and teardown remain mandatory. A passing bounded profile is not full downstream-
+capacity acceptance, production readiness, or release certification.
+
 For platform demo-readiness certification, use:
 
 ```powershell

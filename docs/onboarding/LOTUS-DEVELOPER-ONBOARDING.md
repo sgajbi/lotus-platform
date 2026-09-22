@@ -231,8 +231,12 @@ evidence.
 From `lotus-platform`, preview/apply the governed hosts block (apply from an elevated terminal),
 then inspect the reservation book before acquisition. The holder is a deliberate operator choice,
 not a portfolio name or an inferred grant. Choose a future UTC expiry no more than eight hours
-away. The following runs the full source-pinned build, seed and validation path; it does not
-silently skip Idea or turn a seed failure into a demo-ready screenshot:
+away. The following runs the source-pinned build, seed and bounded client-demo validation profile.
+It still validates Idea readiness, candidate/queue, API and UI, and does not turn a seed failure
+into a demo-ready screenshot. The excluded synthetic Idea downstream-capacity workload is recorded
+in the QA receipt and remains tracked by `sgajbi/lotus-idea#1345`; this is not full-profile
+capacity certification. Omit `-ValidationProfile client-demo` for the strict `full` default after
+that prerequisite is fixed:
 
 ```powershell
 Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
@@ -260,7 +264,7 @@ $leaseExpiryUtc = [DateTimeOffset]::UtcNow.AddHours(6).ToString('yyyy-MM-ddTHH:m
 python automation/canonical_runtime_reservation.py acquire --projects-root $env:LOTUS_WORKSPACE_ROOT --holder $env:LOTUS_CANONICAL_RUNTIME_HOLDER --purpose 'Windows Docker client-demo rehearsal' --expiry-utc $leaseExpiryUtc
 if ($LASTEXITCODE -ne 0) { throw 'Canonical reservation was not acquired' }
 $demoScreenshots = Join-Path ([IO.Path]::GetTempPath()) 'lotus-demo-screenshots'
-powershell -NoProfile -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -BuildImages -RequireMainlineSources -KeepRunning -RuntimeHolder $env:LOTUS_CANONICAL_RUNTIME_HOLDER -ScreenshotDirectory $demoScreenshots
+powershell -NoProfile -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -BuildImages -RequireMainlineSources -ValidationProfile client-demo -KeepRunning -RuntimeHolder $env:LOTUS_CANONICAL_RUNTIME_HOLDER -ScreenshotDirectory $demoScreenshots
 if ($LASTEXITCODE -ne 0) { throw 'Canonical validation failed; screenshots are diagnostic only' }
 ```
 

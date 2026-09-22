@@ -77,6 +77,13 @@ For the canonical front-office demo:
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
+This single runner defaults to the strict `full` profile. Until Idea's non-certifying synthetic
+downstream-capacity probe is corrected (`sgajbi/lotus-idea#1345`), a bounded client rehearsal may
+add `-ValidationProfile client-demo`. Idea readiness, candidate/queue, API, UI and teardown remain
+mandatory. Record `validation_profile` and `excluded_proofs` from the Platform QA receipt in the
+pack; do not present this as full-profile capacity acceptance, production readiness, or a release
+certificate. Demo-ready screenshots still require the selected profile to pass.
+
 For platform demo-readiness certification:
 
 ```powershell

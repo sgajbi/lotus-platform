@@ -4,6 +4,7 @@ param(
   [string]$RuntimeHolder = $env:LOTUS_CANONICAL_RUNTIME_HOLDER,
   [string]$PortfolioId = "PB_SG_GLOBAL_BAL_001",
   [string]$BenchmarkCode = "BMK_PB_GLOBAL_BALANCED_60_40",
+  [ValidateSet('full', 'client-demo')][string]$ValidationProfile = 'full',
   [string]$OutputDirectory = "output/front-office-qa",
   [string]$ScreenshotDirectory = "",
   [string]$LotusAiEnvFile = "",
@@ -250,6 +251,38 @@ $latestTranscriptPath = Join-Path $resolvedOutputDirectory "latest.log"
 $runStartedAt = Get-Date
 $transcriptStarted = $false
 $dockerBefore = Get-CanonicalDockerCleanupPlan
+$profileExclusions = @()
+if ($ValidationProfile -eq 'client-demo') {
+  $profileExclusions = @([ordered]@{
+    proofScope = 'idea.synthetic_downstream_capacity_workload'
+    reasonCode = 'NON_CERTIFYING_CAPACITY_PROBE_EXCLUDED'
+    owningIssue = 'sgajbi/lotus-idea#1345'
+    claimBoundary = 'No Idea downstream-capacity acceptance or full-profile certification'
+  })
+}
+
+function Assert-CanonicalQaLiveProfile {
+  param(
+    [pscustomobject]$LiveSummary,
+    [string]$ValidationProfile,
+    [object[]]$ExpectedExclusions
+  )
+
+  if ($LiveSummary.validationProfile -ne $ValidationProfile) {
+    throw "Canonical Workbench validation profile differs from requested Platform profile: expected $ValidationProfile, observed $($LiveSummary.validationProfile)."
+  }
+  $actualExclusions = @($LiveSummary.excludedProofs)
+  if ($actualExclusions.Count -ne $ExpectedExclusions.Count) {
+    throw "Canonical Workbench validation exclusions differ from requested Platform profile."
+  }
+  for ($index = 0; $index -lt $ExpectedExclusions.Count; $index++) {
+    foreach ($field in @('proofScope', 'reasonCode', 'owningIssue', 'claimBoundary')) {
+      if ($actualExclusions[$index].$field -ne $ExpectedExclusions[$index].$field) {
+        throw "Canonical Workbench validation excluded an unexpected proof or weakened its claim boundary."
+      }
+    }
+  }
+}
 
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
@@ -271,6 +304,8 @@ $summary = [ordered]@{
   seed_wait_seconds = $SeedWaitSeconds
   portfolio_id = $PortfolioId
   benchmark_code = $BenchmarkCode
+  validation_profile = $ValidationProfile
+  excluded_proofs = $profileExclusions
   governed_runbook = (Join-Path $WorkbenchRepoPath "docs\operations\canonical-front-office-local-runtime.md")
   governed_live_summary = $liveSummaryPath
   screenshot_directory = $resolvedScreenshotDirectory
@@ -293,11 +328,13 @@ $commonArguments = @{
   ProjectsRoot = $ProjectsRoot
   PortfolioId = $PortfolioId
   BenchmarkCode = $BenchmarkCode
+  ValidationProfile = $ValidationProfile
   ScreenshotDirectory = $resolvedScreenshotDirectory
 }
 $validationArguments = @{
   PortfolioId = $PortfolioId
   BenchmarkCode = $BenchmarkCode
+  ValidationProfile = $ValidationProfile
   ScreenshotDirectory = $resolvedScreenshotDirectory
 }
 
@@ -424,6 +461,7 @@ try {
       throw "Canonical Workbench validation summary is stale: $liveSummaryPath was last written at $($liveSummaryFile.LastWriteTime.ToString('yyyy-MM-ddTHH:mm:ssK'))."
     }
     $liveSummary = Get-Content -Raw $liveSummaryPath | ConvertFrom-Json
+    Assert-CanonicalQaLiveProfile -LiveSummary $liveSummary -ValidationProfile $ValidationProfile -ExpectedExclusions $profileExclusions
     $summary.screenshots = @($liveSummary.screenshots)
     $summary.live_validation_summary = $liveSummary
     $summary.canonical_contract = $liveSummary.canonicalContract
@@ -463,6 +501,10 @@ $markdown += "- Clean plan only: $($summary.clean_plan_only)"
 $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Require mainline sources: $($summary.require_mainline_sources)"
+$markdown += "- Validation profile: $($summary.validation_profile)"
+foreach ($proof in @($summary.excluded_proofs)) {
+  $markdown += "- Excluded proof: $($proof.proofScope) [$($proof.reasonCode); $($proof.owningIssue)] - $($proof.claimBoundary)"
+}
 $markdown += "- Remove images: $($summary.remove_images)"
 $markdown += "- Include lotus-idea: $($summary.include_lotus_idea)"
 $markdown += "- Canonical core demo pack enabled: $($summary.canonical_core_demo_pack_enabled)"

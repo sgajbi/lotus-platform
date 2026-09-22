@@ -826,6 +826,12 @@ Run governed canonical front-office QA readiness automation:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
 ```
 
+The default `full` profile requires the Idea synthetic downstream-capacity workload, currently
+tracked by `sgajbi/lotus-idea#1345`. For a bounded client rehearsal through the **same runner**,
+add `-ValidationProfile client-demo`. That profile still requires Idea readiness, candidate/queue,
+API, UI and teardown checks; the QA receipt records the excluded capacity workload and explicitly
+does not certify full-profile capacity. Do not use this switch for RFC or supported-feature closure.
+
 For RFC closure, supported-feature promotion, or other mainline certification proof, require exact
 mainline source provenance before cleanup, Docker startup, seeding, validation, screenshots, and
 Lotus Idea readiness evidence. This mode forces image builds so proof is not certified against
@@ -873,6 +879,8 @@ center, selector-driven `partial` state, and empty-date `empty` state. Explicitl
 blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
 Wrapper summaries record `require_mainline_sources` and `mainline_source_preflight` so proof
 consumers can distinguish development evidence from RFC/mainline certification evidence.
+They also record `validation_profile` and `excluded_proofs`; a passing `client-demo` receipt cannot
+be substituted for full downstream-capacity acceptance or production release evidence.
 Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
 empty/error posture.
 

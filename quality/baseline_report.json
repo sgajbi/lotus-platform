@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 389558
+    "total_source_lines": 389785
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -229,8 +229,8 @@
       },
       {
         "complexity": 2,
-        "end_line": 380,
-        "line": 26,
+        "end_line": 510,
+        "line": 156,
         "lines": 355,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3905
+    "python_function_count": 3908
   },
-  "generated_at_utc": "2026-09-21T23:45:22Z",
+  "generated_at_utc": "2026-09-22T01:08:39Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,13 +418,13 @@
       "suffix": ".py"
     },
     {
-      "lines": 1818,
-      "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
+      "lines": 1824,
+      "path": "automation/README.md",
       "suffix": ".md"
     },
     {
-      "lines": 1816,
-      "path": "automation/README.md",
+      "lines": 1818,
+      "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
       "suffix": ".md"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1930,
+    "collected_tests": 1938,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1930 tests collected"
+    "summary": "1938 tests collected"
   }
 }
