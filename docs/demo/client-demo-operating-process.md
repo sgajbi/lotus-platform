@@ -74,6 +74,7 @@ pack.
 For the canonical front-office demo:
 
 ```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
@@ -83,6 +84,11 @@ add `-ValidationProfile client-demo`. Idea readiness, candidate/queue, API, UI a
 mandatory. Record `validation_profile` and `excluded_proofs` from the Platform QA receipt in the
 pack; do not present this as full-profile capacity acceptance, production readiness, or a release
 certificate. Demo-ready screenshots still require the selected profile to pass.
+
+For a deliberately scoped post-inception reporting window, add `-ReportStartDate YYYY-MM-DD`
+to this same command. The omitted default is the governed seed start. The receipt records both
+report dates; a passing shorter window is not proof of the excluded earlier history, and must
+not be used to conceal a partial or incorrect Risk calculation.
 
 For platform demo-readiness certification:
 

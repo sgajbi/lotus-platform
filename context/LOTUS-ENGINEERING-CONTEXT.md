@@ -529,7 +529,10 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     `-ValidationProfile client-demo`; the Platform and Workbench summaries must record the excluded
     synthetic Idea downstream-capacity workload and its no-full-capacity claim boundary. This
     option does not skip Idea readiness/candidate/UI or teardown and cannot substitute for RFC,
-    supported-feature, production, or full-profile certification,
+    supported-feature, production, or full-profile certification. The same runner accepts an
+    explicit `-ReportStartDate YYYY-MM-DD` inside the contract's seeded date window, defaults
+    to the governed seed start, and records the selected report window in its QA receipt; a
+    shorter passing window does not certify earlier history or excuse a partial calculation,
 11. treat `lotus-idea` as part of the default canonical QA runtime; do not reintroduce an opt-in flag
     or skip its readiness/teardown evidence unless the task explicitly asks for a diagnostic partial
     run,

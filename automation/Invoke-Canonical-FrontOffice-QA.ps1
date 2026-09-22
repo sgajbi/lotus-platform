@@ -5,6 +5,7 @@ param(
   [string]$PortfolioId = "PB_SG_GLOBAL_BAL_001",
   [string]$BenchmarkCode = "BMK_PB_GLOBAL_BALANCED_60_40",
   [ValidateSet('full', 'client-demo')][string]$ValidationProfile = 'full',
+  [string]$ReportStartDate = "",
   [string]$OutputDirectory = "output/front-office-qa",
   [string]$ScreenshotDirectory = "",
   [string]$LotusAiEnvFile = "",
@@ -24,6 +25,36 @@ $ErrorActionPreference = "Stop"
 Import-Module (Join-Path $PSScriptRoot 'CanonicalRuntimeReservation.psm1') -Force
 
 $platformRoot = Split-Path -Parent $PSScriptRoot
+function Resolve-CanonicalReportStartDate {
+  param(
+    [string]$RequestedDate,
+    [pscustomobject]$DatePolicy
+  )
+
+  $culture = [System.Globalization.CultureInfo]::InvariantCulture
+  $style = [System.Globalization.DateTimeStyles]::None
+  $seedStart = [datetime]::ParseExact($DatePolicy.seed_start_date, 'yyyy-MM-dd', $culture, $style)
+  $asOf = [datetime]::ParseExact($DatePolicy.canonical_as_of_date, 'yyyy-MM-dd', $culture, $style)
+  $selected = if ($RequestedDate -eq '') { $DatePolicy.seed_start_date } else { $RequestedDate }
+  if ($selected -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}$') {
+    throw 'Report start date must be an ISO calendar date (YYYY-MM-DD).'
+  }
+  try {
+    $start = [datetime]::ParseExact($selected, 'yyyy-MM-dd', $culture, $style)
+  } catch {
+    throw "Report start date is not a valid calendar date: $selected"
+  }
+  if ($start -lt $seedStart -or $start -gt $asOf) {
+    throw "Report start date must be within the governed seeded window $($DatePolicy.seed_start_date) through $($DatePolicy.canonical_as_of_date)."
+  }
+  return $start.ToString('yyyy-MM-dd', $culture)
+}
+
+$demoDataContractPath = Join-Path $platformRoot 'context/contracts/canonical-front-office-demo-data-contract.json'
+$demoDataContract = Get-Content -LiteralPath $demoDataContractPath -Raw | ConvertFrom-Json
+$canonicalAsOfDate = $demoDataContract.date_policy.canonical_as_of_date
+$resolvedReportStartDate = Resolve-CanonicalReportStartDate `
+  -RequestedDate $ReportStartDate -DatePolicy $demoDataContract.date_policy
 if ([string]::IsNullOrWhiteSpace($ProjectsRoot)) {
   $ProjectsRoot = Split-Path -Parent $platformRoot
 }
@@ -284,6 +315,55 @@ function Assert-CanonicalQaLiveProfile {
   }
 }
 
+function Assert-CanonicalQaLiveWindow {
+  param(
+    [pscustomobject]$LiveSummary,
+    [string]$PortfolioId,
+    [string]$StartDate,
+    [string]$EndDate
+  )
+
+  if ($LiveSummary.portfolioId -ne $PortfolioId) {
+    throw "Canonical Workbench validation resolved a different portfolio: $($LiveSummary.portfolioId)."
+  }
+  $requiredChecks = @(
+    @{ description = 'Performance summary evidence readiness'; path = "/api/v1/workbench/$PortfolioId/performance/summary"; status = 'ready' }
+    @{ description = 'Risk summary'; path = "/api/v1/workbench/$PortfolioId/risk/summary"; status = '200' }
+    @{ description = 'Advisor brief'; path = "/api/v1/workbench/$PortfolioId/performance/advisor-brief"; status = '200' }
+  )
+  foreach ($required in $requiredChecks) {
+    $observed = @($LiveSummary.apiChecks | Where-Object {
+      $_.description -eq $required.description -and [string]$_.status -eq $required.status
+    })
+    if ($observed.Count -ne 1) {
+      throw "Canonical Workbench live evidence lacks a unique successful $($required.description) check."
+    }
+    try {
+      $url = [uri]$observed[0].url
+    } catch {
+      throw "Canonical Workbench live evidence has an invalid $($required.description) URL."
+    }
+    if (-not $url.IsAbsoluteUri -or $url.AbsolutePath -cne $required.path) {
+      throw "Canonical Workbench live evidence uses an unexpected $($required.description) route."
+    }
+    $pairs = @($url.Query.TrimStart('?').Split('&') | Where-Object { $_ -ne '' })
+    foreach ($field in @(
+      @{ key = 'report_start_date'; value = $StartDate }
+      @{ key = 'report_end_date'; value = $EndDate }
+    )) {
+      $matching = @($pairs | Where-Object { $_ -cmatch "^$($field.key)=" })
+      if ($matching.Count -ne 1 -or $matching[0] -cne "$($field.key)=$($field.value)") {
+        throw "Canonical Workbench $($required.description) did not execute the selected $($field.key)."
+      }
+    }
+  }
+  foreach ($description in @('Performance calculation sanity', 'Risk calculation sanity')) {
+    if (@($LiveSummary.calculationChecks | Where-Object { $_.description -eq $description }).Count -ne 1) {
+      throw "Canonical Workbench live evidence lacks $description for the selected report window."
+    }
+  }
+}
+
 $summary = [ordered]@{
   generated_at = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssK")
   platform_root = $platformRoot
@@ -305,6 +385,8 @@ $summary = [ordered]@{
   portfolio_id = $PortfolioId
   benchmark_code = $BenchmarkCode
   validation_profile = $ValidationProfile
+  report_start_date = $resolvedReportStartDate
+  report_end_date = $canonicalAsOfDate
   excluded_proofs = $profileExclusions
   governed_runbook = (Join-Path $WorkbenchRepoPath "docs\operations\canonical-front-office-local-runtime.md")
   governed_live_summary = $liveSummaryPath
@@ -335,6 +417,8 @@ $validationArguments = @{
   PortfolioId = $PortfolioId
   BenchmarkCode = $BenchmarkCode
   ValidationProfile = $ValidationProfile
+  StartDate = $resolvedReportStartDate
+  AsOfDate = $canonicalAsOfDate
   ScreenshotDirectory = $resolvedScreenshotDirectory
 }
 
@@ -462,6 +546,8 @@ try {
     }
     $liveSummary = Get-Content -Raw $liveSummaryPath | ConvertFrom-Json
     Assert-CanonicalQaLiveProfile -LiveSummary $liveSummary -ValidationProfile $ValidationProfile -ExpectedExclusions $profileExclusions
+    Assert-CanonicalQaLiveWindow -LiveSummary $liveSummary -PortfolioId $PortfolioId `
+      -StartDate $resolvedReportStartDate -EndDate $canonicalAsOfDate
     $summary.screenshots = @($liveSummary.screenshots)
     $summary.live_validation_summary = $liveSummary
     $summary.canonical_contract = $liveSummary.canonicalContract
@@ -502,6 +588,7 @@ $markdown += "- Clean core state: $($summary.clean_core_state)"
 $markdown += "- Build images: $($summary.build_images)"
 $markdown += "- Require mainline sources: $($summary.require_mainline_sources)"
 $markdown += "- Validation profile: $($summary.validation_profile)"
+$markdown += "- Report window: $($summary.report_start_date) through $($summary.report_end_date)"
 foreach ($proof in @($summary.excluded_proofs)) {
   $markdown += "- Excluded proof: $($proof.proofScope) [$($proof.reasonCode); $($proof.owningIssue)] - $($proof.claimBoundary)"
 }
