@@ -523,7 +523,13 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     other mainline-certified front-office proof. This mode forces image builds, runs fail-closed
     exact-`origin/main` source preflight for every canonical participant before cleanup/startup,
     delegates Workbench's same provenance check into startup/validation, and records
-    `require_mainline_sources` plus `mainline_source_preflight` in the platform wrapper summary,
+    `require_mainline_sources` plus `mainline_source_preflight` in the platform wrapper summary.
+    The strict `full` validation profile remains the default. For a bounded client rehearsal while
+    `sgajbi/lotus-idea#1345` is unresolved, the same runner accepts
+    `-ValidationProfile client-demo`; the Platform and Workbench summaries must record the excluded
+    synthetic Idea downstream-capacity workload and its no-full-capacity claim boundary. This
+    option does not skip Idea readiness/candidate/UI or teardown and cannot substitute for RFC,
+    supported-feature, production, or full-profile certification,
 11. treat `lotus-idea` as part of the default canonical QA runtime; do not reintroduce an opt-in flag
     or skip its readiness/teardown evidence unless the task explicitly asks for a diagnostic partial
     run,

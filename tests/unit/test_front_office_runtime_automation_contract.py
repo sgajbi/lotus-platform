@@ -1,10 +1,140 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import shutil
+import subprocess
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
+CLIENT_EXCLUSION = {
+    "proofScope": "idea.synthetic_downstream_capacity_workload",
+    "reasonCode": "NON_CERTIFYING_CAPACITY_PROBE_EXCLUDED",
+    "owningIssue": "sgajbi/lotus-idea#1345",
+    "claimBoundary": "No Idea downstream-capacity acceptance or full-profile certification",
+}
+
+
+def test_governed_workbench_pin_supports_forwarded_demo_profile() -> None:
+    manifest = json.loads(
+        (ROOT / "platform-contracts/ci-governance/sibling-source-manifest.v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    pinned = next(
+        entry["revision"]
+        for entry in manifest["sources"]
+        if entry["repository"] == "lotus-workbench"
+    )
+    checkout = Path(
+        os.environ.get("LOTUS_PRINCIPAL_PROOF_CHECKOUT", ROOT.parent / "lotus-workbench")
+    )
+    actual = subprocess.run(
+        ["git", "-C", str(checkout), "rev-parse", "HEAD"],
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+    assert actual == pinned, "Platform's governed Workbench checkout must equal its manifest pin"
+    for script_name in (
+        "Start-LotusFrontOfficeCanonical.ps1",
+        "Validate-LotusFrontOfficeCanonical.ps1",
+    ):
+        script = (checkout / "scripts/live" / script_name).read_text(encoding="utf-8")
+        assert "[ValidateSet('full', 'client-demo')][string]$ValidationProfile = 'full'" in script
+
+
+def test_canonical_qa_wrapper_forwards_bounded_profile_and_receipt_boundary() -> None:
+    wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(
+        encoding="utf-8"
+    )
+    assert "[ValidateSet('full', 'client-demo')][string]$ValidationProfile = 'full'" in wrapper
+    assert "ValidationProfile = $ValidationProfile" in wrapper
+    assert "$bringUpArguments = $commonArguments.Clone()" in wrapper
+    assert "-Arguments $bringUpArguments" in wrapper
+    assert "-Arguments $validationArguments" in wrapper
+    assert "validation_profile = $ValidationProfile" in wrapper
+    assert "excluded_proofs =" in wrapper
+    assert "idea.synthetic_downstream_capacity_workload" in wrapper
+    assert "sgajbi/lotus-idea#1345" in wrapper
+    assert "Assert-CanonicalQaLiveProfile -LiveSummary $liveSummary" in wrapper
+    assert "No Idea downstream-capacity acceptance or full-profile certification" in wrapper
+
+
+@pytest.mark.parametrize(
+    ("profile", "live_profile", "exclusions", "expected_success"),
+    [
+        ("full", "full", [], True),
+        ("client-demo", "client-demo", [CLIENT_EXCLUSION], True),
+        ("client-demo", "full", [CLIENT_EXCLUSION], False),
+        ("full", "full", [CLIENT_EXCLUSION], False),
+        ("client-demo", "client-demo", [], False),
+        (
+            "client-demo",
+            "client-demo",
+            [{**CLIENT_EXCLUSION, "claimBoundary": "Capacity certified"}],
+            False,
+        ),
+    ],
+)
+def test_canonical_qa_live_profile_guard_rejects_cross_profile_or_weakened_evidence(
+    profile: str,
+    live_profile: str,
+    exclusions: list[dict[str, str]],
+    expected_success: bool,
+) -> None:
+    powershell = shutil.which("pwsh") or shutil.which("powershell")
+    assert powershell is not None, "PowerShell is required for the shipped profile guard test"
+    script = r"""
+$ErrorActionPreference = 'Stop'
+$ast = [Management.Automation.Language.Parser]::ParseFile(
+  (Join-Path (Get-Location) 'automation/Invoke-Canonical-FrontOffice-QA.ps1'),
+  [ref]$null, [ref]$null
+)
+$definition = $ast.Find({ param($node)
+  $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+  $node.Name -eq 'Assert-CanonicalQaLiveProfile'
+}, $true)
+if (-not $definition) { throw 'Shipped QA profile guard is missing' }
+. ([scriptblock]::Create($definition.Extent.Text))
+$inputValue = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$expected = @()
+if ($inputValue.profile -eq 'client-demo') {
+  $expected = @([pscustomobject]@{
+    proofScope='idea.synthetic_downstream_capacity_workload'
+    reasonCode='NON_CERTIFYING_CAPACITY_PROBE_EXCLUDED'
+    owningIssue='sgajbi/lotus-idea#1345'
+    claimBoundary='No Idea downstream-capacity acceptance or full-profile certification'
+  })
+}
+try {
+  Assert-CanonicalQaLiveProfile -LiveSummary $inputValue.liveSummary `
+    -ValidationProfile $inputValue.profile -ExpectedExclusions $expected
+  'accepted'
+} catch {
+  'refused'
+}
+"""
+    result = subprocess.run(
+        [powershell, "-NoProfile", "-Command", script],
+        input=json.dumps(
+            {
+                "profile": profile,
+                "liveSummary": {
+                    "validationProfile": live_profile,
+                    "excludedProofs": exclusions,
+                },
+            }
+        ),
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == ("accepted" if expected_success else "refused")
 
 
 def test_platform_qa_core_gate_uses_canonical_front_office_verifier() -> None:

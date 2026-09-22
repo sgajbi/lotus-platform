@@ -72,6 +72,12 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
 ```
 
+The canonical front-office command uses the strict `full` default. For a bounded client rehearsal
+while `sgajbi/lotus-idea#1345` remains open, add `-ValidationProfile client-demo` to that same
+runner. The QA receipt must record the excluded synthetic Idea capacity workload. Idea readiness,
+candidate/queue, API, UI and teardown remain required; bounded success is not full capacity or
+production-release certification.
+
 ## Source Of Truth
 
 - [Lotus Client Demo Certification Standard](https://github.com/sgajbi/lotus-platform/blob/main/docs/standards/Lotus%20Client%20Demo%20Certification%20Standard.md)

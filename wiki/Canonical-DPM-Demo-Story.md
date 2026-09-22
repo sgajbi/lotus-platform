@@ -56,6 +56,10 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice
 
 Use `-ScreenshotDirectory <path>` for a caller-directed screenshot pack. Use demo-ready screenshots
 only after validation passes.
+For a bounded client rehearsal while `sgajbi/lotus-idea#1345` remains open, add
+`-ValidationProfile client-demo` to the same command. The QA receipt must name the excluded
+synthetic Idea capacity workload; Idea readiness/candidate/UI and teardown still run. Do not call
+that receipt full downstream-capacity or production certification.
 
 ## Audience Use
 
