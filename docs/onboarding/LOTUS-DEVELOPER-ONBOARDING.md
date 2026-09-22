@@ -269,8 +269,13 @@ if ($LASTEXITCODE -ne 0) { throw 'Canonical validation failed; screenshots are d
 ```
 
 `-RequireMainlineSources` refuses dirty or non-mainline checkouts before builds. The QA receipt,
-not the existence of a browser image, determines whether the rehearsal passed. After the demo,
-run `npm run live:stack:down` from `lotus-workbench` with the same holder in the environment;
+not the existence of a browser image, determines whether the rehearsal passed. The same command
+may take `-ReportStartDate YYYY-MM-DD` for an explicitly selected reporting window. Omit it for
+the governed seed-start default. The wrapper rejects invalid or out-of-seed
+dates before startup and records the selected start and canonical end in its receipt; a shorter
+window never certifies the excluded earlier history. Use a post-inception start only after its
+API calculations and panels pass, not to conceal a partial or incorrect Risk response.
+After the demo, run `npm run live:stack:down` from `lotus-workbench` with the same holder;
 verify the Platform reservation status reports released/zero live bindings. If bring-up fails,
 follow the [reservation recovery procedure](../operations/canonical-runtime-reservation.md)
 and [Workbench runtime guide](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md);

@@ -94,6 +94,7 @@ Do not mark a pack client-ready until these checks pass:
 ## Commands
 
 ```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
 ```
@@ -104,6 +105,11 @@ bounded option only for a client rehearsal, with Idea readiness, candidate/queue
 teardown still required. Its QA receipt lists the excluded synthetic downstream-capacity workload;
 it is not full capacity acceptance or production-release evidence. Screenshots become demo-ready
 only after the selected validation profile passes.
+
+The same command accepts an explicit `-ReportStartDate YYYY-MM-DD` for a deliberately scoped
+post-inception report. Its default is the governed seed start; the receipt records the selected
+start and canonical end. A shorter passing window does not certify earlier history or excuse a
+partial or incorrect Risk calculation.
 
 ## Source Of Truth
 

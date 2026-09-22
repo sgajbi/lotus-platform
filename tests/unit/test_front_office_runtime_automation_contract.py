@@ -64,6 +64,199 @@ def test_canonical_qa_wrapper_forwards_bounded_profile_and_receipt_boundary() ->
     assert "No Idea downstream-capacity acceptance or full-profile certification" in wrapper
 
 
+def test_canonical_qa_wrapper_forwards_and_records_governed_report_start() -> None:
+    wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(
+        encoding="utf-8"
+    )
+    assert '[string]$ReportStartDate = ""' in wrapper
+    assert "StartDate = $resolvedReportStartDate" in wrapper
+    assert "AsOfDate = $canonicalAsOfDate" in wrapper
+    assert "report_start_date = $resolvedReportStartDate" in wrapper
+    assert "report_end_date = $canonicalAsOfDate" in wrapper
+    assert "Resolve-CanonicalReportStartDate" in wrapper
+    assert "Assert-CanonicalQaLiveWindow -LiveSummary $liveSummary" in wrapper
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_success"),
+    [
+        ("none", True),
+        ("wrong_risk_start", False),
+        ("wrong_performance_end", False),
+        ("missing_advisor", False),
+        ("duplicate_risk_start", False),
+        ("missing_risk_calculation", False),
+        ("wrong_portfolio", False),
+    ],
+)
+def test_canonical_qa_live_window_guard_binds_receipt_to_observed_checks(
+    mutation: str, expected_success: bool
+) -> None:
+    powershell = shutil.which("pwsh") or shutil.which("powershell")
+    assert powershell is not None
+    script = r"""
+$ErrorActionPreference = 'Stop'
+$ast = [Management.Automation.Language.Parser]::ParseFile(
+  (Join-Path (Get-Location) 'automation/Invoke-Canonical-FrontOffice-QA.ps1'),
+  [ref]$null, [ref]$null
+)
+$definition = $ast.Find({ param($node)
+  $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+  $node.Name -eq 'Assert-CanonicalQaLiveWindow'
+}, $true)
+if (-not $definition) { throw 'Shipped live-window guard is missing' }
+. ([scriptblock]::Create($definition.Extent.Text))
+$inputValue = [Console]::In.ReadToEnd() | ConvertFrom-Json
+try {
+  Assert-CanonicalQaLiveWindow -LiveSummary $inputValue.liveSummary `
+    -PortfolioId 'PB_SG_GLOBAL_BAL_001' -StartDate '2025-08-25' -EndDate '2026-04-10'
+  'accepted'
+} catch {
+  'refused'
+}
+"""
+    portfolio = "PB_SG_GLOBAL_BAL_001"
+    base = f"http://gateway.dev.lotus/api/v1/workbench/{portfolio}"
+    window = "report_start_date=2025-08-25&report_end_date=2026-04-10"
+    checks = [
+        {
+            "description": "Performance summary evidence readiness",
+            "status": "ready",
+            "url": f"{base}/performance/summary?{window}",
+        },
+        {"description": "Risk summary", "status": 200, "url": f"{base}/risk/summary?{window}"},
+        {
+            "description": "Advisor brief",
+            "status": 200,
+            "url": f"{base}/performance/advisor-brief?{window}",
+        },
+    ]
+    calculation_checks = [
+        {"description": "Performance calculation sanity"},
+        {"description": "Risk calculation sanity"},
+    ]
+    if mutation == "wrong_risk_start":
+        checks[1]["url"] = checks[1]["url"].replace("2025-08-25", "2025-03-31")
+    elif mutation == "wrong_performance_end":
+        checks[0]["url"] = checks[0]["url"].replace("2026-04-10", "2026-04-09")
+    elif mutation == "missing_advisor":
+        checks.pop()
+    elif mutation == "duplicate_risk_start":
+        checks[1]["url"] += "&report_start_date=2025-08-25"
+    elif mutation == "missing_risk_calculation":
+        calculation_checks.pop()
+    observed_portfolio = "OTHER_PORTFOLIO" if mutation == "wrong_portfolio" else portfolio
+    result = subprocess.run(
+        [powershell, "-NoProfile", "-NonInteractive", "-Command", script],
+        input=json.dumps(
+            {
+                "liveSummary": {
+                    "portfolioId": observed_portfolio,
+                    "apiChecks": checks,
+                    "calculationChecks": calculation_checks,
+                }
+            }
+        ),
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == ("accepted" if expected_success else "refused")
+
+
+@pytest.mark.parametrize(
+    ("requested", "expected"),
+    [
+        ("", "2025-03-31"),
+        ("2025-08-25", "2025-08-25"),
+        ("2026-04-10", "2026-04-10"),
+        ("2025-03-30", None),
+        ("2026-04-11", None),
+        ("2025-02-30", None),
+        ("2025-8-25", None),
+        ("2025-08-25T00:00:00Z", None),
+    ],
+)
+def test_canonical_report_window_rejects_invalid_or_out_of_seed_range_before_runtime(
+    requested: str, expected: str | None
+) -> None:
+    powershell = shutil.which("pwsh") or shutil.which("powershell")
+    assert powershell is not None, (
+        "PowerShell is required for the shipped report-window guard"
+    )
+    script = r"""
+$ErrorActionPreference = 'Stop'
+$ast = [Management.Automation.Language.Parser]::ParseFile(
+  (Join-Path (Get-Location) 'automation/Invoke-Canonical-FrontOffice-QA.ps1'),
+  [ref]$null, [ref]$null
+)
+$definition = $ast.Find({ param($node)
+  $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+  $node.Name -eq 'Resolve-CanonicalReportStartDate'
+}, $true)
+if (-not $definition) { throw 'Shipped report-window guard is missing' }
+. ([scriptblock]::Create($definition.Extent.Text))
+$inputValue = [Console]::In.ReadToEnd() | ConvertFrom-Json
+try {
+  $value = Resolve-CanonicalReportStartDate -RequestedDate $inputValue.requested `
+    -DatePolicy $inputValue.datePolicy
+  @{ status='accepted'; value=$value } | ConvertTo-Json -Compress
+} catch {
+  @{ status='refused'; value='' } | ConvertTo-Json -Compress
+}
+"""
+    result = subprocess.run(
+        [powershell, "-NoProfile", "-NonInteractive", "-Command", script],
+        input=json.dumps(
+            {
+                "requested": requested,
+                "datePolicy": {
+                    "seed_start_date": "2025-03-31",
+                    "canonical_as_of_date": "2026-04-10",
+                },
+            }
+        ),
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    assert result.returncode == 0, result.stderr
+    observed = json.loads(result.stdout)
+    assert observed == {
+        "status": "accepted" if expected is not None else "refused",
+        "value": expected or "",
+    }
+
+
+def test_invalid_report_window_refuses_before_canonical_qa_output(
+    tmp_path: Path,
+) -> None:
+    powershell = shutil.which("pwsh") or shutil.which("powershell")
+    assert powershell is not None
+    output_dir = tmp_path / "must-not-be-created"
+    result = subprocess.run(
+        [
+            powershell,
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            str(ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1"),
+            "-BringUp",
+            "-ReportStartDate",
+            "2025-02-30",
+            "-OutputDirectory",
+            str(output_dir),
+        ],
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    assert result.returncode != 0
+    assert "not a valid calendar date" in result.stderr
+    assert not output_dir.exists()
+
+
 @pytest.mark.parametrize(
     ("profile", "live_profile", "exclusions", "expected_success"),
     [

@@ -831,6 +831,10 @@ tracked by `sgajbi/lotus-idea#1345`. For a bounded client rehearsal through the 
 add `-ValidationProfile client-demo`. That profile still requires Idea readiness, candidate/queue,
 API, UI and teardown checks; the QA receipt records the excluded capacity workload and explicitly
 does not certify full-profile capacity. Do not use this switch for RFC or supported-feature closure.
+The same runner accepts `-ReportStartDate YYYY-MM-DD` when an explicitly scoped post-inception
+report is appropriate. The omitted default is the governed seed start; invalid or out-of-seed
+dates fail before runtime work. The QA receipt records the selected report start and canonical
+end. A shorter passing window does not certify earlier history or hide a partial Risk result.
 
 For RFC closure, supported-feature promotion, or other mainline certification proof, require exact
 mainline source provenance before cleanup, Docker startup, seeding, validation, screenshots, and
@@ -879,7 +883,8 @@ center, selector-driven `partial` state, and empty-date `empty` state. Explicitl
 blocked command-center fixtures remain source-owner follow-up rather than demo-ready seed claims.
 Wrapper summaries record `require_mainline_sources` and `mainline_source_preflight` so proof
 consumers can distinguish development evidence from RFC/mainline certification evidence.
-They also record `validation_profile` and `excluded_proofs`; a passing `client-demo` receipt cannot
+They also record `validation_profile`, `report_start_date`, `report_end_date`, and
+`excluded_proofs`; a passing `client-demo` receipt cannot
 be substituted for full downstream-capacity acceptance or production release evidence.
 Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
 empty/error posture.
