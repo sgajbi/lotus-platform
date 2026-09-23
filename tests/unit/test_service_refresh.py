@@ -333,3 +333,33 @@ def test_service_refresh_fail_closed_behavior_is_documented() -> None:
         "requireHealthy": True,
         "publishedPorts": [{"target": 8000, "published": 8001}],
     }
+
+
+def test_performance_source_refresh_includes_every_long_running_code_consumer() -> None:
+    service_map = json.loads(SERVICE_MAP.read_text(encoding="utf-8"))
+    performance = next(
+        repo for repo in service_map["repos"] if repo["name"] == "lotus-performance"
+    )
+    expected_services = {
+        "performance-analytics",
+        "performance-compute-executor",
+        "performance-lineage-worker",
+    }
+
+    assert set(performance["defaultServices"]) == expected_services
+    production_rule = next(
+        rule for rule in performance["rules"] if "app/" in rule["pathPrefixes"]
+    )
+    assert set(production_rule["services"]) == expected_services
+
+
+def test_core_query_control_plane_source_refreshes_its_runtime() -> None:
+    service_map = json.loads(SERVICE_MAP.read_text(encoding="utf-8"))
+    core = next(repo for repo in service_map["repos"] if repo["name"] == "lotus-core")
+    qcp_rule = next(
+        rule
+        for rule in core["rules"]
+        if "src/services/query_control_plane_service/" in rule["pathPrefixes"]
+    )
+
+    assert qcp_rule["services"] == ["query_control_plane_service"]
