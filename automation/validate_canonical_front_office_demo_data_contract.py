@@ -21,7 +21,7 @@ SEED_SCRIPT_PATH = ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1"
 CORE_SEED_VALIDATOR_RELATIVE_PATH = Path(
     "tools/validate_front_office_advisor_book_seed.py"
 )
-REQUIRED_CONTRACT_VERSION = "1.2.0"
+REQUIRED_CONTRACT_VERSION = "1.2.1"
 REQUIRED_DPM_CAMPAIGN_TENANT_ID = "tenant-sg"
 REQUIRED_DPM_WORKBENCH_CALLER_TENANT_ID = "tenant-sg"
 # The tenant lotus-core seeds the canonical portfolio under. It presently equals
@@ -41,7 +41,7 @@ REQUIRED_DPM_IDENTITIES = {
     "mandate_id": "MANDATE_PB_SG_GLOBAL_BAL_001",
     "portfolio_manager_id": "PM_SG_DPM_001",
     "book_id": "BOOK_SG_BALANCED_DPM",
-    "tenant_id": "default",
+    "tenant_id": "tenant-sg",
 }
 REQUIRED_ADVISOR_BOOK_IDENTITIES = {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -83,6 +83,7 @@ REQUIRED_COVERAGE_ASSERTIONS = {
     "dpm_command_center_degraded_and_blocked_seed_fixtures_require_source_owner_cases",
     "canonical_portfolio_source_tenant_must_match_lotus_core_seed_authority",
     "canonical_portfolio_source_tenant_must_stay_distinct_from_caller_admission_tenant",
+    "dpm_command_center_storage_tenant_must_match_admitted_workbench_tenant",
 }
 REQUIRED_ECONOMIC_INVARIANTS = {
     "advisor_book_assignment_identity_is_deterministic",
@@ -312,6 +313,11 @@ def _validate_campaign_definition(errors: list[str], dpm: dict[str, Any]) -> Non
         errors.append(
             "campaign_definition_scenario.tenant_id must match the governed "
             "Workbench caller tenant"
+        )
+    if dpm.get("tenant_id") != workbench_caller_tenant_id:
+        errors.append(
+            "dpm_command_center.tenant_id must match "
+            "dpm_command_center.workbench_caller_tenant_id"
         )
     if campaign.get("tenant_id") != workbench_caller_tenant_id:
         errors.append(

@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 419,
     "powershell_file_count": 69,
-    "python_file_count": 266,
-    "source_file_count": 979,
+    "python_file_count": 267,
+    "source_file_count": 980,
     "suffix_counts": {
       ".json": 176,
       ".md": 419,
       ".ps1": 69,
-      ".py": 266,
+      ".py": 267,
       ".txt": 7,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 390091
+    "total_source_lines": 390277
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 703,
+        "end_line": 707,
         "line": 349,
-        "lines": 355,
+        "lines": 359,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -301,9 +301,9 @@
       },
       {
         "complexity": 1,
-        "end_line": 323,
-        "line": 128,
-        "lines": 196,
+        "end_line": 339,
+        "line": 143,
+        "lines": 197,
         "name": "test_rfc_0076_contract_json_records_governed_identity_and_ownership",
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3912
+    "python_function_count": 3918
   },
-  "generated_at_utc": "2026-09-22T10:02:55Z",
+  "generated_at_utc": "2026-09-23T01:33:59Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -453,7 +453,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1364,
+      "lines": 1371,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1955,
+    "collected_tests": 1964,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1955 tests collected"
+    "summary": "1964 tests collected"
   }
 }

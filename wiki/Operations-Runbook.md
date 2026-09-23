@@ -112,14 +112,15 @@ Gateway command-center summary before browser proof starts. The seed evidence re
 `posture_checks` for populated source-ready `ready`, selector-driven `partial`, and empty-date `empty`
 command-center states before Workbench screenshots can be promoted.
 
-The governed contract separates the general command-centre query tenant from the Workbench caller
-tenant. Campaign upsert, legacy supersession, Gateway campaign verification, and PM Operating
-Quality proof use `dpm_command_center.workbench_caller_tenant_id` (`tenant-sg`); the campaign
-scenario repeats the same value to prevent drift. Mandate command-centre refresh, monitoring,
-health and query operations retain `dpm_command_center.tenant_id` (`default`). The separate
+The governed contract keeps command-centre storage scope and Workbench caller admission as explicit
+fields, and requires both to name `tenant-sg`. Mandate refresh, monitoring, health, and Gateway
+readback use this matching scope because Gateway forwards only admitted caller authority and never
+substitutes an optional query tenant. Campaign upsert, legacy supersession, Gateway campaign
+verification, and PM Operating Quality proof use the same admitted Workbench tenant. The separate
 source-backed action-register simulation and its workflow follow-ups use the explicit
 `portfolio.source_tenant_id` (`tenant-sg`) in both the admitted header and selector. Do not infer
-that source owner from the Workbench caller or replace either boundary with a query override.
+that source owner from the Workbench caller; equality in this fixture does not collapse the three
+separately owned authorities.
 
 Before recalculating mandate health, the seed reads the portfolio's cash percentage from the
 Gateway Workbench overview at the exact requested date. The read excludes optional Performance and

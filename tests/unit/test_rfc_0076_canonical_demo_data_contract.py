@@ -11,6 +11,21 @@ def _load_json(relative_path: str) -> dict:
     return json.loads((ROOT / relative_path).read_text(encoding="utf-8"))
 
 
+def test_canonical_dpm_docs_publish_one_admitted_tenant_scope() -> None:
+    durable_sources = [
+        "context/recent-architectural-decisions-digest.md",
+        "context/contracts/README.md",
+        "docs/demo/canonical-dpm-demo-story.md",
+        "wiki/Canonical-DPM-Demo-Story.md",
+    ]
+
+    for relative_path in durable_sources:
+        content = (ROOT / relative_path).read_text(encoding="utf-8")
+        assert "tenant-sg" in content, relative_path
+        assert "`default` command-centre" not in content, relative_path
+        assert "from command-centre query scope" not in content, relative_path
+
+
 def test_rfc_0076_slice_one_contract_artifacts_are_governed_and_traceable() -> None:
     rfc = (ROOT / "rfcs" / "RFC-0076-canonical-front-office-demo-data-contract.md").read_text(
         encoding="utf-8"
@@ -129,7 +144,7 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     contract = _load_json("context/contracts/canonical-front-office-demo-data-contract.json")
 
     assert contract["contract_id"] == "canonical-front-office-demo-data-contract"
-    assert contract["contract_version"] == "1.2.0"
+    assert contract["contract_version"] == "1.2.1"
     assert contract["governed_by_rfc"] == "RFC-0076"
 
     portfolio = contract["portfolio"]
@@ -161,8 +176,9 @@ def test_rfc_0076_contract_json_records_governed_identity_and_ownership() -> Non
     assert dpm_command_center["mandate_id"] == "MANDATE_PB_SG_GLOBAL_BAL_001"
     assert dpm_command_center["portfolio_manager_id"] == "PM_SG_DPM_001"
     assert dpm_command_center["book_id"] == "BOOK_SG_BALANCED_DPM"
-    assert dpm_command_center["tenant_id"] == "default"
+    assert dpm_command_center["tenant_id"] == "tenant-sg"
     assert dpm_command_center["workbench_caller_tenant_id"] == "tenant-sg"
+    assert dpm_command_center["tenant_id"] == dpm_command_center["workbench_caller_tenant_id"]
     assert dpm_command_center["model_portfolio_id"] == "MODEL_PB_SG_GLOBAL_BAL_DPM"
     assert (
         dpm_command_center["command_center_as_of_date"]
@@ -327,7 +343,7 @@ def test_rfc_0076_invariants_json_records_thresholds_and_supported_surface_expec
     invariants = _load_json("context/contracts/canonical-front-office-demo-data-invariants.json")
 
     assert invariants["contract_id"] == "canonical-front-office-demo-data-invariants"
-    assert invariants["contract_version"] == "1.2.0"
+    assert invariants["contract_version"] == "1.2.1"
     assert invariants["canonical_portfolio_id"] == "PB_SG_GLOBAL_BAL_001"
     assert invariants["canonical_benchmark_code"] == "BMK_PB_GLOBAL_BALANCED_60_40"
     assert invariants["canonical_as_of_date"] == "2026-04-10"

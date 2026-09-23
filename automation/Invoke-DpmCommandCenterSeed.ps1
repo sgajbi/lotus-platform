@@ -354,6 +354,12 @@ $resolvedWorkbenchCallerTenantId = [string]$dpm.workbench_caller_tenant_id
 if ([string]::IsNullOrWhiteSpace($resolvedWorkbenchCallerTenantId)) {
   throw "Canonical front-office data contract does not define dpm_command_center.workbench_caller_tenant_id."
 }
+if ($resolvedTenantId -cne $resolvedWorkbenchCallerTenantId) {
+  throw (
+    "Canonical DPM command-center tenant $resolvedTenantId does not match admitted " +
+    "Workbench caller tenant $resolvedWorkbenchCallerTenantId."
+  )
+}
 $resolvedBookingCenterCode = Resolve-ContractValue -Candidate $BookingCenterCode -Fallback $dpm.booking_center_code
 $resolvedModelPortfolioId = Resolve-ContractValue -Candidate $ModelPortfolioId -Fallback $dpm.model_portfolio_id
 $resolvedReferenceCurrency = Resolve-ContractValue -Candidate $ReferenceCurrency -Fallback $dpm.reference_currency
@@ -428,19 +434,16 @@ $gatewayCampaignDiscoveryUri = (
 $gatewayCommandCenterUri = (
   "$gatewayApiBaseUrl/api/v1/dpm/command-center" +
   "?portfolio_manager_id=$($dpm.portfolio_manager_id)" +
-  "&tenant_id=$resolvedTenantId" +
   "&book_id=$($dpm.book_id)" +
   "&as_of_date=$resolvedAsOfDate"
 )
 $gatewayCommandCenterPartialUri = (
   "$gatewayApiBaseUrl/api/v1/dpm/command-center" +
-  "?tenant_id=$resolvedTenantId" +
-  "&limit=1"
+  "?limit=1"
 )
 $gatewayCommandCenterEmptyUri = (
   "$gatewayApiBaseUrl/api/v1/dpm/command-center" +
   "?portfolio_manager_id=$($dpm.portfolio_manager_id)" +
-  "&tenant_id=$resolvedTenantId" +
   "&book_id=$($dpm.book_id)" +
   "&as_of_date=2099-01-01"
 )
@@ -477,6 +480,9 @@ function New-ManageRequestHeaders {
 }
 
 $headers = New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-seed-$resolvedPortfolioId-$timestamp"
+$gatewayHeaders = New-ManageRequestHeaders `
+  -CorrelationId "corr-canonical-dpm-gateway-$resolvedPortfolioId-$timestamp" `
+  -TenantId $resolvedWorkbenchCallerTenantId
 $campaignHeaders = New-ManageRequestHeaders `
   -CorrelationId "corr-canonical-dpm-campaign-$resolvedCampaignId-$timestamp" `
   -TenantId $resolvedCampaignTenantId
@@ -1255,11 +1261,11 @@ try {
 
   if (-not $SkipGatewayValidation) {
     Write-Host "[dpm-seed] verifying Gateway command-center mandate lookup"
-    $summary.gateway_mandate_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayMandateUri -Headers $headers
+    $summary.gateway_mandate_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayMandateUri -Headers $gatewayHeaders
     $summary.steps += "gateway-mandate-by-portfolio"
 
     Write-Host "[dpm-seed] verifying Gateway command-center mandate health"
-    $summary.gateway_health_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayHealthUri -Headers $headers
+    $summary.gateway_health_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayHealthUri -Headers $gatewayHeaders
     Assert-MandateHealthMatchesSeed `
       -Name "Gateway command-center mandate health" `
       -Response $summary.gateway_health_response
@@ -1287,7 +1293,7 @@ try {
     $summary.steps += "gateway-campaign-discovery"
 
     Write-Host "[dpm-seed] verifying Gateway command-center summary"
-    $summary.gateway_command_center_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterUri -Headers $headers
+    $summary.gateway_command_center_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterUri -Headers $gatewayHeaders
     $summary.steps += "gateway-command-center-summary"
 
     Write-Host "[dpm-seed] creating canonical Gateway outcome-review evidence"
@@ -1301,6 +1307,7 @@ try {
       -Uri "$gatewayApiBaseUrl/api/v1/dpm/command-center/outcome-reviews" `
       -Headers (New-ManageRequestHeaders `
         -CorrelationId "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-$($resolvedAsOfDate -replace '-', '')" `
+        -TenantId $resolvedWorkbenchCallerTenantId `
         -ExtraHeaders @{
           "Idempotency-Key" = $outcomeReviewIdempotencyKey
         }) `
@@ -1311,7 +1318,7 @@ try {
     $summary.gateway_outcome_reviews_response = Invoke-JsonRequest `
       -Method "Get" `
       -Uri $gatewayOutcomeReviewsUri `
-      -Headers $headers
+      -Headers $gatewayHeaders
     $summary.gateway_outcome_review_verified_item = Assert-OutcomeReviewPageContainsSeed `
       -Response $summary.gateway_outcome_reviews_response
     $summary.steps += "gateway-outcome-review-list"
@@ -1325,7 +1332,7 @@ try {
       -Response $summary.gateway_command_center_response
 
     Write-Host "[dpm-seed] verifying Gateway command-center partial posture"
-    $summary.gateway_command_center_partial_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterPartialUri -Headers $headers
+    $summary.gateway_command_center_partial_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterPartialUri -Headers $gatewayHeaders
     $summary.steps += "gateway-command-center-partial-posture"
     Add-CommandCenterPostureCheck `
       -Checks $postureChecks `
@@ -1335,7 +1342,7 @@ try {
       -Response $summary.gateway_command_center_partial_response
 
     Write-Host "[dpm-seed] verifying Gateway command-center empty posture"
-    $summary.gateway_command_center_empty_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterEmptyUri -Headers $headers
+    $summary.gateway_command_center_empty_response = Invoke-JsonRequest -Method "Get" -Uri $gatewayCommandCenterEmptyUri -Headers $gatewayHeaders
     $summary.steps += "gateway-command-center-empty-posture"
     Add-CommandCenterPostureCheck `
       -Checks $postureChecks `
