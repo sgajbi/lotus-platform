@@ -365,12 +365,36 @@ def test_shipped_control_retains_acquired_scope_for_teardown_not_new_changes(tmp
     changed = copy.deepcopy(admitted_scope)
     changed["sources"]["lotus-core"] = "b" * 40
     monkeypatch.setattr(control, "scope_for", lambda *_: changed)
-    monkeypatch.setattr(control, "observe", lambda _: [])
+    monkeypatch.setattr(control, "observe", lambda _: BINDINGS)
     # Real-time expiry for the actual shipped execute boundary.
     now = datetime.now(timezone.utc)
     book = acquire(scope=admitted_scope, now=now, expires=(now + timedelta(hours=1)).isoformat())
     args = Namespace(projects_root=str(tmp_path), holder="lotus-platform-47", handover_receipt=None,
                      action="begin-change", workbench_repo_path="")
+    with pytest.raises(lease.ReservationRefusal, match="sources differ"):
+        control.execute(args, book)
+
+    handover = {
+        "holder": "lotus-platform-47",
+        "operator": "explicit-operator",
+        "sourceReceipt": "issue905-reviewed-runtime",
+        "scopeDigest": lease.digest(admitted_scope),
+        "bindingsDigest": lease.digest(BINDINGS),
+    }
+    receipt_path = tmp_path / "handover.json"
+    receipt_path.write_text(json.dumps({**handover, "bindingsDigest": "wrong"}), encoding="utf-8")
+    args.action = "recover"
+    args.handover_receipt = str(receipt_path)
+    with pytest.raises(lease.ReservationRefusal, match="actual resource identities"):
+        control.execute(args, book)
+    receipt_path.write_text(json.dumps(handover), encoding="utf-8")
+    record = control.execute(args, book)
+    assert record["scope"] == admitted_scope
+    assert record["bindings"] == BINDINGS
+    assert record["events"][-1]["action"] == "recover"
+
+    args.action = "begin-change"
+    args.handover_receipt = None
     with pytest.raises(lease.ReservationRefusal, match="sources differ"):
         control.execute(args, book)
     args.action = "begin-teardown"
@@ -380,9 +404,16 @@ def test_shipped_control_retains_acquired_scope_for_teardown_not_new_changes(tmp
     args.workbench_repo_path = str(tmp_path / "different-workbench")
     with pytest.raises(lease.ReservationRefusal, match="Selected Workbench checkout differs"):
         control.execute(args, book)
+    args.workbench_repo_path = ""
+    args.action = "finish"
+    args.operation_token = record["operation"]["token"]
+    args.outcome = "success"
+    monkeypatch.setattr(control, "observe", lambda _: [])
+    assert control.execute(args, book)["state"] == "released"
+    assert lease.current(book) is None
 
 
-@pytest.mark.parametrize("action", ["preflight", "begin-change", "preflight-operation", "recover", "acquire"])
+@pytest.mark.parametrize("action", ["preflight", "begin-change", "preflight-operation", "acquire"])
 def test_shipped_cli_selects_requested_workbench_before_admission(tmp_path, monkeypatch, action):
     from automation import canonical_runtime_reservation as control
     root = tmp_path / "lotus-platform/automation"
