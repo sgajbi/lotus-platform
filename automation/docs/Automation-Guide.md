@@ -48,6 +48,13 @@ Canonical source: `lotus-platform/automation`
 | Enforce local-vs-CI scope parity (fail on gap) | `automation/Validate-Local-CI-Parity.ps1` | Prevent PR failures caused by missing local checks |
 | Validate code/test impact | `automation/Validate-Change-Test-Impact.ps1` | Ensure source deltas include test updates |
 | Refresh impacted app Docker services only | `automation/Service-Refresh.ps1 -ProjectPath <lotus-app-repo> -ChangedOnly` or `-Services <service-name>` | Rebuild only mapped or explicit services with governed non-secret Compose environment, then fail closed unless running/health/port verification passes |
+
+Changed-source mappings include every long-running consumer of the built application image. For
+example, a `lotus-performance` production-source change refreshes the API, compute executor, and
+lineage worker together, so an async calculation cannot execute stale code after the API is
+recreated. A `lotus-core` query-control-plane source change selects
+`query_control_plane_service` rather than falling through to the unrelated query/ingestion
+defaults.
 | Canonical front-office readiness validation | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` | Bring up the governed `lotus-workbench` runtime, run the DPM command-center seed with ready/partial/empty posture checks, and validate populated UI/product surfaces |
 | Bounded canonical client rehearsal | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -ValidationProfile client-demo` | Same governed runner and Idea readiness/candidate/UI checks; excludes only the non-certifying synthetic Idea downstream-capacity workload, records the exclusion in the receipt, and does not certify full capacity or production release |
 | Explicit canonical report window | `automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -ReportStartDate YYYY-MM-DD` | Same runner, with a validated report start inside the governed seeded window; receipt records start/end and a shorter passing window does not certify earlier history or excuse a partial Risk calculation |

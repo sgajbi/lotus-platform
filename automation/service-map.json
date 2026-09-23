@@ -93,7 +93,9 @@
                       "name":  "lotus-performance",
                       "pathHint":  "lotus-performance",
                       "defaultServices":  [
-                                              "performance-analytics"
+                                              "performance-analytics",
+                                              "performance-compute-executor",
+                                              "performance-lineage-worker"
                                           ],
                       "rules":  [
                                     {
@@ -105,7 +107,9 @@
                                                              "pyproject.toml"
                                                          ],
                                         "services":  [
-                                                         "performance-analytics"
+                                                         "performance-analytics",
+                                                         "performance-compute-executor",
+                                                         "performance-lineage-worker"
                                                      ]
                                     }
                                 ]
@@ -128,6 +132,14 @@
                                     },
                                     {
                                         "pathPrefixes":  [
+                                                             "src/services/query_control_plane_service/"
+                                                         ],
+                                        "services":  [
+                                                         "query_control_plane_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
                                                              "src/services/ingestion_service/"
                                                          ],
                                         "services":  [
@@ -144,31 +156,15 @@
                                     },
                                     {
                                         "pathPrefixes":  [
-                                                             "src/services/cost_calculator_service/"
+                                                             "src/services/portfolio_transaction_processing_service/"
                                                          ],
                                         "services":  [
-                                                         "cost_calculator_service"
+                                                         "portfolio_transaction_processing_service"
                                                      ]
                                     },
                                     {
                                         "pathPrefixes":  [
-                                                             "src/services/cashflow_calculator_service/"
-                                                         ],
-                                        "services":  [
-                                                         "cashflow_calculator_service"
-                                                     ]
-                                    },
-                                    {
-                                        "pathPrefixes":  [
-                                                             "src/services/position_calculator_service/"
-                                                         ],
-                                        "services":  [
-                                                         "position_calculator_service"
-                                                     ]
-                                    },
-                                    {
-                                        "pathPrefixes":  [
-                                                             "src/services/position_valuation_calculator/"
+                                                             "src/services/calculators/position_valuation_calculator/"
                                                          ],
                                         "services":  [
                                                          "position_valuation_calculator"
@@ -176,10 +172,34 @@
                                     },
                                     {
                                         "pathPrefixes":  [
-                                                             "src/services/timeseries_generator_service/"
+                                                             "src/services/valuation_orchestrator_service/"
                                                          ],
                                         "services":  [
-                                                         "timeseries_generator_service"
+                                                         "valuation_orchestrator_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/portfolio_derived_state_service/"
+                                                         ],
+                                        "services":  [
+                                                         "portfolio_derived_state_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/financial_reconciliation_service/"
+                                                         ],
+                                        "services":  [
+                                                         "financial_reconciliation_service"
+                                                     ]
+                                    },
+                                    {
+                                        "pathPrefixes":  [
+                                                             "src/services/event_replay_service/"
+                                                         ],
+                                        "services":  [
+                                                         "event_replay_service"
                                                      ]
                                     },
                                     {
@@ -189,8 +209,16 @@
                                                          ],
                                         "services":  [
                                                          "migration-runner",
+                                                         "event_replay_service",
+                                                         "financial_reconciliation_service",
+                                                         "persistence_service",
+                                                         "portfolio_derived_state_service",
+                                                         "portfolio_transaction_processing_service",
+                                                         "position_valuation_calculator",
+                                                         "query_control_plane_service",
                                                          "query_service",
-                                                         "ingestion_service"
+                                                         "ingestion_service",
+                                                         "valuation_orchestrator_service"
                                                      ]
                                     },
                                     {
@@ -198,8 +226,16 @@
                                                              "src/libs/"
                                                          ],
                                         "services":  [
+                                                         "event_replay_service",
+                                                         "financial_reconciliation_service",
+                                                         "persistence_service",
+                                                         "portfolio_derived_state_service",
+                                                         "portfolio_transaction_processing_service",
+                                                         "position_valuation_calculator",
+                                                         "query_control_plane_service",
                                                          "query_service",
-                                                         "ingestion_service"
+                                                         "ingestion_service",
+                                                         "valuation_orchestrator_service"
                                                      ]
                                     },
                                     {
