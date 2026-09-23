@@ -90,7 +90,9 @@ def execute(args: argparse.Namespace, book: dict) -> dict:
         lease.owner(admitted, args.holder, datetime.now(timezone.utc),
                     teardown=args.action in {"preflight-teardown", "begin-teardown", "finish"})
     admitted = lease.current(book)
-    teardown = args.action in {"preflight-teardown", "begin-teardown", "reclaim"} or (
+    # Recovery rebinds reviewed live resources to the original reservation; it must not
+    # manufacture a new source grant from checkouts that may have advanced meanwhile.
+    teardown = args.action in {"preflight-teardown", "begin-teardown", "recover", "reclaim"} or (
         args.action == "finish" and admitted is not None and admitted["operation"] is not None
         and admitted["operation"]["action"] == "teardown"
     )
