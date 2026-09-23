@@ -223,8 +223,10 @@ Canonical DPM command-center seed authority:
   normalized ratio. There is no hard-coded fallback; untrustworthy evidence fails before the
   health write.
 - the source-backed action-register simulation and its workflow follow-ups use
-  `portfolio.source_tenant_id` for admitted Manage/Core scope; command-centre refresh and health
-  retain the separately governed `dpm_command_center.tenant_id`.
+  `portfolio.source_tenant_id` for admitted Manage/Core scope. Command-centre refresh, monitoring,
+  health, and readback use `dpm_command_center.tenant_id`, which must equal the separately configured
+  `workbench_caller_tenant_id` because Gateway forwards only admitted caller scope and never a query
+  override. These fields remain separate authorities and must not be derived from one another.
 - after preflight, `DPM_CORE_CONTEXT_INCOMPLETE` is not proof of missing Core source facts. Preserve
   the receipt in `output/front-office-qa/dpm-command-center-seed-latest.json` and inspect the
   failing source route, header/body scope and readiness response. A malformed Manage CoreSnapshot

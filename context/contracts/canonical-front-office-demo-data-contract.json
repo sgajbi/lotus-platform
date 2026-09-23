@@ -1,8 +1,8 @@
 {
   "contract_id": "canonical-front-office-demo-data-contract",
-  "contract_version": "1.2.0",
+  "contract_version": "1.2.1",
   "status": "proposed-for-rfc-0076-slice-1",
-  "last_reviewed_on": "2026-08-30",
+  "last_reviewed_on": "2026-09-23",
   "governed_by_rfc": "RFC-0076",
   "portfolio": {
     "portfolio_id": "PB_SG_GLOBAL_BAL_001",
@@ -63,8 +63,9 @@
     "mandate_id": "MANDATE_PB_SG_GLOBAL_BAL_001",
     "portfolio_manager_id": "PM_SG_DPM_001",
     "book_id": "BOOK_SG_BALANCED_DPM",
-    "tenant_id": "default",
+    "tenant_id": "tenant-sg",
     "workbench_caller_tenant_id": "tenant-sg",
+    "tenant_scope_rule": "Command-center persistence and reads use the same explicitly admitted tenant. The field remains separate from caller admission configuration and portfolio source provenance; consumers must validate equality rather than derive one authority from another.",
     "booking_center_code": "Singapore",
     "model_portfolio_id": "MODEL_PB_SG_GLOBAL_BAL_DPM",
     "policy_pack_id": "POLICY_DPM_SG_BALANCED_V1",
@@ -100,7 +101,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeDemoDataContract",
               "source_id": "canonical-front-office-demo-data-contract",
-              "source_version": "1.2.0",
+              "source_version": "1.2.1",
               "supportability_state": "READY"
             }
           ]
@@ -115,7 +116,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.2.0",
+              "source_version": "1.2.1",
               "supportability_state": "READY"
             }
           ]
@@ -130,7 +131,7 @@
               "source_system": "lotus-platform",
               "source_type": "CanonicalFrontOfficeMultiPortfolioWaveScenario",
               "source_id": "RFC41_MULTI_PORTFOLIO_EXPLICIT_LIST_CANONICAL",
-              "source_version": "1.2.0",
+              "source_version": "1.2.1",
               "supportability_state": "READY"
             }
           ]
