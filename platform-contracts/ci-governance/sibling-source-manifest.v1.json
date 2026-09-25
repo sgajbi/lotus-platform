@@ -1,7 +1,7 @@
 {
   "schema_version": "lotus.sibling-source-manifest.v1",
   "purpose": "The exact sibling revisions the per-commit lanes (feature, pr-merge, main-releasability) read. A lane verdict is a function of the lotus-platform commit alone only when every sibling input is pinned here; a pin is refreshed by a reviewed pull request, never by a lane. Current-main drift is reported by the scheduled fleet-conformance lane, which reads sibling default branches on purpose.",
-  "recorded_at_utc": "2026-09-25T14:01:11Z",
+  "recorded_at_utc": "2026-09-25T17:24:41Z",
   "recorded_from": "GitHub API repos/<github>/branches/main at recorded_at_utc",
   "sources": [
     {
@@ -85,8 +85,8 @@
       "repository": "lotus-workbench",
       "github": "sgajbi/lotus-workbench",
       "branch": "main",
-      "revision": "f9c1a700b3fd2376d6cdf74e1d7d90c78f5752a5",
-      "committed_at_utc": "2026-09-25T14:00:40Z"
+      "revision": "99f40244043e788d3c5b7b3cedf642be12b41ffa",
+      "committed_at_utc": "2026-09-25T19:31:30Z"
     }
   ]
 }

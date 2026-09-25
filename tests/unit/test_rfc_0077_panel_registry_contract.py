@@ -143,8 +143,29 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
         "performance-risk-live.png"
     )
-    assert panel_by_id["performance.analysis.attribution"]["required_support_state"] == "ready"
-    assert panel_by_id["performance.analysis.attribution"]["known_limitations"] == []
+    performance_attribution = panel_by_id["performance.analysis.attribution"]
+    assert performance_attribution["required_support_state"] == "partial"
+    assert performance_attribution["known_limitations"] == [
+        "source-owned benchmark-relative attribution remains partial when "
+        "classification coverage or residual materiality reasons are present"
+    ]
+
+    ecosystem_proof = _load_json(
+        "context/contracts/analytics-ui-observability-ecosystem-proof.json"
+    )
+    required_ecosystem_panels = {
+        panel_id
+        for journey in ecosystem_proof["required_journeys"]
+        for panel_id in journey["required_panel_ids"]
+    }
+    required_partial_ecosystem_panels = sorted(
+        panel_id
+        for panel_id in required_ecosystem_panels
+        if panel_by_id[panel_id]["required_support_state"] == "partial"
+    )
+    assert ecosystem_proof["canonical_runtime"]["allowed_partial_panels"] == (
+        required_partial_ecosystem_panels
+    )
     performance_summary = panel_by_id["performance.summary"]
     assert performance_summary["required_support_state"] == "ready"
     assert performance_summary["allowed_states"] == [

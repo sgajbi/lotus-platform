@@ -12,7 +12,7 @@
     {
       "area": "panel states",
       "status": "passed",
-      "evidence": "Certified Workbench route groups are validated against workbench-panel-registry and rollout readiness; the evidence, advisor-book, and report-centre panels remain certified_partial with explicit residual scope."
+      "evidence": "Certified Workbench route groups are validated against workbench-panel-registry and rollout readiness; performance analysis, evidence, advisor-book, and report-centre routes remain certified_partial with explicit residual scope."
     },
     {
       "area": "api and swagger certification",

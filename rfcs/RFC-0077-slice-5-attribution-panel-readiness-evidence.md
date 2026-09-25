@@ -1,5 +1,17 @@
 # RFC-0077 Slice 5 Evidence: Attribution Panel Readiness Alignment
 
+> Superseded runtime posture (2026-09-26): this document records the 2026-04-15
+> promotion decision. The current canonical source returns populated BF/Carino attribution rows
+> with source-owned reason codes from the governed Performance vocabulary, including at least
+> one coverage-gap reason when the source status is `partial`; warning-only reasons such as
+> `material_residual` cannot independently justify that state. The authoritative panel registry
+> therefore requires
+> `performance.analysis.attribution = partial`; populated rows do not erase source-owned
+> supportability warnings. Platform issue #897 and its exact-main canonical receipt own the
+> replacement evidence. That receipt must carry the source attribution status, non-empty reason
+> codes, and structurally valid supportability evidence; a bare `partial` label or opaque non-empty
+> object is not sufficient proof.
+
 - RFC: `RFC-0077-workbench-panel-registry-and-evidence-contract.md`
 - Date: `2026-04-15`
 - Scope:

@@ -112,6 +112,11 @@ def test_analytics_ui_rollout_readiness_records_route_and_panel_scope() -> None:
     assert certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
     ]["certification_status"] == "certified_partial"
+    analysis_group = certified_groups[
+        "/performance?portfolioId={portfolio_id}&mode=analysis"
+    ]
+    assert analysis_group["certification_status"] == "certified_partial"
+    assert "Benchmark-relative attribution" in analysis_group["residual_scope"]
     assert "performance.evidence" in certified_groups[
         "/performance?portfolioId={portfolio_id}&mode=evidence"
     ]["panel_ids"]
@@ -214,3 +219,23 @@ def test_analytics_ui_rollout_readiness_rejects_residual_status_drift() -> None:
     errors = _validate(observability, rollout)
 
     assert any("residual status must remain planned" in error for error in errors)
+
+
+def test_analytics_ui_rollout_readiness_rejects_certified_route_with_partial_panel() -> None:
+    observability = _load_json(OBSERVABILITY_CONTRACT_PATH)
+    rollout = copy.deepcopy(_load_json(ROLLOUT_CONTRACT_PATH))
+    analysis_group = next(
+        group
+        for group in rollout["certified_route_groups"]
+        if group["route"] == "/performance?portfolioId={portfolio_id}&mode=analysis"
+    )
+    analysis_group["certification_status"] = "certified"
+    analysis_group.pop("residual_scope")
+
+    errors = _validate(observability, rollout)
+
+    assert any(
+        "certification_status must be certified_partial while registry panels remain partial"
+        in error
+        for error in errors
+    )

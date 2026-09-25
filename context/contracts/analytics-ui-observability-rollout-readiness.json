@@ -51,12 +51,13 @@
     },
     {
       "route": "/performance?portfolioId={portfolio_id}&mode=analysis",
-      "certification_status": "certified",
+      "certification_status": "certified_partial",
       "panel_ids": [
         "performance.analysis.contribution",
         "performance.analysis.attribution"
       ],
-      "evidence_basis": "Slice 8 canonical proof validated selected performance analysis panels against the Workbench panel registry."
+      "evidence_basis": "Canonical proof validates populated contribution and attribution panels against the Workbench panel registry without suppressing source-owned benchmark-relative qualifications.",
+      "residual_scope": "Benchmark-relative attribution remains partial when classification coverage or residual materiality reason codes are present."
     },
     {
       "route": "/performance?portfolioId={portfolio_id}&mode=advisor",

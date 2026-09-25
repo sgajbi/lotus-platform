@@ -40,6 +40,32 @@ DEFAULT_REVIEW_OUTPUT = (
 ACCEPTED_QA_STATUSES = {"ok", "passed", "success"}
 FAILED_API_STATES = {"failed", "error"}
 READY_PANEL_STATES = {"ready", "demo_ready"}
+ATTRIBUTION_REASON_CODES = frozenset(
+    {
+        "benchmark_only_exposure",
+        "currency_attribution_unavailable",
+        "linking_invalid_return_chain",
+        "linking_scaling_skipped",
+        "material_residual",
+        "missing_benchmark_data",
+        "missing_benchmark_return",
+        "negative_weight",
+        "off_benchmark_exposure",
+        "residual_watch",
+        "unclassified_segment",
+        "zero_portfolio_exposure",
+    }
+)
+PARTIAL_ATTRIBUTION_REASON_CODES = frozenset(
+    {
+        "benchmark_only_exposure",
+        "currency_attribution_unavailable",
+        "linking_invalid_return_chain",
+        "missing_benchmark_return",
+        "off_benchmark_exposure",
+        "unclassified_segment",
+    }
+)
 WORKFLOW_EXPECTATIONS = {
     "ACCEPT": ("READY", "READY"),
     "SUPERSEDE": ("HISTORICAL", "HISTORICAL"),
@@ -184,8 +210,61 @@ def _panel_state_is_allowed(
     *, panel_id: str, state: str, allowed_partial_panels: set[str]
 ) -> bool:
     if panel_id in allowed_partial_panels:
-        return state in READY_PANEL_STATES | {"partial"}
+        return state == "partial"
     return state in READY_PANEL_STATES
+
+
+def _attribution_reason_codes_error(reason_codes: object) -> str | None:
+    if not isinstance(reason_codes, list) or not reason_codes or not all(
+        isinstance(reason_code, str) and reason_code.strip()
+        for reason_code in reason_codes
+    ):
+        return "source-owned reasonCodes must be non-empty strings"
+    unknown_reason_codes = sorted(set(reason_codes) - ATTRIBUTION_REASON_CODES)
+    if unknown_reason_codes:
+        return (
+            "source-owned reasonCodes contain unknown values: "
+            + ", ".join(unknown_reason_codes)
+        )
+    if not PARTIAL_ATTRIBUTION_REASON_CODES.intersection(reason_codes):
+        return (
+            "partial attribution requires at least one source-owned coverage-gap "
+            "reasonCode"
+        )
+    return None
+
+
+def _partial_panel_qualification_error(
+    *, panel_id: str, panel: dict[str, Any]
+) -> str | None:
+    if panel_id != "performance.analysis.attribution":
+        return "no governed partial-evidence validator is registered"
+    if panel.get("attributionStatus") != "partial":
+        return "attributionStatus must be partial"
+    reason_codes = panel.get("reasonCodes")
+    reason_codes_error = _attribution_reason_codes_error(reason_codes)
+    if reason_codes_error:
+        return reason_codes_error
+    supportability_evidence = panel.get("supportabilityEvidence")
+    if not isinstance(supportability_evidence, dict) or not supportability_evidence:
+        return "source-owned supportabilityEvidence must be a non-empty object"
+    required_count_fields = (
+        "portfolio_only_group_count",
+        "benchmark_only_group_count",
+        "unclassified_group_count",
+        "missing_benchmark_return_count",
+        "negative_weight_count",
+        "zero_portfolio_exposure_count",
+    )
+    for field in required_count_fields:
+        value = supportability_evidence.get(field)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            return f"supportabilityEvidence.{field} must be a non-negative integer"
+    for field in ("currency_attribution_status", "linking_status"):
+        value = supportability_evidence.get(field)
+        if not isinstance(value, str) or not value.strip():
+            return f"supportabilityEvidence.{field} must be a non-empty string"
+    return None
 
 
 def _missing_or_invalid_journey_panels(
@@ -209,11 +288,21 @@ def _missing_or_invalid_journey_panels(
             state=state,
             allowed_partial_panels=allowed_partial_panels,
         ):
+            if expected_panel in allowed_partial_panels:
+                qualification_error = _partial_panel_qualification_error(
+                    panel_id=expected_panel,
+                    panel=panel,
+                )
+                if qualification_error:
+                    errors.append(
+                        f"{journey_id}: panel {expected_panel} partial evidence invalid: "
+                        f"{qualification_error}"
+                    )
             continue
 
         if expected_panel in allowed_partial_panels:
             errors.append(
-                f"{journey_id}: panel {expected_panel} has unexpected state {state}"
+                f"{journey_id}: panel {expected_panel} must be partial, got {state}"
             )
         else:
             errors.append(
