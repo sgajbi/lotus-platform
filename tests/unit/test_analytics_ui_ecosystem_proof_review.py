@@ -130,7 +130,22 @@ def _valid_live_summary(evidence_dir: Path) -> dict:
             {"panel": "portfolio.detailed", "state": "ready"},
             {"panel": "performance.summary", "state": "ready"},
             {"panel": "performance.analysis.contribution", "state": "ready"},
-            {"panel": "performance.analysis.attribution", "state": "ready"},
+            {
+                "panel": "performance.analysis.attribution",
+                "state": "partial",
+                "attributionStatus": "partial",
+                "reasonCodes": ["off_benchmark_exposure", "material_residual"],
+                "supportabilityEvidence": {
+                    "portfolio_only_group_count": 2,
+                    "benchmark_only_group_count": 0,
+                    "unclassified_group_count": 0,
+                    "missing_benchmark_return_count": 0,
+                    "negative_weight_count": 0,
+                    "zero_portfolio_exposure_count": 0,
+                    "currency_attribution_status": "not_requested",
+                    "linking_status": "linked",
+                },
+            },
             {"panel": "performance.risk.snapshot", "state": "ready"},
             {"panel": "performance.risk.concentration", "state": "ready"},
             {"panel": "performance.risk.drawdown", "state": "ready"},
@@ -259,6 +274,207 @@ def test_ecosystem_proof_review_accepts_complete_evidence(tmp_path: Path) -> Non
         == "gateway.analytics.audit.protected_diagnostics_lookup"
     )
     assert "performance-analytics" in review["evidence"]["journeys"]
+
+
+def test_ecosystem_proof_review_rejects_unadmitted_partial_panel(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    proof = json.loads(contracts["proof"].read_text(encoding="utf-8"))
+    proof["canonical_runtime"]["allowed_partial_panels"] = []
+    _write_json(contracts["proof"], proof)
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert (
+        "performance-analytics: panel performance.analysis.attribution must be ready, got partial"
+        in review["errors"]
+    )
+
+
+def test_ecosystem_proof_review_rejects_ready_state_for_required_partial_panel(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    live = json.loads(evidence["live"].read_text(encoding="utf-8"))
+    attribution = next(
+        panel
+        for panel in live["panelClassifications"]
+        if panel["panel"] == "performance.analysis.attribution"
+    )
+    attribution["state"] = "ready"
+    _write_json(evidence["live"], live)
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert (
+        "performance-analytics: panel performance.analysis.attribution must be partial, "
+        "got ready" in review["errors"]
+    )
+
+
+def test_ecosystem_proof_review_rejects_unqualified_partial_panel(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    live = json.loads(evidence["live"].read_text(encoding="utf-8"))
+    attribution = next(
+        panel
+        for panel in live["panelClassifications"]
+        if panel["panel"] == "performance.analysis.attribution"
+    )
+    attribution.pop("reasonCodes")
+    _write_json(evidence["live"], live)
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert (
+        "performance-analytics: panel performance.analysis.attribution partial evidence invalid: "
+        "source-owned reasonCodes must be non-empty strings" in review["errors"]
+    )
+
+
+def test_ecosystem_proof_review_rejects_malformed_partial_supportability(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    live = json.loads(evidence["live"].read_text(encoding="utf-8"))
+    attribution = next(
+        panel
+        for panel in live["panelClassifications"]
+        if panel["panel"] == "performance.analysis.attribution"
+    )
+    attribution["supportabilityEvidence"] = {"unexpected": True}
+    _write_json(evidence["live"], live)
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert (
+        "performance-analytics: panel performance.analysis.attribution partial evidence invalid: "
+        "supportabilityEvidence.portfolio_only_group_count must be a non-negative integer"
+        in review["errors"]
+    )
+
+
+def test_ecosystem_proof_review_rejects_unknown_attribution_reason_code(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    live = json.loads(evidence["live"].read_text(encoding="utf-8"))
+    attribution = next(
+        panel
+        for panel in live["panelClassifications"]
+        if panel["panel"] == "performance.analysis.attribution"
+    )
+    attribution["reasonCodes"] = ["ok"]
+    _write_json(evidence["live"], live)
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert (
+        "performance-analytics: panel performance.analysis.attribution partial evidence invalid: "
+        "source-owned reasonCodes contain unknown values: ok" in review["errors"]
+    )
+
+
+def test_ecosystem_proof_review_rejects_warning_only_partial_reason_codes(
+    tmp_path: Path,
+) -> None:
+    _review_result, contracts, evidence = _review(tmp_path)
+    live = json.loads(evidence["live"].read_text(encoding="utf-8"))
+    attribution = next(
+        panel
+        for panel in live["panelClassifications"]
+        if panel["panel"] == "performance.analysis.attribution"
+    )
+    attribution["reasonCodes"] = ["material_residual"]
+    _write_json(evidence["live"], live)
+
+    review = review_ecosystem_proof(
+        EcosystemReviewInputs(
+            qa_summary_path=evidence["qa"],
+            proof_contract_path=contracts["proof"],
+            observability_contract_path=contracts["observability"],
+            ecosystem_completion_contract_path=contracts["ecosystem"],
+            dashboard_path=contracts["dashboard"],
+            alert_rules_path=contracts["alerts"],
+            protected_diagnostics_response_path=evidence["diagnostics"],
+            gateway_openapi_path=evidence["openapi"],
+            output_path=None,
+        )
+    )
+
+    assert review["status"] == "failed"
+    assert (
+        "performance-analytics: panel performance.analysis.attribution partial evidence invalid: "
+        "partial attribution requires at least one source-owned coverage-gap reasonCode"
+        in review["errors"]
+    )
 
 
 def test_ecosystem_proof_review_rejects_missing_required_journey_api(

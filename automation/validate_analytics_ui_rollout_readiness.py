@@ -117,6 +117,26 @@ def _validate_route_group_panel_routes(
     return certified_panel_ids
 
 
+def _validate_route_group_supportability(
+    *,
+    errors: list[str],
+    route: str,
+    group: Mapping[str, Any],
+    panel_ids: list[str],
+    registry_panels: dict[str, dict[str, Any]],
+) -> None:
+    partial_panel_ids = sorted(
+        panel_id
+        for panel_id in panel_ids
+        if registry_panels.get(panel_id, {}).get("required_support_state") == "partial"
+    )
+    if partial_panel_ids and group.get("certification_status") != "certified_partial":
+        errors.append(
+            f"{route}: certification_status must be certified_partial while registry panels "
+            f"remain partial: {partial_panel_ids}"
+        )
+
+
 def _validate_certified_route_groups(
     *,
     errors: list[str],
@@ -138,6 +158,13 @@ def _validate_certified_route_groups(
             route=route,
             group=route_group,
             panel_ids=panel_ids,
+        )
+        _validate_route_group_supportability(
+            errors=errors,
+            route=route,
+            group=route_group,
+            panel_ids=panel_ids,
+            registry_panels=registry_panels,
         )
         certified_panel_ids.update(
             _validate_route_group_panel_routes(

@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 390550
+    "total_source_lines": 390958
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -229,11 +229,19 @@
       },
       {
         "complexity": 2,
-        "end_line": 798,
-        "line": 456,
+        "end_line": 806,
+        "line": 464,
         "lines": 343,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
+      },
+      {
+        "complexity": 2,
+        "end_line": 366,
+        "line": 67,
+        "lines": 300,
+        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
+        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
         "complexity": 2,
@@ -242,14 +250,6 @@
         "lines": 289,
         "name": "test_rfc_0072_foundation_artifacts_are_present_and_cross_referenced",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
-      },
-      {
-        "complexity": 2,
-        "end_line": 345,
-        "line": 67,
-        "lines": 279,
-        "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
-        "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
       {
         "complexity": 2,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3922
+    "python_function_count": 3932
   },
-  "generated_at_utc": "2026-09-25T13:13:36Z",
+  "generated_at_utc": "2026-09-25T20:05:08Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1968,
+    "collected_tests": 1976,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1968 tests collected"
+    "summary": "1976 tests collected"
   }
 }
