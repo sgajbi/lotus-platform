@@ -178,9 +178,10 @@ The 2026-05-01 gold-pass canonical run passed for `PB_SG_GLOBAL_BAL_001` with be
 The run proved DNS, Gateway readiness, Workbench portfolio/performance routes, manage/report/
 archive/render readiness, integration capabilities, Gateway workspace/capabilities/overview,
 performance summary, risk summary, advisor brief, and browser screenshots for seven panels. The
-performance evidence panel is now ready for the canonical performance view when Gateway exposes
-execution status, lineage status, and artifact inventory from `lotus-performance`; broader
-RFC-0079 risk/evidence scope remains outside the current implemented RFC-0108 claim.
+performance evidence panel remains partial for the canonical performance view even when Gateway
+exposes source-supported execution status, lineage status, and artifact inventory from
+`lotus-performance`, because broader RFC-0079 risk/evidence scope remains outside the current
+implemented RFC-0108 claim.
 
 Canonical QA now writes `output/front-office-qa/latest.log` alongside `latest.json` and
 `latest.md`. Use the transcript during demo preparation and production-readiness review to confirm

@@ -137,9 +137,20 @@ def test_rfc_0077_registry_contract_artifacts_are_present_and_governed() -> None
     for panel_id, expected_endpoint in expected_gateway_endpoints.items():
         assert panel_by_id[panel_id]["gateway_endpoint"] == expected_endpoint
 
-    assert panel_by_id["performance.evidence"]["required_support_state"] == "ready"
-    assert "ready" in panel_by_id["performance.evidence"]["allowed_states"]
-    assert panel_by_id["performance.evidence"]["owner_follow_up_rfc"] == "RFC-0079"
+    performance_evidence = panel_by_id["performance.evidence"]
+    assert performance_evidence["required_support_state"] == "partial"
+    assert "partial" in performance_evidence["allowed_states"]
+    assert performance_evidence["validation_rules"]["ready"] == [
+        "broader RFC-0079 risk/evidence scope is implemented and separately certified"
+    ]
+    assert performance_evidence["validation_rules"]["partial"][-1] == (
+        "broader RFC-0079 risk/evidence scope remains uncertified and the owner reason is explicit"
+    )
+    assert performance_evidence["known_limitations"] == [
+        "broader RFC-0079 risk/evidence scope remains outside this performance "
+        "evidence panel certification"
+    ]
+    assert performance_evidence["owner_follow_up_rfc"] == "RFC-0079"
     assert panel_by_id["performance.risk.rolling"]["screenshot_policy"]["screenshot_name"] == (
         "performance-risk-live.png"
     )
