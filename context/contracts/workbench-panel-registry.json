@@ -694,16 +694,16 @@
       "owning_service": "lotus-gateway",
       "gateway_endpoint": null,
       "canonical_data_contract": "canonical-front-office-demo-data-contract",
-      "required_support_state": "ready",
+      "required_support_state": "partial",
       "allowed_states": ["ready", "partial", "unavailable", "loading", "error"],
       "validation_rules": {
         "ready": [
-          "execution status, lineage status, and artifact inventory are exposed",
-          "gateway preserves lotus-performance calculation identity and artifact refs"
+          "broader RFC-0079 risk/evidence scope is implemented and separately certified"
         ],
         "partial": [
-          "truthful degraded posture is rendered",
-          "owner reason is explicit"
+          "execution status, lineage status, and artifact inventory are exposed",
+          "gateway preserves lotus-performance calculation identity and artifact refs",
+          "broader RFC-0079 risk/evidence scope remains uncertified and the owner reason is explicit"
         ],
         "unavailable": [
           "evidence support is not exposed by the current backend contract"

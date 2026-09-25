@@ -30,7 +30,7 @@
     "performance.analysis": "ready",
     "performance.advisor_brief": "ready",
     "performance.risk": "ready",
-    "performance.evidence": "ready",
+    "performance.evidence": "partial",
     "advisor.book_overview": "partial",
     "dpm.command_center": "ready",
     "dpm.outcome_review": "ready",
@@ -68,7 +68,7 @@
   ],
   "notes": [
     "Thresholds are minimums or governed counts for canonical validation, not arbitrary smoke checks.",
-    "Performance evidence is ready when Gateway exposes execution status, lineage status, and artifact inventory for the canonical performance view.",
+    "Performance evidence remains partial even when Gateway exposes source-supported execution status, lineage status, and artifact inventory, because broader RFC-0079 risk/evidence scope is not certified.",
     "DPM command-center populated evidence is ready for the canonical PM/book/as-of filter; partial and empty postures are validated with separate selector and date filters.",
     "Advisor-book membership must be authoritative and date-bound; the panel remains partial until lotus-core#798 replaces trusted tenant context with source-confirmed tenant identity.",
     "The canonical portfolio's source tenant and the Workbench caller admission tenant are separate published facts that presently hold the same value; lotus-core derives its seed caller header from the source constant, while Gateway and Workbench admission is configured independently, so equality is a current state and never a rule.",

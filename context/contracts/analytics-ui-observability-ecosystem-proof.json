@@ -9,7 +9,8 @@
     "governed_as_of_date": "2026-04-10",
     "minimum_screenshot_count": 7,
     "allowed_partial_panels": [
-      "performance.analysis.attribution"
+      "performance.analysis.attribution",
+      "performance.evidence"
     ]
   },
   "required_journeys": [

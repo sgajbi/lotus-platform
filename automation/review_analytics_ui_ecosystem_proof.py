@@ -237,34 +237,43 @@ def _attribution_reason_codes_error(reason_codes: object) -> str | None:
 def _partial_panel_qualification_error(
     *, panel_id: str, panel: dict[str, Any]
 ) -> str | None:
-    if panel_id != "performance.analysis.attribution":
-        return "no governed partial-evidence validator is registered"
-    if panel.get("attributionStatus") != "partial":
-        return "attributionStatus must be partial"
-    reason_codes = panel.get("reasonCodes")
-    reason_codes_error = _attribution_reason_codes_error(reason_codes)
-    if reason_codes_error:
-        return reason_codes_error
-    supportability_evidence = panel.get("supportabilityEvidence")
-    if not isinstance(supportability_evidence, dict) or not supportability_evidence:
-        return "source-owned supportabilityEvidence must be a non-empty object"
-    required_count_fields = (
-        "portfolio_only_group_count",
-        "benchmark_only_group_count",
-        "unclassified_group_count",
-        "missing_benchmark_return_count",
-        "negative_weight_count",
-        "zero_portfolio_exposure_count",
-    )
-    for field in required_count_fields:
-        value = supportability_evidence.get(field)
-        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-            return f"supportabilityEvidence.{field} must be a non-negative integer"
-    for field in ("currency_attribution_status", "linking_status"):
-        value = supportability_evidence.get(field)
-        if not isinstance(value, str) or not value.strip():
-            return f"supportabilityEvidence.{field} must be a non-empty string"
-    return None
+    if panel_id == "performance.analysis.attribution":
+        if panel.get("attributionStatus") != "partial":
+            return "attributionStatus must be partial"
+        reason_codes = panel.get("reasonCodes")
+        reason_codes_error = _attribution_reason_codes_error(reason_codes)
+        if reason_codes_error:
+            return reason_codes_error
+        supportability_evidence = panel.get("supportabilityEvidence")
+        if not isinstance(supportability_evidence, dict) or not supportability_evidence:
+            return "source-owned supportabilityEvidence must be a non-empty object"
+        required_count_fields = (
+            "portfolio_only_group_count",
+            "benchmark_only_group_count",
+            "unclassified_group_count",
+            "missing_benchmark_return_count",
+            "negative_weight_count",
+            "zero_portfolio_exposure_count",
+        )
+        for field in required_count_fields:
+            value = supportability_evidence.get(field)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                return f"supportabilityEvidence.{field} must be a non-negative integer"
+        for field in ("currency_attribution_status", "linking_status"):
+            value = supportability_evidence.get(field)
+            if not isinstance(value, str) or not value.strip():
+                return f"supportabilityEvidence.{field} must be a non-empty string"
+        return None
+
+    if panel_id == "performance.evidence":
+        if panel.get("capabilityState") != "supported":
+            return "source-owned capabilityState must be supported"
+        reason = panel.get("reason")
+        if not isinstance(reason, str) or not reason.strip():
+            return "source-owned capability reason must be a non-empty string"
+        return None
+
+    return "no governed partial-evidence validator is registered"
 
 
 def _missing_or_invalid_journey_panels(
