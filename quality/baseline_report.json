@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 390350
+    "total_source_lines": 390550
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -147,9 +147,9 @@
       },
       {
         "complexity": 20,
-        "end_line": 126,
+        "end_line": 128,
         "line": 81,
-        "lines": 46,
+        "lines": 48,
         "name": "execute",
         "path": "automation/canonical_runtime_reservation.py"
       },
@@ -229,9 +229,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 707,
-        "line": 349,
-        "lines": 359,
+        "end_line": 798,
+        "line": 456,
+        "lines": 343,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3920
+    "python_function_count": 3922
   },
-  "generated_at_utc": "2026-09-23T06:14:34Z",
+  "generated_at_utc": "2026-09-25T13:13:36Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1829,
+      "lines": 1831,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -458,7 +458,7 @@
       "suffix": ".ps1"
     },
     {
-      "lines": 1354,
+      "lines": 1355,
       "path": "automation/validate_engineering_context_system.py",
       "suffix": ".py"
     }
@@ -607,12 +607,7 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 120,
-        "path": "automation/canonical_runtime_reservation.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 123,
+        "line": 122,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
@@ -622,7 +617,12 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 140,
+        "line": 127,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 142,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1966,
+    "collected_tests": 1968,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1966 tests collected"
+    "summary": "1968 tests collected"
   }
 }

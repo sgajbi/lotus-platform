@@ -78,12 +78,10 @@ Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
-This single runner defaults to the strict `full` profile. Until Idea's non-certifying synthetic
-downstream-capacity probe is corrected (`sgajbi/lotus-idea#1345`), a bounded client rehearsal may
-add `-ValidationProfile client-demo`. Idea readiness, candidate/queue, API, UI and teardown remain
-mandatory. Record `validation_profile` and `excluded_proofs` from the Platform QA receipt in the
-pack; do not present this as full-profile capacity acceptance, production readiness, or a release
-certificate. Demo-ready screenshots still require the selected profile to pass.
+This single runner uses the strict `full` profile and keeps the presentation-backed Idea capacity
+capability inside the admitted startup/validation operation. `client-demo` is reserved for bounded
+standalone rechecks of an already-running stack, does not seed DPM state, and cannot certify
+capacity, release readiness, or demo-ready screenshots.
 
 For a deliberately scoped post-inception reporting window, add `-ReportStartDate YYYY-MM-DD`
 to this same command. The omitted default is the governed seed start. The receipt records both

@@ -51,15 +51,15 @@ flowchart LR
 ## Preparation Command
 
 ```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
 Use `-ScreenshotDirectory <path>` for a caller-directed screenshot pack. Use demo-ready screenshots
 only after validation passes.
-For a bounded client rehearsal while `sgajbi/lotus-idea#1345` remains open, add
-`-ValidationProfile client-demo` to the same command. The QA receipt must name the excluded
-synthetic Idea capacity workload; Idea readiness/candidate/UI and teardown still run. Do not call
-that receipt full downstream-capacity or production certification.
+Use the strict `full` default for rehearsal and certification. `client-demo` is only a bounded
+standalone recheck of an already-running stack; it excludes the presentation-backed Idea capacity
+probe and is not demo, capacity, or release evidence.
 
 ## Audience Use
 

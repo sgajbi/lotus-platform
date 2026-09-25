@@ -38,12 +38,8 @@ def _validate_application_registry_matches_repos(
     applications: list[dict],
     repository_registry: list[dict],
 ) -> None:
-    registered_repositories = {
-        entry.get("name") for entry in repository_registry if entry.get("name")
-    }
-    application_repositories = {
-        entry.get("repository") for entry in applications if entry.get("repository")
-    }
+    registered_repositories = {entry.get("name") for entry in repository_registry if entry.get("name")}
+    application_repositories = {entry.get("repository") for entry in applications if entry.get("repository")}
     if application_repositories != registered_repositories:
         missing_from_manifest = sorted(registered_repositories - application_repositories)
         missing_from_registry = sorted(application_repositories - registered_repositories)
@@ -70,7 +66,9 @@ def _validate_application_agent_contract_sync(
         repo_root = ROOT if repository_name == "lotus-platform" else WORKSPACE_ROOT / repository_name
         if not repo_root.exists():
             continue
-        repo_context_path = repo_root / application.get("repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md")
+        repo_context_path = repo_root / application.get(
+            "repo_context_path", "REPOSITORY-ENGINEERING-CONTEXT.md"
+        )
         if not repo_context_path.exists():
             target = errors if repository_name == "lotus-platform" else warnings
             target.append(f"{repository_name}: missing REPOSITORY-ENGINEERING-CONTEXT.md")
@@ -92,7 +90,6 @@ def _validate_application_agent_contract_sync(
             target.append(
                 f"{repository_name}: repo-root AGENTS.md is not synchronized with context/AGENTS-OPERATING-CONTRACT.md"
             )
-
 
 
 # The contract in context/Repository-Engineering-Context-Contract.md states these
@@ -124,6 +121,7 @@ REQUIRED_REPO_CONTEXT_CROSS_LINKS = (
     "context/CONTEXT-REFERENCE-MAP.md",
 )
 
+
 def _validate_repo_context_shape(
     *,
     errors: list[str],
@@ -139,28 +137,18 @@ def _validate_repo_context_shape(
     the requirement.
     """
     text = _read_text(repo_context_path)
-    headings = {
-        line.lstrip("#").strip()
-        for line in text.splitlines()
-        if line.startswith("#")
-    }
-    missing_sections = [
-        section for section in REQUIRED_REPO_CONTEXT_SECTIONS if section not in headings
-    ]
-    missing_links = [
-        link for link in REQUIRED_REPO_CONTEXT_CROSS_LINKS if link not in text
-    ]
+    headings = {line.lstrip("#").strip() for line in text.splitlines() if line.startswith("#")}
+    missing_sections = [section for section in REQUIRED_REPO_CONTEXT_SECTIONS if section not in headings]
+    missing_links = [link for link in REQUIRED_REPO_CONTEXT_CROSS_LINKS if link not in text]
 
     target = errors if repository_name == "lotus-platform" else warnings
     if missing_sections:
         target.append(
-            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing "
-            f"{len(missing_sections)} required section(s): {', '.join(missing_sections)}"
+            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing {len(missing_sections)} required section(s): {', '.join(missing_sections)}"
         )
     if missing_links:
         target.append(
-            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing required "
-            f"cross-link(s): {', '.join(missing_links)}"
+            f"{repository_name}: REPOSITORY-ENGINEERING-CONTEXT.md is missing required cross-link(s): {', '.join(missing_links)}"
         )
 
 
@@ -181,7 +169,9 @@ def _validate_manifest_path_map(
         "agents_operating_contract_source": "context/AGENTS-OPERATING-CONTRACT.md",
     }.items():
         if context_documents.get(key) != expected_path:
-            errors.append(f"lotus-context-manifest.json: context_documents.{key} must equal `{expected_path}`")
+            errors.append(
+                f"lotus-context-manifest.json: context_documents.{key} must equal `{expected_path}`"
+            )
 
     procedural_memory = manifest.get("procedural_memory", {})
     for key, expected_path in {
@@ -195,7 +185,9 @@ def _validate_manifest_path_map(
         ),
     }.items():
         if procedural_memory.get(key) != expected_path:
-            errors.append(f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`")
+            errors.append(
+                f"lotus-context-manifest.json: procedural_memory.{key} must equal `{expected_path}`"
+            )
 
 
 def _validate_manifest_standards_registry(
@@ -204,9 +196,7 @@ def _validate_manifest_standards_registry(
     manifest: dict,
 ) -> None:
     standards_registry = manifest.get("standards_registry", [])
-    standard_names = {
-        entry.get("name") for entry in standards_registry if isinstance(entry, dict)
-    }
+    standard_names = {entry.get("name") for entry in standards_registry if isinstance(entry, dict)}
     for standard_name in (
         "Continuous Integration, Validation, and Release Governance Standard",
         "Testing Pyramid and Coverage Standard",
@@ -296,9 +286,7 @@ _REPOSITORY_OWNED_DOCUMENTS = frozenset(
 # was shipping an unqualified script reference that this check could not see.
 # Identical to the definition used by the document link check, so the two
 # branches merge without a conflict.
-_MARKDOWN_LINK = re.compile(
-    r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)"
-)
+_MARKDOWN_LINK = re.compile(r"\[[^\]]*\]\(\s*(?P<href><[^>]*>|[^)\s]*)(?:\s+[\"'(][^)]*)?\s*\)")
 _FENCE_OPENER = re.compile(r"^(?P<fence>`{3,}|~{3,})")
 _FENCE_CLOSER = re.compile(r"^(?P<fence>`{3,}|~{3,})[ \t]*$")
 _HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
@@ -479,13 +467,10 @@ def _governed_markdown_documents() -> dict[str, Path]:
     collect(manifest)
     if not relative_paths:
         raise ValueError(
-            f"{manifest_path} names no Markdown routes, so the link check would "
-            "inspect nothing and pass"
+            f"{manifest_path} names no Markdown routes, so the link check would inspect nothing and pass"
         )
 
-    return {
-        f"manifest route {relative}": ROOT / relative for relative in sorted(relative_paths)
-    }
+    return {f"manifest route {relative}": ROOT / relative for relative in sorted(relative_paths)}
 
 
 def _governed_repositories() -> frozenset[str]:
@@ -496,15 +481,12 @@ def _governed_repositories() -> frozenset[str]:
     the qualification makes it look checked.
     """
     payload = json.loads(
-        (ROOT / "automation" / "repository-governance-policy.json").read_text(
-            encoding="utf-8"
-        )
+        (ROOT / "automation" / "repository-governance-policy.json").read_text(encoding="utf-8")
     )
     names = frozenset(str(repo["name"]) for repo in payload.get("repos", []))
     if not names:
         raise RuntimeError(
-            "the governed repository registry is empty, so every repository "
-            "prefix would be accepted unexamined"
+            "the governed repository registry is empty, so every repository prefix would be accepted unexamined"
         )
     return names
 
@@ -549,16 +531,12 @@ def _tracked_platform_paths() -> frozenset[str]:
     )
     if result.returncode != 0:
         raise RuntimeError(
-            "unable to read the Git inventory for the contract path check: "
-            f"git ls-files exited {result.returncode}"
+            f"unable to read the Git inventory for the contract path check: git ls-files exited {result.returncode}"
         )
-    tracked = frozenset(
-        line.strip() for line in result.stdout.splitlines() if line.strip()
-    )
+    tracked = frozenset(line.strip() for line in result.stdout.splitlines() if line.strip())
     if not tracked:
         raise RuntimeError(
-            "the Git inventory for the contract path check came back empty, "
-            "which would let every bare path pass unexamined"
+            "the Git inventory for the contract path check came back empty, which would let every bare path pass unexamined"
         )
     return tracked
 
@@ -602,15 +580,13 @@ def _validate_agents_contract_paths(*, errors: list[str], agents_contract: str) 
         if prefix.startswith("lotus-") and prefix != "lotus-platform":
             if prefix not in governed:
                 errors.append(
-                    "AGENTS operating contract qualifies a path with a "
-                    f"repository the estate does not have: {path}"
+                    f"AGENTS operating contract qualifies a path with a repository the estate does not have: {path}"
                 )
             continue
         if path.startswith("lotus-platform/"):
             if path.removeprefix("lotus-platform/") not in tracked:
                 errors.append(
-                    "AGENTS operating contract references a path that "
-                    f"lotus-platform does not track: {path}"
+                    f"AGENTS operating contract references a path that lotus-platform does not track: {path}"
                 )
             continue
         # A bare path is only wrong when it names something this repository
@@ -619,9 +595,7 @@ def _validate_agents_contract_paths(*, errors: list[str], agents_contract: str) 
         # Match the basename too: the contract writes `LOTUS-ENGINEERING-CONTEXT.md`,
         # while Git tracks it as `context/LOTUS-ENGINEERING-CONTEXT.md`. Comparing
         # only whole paths silently stopped catching the original defect.
-        owned_here = path in tracked or any(
-            candidate.endswith("/" + path) for candidate in tracked
-        )
+        owned_here = path in tracked or any(candidate.endswith("/" + path) for candidate in tracked)
         if owned_here:
             errors.append(
                 "AGENTS operating contract references a platform-owned file "
@@ -684,9 +658,9 @@ def _validate_agents_operating_contract(*, errors: list[str], agents_contract: s
 
     for text in (
         "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "npm run live:validate",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "npm run live:stack:up:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -BringUp",
+        "caller-resolved absolute screenshot directory",
         "PB_SG_GLOBAL_BAL_001",
     ):
         if text not in agents_contract:
@@ -796,8 +770,9 @@ def _validate_agent_front_office_routing_text(
     for text in (
         "## Front-Office Runtime Routing",
         "canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "npm run live:stack:up:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -BringUp",
+        "caller-resolved absolute screenshot directory",
         "PB_SG_GLOBAL_BAL_001",
     ):
         if text not in agent_ramp_up:
@@ -877,8 +852,9 @@ def _validate_engineering_context_entrypoints(
     for text in (
         "## Front-Office Runtime Governance",
         "lotus-workbench/docs/operations/canonical-front-office-local-runtime.md",
-        "npm run live:stack:up",
-        "Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory",
+        "npm run live:stack:up:validate",
+        "Invoke-Canonical-FrontOffice-QA.ps1 -BringUp",
+        "caller-resolved absolute screenshot directory",
         "PB_SG_GLOBAL_BAL_001",
     ):
         if text not in engineering:
@@ -998,14 +974,46 @@ def _validate_developer_environment_automation(
     developer_environment_bootstrap: str,
 ) -> None:
     for text, label, content in (
-        ('[ValidateSet("Inspect", "Sync", "Validate")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ('[ValidateSet("fast", "extended", "platform")]', "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Redact-Value", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Test-SkillSync", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("developer-environment-readiness.json", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Refusing to synchronize skill outside the requested Codex skills target root.", "Validate-LotusDeveloperEnvironment.ps1", developer_environment_validation),
-        ("Resolve-PowerShellExecutable", "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
-        ('"-Mode", "Sync"', "Bootstrap-LotusDeveloperEnvironment.ps1", developer_environment_bootstrap),
+        (
+            '[ValidateSet("Inspect", "Sync", "Validate")]',
+            "Validate-LotusDeveloperEnvironment.ps1",
+            developer_environment_validation,
+        ),
+        (
+            '[ValidateSet("fast", "extended", "platform")]',
+            "Validate-LotusDeveloperEnvironment.ps1",
+            developer_environment_validation,
+        ),
+        (
+            "Redact-Value",
+            "Validate-LotusDeveloperEnvironment.ps1",
+            developer_environment_validation,
+        ),
+        (
+            "Test-SkillSync",
+            "Validate-LotusDeveloperEnvironment.ps1",
+            developer_environment_validation,
+        ),
+        (
+            "developer-environment-readiness.json",
+            "Validate-LotusDeveloperEnvironment.ps1",
+            developer_environment_validation,
+        ),
+        (
+            "Refusing to synchronize skill outside the requested Codex skills target root.",
+            "Validate-LotusDeveloperEnvironment.ps1",
+            developer_environment_validation,
+        ),
+        (
+            "Resolve-PowerShellExecutable",
+            "Bootstrap-LotusDeveloperEnvironment.ps1",
+            developer_environment_bootstrap,
+        ),
+        (
+            '"-Mode", "Sync"',
+            "Bootstrap-LotusDeveloperEnvironment.ps1",
+            developer_environment_bootstrap,
+        ),
     ):
         if text not in content:
             errors.append(f"{label}: missing required bootstrap behavior `{text}`")
@@ -1059,8 +1067,7 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
         resolved = path.resolve()
         if not resolved.is_relative_to(ROOT):
             errors.append(
-                f"{label} is routed to a path outside the repository, which "
-                f"resolves only where a sibling checkout exists: {path}"
+                f"{label} is routed to a path outside the repository, which resolves only where a sibling checkout exists: {path}"
             )
             continue
         if not path.is_file():
@@ -1068,8 +1075,7 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
             # document that does not exist, and the gate that is supposed to
             # prove routes resolve would say nothing at all.
             errors.append(
-                f"{label} is routed to but does not exist: "
-                f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}"
+                f"{label} is routed to but does not exist: {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}"
             )
             continue
         # An HTML comment is not rendered and cannot be followed, so a route
@@ -1079,12 +1085,9 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
         rendered = _without_code(_HTML_COMMENT.sub("", _read_text(path)))
         destinations = list(_inline_link_destinations(rendered))
         destinations.extend(
-            match.group("href")
-            for match in _MARKDOWN_REFERENCE_DEFINITION.finditer(rendered)
+            match.group("href") for match in _MARKDOWN_REFERENCE_DEFINITION.finditer(rendered)
         )
-        destinations.extend(
-            match.group("href") for match in _HTML_ANCHOR.finditer(rendered)
-        )
+        destinations.extend(match.group("href") for match in _HTML_ANCHOR.finditer(rendered))
         for href in destinations:
             if not href or href.startswith("#"):
                 continue
@@ -1098,8 +1101,7 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
             # absolute path that carries a scheme through unchecked.
             if scheme_candidate.lower().startswith("file:"):
                 errors.append(
-                    f"{label} links to a file URI, which names a location on "
-                    f"one machine rather than a route in this repository: {href}"
+                    f"{label} links to a file URI, which names a location on one machine rather than a route in this repository: {href}"
                 )
                 continue
             if _URI_SCHEME.match(scheme_candidate):
@@ -1116,16 +1118,13 @@ def _validate_document_links(*, errors: list[str], documents: dict[str, Path]) -
             # and existence while being a 404 anywhere else.
             if _ABSOLUTE_DESTINATION.match(decoded):
                 errors.append(
-                    f"{label} links to an absolute filesystem path, which "
-                    f"resolves only on the machine that wrote it: {href}"
+                    f"{label} links to an absolute filesystem path, which resolves only on the machine that wrote it: {href}"
                 )
                 continue
             target = (path.parent / decoded).resolve()
             if not target.is_relative_to(ROOT):
                 errors.append(
-                    f"{label} links outside the repository, which resolves only "
-                    f"where a sibling checkout exists; use the GitHub URL "
-                    f"instead: {href}"
+                    f"{label} links outside the repository, which resolves only where a sibling checkout exists; use the GitHub URL instead: {href}"
                 )
             elif not target.exists():
                 errors.append(f"{label} links to a path that does not exist: {href}")
@@ -1158,7 +1157,9 @@ def validate_engineering_context_system_with_warnings() -> tuple[list[str], list
         "repository registry": ROOT / "automation" / "repos.json",
         "agents contract": CONTEXT_DIR / "AGENTS-OPERATING-CONTRACT.md",
         "repository context contract": CONTEXT_DIR / "Repository-Engineering-Context-Contract.md",
-        "repository context template": CONTEXT_DIR / "templates" / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
+        "repository context template": CONTEXT_DIR
+        / "templates"
+        / "REPOSITORY-ENGINEERING-CONTEXT.template.md",
         "platform repo context": ROOT / "REPOSITORY-ENGINEERING-CONTEXT.md",
         "platform repo agents": ROOT / "AGENTS.md",
         "developer onboarding": ROOT / "docs" / "onboarding" / "LOTUS-DEVELOPER-ONBOARDING.md",
@@ -1211,9 +1212,7 @@ def validate_engineering_context_system_with_warnings() -> tuple[list[str], list
     pr_loop_playbook = _read_text(required_files["pr loop playbook"])
     validation_playbook = _read_text(required_files["validation playbook"])
     fix_forward_patterns = _read_text(required_files["fix-forward patterns"])
-    agent_context_task_ledger = _read_text(
-        required_files["agent context and task ledger playbook"]
-    )
+    agent_context_task_ledger = _read_text(required_files["agent context and task ledger playbook"])
     agents_contract = _read_text(required_files["agents contract"])
     repo_context_contract = _read_text(required_files["repository context contract"])
     repo_context_template = _read_text(required_files["repository context template"])
@@ -1222,7 +1221,9 @@ def validate_engineering_context_system_with_warnings() -> tuple[list[str], list
     agent_ramp_up = _read_text(required_files["agent ramp up"])
     developer_environment_bootstrap = _read_text(required_files["developer environment bootstrap"])
     developer_environment_validation = _read_text(required_files["developer environment validation"])
-    rfc = _read_text(ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md")
+    rfc = _read_text(
+        ROOT / "rfcs" / "RFC-0073-lotus-ecosystem-engineering-context-and-agent-guidance-system.md"
+    )
     checklist = _read_text(required_files["rfc checklist"])
     manifest = json.loads(_read_text(required_files["manifest"]))
     repository_registry = json.loads(_read_text(required_files["repository registry"]))

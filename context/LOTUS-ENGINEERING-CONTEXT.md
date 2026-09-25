@@ -514,22 +514,23 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
    boundary register, evidence map, rehearsal plan, and follow-up register,
 4. prefer the `lotus-front-office-runtime` skill when choosing agent routing for these tasks,
 5. use the governed canonical runtime in `lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`,
-6. use `lotus-workbench` live commands such as `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`,
+6. use `npm run live:stack:up:validate` and `npm run live:stack:down` from `lotus-workbench`; standalone validation is bounded to the `client-demo` profile because full capacity authority exists only inside governed startup,
 7. treat `PB_SG_GLOBAL_BAL_001` as the governed seeded reference portfolio unless a task explicitly requires another portfolio,
 8. treat `lotus-platform/context/contracts/canonical-front-office-demo-data-contract.json` and `lotus-platform/context/contracts/canonical-front-office-demo-data-invariants.json` as the source of truth for canonical front-office dataset governance, including the distinct advisor-book portfolio-manager assignment consumed by Core seed automation and Workbench proof,
 9. treat `lotus-platform/context/contracts/workbench-panel-registry.json` as the source of truth for governed Workbench panel identifiers, owners, support states, and screenshot ownership,
-10. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` when a platform-owned run summary, runtime transcript, and caller-directed demo screenshot pack are required,
+10. use `lotus-platform/automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` when a platform-owned run summary, runtime transcript, and demo screenshot pack are required; pass a caller-resolved absolute screenshot directory only when the default artifact path is unsuitable,
     and use `-BringUp -RequireMainlineSources` for RFC closure, supported-feature promotion, or
     other mainline-certified front-office proof. This mode forces image builds, runs fail-closed
     exact-`origin/main` source preflight for every canonical participant before cleanup/startup,
     delegates Workbench's same provenance check into startup/validation, and records
     `require_mainline_sources` plus `mainline_source_preflight` in the platform wrapper summary.
-    The strict `full` validation profile remains the default. For a bounded client rehearsal while
-    `sgajbi/lotus-idea#1345` is unresolved, the same runner accepts
-    `-ValidationProfile client-demo`; the Platform and Workbench summaries must record the excluded
-    synthetic Idea downstream-capacity workload and its no-full-capacity claim boundary. This
-    option does not skip Idea readiness/candidate/UI or teardown and cannot substitute for RFC,
-    supported-feature, production, or full-profile certification. The same runner accepts an
+    The strict `full` validation profile remains the default and `-BringUp` executes startup and
+    validation inside one admitted operation. For a bounded recheck of an already-running stack,
+    the same runner accepts `-ValidationProfile client-demo`; Platform and Workbench summaries must
+    record the disabled DPM seed, excluded presentation-backed capacity probe, and no-full-capacity claim boundary. This
+    option does not skip Idea readiness/candidate/UI, never tears down the reused stack it did not
+    start, and cannot substitute for RFC, supported-feature, production, or full-profile
+    certification. Teardown remains an explicit separate operator step. The same runner accepts an
     explicit `-ReportStartDate YYYY-MM-DD` inside the contract's seeded date window, defaults
     to the governed seed start, and records the selected report window in its QA receipt; a
     shorter passing window does not certify earlier history or excuse a partial calculation,
