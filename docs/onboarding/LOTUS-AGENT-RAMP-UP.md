@@ -242,13 +242,12 @@ When the task is about:
 route to the governed `lotus-workbench` runtime first:
 
 1. `../../../lotus-workbench/docs/operations/canonical-front-office-local-runtime.md`
-2. `npm run live:stack:up`
-3. `npm run live:validate`
-4. `npm run live:stack:down`
-5. `powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>` from `lotus-platform` when the task requires a platform-owned run summary, runtime transcript, and caller-directed screenshot pack.
-6. `../../context/contracts/canonical-front-office-demo-data-contract.json`
-7. `../../context/contracts/canonical-front-office-demo-data-invariants.json`
-8. `../../context/contracts/workbench-panel-registry.json`
+2. `npm run live:stack:up:validate`
+3. `npm run live:stack:down`
+4. `powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp` from `lotus-platform` when the task requires a platform-owned run summary, runtime transcript, and screenshot pack; pass a caller-resolved absolute screenshot directory only when the default path is unsuitable.
+5. `../../context/contracts/canonical-front-office-demo-data-contract.json`
+6. `../../context/contracts/canonical-front-office-demo-data-invariants.json`
+7. `../../context/contracts/workbench-panel-registry.json`
 
 Use `PB_SG_GLOBAL_BAL_001` unless the task explicitly requires another portfolio.
 Use the RFC-0076 contract files when you need the governed as-of date, benchmark identity, minimum

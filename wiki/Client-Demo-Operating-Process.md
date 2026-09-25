@@ -99,12 +99,10 @@ powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
 ```
 
-The canonical front-office runner has one strict `full` default and a bounded
-`-ValidationProfile client-demo` option. Until `sgajbi/lotus-idea#1345` is corrected, use the
-bounded option only for a client rehearsal, with Idea readiness, candidate/queue, API, UI and
-teardown still required. Its QA receipt lists the excluded synthetic downstream-capacity workload;
-it is not full capacity acceptance or production-release evidence. Screenshots become demo-ready
-only after the selected validation profile passes.
+The canonical front-office runner has one strict `full` default that keeps startup and validation
+inside one admitted operation. `-ValidationProfile client-demo` is only for a bounded standalone
+recheck of an already-running stack; it does not seed DPM state, and its receipt lists the excluded
+presentation-backed capacity probe, so it is not demo, capacity, or release evidence.
 
 The same command accepts an explicit `-ReportStartDate YYYY-MM-DD` for a deliberately scoped
 post-inception report. Its default is the governed seed start; the receipt records the selected

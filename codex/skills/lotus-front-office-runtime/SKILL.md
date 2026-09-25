@@ -98,21 +98,26 @@ Do not route those tasks through generic platform QA by default.
 From `lotus-workbench`:
 
 ```powershell
-npm run live:stack:up
-npm run live:validate
+npm run live:stack:up:validate
 npm run live:stack:down
 ```
+
+Use `npm run live:validate -- -ValidationProfile client-demo` only to recheck an already-running
+stack without the ephemeral full-profile Idea capacity capability. It is bounded evidence, not a
+substitute for a fresh full run.
 
 When the audit or implementation changed one or more runtime services, prefer the Workbench
 start script option or targeted Docker rebuild before validation:
 
 ```powershell
+$screenshotDirectory = Join-Path ([IO.Path]::GetTempPath()) 'lotus-front-office-evidence'
 powershell -ExecutionPolicy Bypass -File scripts/live/Start-LotusFrontOfficeCanonical.ps1 `
-  -BuildImages -RunValidation -ScreenshotDirectory <target-directory>
+  -BuildImages -RunValidation -ScreenshotDirectory $screenshotDirectory
 ```
 
 If a full Workbench bring-up is already running, rebuild only the impacted owning service where
-possible, then rerun `npm run live:validate` or `scripts/live/Validate-LotusFrontOfficeCanonical.ps1`.
+possible. Use bounded standalone `client-demo` validation for diagnosis, then reacquire and rerun
+the combined full command for release or demo certification.
 
 From `lotus-platform`:
 
@@ -125,8 +130,9 @@ This wrapper includes `lotus-idea` readiness and teardown evidence by default.
 To write a screenshot pack to a caller-provided directory:
 
 ```powershell
+$screenshotDirectory = Join-Path ([IO.Path]::GetTempPath()) 'lotus-front-office-evidence'
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory <target-directory>
+  -BringUp -ScreenshotDirectory $screenshotDirectory
 ```
 
 ## Required Evidence

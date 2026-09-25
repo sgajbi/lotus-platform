@@ -67,6 +67,55 @@ if ($CleanPlanOnly -and ($Clean -or $BringUp -or $CleanCoreState -or $BuildImage
 if ($RequireMainlineSources -and -not $BringUp) {
   throw "-RequireMainlineSources requires -BringUp so Workbench can run mainline-source preflight before startup and validation."
 }
+
+function Resolve-CanonicalQaDpmSeedEnabled {
+  param(
+    [bool]$IsBringUp,
+    [bool]$SkipRequested
+  )
+
+  return $IsBringUp -and -not $SkipRequested
+}
+
+function New-CanonicalQaBringUpArguments {
+  param(
+    [hashtable]$CommonArguments,
+    [string]$AiEnvFile,
+    [bool]$ShouldBuildImages,
+    [bool]$ShouldRequireMainlineSources,
+    [bool]$ShouldCleanCoreState,
+    [int]$WaitSeconds
+  )
+
+  $arguments = $CommonArguments.Clone()
+  if (-not [string]::IsNullOrWhiteSpace($AiEnvFile)) {
+    $arguments.LotusAiEnvFile = $AiEnvFile
+  }
+  if ($ShouldBuildImages) {
+    $arguments.BuildImages = $true
+  }
+  if ($ShouldRequireMainlineSources) {
+    $arguments.RequireMainlineSources = $true
+  }
+  if ($ShouldCleanCoreState) {
+    $arguments.CleanCoreState = $true
+  }
+  $arguments.SeedWaitSeconds = $WaitSeconds
+  $arguments.RunValidation = $true
+  return $arguments
+}
+if (-not $BringUp -and -not $Clean -and -not $CleanPlanOnly -and $ValidationProfile -eq 'full') {
+  throw "Full validation must be run with -BringUp so Workbench can create the ephemeral Idea capacity capability. Use -ValidationProfile client-demo only for read-only validation of an already-running stack."
+}
+if ($BringUp -and $ValidationProfile -eq 'client-demo') {
+  throw "-ValidationProfile client-demo cannot be combined with -BringUp. Governed startup always runs the strict full profile; client-demo is read-only validation of an already-running stack."
+}
+if ($BringUp -and $SkipDpmCommandCenterSeed) {
+  throw "-SkipDpmCommandCenterSeed cannot be combined with -BringUp because governed Workbench startup always seeds DPM evidence."
+}
+$dpmCommandCenterSeedEnabled = Resolve-CanonicalQaDpmSeedEnabled `
+  -IsBringUp ([bool]$BringUp) `
+  -SkipRequested ([bool]$SkipDpmCommandCenterSeed)
 if ($RequireMainlineSources -and -not $BuildImages) {
   $BuildImages = $true
 }
@@ -285,7 +334,7 @@ $dockerBefore = Get-CanonicalDockerCleanupPlan
 $profileExclusions = @()
 if ($ValidationProfile -eq 'client-demo') {
   $profileExclusions = @([ordered]@{
-    proofScope = 'idea.synthetic_downstream_capacity_workload'
+    proofScope = 'idea.presentation_backed_downstream_capacity_probe'
     reasonCode = 'NON_CERTIFYING_CAPACITY_PROBE_EXCLUDED'
     owningIssue = 'sgajbi/lotus-idea#1345'
     claimBoundary = 'No Idea downstream-capacity acceptance or full-profile certification'
@@ -378,7 +427,7 @@ $summary = [ordered]@{
   remove_images = [bool]$RemoveImages
   include_lotus_idea = $true
   canonical_core_demo_pack_enabled = $false
-  dpm_command_center_seed_enabled = -not [bool]$SkipDpmCommandCenterSeed
+  dpm_command_center_seed_enabled = $dpmCommandCenterSeedEnabled
   keep_running = [bool]$KeepRunning
   lotus_ai_env_file = $LotusAiEnvFile
   seed_wait_seconds = $SeedWaitSeconds
@@ -410,8 +459,11 @@ $commonArguments = @{
   ProjectsRoot = $ProjectsRoot
   PortfolioId = $PortfolioId
   BenchmarkCode = $BenchmarkCode
+  StartDate = $resolvedReportStartDate
+  AsOfDate = $canonicalAsOfDate
   ValidationProfile = $ValidationProfile
   ScreenshotDirectory = $resolvedScreenshotDirectory
+  CanonicalEvidenceDirectory = $resolvedOutputDirectory
 }
 $validationArguments = @{
   PortfolioId = $PortfolioId
@@ -482,23 +534,17 @@ try {
   }
 
   if ($BringUp) {
-    $bringUpArguments = $commonArguments.Clone()
-    if (-not [string]::IsNullOrWhiteSpace($LotusAiEnvFile)) {
-      $bringUpArguments.LotusAiEnvFile = $LotusAiEnvFile
-    }
-    if ($BuildImages) {
-      $bringUpArguments.BuildImages = $true
-    }
-    if ($RequireMainlineSources) {
-      $bringUpArguments.RequireMainlineSources = $true
-    }
-    if ($CleanCoreState) {
-      $bringUpArguments.CleanCoreState = $true
-    }
-    $bringUpArguments.SeedWaitSeconds = $SeedWaitSeconds
-    $bringUpArguments.Remove("ScreenshotDirectory")
+    $bringUpArguments = New-CanonicalQaBringUpArguments `
+      -CommonArguments $commonArguments `
+      -AiEnvFile $LotusAiEnvFile `
+      -ShouldBuildImages ([bool]$BuildImages) `
+      -ShouldRequireMainlineSources ([bool]$RequireMainlineSources) `
+      -ShouldCleanCoreState ([bool]$CleanCoreState) `
+      -WaitSeconds $SeedWaitSeconds
     Invoke-CanonicalRuntimeStep -StepName "bring-up" -ScriptPath $startScript -Arguments $bringUpArguments
     $summary.steps += "bring-up"
+    $summary.steps += "dpm-command-center-seed"
+    $summary.steps += "validate"
   }
 
   if (-not $CleanPlanOnly -and ($BringUp -or (-not $Clean))) {
@@ -517,23 +563,25 @@ try {
   }
 
   if (-not $CleanPlanOnly -and ($BringUp -or (-not $Clean))) {
-    if (-not $SkipDpmCommandCenterSeed) {
+    if (-not $BringUp -and $dpmCommandCenterSeedEnabled) {
       $dpmSeedArguments = @{
         OutputDirectory = $resolvedOutputDirectory
         PortfolioId = $PortfolioId
       }
       Invoke-CanonicalRuntimeStep -StepName "dpm-command-center-seed" -ScriptPath $dpmSeedScript -Arguments $dpmSeedArguments
       $summary.steps += "dpm-command-center-seed"
-
+    }
+    if ($dpmCommandCenterSeedEnabled) {
       $dpmSeedSummaryPath = Join-Path $resolvedOutputDirectory "dpm-command-center-seed-latest.json"
       if (-not (Test-Path $dpmSeedSummaryPath)) {
         throw "DPM command-center seed did not produce evidence: $dpmSeedSummaryPath"
       }
       $summary.dpm_command_center_seed_summary = Get-Content -Raw $dpmSeedSummaryPath | ConvertFrom-Json
     }
-
-    Invoke-CanonicalRuntimeStep -StepName "validate" -ScriptPath $validateScript -Arguments $validationArguments
-    $summary.steps += "validate"
+    if (-not $BringUp) {
+      Invoke-CanonicalRuntimeStep -StepName "validate" -ScriptPath $validateScript -Arguments $validationArguments
+      $summary.steps += "validate"
+    }
   }
 
   if ($summary.steps -contains "bring-up" -or $summary.steps -contains "validate") {

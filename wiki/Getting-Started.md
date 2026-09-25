@@ -105,8 +105,7 @@ pre-validation screenshots are diagnostic, not client-ready proof.
 
 ```powershell
 Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-workbench"
-npm run live:stack:up
-npm run live:validate
+npm run live:stack:up:validate
 ```
 
 Use `lotus-platform` when you need ingress support, platform-owned evidence wrappers, or

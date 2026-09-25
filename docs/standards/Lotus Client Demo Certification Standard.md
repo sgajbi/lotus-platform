@@ -137,19 +137,19 @@ Before a demo pack is marked client-ready, confirm:
 Use app-owned commands first. For the canonical front-office flow, use:
 
 ```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 ```
 
-This command uses the strict `full` default. The same canonical runner accepts
-`-ValidationProfile client-demo` for a bounded client rehearsal while the non-certifying Idea
-synthetic capacity probe is tracked by `sgajbi/lotus-idea#1345`. The Platform receipt must record
-the excluded workload and its claim boundary; Idea readiness/candidate/UI, API/calculation/panel
-validation, and teardown remain mandatory. A passing bounded profile is not full downstream-
-capacity acceptance, production readiness, or release certification.
+This command uses the strict `full` default and runs startup plus validation inside one admitted
+operation. `-ValidationProfile client-demo` is reserved for a bounded standalone recheck of an
+already-running stack; its receipt records the excluded presentation-backed capacity probe, so it
+is not demo, capacity, production-readiness, or release evidence.
 
 For platform demo-readiness certification, use:
 
 ```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
 ```
 

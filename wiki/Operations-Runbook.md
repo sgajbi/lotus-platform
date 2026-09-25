@@ -146,11 +146,11 @@ route and admitted header/body scope, then route a source-readiness gap to Core 
 consumer request to Manage/Platform. The 2026-09-22 CoreSnapshot selector defect is tracked by
 `sgajbi/lotus-manage#711`; missing eligibility, tax-lot and market-data families are a separate
 historical Core case, `sgajbi/lotus-core#840`.
-Use `-SkipDpmCommandCenterSeed` on canonical QA only for diagnostics that intentionally validate an
-unseeded or degraded DPM state. Current governed seed proof covers populated ready, partial, and
-empty command-center supportability postures. Explicitly degraded and blocked command-center
-fixtures remain source-owner follow-up because the platform seed must not fabricate unavailable or
-blocked source truth.
+Standalone `client-demo` validation leaves DPM seeding disabled so it can inspect an already-running
+unseeded or degraded state without persisting new evidence. Current governed seed proof covers
+populated ready, partial, and empty command-center supportability postures. Explicitly degraded and
+blocked command-center fixtures remain source-owner follow-up because the platform seed must not
+fabricate unavailable or blocked source truth.
 
 ## First-response sequence
 

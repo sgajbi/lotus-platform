@@ -68,15 +68,15 @@ validation pass. Pre-validation screenshots are diagnostic only.
 ## Commands
 
 ```powershell
+Set-Location "$env:LOTUS_WORKSPACE_ROOT/lotus-platform"
 powershell -ExecutionPolicy Bypass -File automation\Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -LotusAiEnvFile .env.example -SeedWaitSeconds 1200
 powershell -ExecutionPolicy Bypass -File automation\Invoke-PlatformDemoReadinessCertification.ps1 -ScenarioMode fresh_seed
 ```
 
-The canonical front-office command uses the strict `full` default. For a bounded client rehearsal
-while `sgajbi/lotus-idea#1345` remains open, add `-ValidationProfile client-demo` to that same
-runner. The QA receipt must record the excluded synthetic Idea capacity workload. Idea readiness,
-candidate/queue, API, UI and teardown remain required; bounded success is not full capacity or
-production-release certification.
+The canonical front-office command uses the strict `full` default and runs startup plus validation
+inside one admitted operation. `client-demo` is only a bounded standalone recheck of an already-
+running stack; it excludes the presentation-backed capacity probe and cannot certify a demo or
+release.
 
 ## Source Of Truth
 

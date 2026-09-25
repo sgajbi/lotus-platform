@@ -84,7 +84,9 @@ separate GitHub job. Use the lane summary below when preparing or verifying a me
 
 Use the Workbench-owned
 [Canonical Front-Office Local Runtime](https://github.com/sgajbi/lotus-workbench/blob/main/docs/operations/canonical-front-office-local-runtime.md)
-for `npm run live:stack:up`, `npm run live:validate`, and `npm run live:stack:down`.
+for `npm run live:stack:up:validate` and `npm run live:stack:down`. The combined command is the
+strict full-profile path; standalone validation is intentionally limited to the bounded
+`client-demo` profile because the capacity capability exists only during governed startup.
 
 When platform-owned cross-application assurance or a governed evidence pack is required, invoke
 the QA wrapper from this repository:

@@ -826,11 +826,12 @@ Run governed canonical front-office QA readiness automation:
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp
 ```
 
-The default `full` profile requires the Idea synthetic downstream-capacity workload, currently
-tracked by `sgajbi/lotus-idea#1345`. For a bounded client rehearsal through the **same runner**,
-add `-ValidationProfile client-demo`. That profile still requires Idea readiness, candidate/queue,
-API, UI and teardown checks; the QA receipt records the excluded capacity workload and explicitly
-does not certify full-profile capacity. Do not use this switch for RFC or supported-feature closure.
+The default `full` profile runs startup and validation together so the presentation-backed Idea
+capacity probe receives only its ephemeral, operation-scoped capability. For a bounded recheck of
+an already-running stack, omit `-BringUp` and add `-ValidationProfile client-demo`. That profile
+does not seed or persist DPM state; it still requires Idea readiness, candidate/queue, API and UI
+checks. Its receipt records the disabled seed and excluded capacity probe and does not certify
+full-profile capacity. Do not use it for RFC or feature closure.
 The same runner accepts `-ReportStartDate YYYY-MM-DD` when an explicitly scoped post-inception
 report is appropriate. The omitted default is the governed seed start; invalid or out-of-seed
 dates fail before runtime work. The QA receipt records the selected report start and canonical
@@ -851,8 +852,8 @@ This delegates to the governed `lotus-workbench` runtime and validation flow, us
 - `output/front-office-qa/latest.md`
 - `output/front-office-qa/dpm-command-center-seed-latest.json`
 
-By default the wrapper also runs the DPM command-center seed after stack bring-up and before
-Workbench validation. That seed refreshes the canonical mandate from `lotus-core` through
+Workbench startup runs the DPM command-center seed and validation inside the same admitted
+operation. That seed refreshes the canonical mandate from `lotus-core` through
 `lotus-manage`, runs one Manage monitoring pass for command-center evidence, persists or reuses
 the date-aligned portfolio cash weight from Gateway's implementation-backed Workbench overview
 before recalculating mandate health. The resolver disables optional Performance and rebalance
@@ -886,8 +887,8 @@ consumers can distinguish development evidence from RFC/mainline certification e
 They also record `validation_profile`, `report_start_date`, `report_end_date`, and
 `excluded_proofs`; a passing `client-demo` receipt cannot
 be substituted for full downstream-capacity acceptance or production release evidence.
-Use `-SkipDpmCommandCenterSeed` only for diagnostic runs that intentionally prove the unseeded
-empty/error posture.
+Standalone `client-demo` automatically leaves DPM seeding disabled so it can inspect an
+already-running unseeded or degraded posture without persisting new evidence.
 
 Validate the governed DPM command-center seed contract without bringing up the runtime:
 
@@ -911,8 +912,9 @@ running.
 Write a demo screenshot pack to a caller-provided directory while also producing platform evidence:
 
 ```powershell
+$screenshotDirectory = Join-Path ([IO.Path]::GetTempPath()) 'lotus-risk-module-shots'
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Canonical-FrontOffice-QA.ps1 `
-  -ScreenshotDirectory <temp-dir>\lotus-risk-module-shots
+  -BringUp -ScreenshotDirectory $screenshotDirectory
 ```
 
 The screenshot directory receives `live-validation-summary.json`, `SHOT-INDEX.md`, and stable

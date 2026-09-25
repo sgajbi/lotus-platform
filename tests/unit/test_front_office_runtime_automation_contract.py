@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 CLIENT_EXCLUSION = {
-    "proofScope": "idea.synthetic_downstream_capacity_workload",
+    "proofScope": "idea.presentation_backed_downstream_capacity_probe",
     "reasonCode": "NON_CERTIFYING_CAPACITY_PROBE_EXCLUDED",
     "owningIssue": "sgajbi/lotus-idea#1345",
     "claimBoundary": "No Idea downstream-capacity acceptance or full-profile certification",
@@ -25,13 +25,9 @@ def test_governed_workbench_pin_supports_forwarded_demo_profile() -> None:
         )
     )
     pinned = next(
-        entry["revision"]
-        for entry in manifest["sources"]
-        if entry["repository"] == "lotus-workbench"
+        entry["revision"] for entry in manifest["sources"] if entry["repository"] == "lotus-workbench"
     )
-    checkout = Path(
-        os.environ.get("LOTUS_PRINCIPAL_PROOF_CHECKOUT", ROOT.parent / "lotus-workbench")
-    )
+    checkout = Path(os.environ.get("LOTUS_PRINCIPAL_PROOF_CHECKOUT", ROOT.parent / "lotus-workbench"))
     actual = subprocess.run(
         ["git", "-C", str(checkout), "rev-parse", "HEAD"],
         text=True,
@@ -45,29 +41,106 @@ def test_governed_workbench_pin_supports_forwarded_demo_profile() -> None:
     ):
         script = (checkout / "scripts/live" / script_name).read_text(encoding="utf-8")
         assert "[ValidateSet('full', 'client-demo')][string]$ValidationProfile = 'full'" in script
+        if script_name == "Start-LotusFrontOfficeCanonical.ps1":
+            assert "-OutputDirectory $canonicalEvidenceRoot" in script
 
 
 def test_canonical_qa_wrapper_forwards_bounded_profile_and_receipt_boundary() -> None:
-    wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(
-        encoding="utf-8"
-    )
+    wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(encoding="utf-8")
     assert "[ValidateSet('full', 'client-demo')][string]$ValidationProfile = 'full'" in wrapper
     assert "ValidationProfile = $ValidationProfile" in wrapper
-    assert "$bringUpArguments = $commonArguments.Clone()" in wrapper
+    assert "New-CanonicalQaBringUpArguments" in wrapper
     assert "-Arguments $bringUpArguments" in wrapper
+    assert "$arguments.RunValidation = $true" in wrapper
+    assert "StartDate = $resolvedReportStartDate" in wrapper
+    assert "AsOfDate = $canonicalAsOfDate" in wrapper
+    assert (
+        "if (-not $BringUp -and -not $Clean -and -not $CleanPlanOnly -and $ValidationProfile -eq 'full')"
+        in wrapper
+    )
+    assert "if (-not $BringUp)" in wrapper
     assert "-Arguments $validationArguments" in wrapper
     assert "validation_profile = $ValidationProfile" in wrapper
     assert "excluded_proofs =" in wrapper
-    assert "idea.synthetic_downstream_capacity_workload" in wrapper
+    assert "idea.presentation_backed_downstream_capacity_probe" in wrapper
     assert "sgajbi/lotus-idea#1345" in wrapper
     assert "Assert-CanonicalQaLiveProfile -LiveSummary $liveSummary" in wrapper
     assert "No Idea downstream-capacity acceptance or full-profile certification" in wrapper
+    assert "if (-not $BringUp -and $dpmCommandCenterSeedEnabled)" in wrapper
+    assert "if ($dpmCommandCenterSeedEnabled)" in wrapper
+
+
+def test_canonical_qa_wiring_is_non_seeding_for_standalone_and_forwards_full_run() -> None:
+    powershell = shutil.which("pwsh") or shutil.which("powershell")
+    assert powershell is not None
+    script = r"""
+$ErrorActionPreference = 'Stop'
+$ast = [Management.Automation.Language.Parser]::ParseFile(
+  (Join-Path (Get-Location) 'automation/Invoke-Canonical-FrontOffice-QA.ps1'),
+  [ref]$null, [ref]$null
+)
+foreach ($name in @('Resolve-CanonicalQaDpmSeedEnabled', 'New-CanonicalQaBringUpArguments')) {
+  $definition = $ast.Find({ param($node)
+    $node -is [Management.Automation.Language.FunctionDefinitionAst] -and
+    $node.Name -eq $name
+  }, $true)
+  if (-not $definition) { throw "Shipped function is missing: $name" }
+  . ([scriptblock]::Create($definition.Extent.Text))
+}
+$common = @{
+  ProjectsRoot='C:\workspace'
+  PortfolioId='PB_SG_GLOBAL_BAL_001'
+  BenchmarkCode='BMK_PB_GLOBAL_BALANCED_60_40'
+  StartDate='2025-03-31'
+  AsOfDate='2026-04-10'
+  ValidationProfile='full'
+  ScreenshotDirectory='C:\evidence'
+  CanonicalEvidenceDirectory='C:\qa-output'
+}
+$forwarded = New-CanonicalQaBringUpArguments `
+  -CommonArguments $common `
+  -AiEnvFile '.env.example' `
+  -ShouldBuildImages $true `
+  -ShouldRequireMainlineSources $true `
+  -ShouldCleanCoreState $false `
+  -WaitSeconds 321
+@{
+  standaloneSeedEnabled=(Resolve-CanonicalQaDpmSeedEnabled -IsBringUp $false -SkipRequested $false)
+  bringUpSeedEnabled=(Resolve-CanonicalQaDpmSeedEnabled -IsBringUp $true -SkipRequested $false)
+  forwarded=$forwarded
+  commonWasNotMutated=(-not $common.ContainsKey('RunValidation'))
+} | ConvertTo-Json -Depth 5 -Compress
+"""
+    result = subprocess.run(
+        [powershell, "-NoProfile", "-NonInteractive", "-Command", script],
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    assert result.returncode == 0, result.stderr
+    observed = json.loads(result.stdout)
+    assert observed["standaloneSeedEnabled"] is False
+    assert observed["bringUpSeedEnabled"] is True
+    assert observed["commonWasNotMutated"] is True
+    assert observed["forwarded"] == {
+        "AsOfDate": "2026-04-10",
+        "BenchmarkCode": "BMK_PB_GLOBAL_BALANCED_60_40",
+        "BuildImages": True,
+        "CanonicalEvidenceDirectory": "C:\\qa-output",
+        "LotusAiEnvFile": ".env.example",
+        "PortfolioId": "PB_SG_GLOBAL_BAL_001",
+        "ProjectsRoot": "C:\\workspace",
+        "RequireMainlineSources": True,
+        "RunValidation": True,
+        "ScreenshotDirectory": "C:\\evidence",
+        "SeedWaitSeconds": 321,
+        "StartDate": "2025-03-31",
+        "ValidationProfile": "full",
+    }
 
 
 def test_canonical_qa_wrapper_forwards_and_records_governed_report_start() -> None:
-    wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(
-        encoding="utf-8"
-    )
+    wrapper = (ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1").read_text(encoding="utf-8")
     assert '[string]$ReportStartDate = ""' in wrapper
     assert "StartDate = $resolvedReportStartDate" in wrapper
     assert "AsOfDate = $canonicalAsOfDate" in wrapper
@@ -124,7 +197,11 @@ try {
             "status": "ready",
             "url": f"{base}/performance/summary?{window}",
         },
-        {"description": "Risk summary", "status": 200, "url": f"{base}/risk/summary?{window}"},
+        {
+            "description": "Risk summary",
+            "status": 200,
+            "url": f"{base}/risk/summary?{window}",
+        },
         {
             "description": "Advisor brief",
             "status": 200,
@@ -182,9 +259,7 @@ def test_canonical_report_window_rejects_invalid_or_out_of_seed_range_before_run
     requested: str, expected: str | None
 ) -> None:
     powershell = shutil.which("pwsh") or shutil.which("powershell")
-    assert powershell is not None, (
-        "PowerShell is required for the shipped report-window guard"
-    )
+    assert powershell is not None, "PowerShell is required for the shipped report-window guard"
     script = r"""
 $ErrorActionPreference = 'Stop'
 $ast = [Management.Automation.Language.Parser]::ParseFile(
@@ -258,6 +333,46 @@ def test_invalid_report_window_refuses_before_canonical_qa_output(
 
 
 @pytest.mark.parametrize(
+    ("arguments", "expected"),
+    [
+        ([], "Full validation must be run with -BringUp"),
+        (
+            ["-BringUp", "-SkipDpmCommandCenterSeed"],
+            "-SkipDpmCommandCenterSeed cannot be combined with -BringUp",
+        ),
+        (
+            ["-BringUp", "-ValidationProfile", "client-demo"],
+            "-ValidationProfile client-demo cannot be combined with -BringUp",
+        ),
+    ],
+)
+def test_canonical_profile_guards_refuse_before_output_or_runtime(
+    tmp_path: Path, arguments: list[str], expected: str
+) -> None:
+    powershell = shutil.which("pwsh") or shutil.which("powershell")
+    assert powershell is not None
+    output_dir = tmp_path / "must-not-be-created"
+    result = subprocess.run(
+        [
+            powershell,
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            str(ROOT / "automation" / "Invoke-Canonical-FrontOffice-QA.ps1"),
+            *arguments,
+            "-OutputDirectory",
+            str(output_dir),
+        ],
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
+    assert result.returncode != 0
+    assert expected in result.stderr
+    assert not output_dir.exists()
+
+
+@pytest.mark.parametrize(
     ("profile", "live_profile", "exclusions", "expected_success"),
     [
         ("full", "full", [], True),
@@ -297,7 +412,7 @@ $inputValue = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $expected = @()
 if ($inputValue.profile -eq 'client-demo') {
   $expected = @([pscustomobject]@{
-    proofScope='idea.synthetic_downstream_capacity_workload'
+    proofScope='idea.presentation_backed_downstream_capacity_probe'
     reasonCode='NON_CERTIFYING_CAPACITY_PROBE_EXCLUDED'
     owningIssue='sgajbi/lotus-idea#1345'
     claimBoundary='No Idea downstream-capacity acceptance or full-profile certification'
@@ -354,12 +469,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     local_dev_runbook = (ROOT / "docs" / "operations" / "Local Development Runbook.md").read_text(
         encoding="utf-8"
     )
-    engineering_context = (ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md").read_text(
-        encoding="utf-8"
-    )
-    skill_routing_map = (ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md").read_text(
-        encoding="utf-8"
-    )
+    engineering_context = (ROOT / "context" / "LOTUS-ENGINEERING-CONTEXT.md").read_text(encoding="utf-8")
+    skill_routing_map = (ROOT / "context" / "LOTUS-SKILL-ROUTING-MAP.md").read_text(encoding="utf-8")
     root_readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for operator_guide in (automation_readme, automation_guide, local_dev_runbook):
         assert "DPM_CORE_CONTEXT_INCOMPLETE" in operator_guide
@@ -370,9 +481,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     wiki_overview = (ROOT / "wiki" / "Overview.md").read_text(encoding="utf-8")
     wiki_platform_surfaces = (ROOT / "wiki" / "Platform-Surfaces.md").read_text(encoding="utf-8")
     wiki_sidebar = (ROOT / "wiki" / "_Sidebar.md").read_text(encoding="utf-8")
-    hosts_helper = (ROOT / "automation" / "Apply-DevIngressHosts-Elevated.ps1").read_text(
-        encoding="utf-8"
-    )
+    hosts_helper = (ROOT / "automation" / "Apply-DevIngressHosts-Elevated.ps1").read_text(encoding="utf-8")
     directory_map = (ROOT / "automation" / "docs" / "Directory-Map.md").read_text(encoding="utf-8")
     profile_reference = (ROOT / "automation" / "docs" / "Profile-Reference.md").read_text(encoding="utf-8")
 
@@ -398,7 +507,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "[switch]$BuildImages" in wrapper
     assert "[switch]$RequireMainlineSources" in wrapper
     assert "RequireMainlineSources requires -BringUp" in wrapper
-    assert 'if ($RequireMainlineSources -and -not $BuildImages)' in wrapper
+    assert "if ($RequireMainlineSources -and -not $BuildImages)" in wrapper
     assert "$BuildImages = $true" in wrapper
     assert "require_mainline_sources = [bool]$RequireMainlineSources" in wrapper
     assert "mainline_source_preflight = $null" in wrapper
@@ -408,7 +517,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "failed before cleanup, Docker build, seed, or validation was started" in wrapper
     assert "mainline-source-provenance-preflight-latest.json" in wrapper
     assert '$summary.steps += "mainline-source-preflight"' in wrapper
-    assert "$bringUpArguments.RequireMainlineSources = $true" in wrapper
+    assert "$arguments.RequireMainlineSources = $true" in wrapper
     assert "-not $RequireMainlineSources -or $certifiedSourcePreflightPassed" in wrapper
     assert "Require mainline sources:" in wrapper
     assert "Mainline source preflight:" in wrapper
@@ -465,9 +574,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Start-Process" in hosts_helper
     assert "-Verb RunAs" in hosts_helper
 
-    dpm_seed = (ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1").read_text(
-        encoding="utf-8"
-    )
+    dpm_seed = (ROOT / "automation" / "Invoke-DpmCommandCenterSeed.ps1").read_text(encoding="utf-8")
     assert "canonical-front-office-demo-data-contract.json" in dpm_seed
     assert "dpm_command_center" in dpm_seed
     assert "MANDATE_PB_SG_GLOBAL_BAL_001" not in dpm_seed
@@ -506,11 +613,8 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "gateway-outcome-review-list" in dpm_seed
     assert "canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}" in dpm_seed
     assert "/api/v1/dpm/command-center/outcome-reviews" in dpm_seed
-    assert (
-        '-CorrelationId "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-'
-        in dpm_seed
-    )
-    assert '-ExtraHeaders @{' in dpm_seed
+    assert '-CorrelationId "corr-canonical-dpm-outcome-review-$resolvedPortfolioId-' in dpm_seed
+    assert "-ExtraHeaders @{" in dpm_seed
     assert '"Idempotency-Key" = $outcomeReviewIdempotencyKey' in dpm_seed
     assert "limit=50" in dpm_seed
     assert "$outcomeReviewRebalanceRunId" in dpm_seed
@@ -521,10 +625,7 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "Assert-OutcomeReviewPageContainsSeed" in dpm_seed
     assert "CanonicalDpmOutcomeExpectedEvidence" in dpm_seed
     assert "DpmRealizedOutcomeSnapshot:v1" in dpm_seed
-    assert (
-        '"canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}:" +'
-        in dpm_seed
-    )
+    assert '"canonical-dpm-outcome-review:${resolvedPortfolioId}:${resolvedAsOfDate}:" +' in dpm_seed
     assert "[string]$contract.contract_version" in dpm_seed
     assert "outcome_review_idempotency_key = $outcomeReviewIdempotencyKey" in dpm_seed
     assert "[switch]$PreflightOnly" in dpm_seed
@@ -556,46 +657,43 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert '"X-Service-Identity" = $manageSeedServiceIdentity' in dpm_seed
     assert '"X-Capabilities" = $manageSeedCapability' in dpm_seed
     assert '$manageSeedCapability = "manage.write"' in dpm_seed
-    assert 'service_identity = $manageSeedServiceIdentity' in dpm_seed
-    assert 'capabilities = @($manageSeedCapability)' in dpm_seed
-    assert 'preflight_only = [bool]$PreflightOnly' in dpm_seed
+    assert "service_identity = $manageSeedServiceIdentity" in dpm_seed
+    assert "capabilities = @($manageSeedCapability)" in dpm_seed
+    assert "preflight_only = [bool]$PreflightOnly" in dpm_seed
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-refresh-' in dpm_seed
     assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-monitoring-' in dpm_seed
-    assert '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-' in dpm_seed
-    assert '-Headers (New-ManageRequestHeaders `' in dpm_seed
-    assert 'corr-canonical-dpm-action-register-review-' in dpm_seed
-    assert 'corr-canonical-dpm-campaign-upsert-' in dpm_seed
-    assert 'corr-canonical-dpm-campaign-supersede-' in dpm_seed
-    assert dpm_seed.count('-TenantId $resolvedCampaignTenantId') == 3
-    assert dpm_seed.count('-Headers $campaignHeaders') == 4
+    assert (
+        '-Headers (New-ManageRequestHeaders -CorrelationId "corr-canonical-dpm-health-recalculate-'
+        in dpm_seed
+    )
+    assert "-Headers (New-ManageRequestHeaders `" in dpm_seed
+    assert "corr-canonical-dpm-action-register-review-" in dpm_seed
+    assert "corr-canonical-dpm-campaign-upsert-" in dpm_seed
+    assert "corr-canonical-dpm-campaign-supersede-" in dpm_seed
+    assert dpm_seed.count("-TenantId $resolvedCampaignTenantId") == 3
+    assert dpm_seed.count("-Headers $campaignHeaders") == 4
 
-    action_register = dpm_seed.split(
-        'recording stateful action-register simulation evidence', 1
-    )[1].split('persisting source-backed campaign definition', 1)[0]
-    assert '$resolvedActionRegisterTenantId = Resolve-ActionRegisterSourceTenant `' in dpm_seed
-    assert '-Portfolio $contract.portfolio `' in dpm_seed
-    assert '-PortfolioId $resolvedPortfolioId' in dpm_seed
+    action_register = dpm_seed.split("recording stateful action-register simulation evidence", 1)[1].split(
+        "persisting source-backed campaign definition", 1
+    )[0]
+    assert "$resolvedActionRegisterTenantId = Resolve-ActionRegisterSourceTenant `" in dpm_seed
+    assert "-Portfolio $contract.portfolio `" in dpm_seed
+    assert "-PortfolioId $resolvedPortfolioId" in dpm_seed
     assert 'action_register_tenant_authority = "portfolio.source_tenant_id"' in dpm_seed
-    assert 'tenant_id = $resolvedActionRegisterTenantId' in action_register
-    assert action_register.count('-TenantId $resolvedActionRegisterTenantId') == 3
+    assert "tenant_id = $resolvedActionRegisterTenantId" in action_register
+    assert action_register.count("-TenantId $resolvedActionRegisterTenantId") == 3
 
-    cash_preflight = dpm_seed.index(
-        "resolving date-aligned canonical cash evidence before persistent writes"
-    )
-    persistent_refresh = dpm_seed.index(
-        "refreshing $resolvedMandateId from lotus-core through lotus-manage"
-    )
+    cash_preflight = dpm_seed.index("resolving date-aligned canonical cash evidence before persistent writes")
+    persistent_refresh = dpm_seed.index("refreshing $resolvedMandateId from lotus-core through lotus-manage")
     assert cash_preflight < persistent_refresh
     assert "Assert-MandateHealthMatchesSeed" in dpm_seed
     assert "manage-mandate-health-date-match" in dpm_seed
     assert "gateway-mandate-health-date-match" in dpm_seed
-    assert (
-        dpm_seed.index("Manage mandate-health recalculation")
-        < dpm_seed.index('manage-mandate-health-date-match')
+    assert dpm_seed.index("Manage mandate-health recalculation") < dpm_seed.index(
+        "manage-mandate-health-date-match"
     )
-    assert (
-        dpm_seed.index("Gateway command-center mandate health")
-        < dpm_seed.index('gateway-mandate-health-date-match')
+    assert dpm_seed.index("Gateway command-center mandate health") < dpm_seed.index(
+        "gateway-mandate-health-date-match"
     )
 
     profiles = {profile["name"]: profile for profile in profiles_doc["profiles"]}
@@ -629,7 +727,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     # A documented example must not carry a personal checkout path: it fails
     # for every other reader, and an absolute path suppresses the link and
     # path checks that would otherwise catch rot beneath it.
-    assert "-ScreenshotDirectory <temp-dir>\\lotus-risk-module-shots" in automation_readme
+    assert "$screenshotDirectory = Join-Path ([IO.Path]::GetTempPath())" in automation_readme
+    assert "-BringUp -ScreenshotDirectory $screenshotDirectory" in automation_readme
+    assert "<temp-dir>" not in automation_readme
     assert "Users\\Sandeep" not in automation_readme
     assert "canonical contract identity and version" in automation_readme
     assert "calculationChecks" in automation_readme
@@ -642,22 +742,21 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "DpmPortfolioUniverseCandidate:v1" in automation_readme
     assert "DPM_CORE_CONTEXT_INCOMPLETE" in automation_readme
     assert "sgajbi/lotus-core#840" in automation_readme
-    assert "response-body diagnostics" in automation_guide
+    assert "Inspect the admitted request" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_readme
     assert (
-        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources"
-        in automation_readme
+        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources" in automation_readme
     )
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -RemoveImages" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_readme
     assert "cleanup-plan-latest.json" in automation_readme
     assert "name is never sufficient" in automation_readme
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in automation_guide
-    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -ScreenshotDirectory <path>" in automation_guide
+    assert "Canonical front-office screenshot pack" in automation_guide
+    assert "caller-resolved absolute screenshot directory" in automation_guide
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -Clean -BringUp -BuildImages" in automation_guide
     assert (
-        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources"
-        in automation_guide
+        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources" in automation_guide
     )
     assert "-BringUp -RequireMainlineSources" in engineering_context
     assert "require_mainline_sources" in engineering_context
@@ -665,7 +764,9 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
     assert "forces image builds" in engineering_context
     assert "-BringUp -RequireMainlineSources" in skill_routing_map
     assert "mainline-certified front-office proof" in skill_routing_map
-    assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources" in local_dev_runbook
+    assert (
+        "automation/Invoke-Canonical-FrontOffice-QA.ps1 -BringUp -RequireMainlineSources" in local_dev_runbook
+    )
     assert "require_mainline_sources" in local_dev_runbook
     assert "mainline_source_preflight" in local_dev_runbook
     assert "already-running canonical stack" in local_dev_runbook
@@ -675,16 +776,14 @@ def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> No
         ROOT / "codex" / "skills" / "platform-automation-ops" / "SKILL.md"
     ).read_text(encoding="utf-8")
     assert "automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOnly" in automation_guide
-    assert "Broad daemon-wide" in automation_guide
-    assert "repository-scoped Workbench Compose teardown" in automation_guide
+    assert "name-prefix cleanup is forbidden" in automation_guide
+    assert "canonical_orphan_retirement.py" in automation_guide
     assert "-IncludeLotusIdea" not in automation_guide
     assert "lotus-idea" in automation_guide
     assert "DEMO_DATA_PACK_ENABLED=false" in automation_guide
-    assert "Docker cleanup scope" in automation_guide
-    assert "runtime transcript" in automation_guide
-    assert "DPM command-center seed" in automation_guide
-    assert "source-owned selection-basis evidence" in automation_guide
-    assert "DpmPortfolioUniverseCandidate:v1" in automation_guide
+    assert "latest.log" in automation_guide
+    assert "DPM seed" in automation_guide
+    assert "Standalone `client-demo` leaves DPM seeding disabled" in automation_guide
     assert "Invoke-Canonical-FrontOffice-QA.ps1" in directory_map
     assert "Invoke-DpmCommandCenterSeed.ps1" in directory_map
     assert "`qa-platform-readiness`" in profile_reference
@@ -713,6 +812,9 @@ def test_front_office_docs_distinguish_governed_ui_qa_from_backend_runtime_qa() 
 
     for content in (automation_readme, automation_guide):
         assert "governed `lotus-workbench` runtime" in content
-        assert "backend/runtime QA readiness automation" in content or "Backend/runtime QA readiness validation" in content
+        assert (
+            "backend/runtime QA readiness automation" in content
+            or "Backend/runtime QA readiness validation" in content
+        )
         assert "Invoke-Platform-QA.ps1 -BringUp" in content
         assert "Invoke-Canonical-FrontOffice-QA.ps1 -BringUp" in content
