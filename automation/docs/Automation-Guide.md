@@ -86,6 +86,8 @@ evidence under `output/front-office-qa/`.
 - `-CleanPlanOnly` writes `cleanup-plan-latest.json` without mutation. Cleanup requires the exact
   Compose project and normalized checkout. Conflicts remain `active_foreign_owner`,
   `missing_labelled_checkout`, or `unproven_resource_only_owner`; name-prefix cleanup is forbidden.
+  Docker resource inspection is internally batched for large Windows inventories; every batch
+  retains the same fail-closed missing-resource and daemon-error behavior.
 - `canonical_orphan_retirement.py` can retire only one freshly proven, digest-bound
   `missing_labelled_checkout` container. Other resources and broad project cleanup remain refused.
 - `-RequireMainlineSources` requires `-BringUp`, forces image builds, records

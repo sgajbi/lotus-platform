@@ -182,7 +182,8 @@ canonical participant before cleanup/startup, delegates Workbench's same provena
 startup/validation, and records `require_mainline_sources` plus `mainline_source_preflight` in
 `output/front-office-qa/latest.json` so proof consumers can distinguish RFC/mainline evidence from
 ordinary local development evidence. If source preflight fails, the wrapper does not stop an
-already-running canonical stack.
+already-running canonical stack. The cleanup-plan inventory batches Docker inspection so large
+Windows Docker Desktop inventories do not exceed the host command-line limit.
 
 ## 2. Service Identities and Dependencies
 

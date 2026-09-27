@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -579,6 +580,45 @@ def test_docker_inspect_rejects_a_successful_inspection_with_no_evidence(
 
     with pytest.raises(json.JSONDecodeError):
         _docker_inspect("container", ["id-any"])
+
+
+def test_docker_inspect_batches_large_inventories_below_windows_command_limit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from automation.canonical_docker_ownership import (
+        DOCKER_INSPECT_BATCH_SIZE,
+        _docker_inspect,
+    )
+
+    requested_batches: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        identifiers = args[3:]
+        requested_batches.append(identifiers)
+        return subprocess.CompletedProcess(
+            args=args,
+            returncode=0,
+            stdout=json.dumps([{"Name": identifier} for identifier in identifiers]),
+            stderr="",
+        )
+
+    monkeypatch.setattr(
+        "automation.canonical_docker_ownership.subprocess.run",
+        fake_run,
+    )
+    identifiers = [
+        f"volume-{index:04d}-{'x' * 220}"
+        for index in range(DOCKER_INSPECT_BATCH_SIZE * 2 + 3)
+    ]
+
+    inspected = _docker_inspect("volume", identifiers)
+
+    assert [len(batch) for batch in requested_batches] == [
+        DOCKER_INSPECT_BATCH_SIZE,
+        DOCKER_INSPECT_BATCH_SIZE,
+        3,
+    ]
+    assert [item["Name"] for item in inspected] == identifiers
 
 
 @pytest.mark.parametrize(

@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 390958
+    "total_source_lines": 391161
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -237,9 +237,9 @@
       },
       {
         "complexity": 2,
-        "end_line": 366,
+        "end_line": 377,
         "line": 67,
-        "lines": 300,
+        "lines": 311,
         "name": "test_rfc_0077_registry_contract_artifacts_are_present_and_governed",
         "path": "tests/unit/test_rfc_0077_panel_registry_contract.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3932
+    "python_function_count": 3937
   },
-  "generated_at_utc": "2026-09-25T20:05:08Z",
+  "generated_at_utc": "2026-09-27T09:34:47Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -418,7 +418,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1831,
+      "lines": 1832,
       "path": "automation/README.md",
       "suffix": ".md"
     },
@@ -453,7 +453,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 1371,
+      "lines": 1385,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
     },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 1976,
+    "collected_tests": 1980,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "1976 tests collected"
+    "summary": "1980 tests collected"
   }
 }

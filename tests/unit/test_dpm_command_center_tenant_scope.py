@@ -129,3 +129,49 @@ def test_seed_refuses_storage_tenant_that_differs_from_admitted_caller(
     diagnostic = re.sub(r"\s+\|\s+", " ", diagnostic)
     assert "does not match admitted Workbench caller tenant" in diagnostic
     assert not output_directory.exists(), "tenant mismatch must fail before seed evidence or I/O"
+
+
+def test_seed_rejects_invalid_matching_caller_before_evidence_or_reservation(
+    tmp_path: Path,
+) -> None:
+    contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
+    invalid_tenant = "tenant-a,tenant-b"
+    contract["dpm_command_center"]["tenant_id"] = invalid_tenant
+    contract["dpm_command_center"]["workbench_caller_tenant_id"] = invalid_tenant
+    contract["dpm_command_center"]["campaign_definition_scenario"]["tenant_id"] = invalid_tenant
+    invalid_contract = tmp_path / "invalid-caller-contract.json"
+    invalid_contract.write_text(json.dumps(contract), encoding="utf-8")
+    output_directory = tmp_path / "evidence"
+    projects_root = tmp_path / "workspace"
+
+    result = subprocess.run(
+        [
+            _powershell(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(SEED_SCRIPT),
+            "-ContractPath",
+            str(invalid_contract),
+            "-OutputDirectory",
+            str(output_directory),
+            "-ProjectsRoot",
+            str(projects_root),
+            "-RuntimeHolder",
+            "invalid-tenant-regression",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    diagnostic = re.sub(r"\s+", " ", result.stdout + result.stderr)
+    assert "CANONICAL_CASH_CALLER_TENANT_INVALID" in diagnostic
+    assert not output_directory.exists(), "invalid caller must not create seed evidence"
+    assert not (
+        projects_root / "lotus-platform/output/canonical-runtime"
+    ).exists(), "invalid caller must not create reservation state"

@@ -47,6 +47,7 @@ EXACT_OWNED_CONTAINER_NAMES = frozenset({"lotus-direct-dev-ingress"})
 ACTIVE_FOREIGN_OWNER = "active_foreign_owner"
 MISSING_LABELLED_CHECKOUT = "missing_labelled_checkout"
 UNPROVEN_RESOURCE_ONLY_OWNER = "unproven_resource_only_owner"
+DOCKER_INSPECT_BATCH_SIZE = 64
 
 
 def normalize_docker_path(value: str) -> str:
@@ -429,6 +430,20 @@ def _docker_inspect(
 ) -> list[Mapping[str, Any]]:
     if not identifiers:
         return []
+    inspected: list[Mapping[str, Any]] = []
+    for offset in range(0, len(identifiers), DOCKER_INSPECT_BATCH_SIZE):
+        inspected.extend(
+            _docker_inspect_batch(
+                resource_type,
+                identifiers[offset : offset + DOCKER_INSPECT_BATCH_SIZE],
+            )
+        )
+    return inspected
+
+
+def _docker_inspect_batch(
+    resource_type: str, identifiers: Sequence[str]
+) -> list[Mapping[str, Any]]:
     # A resource can legitimately disappear between the listing call and this
     # inspection (concurrent sessions and test batteries churn short-lived
     # containers); docker then exits non-zero while still printing the payload
