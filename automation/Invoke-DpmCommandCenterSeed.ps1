@@ -74,8 +74,22 @@ function Resolve-ActionRegisterSourceTenant {
   return $sourceTenantId
 }
 
+function Assert-CanonicalCashCallerTenant {
+  param([object]$CallerTenantId)
+
+  if ($CallerTenantId -isnot [string] -or
+      $CallerTenantId -cnotmatch '\A[A-Za-z0-9_.:-]{1,128}\z') {
+    throw 'Canonical cash-evidence resolution failed: CANONICAL_CASH_CALLER_TENANT_INVALID (exit 1) before any persistent seed write.'
+  }
+}
+
 function Invoke-CanonicalCashEvidence {
   param([switch]$ValidateCallerOnly)
+
+  # Validate before crossing the native-process boundary. PowerShell argument
+  # marshalling differs by host for empty strings; the durable admission rule
+  # must fail identically without invoking the resolver or performing I/O.
+  Assert-CanonicalCashCallerTenant -CallerTenantId $resolvedWorkbenchCallerTenantId
 
   $arguments = @(
     $canonicalCashEvidenceScript,
@@ -351,9 +365,9 @@ $resolvedActionRegisterTenantId = Resolve-ActionRegisterSourceTenant `
   -Portfolio $contract.portfolio `
   -PortfolioId $resolvedPortfolioId
 $resolvedWorkbenchCallerTenantId = [string]$dpm.workbench_caller_tenant_id
-if ([string]::IsNullOrWhiteSpace($resolvedWorkbenchCallerTenantId)) {
-  throw "Canonical front-office data contract does not define dpm_command_center.workbench_caller_tenant_id."
-}
+# This must precede output-directory creation and reservation admission. A bad
+# caller fence is input rejection, not authority to create runtime state.
+Assert-CanonicalCashCallerTenant -CallerTenantId $resolvedWorkbenchCallerTenantId
 if ($resolvedTenantId -cne $resolvedWorkbenchCallerTenantId) {
   throw (
     "Canonical DPM command-center tenant $resolvedTenantId does not match admitted " +

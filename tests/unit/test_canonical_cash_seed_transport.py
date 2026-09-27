@@ -56,17 +56,23 @@ def cash_source():
         thread.join(timeout=5)
 
 
-def invoke_cash_boundary(url, tenant, *, validate_only=False):
+def invoke_cash_boundary(url, tenant, *, validate_only=False, resolver_path=None):
     shell = shutil.which("pwsh") or shutil.which("powershell")
     assert shell, "PowerShell is required for the shipped cash adapter proof"
     # Parse the real function, not a test copy. The complete seed/fence boundary is
     # separately executed by test_canonical_runtime_reservation.py.
     seed = (ROOT / "automation/Invoke-DpmCommandCenterSeed.ps1").as_posix()
-    resolver = (ROOT / "automation/resolve_canonical_cash_evidence.py").as_posix()
+    resolver = (
+        Path(resolver_path)
+        if resolver_path is not None
+        else ROOT / "automation/resolve_canonical_cash_evidence.py"
+    ).as_posix()
     script = f"""$ErrorActionPreference='Stop'
 $ast=[Management.Automation.Language.Parser]::ParseFile('{seed}',[ref]$null,[ref]$null)
-$fn=$ast.Find({{param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Invoke-CanonicalCashEvidence'}},$true)
-. ([scriptblock]::Create($fn.Extent.Text))
+foreach ($functionName in @('Assert-CanonicalCashCallerTenant', 'Invoke-CanonicalCashEvidence')) {{
+  $fn=$ast.Find({{param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $functionName}},$true)
+  . ([scriptblock]::Create($fn.Extent.Text))
+}}
 $canonicalCashEvidenceScript='{resolver}'
 $gatewayApiBaseUrl='{url}'
 $resolvedPortfolioId='PB'
@@ -117,6 +123,21 @@ def test_cheap_caller_validation_does_not_claim_live_admission(cash_source):
     result = invoke_cash_boundary(url, "tenant-a", validate_only=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert json.loads(result.stdout) == {"state": "caller_scope_validated", "network_performed": False}
+    assert requests == []
+
+
+@pytest.mark.parametrize("tenant", ["", "tenant-a,tenant-b"])
+def test_cheap_caller_validation_rejects_invalid_scope_before_native_io(cash_source, tenant):
+    url, requests = cash_source
+    result = invoke_cash_boundary(
+        url,
+        tenant,
+        validate_only=True,
+        resolver_path=ROOT / "automation/resolver-must-not-run.py",
+    )
+    assert result.returncode == 1
+    assert "CANONICAL_CASH_CALLER_TENANT_INVALID" in result.stdout
+    assert "before any persistent seed write" in result.stdout
     assert requests == []
 
 
