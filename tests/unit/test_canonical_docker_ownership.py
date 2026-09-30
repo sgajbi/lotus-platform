@@ -16,6 +16,7 @@ from automation.canonical_docker_ownership import (
     normalize_docker_path,
     path_entry_exists,
     paths_match_exactly,
+    published_host_ports,
     select_ownership_conflicts,
 )
 
@@ -70,6 +71,28 @@ def test_checkout_path_match_is_normalized_and_exact() -> None:
     )
     assert not paths_match_exactly(r"C:\Users\Sandeep\projects\lotus-core-shadow", root)
     assert not paths_match_exactly("/tmp/ActiveCheckout", "/tmp/activecheckout")
+
+
+def test_published_host_ports_uses_running_configured_and_actual_bindings() -> None:
+    item = _container(
+        "dynamic-db",
+        "lotus-unit-pytest-aabb",
+        r"C:\Users\Sandeep\projects\worktrees\lotus-core-bench",
+        published_ports=(5435,),
+    )
+    item["HostConfig"] = {"PortBindings": {
+        "5432/tcp": [{"HostPort": ""}],
+        "5433/tcp": [{"HostPort": "5435"}],
+    }}
+    item["NetworkSettings"] = {"Ports": {
+        "5432/tcp": [{"HostPort": "61936"}],
+        "5433/tcp": [{"HostPort": "5435"}],
+        "5434/tcp": None,
+    }}
+
+    assert published_host_ports(item) == {5435, 61936}
+    item["State"] = {"Running": False}
+    assert published_host_ports(item) == set()
 
 
 def test_path_entry_probe_distinguishes_absence_from_entry_and_error(
@@ -256,6 +279,37 @@ def test_cleanup_plan_classifies_missing_foreign_checkout_on_canonical_port() ->
             "canonical_ports": [5435],
         }
     ]
+
+
+def test_cleanup_plan_uses_actual_dynamic_canonical_port_binding() -> None:
+    dynamic = _container(
+        "dynamic-performance-db",
+        "lotus-performance-bench",
+        r"C:\missing\lotus-performance-bench",
+    )
+    dynamic["HostConfig"] = {
+        "PortBindings": {"5432/tcp": [{"HostPort": ""}]}
+    }
+    dynamic["NetworkSettings"] = {
+        "Ports": {"5432/tcp": [{"HostPort": "5435"}]}
+    }
+
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[dynamic],
+        volumes=[],
+        images=[],
+        canonical_port_owners={5435: {
+            "compose_project": "lotus-performance",
+            "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+        }},
+        checkout_exists=lambda _: False,
+    )
+
+    conflict = plan["ownership_conflicts"][0]
+    assert conflict["canonical_ports"] == [5435]
+    assert conflict["conflict_reason"] == "foreign_compose_project_binds_canonical_port"
 
 
 @pytest.mark.parametrize("registered", [False, True])

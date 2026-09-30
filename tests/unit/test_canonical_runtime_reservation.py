@@ -204,6 +204,33 @@ def test_incidental_test_container_not_canonical_but_port_collision_is_blocking(
         select_containers([container(root="C:/projects/lotus-core/nested")], SCOPE)
 
 
+def test_dynamic_host_port_uses_actual_binding_without_inventing_relevance():
+    incidental = container("lotus-unit-pytest-aabb", port=61936)
+    incidental["HostConfig"] = {
+        "PortBindings": {"8000/tcp": [{"HostPort": ""}]}
+    }
+    incidental["NetworkSettings"] = {
+        "Ports": {"8000/tcp": [{"HostPort": "61936"}]}
+    }
+    assert select_containers([incidental], SCOPE) == []
+
+    collision = dict(incidental)
+    collision["NetworkSettings"] = {
+        "Ports": {"8000/tcp": [{"HostPort": "8202"}]}
+    }
+    with pytest.raises(lease.ReservationRefusal, match="Foreign/unproven"):
+        select_containers([collision], SCOPE)
+
+    admitted = container(port=8202)
+    admitted["HostConfig"] = {
+        "PortBindings": {"8000/tcp": [{"HostPort": ""}]}
+    }
+    admitted["NetworkSettings"] = {
+        "Ports": {"8000/tcp": [{"HostPort": "8202"}]}
+    }
+    assert select_containers([admitted], SCOPE)[0]["ports"] == [8202]
+
+
 def test_exact_labels_describe_inventory_but_never_admit_holder():
     observed = select_containers([container()], SCOPE)
     assert observed[0]["id"] == "full-docker-id"

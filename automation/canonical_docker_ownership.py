@@ -157,23 +157,33 @@ def _container_name(item: Mapping[str, Any]) -> str:
 
 
 def published_host_ports(item: Mapping[str, Any]) -> set[int]:
-    """Return configured host ports only for a currently running container."""
+    """Return actual published host ports for a currently running container.
+
+    Docker keeps configured bindings in ``HostConfig`` but represents a dynamic
+    publication there with an empty host-port placeholder. The allocated port
+    is authoritative only in ``NetworkSettings``. Use the union so inventory
+    tolerates the placeholder without losing an actual canonical-port claim.
+    """
 
     if item.get("State", {}).get("Running") is not True:
         return set()
-    bindings = item.get("HostConfig", {}).get("PortBindings") or {}
     ports: set[int] = set()
-    if not isinstance(bindings, Mapping):
-        return ports
-    for values in bindings.values():
-        if not isinstance(values, list):
+    binding_maps = (
+        item.get("HostConfig", {}).get("PortBindings") or {},
+        item.get("NetworkSettings", {}).get("Ports") or {},
+    )
+    for bindings in binding_maps:
+        if not isinstance(bindings, Mapping):
             continue
-        for binding in values:
-            if not isinstance(binding, Mapping):
+        for values in bindings.values():
+            if not isinstance(values, list):
                 continue
-            host_port = str(binding.get("HostPort") or "")
-            if host_port.isdecimal():
-                ports.add(int(host_port))
+            for binding in values:
+                if not isinstance(binding, Mapping):
+                    continue
+                host_port = str(binding.get("HostPort") or "")
+                if host_port.isdecimal():
+                    ports.add(int(host_port))
     return ports
 
 
