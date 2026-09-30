@@ -13,6 +13,7 @@ try:
         canonical_project_roots,
         normalize_docker_path,
         paths_match_exactly,
+        published_host_ports,
     )
     from automation.canonical_runtime_lease import ReservationRefusal, validate_bindings
 except ModuleNotFoundError:
@@ -21,6 +22,7 @@ except ModuleNotFoundError:
         canonical_project_roots,
         normalize_docker_path,
         paths_match_exactly,
+        published_host_ports,
     )
     from canonical_runtime_lease import ReservationRefusal, validate_bindings
 
@@ -154,15 +156,7 @@ def select_containers(items: list, scope: dict) -> list:
         labels = item.get("Config", {}).get("Labels") or {}
         project = labels.get("com.docker.compose.project", "")
         checkout = labels.get("com.docker.compose.project.working_dir", "")
-        ports = sorted(
-            {
-                int(binding["HostPort"])
-                for values in (
-                    item.get("HostConfig", {}).get("PortBindings") or {}
-                ).values()
-                for binding in (values or [])
-            }
-        )
+        ports = sorted(published_host_ports(item))
         ingress = item.get("Name", "").lstrip("/") == "lotus-direct-dev-ingress"
         running = item.get("State", {}).get("Running") is True
         relevant = (
