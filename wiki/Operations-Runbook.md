@@ -74,9 +74,14 @@ python automation\validate_analytics_ui_entitlement_certification.py
    `lotus-core-canonical-ui` as Core project identities only when their working-directory label is
    the canonical `lotus-core` checkout; a noncanonical checkout alias is a blocking conflict. It
    classifies active foreign owners, missing labelled checkouts, and unproven resource-only owners
-   separately. Only a fresh, digest-bound `missing_labelled_checkout` container may be passed to
+   separately. A running foreign project on a canonical reserved port records the observed
+   project/path separately from the canonical port-owner project/path and exact overlap;
+   stopped/noncanonical-port claims are excluded and ambiguous owners remain refused. Only a fresh,
+   digest-bound `missing_labelled_checkout` container may be passed to
    `canonical_orphan_retirement.py`; dry-run first, restate every exact target field, review the
-   receipt, and use explicit confirmation for execution. The command removes only that full
+   receipt, and use explicit confirmation for execution. For a canonical-port conflict, also
+   restate its canonical owner project and every recorded port; the command re-resolves current
+   Compose ownership and the live overlap. The command removes only that full
    container ID and refuses projects, volumes, images, networks, active/registered paths, stale
    plans, and changed identities. Its execution receipt is persisted before mutation and finalized
    with a newly generated view of remaining ownership conflicts.

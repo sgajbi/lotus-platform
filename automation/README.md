@@ -937,7 +937,11 @@ Windows without weakening the fail-closed ownership checks. The inventory explic
 checkout boundary. If another, temporary, or nested checkout reuses one of those project names, the
 plan records an ownership conflict and `-Clean` fails before mutation. The plan distinguishes
 `active_foreign_owner`, `missing_labelled_checkout`, and `unproven_resource_only_owner`; all three
-remain blocking. Residual project-labeled volumes or images without a live container proving the
+remain blocking. A running otherwise-foreign Compose project on a canonical reserved port is also
+recorded: its observed project/path stay separate from the canonical port-owner project/path and
+exact overlapping ports. A stopped container or a foreign project using only noncanonical ports is
+not selected. Multiple canonical port owners are ambiguous and non-actionable. Residual
+project-labeled volumes or images without a live container proving the
 expected checkout also fail closed. A resource-only image may instead prove ownership through the
 immutable `com.lotus.repository.checkout` label emitted by its governed build. The normalized label
 must exactly equal the registered canonical repository root; sibling and nested-worktree paths are
@@ -961,10 +965,17 @@ python automation\canonical_orphan_retirement.py `
   --output output\front-office-qa\orphan-retirement-dry-run.json
 ```
 
+For a `foreign_compose_project_binds_canonical_port` conflict, also restate
+`--canonical-port-owner-project <canonical-owner-project>` and one `--canonical-port <port>` for
+each recorded overlap. The command re-resolves those port owners from current canonical Compose
+configuration and requires the exact running container to retain the same live overlap. Do not add
+these fields to make an ambiguous or noncanonical-port conflict actionable.
+
 Review the receipt. To execute, generate a new cleanup plan and digest within the default five-minute
 freshness window, repeat the exact command with a new receipt path, and add
 `--execute --confirmation RETIRE_EXACT_ORPHAN`. The command re-inspects the full container ID,
-name, Compose project, labelled working directory, filesystem absence, and every registered Git
+name, observed Compose project, labelled working directory, canonical port owner/overlap when
+present, filesystem absence, and every registered Git
 worktree immediately before removing only that container. It never removes a Compose project,
 volume, image, network, similarly named resource, active checkout, registered missing worktree, or
 resource-only conflict. A failed post-mutation verification is recorded as

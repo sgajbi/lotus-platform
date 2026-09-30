@@ -240,6 +240,11 @@ Use the RFC index for deeper or historical decisions.
   types, constraints, locking, transaction, or persistence semantics.
 - Cleanup and targeted refresh automation must resolve declared resources, preserve the caller
   environment, affect only owned runtime state, and verify final health.
+- Canonical cleanup planning treats a running foreign Compose project on a reserved port as a
+  blocking conflict and keeps its observed project/path separate from the canonical port owner.
+  Exact-container orphan retirement requires a fresh digest, a missing unregistered labelled
+  checkout, current owner resolution and unchanged live port overlap; ambiguity and broad cleanup
+  remain refused.
 - Canonical runtime coordination is owned by `automation/canonical_runtime_reservation.py` and
   `automation/CanonicalRuntimeReservation.psm1`; use the single workspace book and the
   [runtime reservation runbook](./docs/operations/canonical-runtime-reservation.md). Explicit

@@ -86,10 +86,15 @@ evidence under `output/front-office-qa/`.
 - `-CleanPlanOnly` writes `cleanup-plan-latest.json` without mutation. Cleanup requires the exact
   Compose project and normalized checkout. Conflicts remain `active_foreign_owner`,
   `missing_labelled_checkout`, or `unproven_resource_only_owner`; name-prefix cleanup is forbidden.
+  A running foreign project that overlaps a canonical reserved port is included with separate
+  observed-owner and canonical-port-owner fields. Stopped/noncanonical-port claims are excluded,
+  and multiple canonical owners remain ambiguous and refused.
   Docker resource inspection is internally batched for large Windows inventories; every batch
   retains the same fail-closed missing-resource and daemon-error behavior.
 - `canonical_orphan_retirement.py` can retire only one freshly proven, digest-bound
-  `missing_labelled_checkout` container. Other resources and broad project cleanup remain refused.
+  `missing_labelled_checkout` container. A canonical-port conflict also requires the exact owner
+  project and every overlapping port on the CLI, then re-resolves current Compose ownership and
+  live overlap before mutation. Other resources and broad project cleanup remain refused.
 - `-RequireMainlineSources` requires `-BringUp`, forces image builds, records
   `mainline_source_preflight`, and fails before cleanup or startup without stopping an existing stack.
 - Use `-CleanCoreState` only for stale Core seed state, `-LotusAiEnvFile .env.example` for

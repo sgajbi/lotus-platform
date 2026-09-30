@@ -131,6 +131,18 @@ def canonical_project_roots(
     return project_roots
 
 
+def canonical_port_owner_roots(
+    projects_root: str, workbench_repo_path: str
+) -> dict[str, str]:
+    """Return checkout roots that may author a canonical host-port claim."""
+
+    roots = canonical_project_roots(projects_root, workbench_repo_path)
+    platform_root = normalize_docker_path(str(Path(projects_root) / "lotus-platform"))
+    roots["lotus-platform"] = platform_root
+    roots["canonical-ingress"] = platform_root
+    return roots
+
+
 def _labels(item: Mapping[str, Any]) -> Mapping[str, str]:
     labels = item.get("Config", {}).get("Labels") or item.get("Labels") or {}
     return labels if isinstance(labels, Mapping) else {}
@@ -142,6 +154,124 @@ def _container_name(item: Mapping[str, Any]) -> str:
         return name
     names = item.get("Names") or []
     return str(names[0]).lstrip("/") if names else ""
+
+
+def published_host_ports(item: Mapping[str, Any]) -> set[int]:
+    """Return configured host ports only for a currently running container."""
+
+    if item.get("State", {}).get("Running") is not True:
+        return set()
+    bindings = item.get("HostConfig", {}).get("PortBindings") or {}
+    ports: set[int] = set()
+    if not isinstance(bindings, Mapping):
+        return ports
+    for values in bindings.values():
+        if not isinstance(values, list):
+            continue
+        for binding in values:
+            if not isinstance(binding, Mapping):
+                continue
+            host_port = str(binding.get("HostPort") or "")
+            if host_port.isdecimal():
+                ports.add(int(host_port))
+    return ports
+
+
+def _normalized_port_owners(
+    owners: Mapping[int | str, Mapping[str, Any]],
+    allowed_project_roots: Mapping[str, str],
+) -> dict[int, dict[str, Any]]:
+    normalized: dict[int, dict[str, Any]] = {}
+    for raw_port, owner in owners.items():
+        port_text = str(raw_port)
+        if not port_text.isdecimal() or int(port_text) <= 0:
+            raise ValueError(f"invalid canonical port owner key: {raw_port}")
+        raw_claims = owner.get("owners") if owner.get("ambiguous") is True else [owner]
+        if not isinstance(raw_claims, list) or not raw_claims:
+            raise ValueError(f"canonical port {port_text} has invalid owner evidence")
+        claims: list[dict[str, str]] = []
+        for claim in raw_claims:
+            if not isinstance(claim, Mapping):
+                raise ValueError(
+                    f"canonical port {port_text} has invalid owner evidence"
+                )
+            project = str(claim.get("compose_project") or "")
+            working_dir = str(claim.get("working_dir") or "")
+            expected_root = allowed_project_roots.get(project.casefold(), "")
+            if not expected_root or not paths_match_exactly(working_dir, expected_root):
+                raise ValueError(
+                    f"canonical port {port_text} owner is not an exact canonical project root"
+                )
+            normalized_claim = {
+                "compose_project": project,
+                "working_dir": expected_root,
+            }
+            if normalized_claim not in claims:
+                claims.append(normalized_claim)
+        claims.sort(key=lambda item: (item["compose_project"], item["working_dir"]))
+        if owner.get("ambiguous") is True:
+            if len(claims) < 2:
+                raise ValueError(
+                    f"canonical port {port_text} ambiguity requires multiple owners"
+                )
+            normalized[int(port_text)] = {
+                "ambiguous": True,
+                "owners": claims,
+            }
+        else:
+            normalized[int(port_text)] = claims[0]
+    return normalized
+
+
+def _foreign_canonical_port_conflict(
+    *,
+    item: Mapping[str, Any],
+    project: str,
+    working_dir: str,
+    ownership_state: str,
+    canonical_port_owners: Mapping[int, Mapping[str, Any]],
+) -> dict[str, Any] | None:
+    canonical_ports = sorted(published_host_ports(item) & set(canonical_port_owners))
+    if not canonical_ports:
+        return None
+    base: dict[str, Any] = {
+        "id": str(item.get("Id") or item.get("ID") or ""),
+        "name": _container_name(item),
+        "compose_project": project,
+        "compose_working_dir": working_dir,
+        "canonical_ports": canonical_ports,
+    }
+    owners = [canonical_port_owners[port] for port in canonical_ports]
+    if any(owner.get("ambiguous") is True for owner in owners):
+        return {
+            **base,
+            "expected_working_dir": "",
+            "conflict_reason": (
+                "foreign_compose_project_binds_multiple_canonical_port_owners"
+            ),
+            "ownership_state": ACTIVE_FOREIGN_OWNER,
+        }
+    distinct_owners = {
+        (str(owner["compose_project"]), str(owner["working_dir"])) for owner in owners
+    }
+    if len(distinct_owners) != 1:
+        return {
+            **base,
+            "expected_working_dir": "",
+            "conflict_reason": (
+                "foreign_compose_project_binds_multiple_canonical_port_owners"
+            ),
+            "ownership_state": ACTIVE_FOREIGN_OWNER,
+        }
+    owner_project, owner_working_dir = next(iter(distinct_owners))
+    return {
+        **base,
+        "expected_working_dir": owner_working_dir,
+        "conflict_reason": "foreign_compose_project_binds_canonical_port",
+        "ownership_state": ownership_state,
+        "canonical_port_owner_project": owner_project,
+        "canonical_port_owner_working_dir": owner_working_dir,
+    }
 
 
 def _owned_container_record(
@@ -193,20 +323,17 @@ def select_ownership_conflicts(
     *,
     registered_worktrees: Iterable[str] = (),
     checkout_exists: Callable[[str], bool] = path_entry_exists,
-) -> list[dict[str, str]]:
+    canonical_port_owners: Mapping[int, Mapping[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
     normalized_worktrees = {
         normalize_docker_path(worktree) for worktree in registered_worktrees
     }
-    conflicts: list[dict[str, str]] = []
+    conflicts: list[dict[str, Any]] = []
     for item in items:
         labels = _labels(item)
         project = str(labels.get(COMPOSE_PROJECT_LABEL, ""))
         expected_root = allowed_project_roots.get(project.casefold(), "")
-        if not expected_root:
-            continue
         working_dir = str(labels.get(COMPOSE_WORKING_DIR_LABEL, ""))
-        if working_dir and paths_match_exactly(working_dir, expected_root):
-            continue
         normalized_working_dir = (
             normalize_docker_path(working_dir) if working_dir else ""
         )
@@ -217,6 +344,19 @@ def select_ownership_conflicts(
             and not checkout_exists(working_dir)
         ):
             ownership_state = MISSING_LABELLED_CHECKOUT
+        if not expected_root:
+            conflict = _foreign_canonical_port_conflict(
+                item=item,
+                project=project,
+                working_dir=working_dir,
+                ownership_state=ownership_state,
+                canonical_port_owners=canonical_port_owners or {},
+            )
+            if conflict is not None:
+                conflicts.append(conflict)
+            continue
+        if working_dir and paths_match_exactly(working_dir, expected_root):
+            continue
         conflicts.append(
             {
                 "id": str(item.get("Id") or item.get("ID") or ""),
@@ -368,6 +508,9 @@ def build_cleanup_plan(
     include_projects: Iterable[str] = (),
     registered_worktrees: Iterable[str] = (),
     checkout_exists: Callable[[str], bool] = path_entry_exists,
+    canonical_port_owners: (
+        Mapping[int, Mapping[str, Any]] | Mapping[str, Mapping[str, Any]] | None
+    ) = None,
 ) -> dict[str, Any]:
     container_items = list(containers)
     volume_items = list(volumes)
@@ -375,6 +518,10 @@ def build_cleanup_plan(
     included_projects = {project for project in include_projects if project}
     explicitly_included_projects = {project.casefold() for project in included_projects}
     allowed_project_roots = canonical_project_roots(projects_root, workbench_repo_path)
+    normalized_port_owners = _normalized_port_owners(
+        canonical_port_owners or {},
+        canonical_port_owner_roots(projects_root, workbench_repo_path),
+    )
     owned_containers = select_owned_containers(container_items, allowed_project_roots)
     owned_resource_only_images = select_owned_resource_only_images(
         image_items, allowed_project_roots
@@ -387,6 +534,7 @@ def build_cleanup_plan(
         allowed_project_roots,
         registered_worktrees=normalized_worktrees,
         checkout_exists=checkout_exists,
+        canonical_port_owners=normalized_port_owners,
     )
     conflicts.extend(
         select_resource_only_ownership_conflicts(
@@ -407,10 +555,13 @@ def build_cleanup_plan(
     }
     projects.update(included_projects)
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "selection_policy": "compose-ownership-labels-v2",
+        "selection_policy": "compose-ownership-labels-and-reserved-ports-v3",
         "allowed_compose_projects": allowed_project_roots,
+        "canonical_port_owners": {
+            str(port): owner for port, owner in sorted(normalized_port_owners.items())
+        },
         "registered_worktrees": normalized_worktrees,
         "exact_owned_container_names": sorted(EXACT_OWNED_CONTAINER_NAMES),
         "compose_projects": sorted(projects),
@@ -532,6 +683,14 @@ def main() -> int:
     allowed_project_roots = canonical_project_roots(
         args.projects_root, args.workbench_repo_path
     )
+    if __package__:
+        from automation.canonical_runtime_inventory import (
+            canonical_port_owners_for as resolve_canonical_port_owners,
+        )
+    else:
+        from canonical_runtime_inventory import (  # type: ignore[no-redef]
+            canonical_port_owners_for as resolve_canonical_port_owners,
+        )
     plan = build_cleanup_plan(
         projects_root=args.projects_root,
         workbench_repo_path=args.workbench_repo_path,
@@ -540,6 +699,9 @@ def main() -> int:
         images=images,
         include_projects=args.include_project,
         registered_worktrees=collect_registered_worktree_paths(allowed_project_roots),
+        canonical_port_owners=resolve_canonical_port_owners(
+            Path(args.projects_root), Path(args.workbench_repo_path)
+        ),
     )
     print(json.dumps(plan, indent=2, sort_keys=True))
     return 0

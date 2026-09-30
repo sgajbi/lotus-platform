@@ -16,6 +16,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -250,7 +251,7 @@ def test_every_drift_posture_is_explicit_and_only_positive_answers_pass(
 
     assert posture == expected
     assert (posture in manifest_validator.FAILING_POSTURES) is fails
-    assert f"| lotus-core |" in manifest_validator.drift_markdown([drift], max_pin_age_days=14)
+    assert "| lotus-core |" in manifest_validator.drift_markdown([drift], max_pin_age_days=14)
     assert f"| {expected} |" in manifest_validator.drift_markdown([drift], max_pin_age_days=14)
 
 
@@ -357,6 +358,10 @@ def _drift_cli(
     compare_by_repo: dict[str, object],
 ) -> tuple[int, str, str]:
     """Run `--report-drift` end to end with the GitHub boundary scripted per sibling."""
+    evaluation_time = datetime(2026, 9, 14, tzinfo=UTC)
+    fixed_datetime = Mock(wraps=datetime)
+    fixed_datetime.now.return_value = evaluation_time
+
     payload = _committed_manifest()
     payload["recorded_at_utc"] = recorded_at_utc
     manifest = _write(tmp_path, payload)
@@ -376,6 +381,7 @@ def _drift_cli(
         raise AssertionError(f"unexpected gh api call: {path}")
 
     monkeypatch.setattr(manifest_validator, "_gh_json", gh_json)
+    monkeypatch.setattr(manifest_validator, "datetime", fixed_datetime)
     summary = tmp_path / "summary.md"
     monkeypatch.setattr(
         sys,

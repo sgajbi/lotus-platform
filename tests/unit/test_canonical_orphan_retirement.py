@@ -56,8 +56,140 @@ def _live_container() -> dict[str, object]:
                 "com.docker.compose.project.working_dir": LABELLED_WORKING_DIR,
             }
         },
+        "HostConfig": {
+            "PortBindings": {"5432/tcp": [{"HostIp": "0.0.0.0", "HostPort": "5435"}]}
+        },
         "State": {"Running": True},
     }
+
+
+def _foreign_port_plan(now: datetime) -> dict[str, object]:
+    return {
+        "schema_version": retirement.PLAN_SCHEMA_VERSION,
+        "generated_at": now.isoformat(),
+        "selection_policy": retirement.SELECTION_POLICY,
+        "ownership_conflicts": [
+            {
+                "id": CONTAINER_ID,
+                "name": CONTAINER_NAME,
+                "compose_project": "lotus-performance-538",
+                "compose_working_dir": LABELLED_WORKING_DIR,
+                "expected_working_dir": ("c:/users/sandeep/projects/lotus-performance"),
+                "conflict_reason": "foreign_compose_project_binds_canonical_port",
+                "ownership_state": retirement.MISSING_LABELLED_CHECKOUT,
+                "canonical_port_owner_project": "lotus-performance",
+                "canonical_port_owner_working_dir": (
+                    "c:/users/sandeep/projects/lotus-performance"
+                ),
+                "canonical_ports": [5435],
+            }
+        ],
+    }
+
+
+def _foreign_live_container(*, port: int = 5435) -> dict[str, object]:
+    container = _live_container()
+    config = container["Config"]
+    assert isinstance(config, dict)
+    labels = config["Labels"]
+    assert isinstance(labels, dict)
+    labels["com.docker.compose.project"] = "lotus-performance-538"
+    container["HostConfig"] = {
+        "PortBindings": {"5432/tcp": [{"HostIp": "0.0.0.0", "HostPort": str(port)}]}
+    }
+    return container
+
+
+def test_validation_approves_exact_foreign_project_on_canonical_port() -> None:
+    now = datetime.now(timezone.utc)
+    checks = retirement.validate_orphan_retirement(
+        plan=_foreign_port_plan(now),
+        plan_generated_at=now,
+        now=now,
+        max_plan_age_seconds=300,
+        container_id=CONTAINER_ID,
+        container_name=CONTAINER_NAME,
+        compose_project="lotus-performance-538",
+        labelled_working_dir=LABELLED_WORKING_DIR,
+        expected_working_dir=r"C:\Users\Sandeep\projects\lotus-performance",
+        canonical_port_owner_project="lotus-performance",
+        canonical_ports=[5435],
+        canonical_port_owners={
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+        projects_root=PROJECTS_ROOT,
+        workbench_repo_path=WORKBENCH_REPO,
+        live_container=_foreign_live_container(),
+        registered_worktrees=set(),
+        path_exists=lambda _: False,
+    )
+
+    assert checks["canonical_port_owner"] is True
+    assert checks["live_canonical_port_overlap"] is True
+    assert checks["scope"] == "exact_container_only"
+
+
+def test_validation_refuses_foreign_project_after_live_port_drift() -> None:
+    now = datetime.now(timezone.utc)
+    with pytest.raises(
+        retirement.OrphanRetirementRefused, match="canonical port overlap"
+    ):
+        retirement.validate_orphan_retirement(
+            plan=_foreign_port_plan(now),
+            plan_generated_at=now,
+            now=now,
+            max_plan_age_seconds=300,
+            container_id=CONTAINER_ID,
+            container_name=CONTAINER_NAME,
+            compose_project="lotus-performance-538",
+            labelled_working_dir=LABELLED_WORKING_DIR,
+            expected_working_dir=r"C:\Users\Sandeep\projects\lotus-performance",
+            canonical_port_owner_project="lotus-performance",
+            canonical_ports=[5435],
+            canonical_port_owners={
+                5435: {
+                    "compose_project": "lotus-performance",
+                    "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+                }
+            },
+            projects_root=PROJECTS_ROOT,
+            workbench_repo_path=WORKBENCH_REPO,
+            live_container=_foreign_live_container(port=6543),
+            registered_worktrees=set(),
+            path_exists=lambda _: False,
+        )
+
+
+def test_validation_refuses_foreign_port_conflict_without_an_exact_port() -> None:
+    now = datetime.now(timezone.utc)
+    plan = _foreign_port_plan(now)
+    conflict = plan["ownership_conflicts"][0]
+    assert isinstance(conflict, dict)
+    conflict["canonical_ports"] = []
+
+    with pytest.raises(retirement.OrphanRetirementRefused, match="nonempty"):
+        retirement.validate_orphan_retirement(
+            plan=plan,
+            plan_generated_at=now,
+            now=now,
+            max_plan_age_seconds=300,
+            container_id=CONTAINER_ID,
+            container_name=CONTAINER_NAME,
+            compose_project="lotus-performance-538",
+            labelled_working_dir=LABELLED_WORKING_DIR,
+            expected_working_dir=r"C:\Users\Sandeep\projects\lotus-performance",
+            canonical_port_owner_project="lotus-performance",
+            canonical_ports=[],
+            canonical_port_owners={},
+            projects_root=PROJECTS_ROOT,
+            workbench_repo_path=WORKBENCH_REPO,
+            live_container=_foreign_live_container(),
+            registered_worktrees=set(),
+            path_exists=lambda _: False,
+        )
 
 
 def _validate(
@@ -291,6 +423,162 @@ def _cli_arguments(plan_path: Path, digest: str, output: Path) -> list[str]:
         "--output",
         str(output),
     ]
+
+
+def _foreign_cli_arguments(plan_path: Path, digest: str, output: Path) -> list[str]:
+    arguments = _cli_arguments(plan_path, digest, output)
+    replacements = {
+        "--compose-project": "lotus-performance-538",
+        "--expected-working-dir": r"C:\Users\Sandeep\projects\lotus-performance",
+    }
+    for flag, value in replacements.items():
+        arguments[arguments.index(flag) + 1] = value
+    arguments.extend(
+        [
+            "--canonical-port-owner-project",
+            "lotus-performance",
+            "--canonical-port",
+            "5435",
+        ]
+    )
+    return arguments
+
+
+def test_cli_dry_run_revalidates_foreign_project_canonical_port_overlap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan_path = tmp_path / "foreign-cleanup-plan.json"
+    plan_path.write_text(
+        json.dumps(_foreign_port_plan(datetime.now(timezone.utc))),
+        encoding="utf-8",
+    )
+    digest = hashlib.sha256(plan_path.read_bytes()).hexdigest()
+    output = tmp_path / "foreign-dry-run-receipt.json"
+    monkeypatch.setattr(
+        retirement, "inspect_container", lambda _: _foreign_live_container()
+    )
+    monkeypatch.setattr(
+        retirement, "collect_registered_worktree_paths", lambda _: set()
+    )
+    monkeypatch.setattr(
+        retirement,
+        "canonical_port_owners_for",
+        lambda *_: {
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+    )
+
+    result = retirement.main(_foreign_cli_arguments(plan_path, digest, output))
+
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert result == 0
+    assert receipt["status"] == "approved_not_executed"
+    assert receipt["checks"]["canonical_port_owner"] is True
+    assert receipt["checks"]["live_canonical_port_overlap"] is True
+
+
+def test_cli_execute_revalidates_and_removes_only_exact_foreign_port_container(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan_path = tmp_path / "foreign-cleanup-plan.json"
+    plan_path.write_text(
+        json.dumps(_foreign_port_plan(datetime.now(timezone.utc))),
+        encoding="utf-8",
+    )
+    digest = hashlib.sha256(plan_path.read_bytes()).hexdigest()
+    output = tmp_path / "foreign-execute-receipt.json"
+    inspections = iter(
+        [
+            _foreign_live_container(),
+            _foreign_live_container(),
+            retirement.ContainerNotFound("container absent"),
+        ]
+    )
+
+    def inspect(_: str) -> dict[str, object]:
+        value = next(inspections)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    monkeypatch.setattr(retirement, "inspect_container", inspect)
+    monkeypatch.setattr(
+        retirement, "collect_registered_worktree_paths", lambda _: set()
+    )
+    monkeypatch.setattr(
+        retirement,
+        "canonical_port_owners_for",
+        lambda *_: {
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+    )
+    monkeypatch.setattr(
+        retirement,
+        "collect_remaining_conflicts",
+        lambda **_: {"generated_at": "after", "ownership_conflicts": []},
+    )
+    removed: list[str] = []
+    monkeypatch.setattr(retirement, "remove_container", removed.append)
+    arguments = _foreign_cli_arguments(plan_path, digest, output) + [
+        "--execute",
+        "--confirmation",
+        retirement.EXECUTION_CONFIRMATION,
+    ]
+
+    result = retirement.main(arguments)
+
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert result == 0
+    assert removed == [CONTAINER_ID]
+    assert receipt["status"] == "retired"
+    assert receipt["checks"]["pre_mutation_revalidated"] is True
+    assert receipt["target"]["canonical_ports"] == [5435]
+
+
+def test_cli_execute_refuses_foreign_port_drift_immediately_before_removal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    plan_path = tmp_path / "foreign-cleanup-plan.json"
+    plan_path.write_text(
+        json.dumps(_foreign_port_plan(datetime.now(timezone.utc))),
+        encoding="utf-8",
+    )
+    digest = hashlib.sha256(plan_path.read_bytes()).hexdigest()
+    output = tmp_path / "foreign-race-refusal.json"
+    inspections = iter([_foreign_live_container(), _foreign_live_container(port=6543)])
+    monkeypatch.setattr(retirement, "inspect_container", lambda _: next(inspections))
+    monkeypatch.setattr(
+        retirement, "collect_registered_worktree_paths", lambda _: set()
+    )
+    monkeypatch.setattr(
+        retirement,
+        "canonical_port_owners_for",
+        lambda *_: {
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+    )
+    removed: list[str] = []
+    monkeypatch.setattr(retirement, "remove_container", removed.append)
+    arguments = _foreign_cli_arguments(plan_path, digest, output) + [
+        "--execute",
+        "--confirmation",
+        retirement.EXECUTION_CONFIRMATION,
+    ]
+
+    assert retirement.main(arguments) == 2
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert receipt["status"] == "refused"
+    assert "live canonical port overlap" in receipt["error"]
+    assert removed == []
 
 
 def test_cli_dry_run_emits_approval_receipt_without_mutation(
@@ -609,6 +897,15 @@ def test_remaining_conflicts_are_regenerated_without_project_exceptions(
     monkeypatch.setattr(
         retirement, "collect_registered_worktree_paths", lambda _: {"registered"}
     )
+    port_owners = {
+        5435: {
+            "compose_project": "lotus-performance",
+            "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+        }
+    }
+    monkeypatch.setattr(
+        retirement, "canonical_port_owners_for", lambda *_: port_owners
+    )
     captured: dict[str, object] = {}
 
     def build_plan(**kwargs: object) -> dict[str, object]:
@@ -631,4 +928,49 @@ def test_remaining_conflicts_are_regenerated_without_project_exceptions(
     }
     assert captured["containers"] == [{"Id": "live"}]
     assert captured["registered_worktrees"] == {"registered"}
+    assert captured["canonical_port_owners"] == port_owners
     assert "include_projects" not in captured
+
+
+def test_remaining_conflicts_retain_foreign_canonical_port_orphans(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    remaining = _foreign_live_container()
+    remaining["Id"] = "b" * 64
+    remaining["Name"] = "/performance-lineage-db-second"
+    monkeypatch.setattr(retirement, "inspect_docker", lambda: ([remaining], [], []))
+    monkeypatch.setattr(
+        retirement, "collect_registered_worktree_paths", lambda _: set()
+    )
+    monkeypatch.setattr(
+        retirement,
+        "canonical_port_owners_for",
+        lambda *_: {
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+    )
+
+    result = retirement.collect_remaining_conflicts(
+        projects_root=PROJECTS_ROOT,
+        workbench_repo_path=WORKBENCH_REPO,
+    )
+
+    assert result["ownership_conflicts"] == [
+        {
+            "id": "b" * 64,
+            "name": "performance-lineage-db-second",
+            "compose_project": "lotus-performance-538",
+            "compose_working_dir": LABELLED_WORKING_DIR,
+            "expected_working_dir": "c:/users/sandeep/projects/lotus-performance",
+            "conflict_reason": "foreign_compose_project_binds_canonical_port",
+            "ownership_state": retirement.MISSING_LABELLED_CHECKOUT,
+            "canonical_port_owner_project": "lotus-performance",
+            "canonical_port_owner_working_dir": (
+                "c:/users/sandeep/projects/lotus-performance"
+            ),
+            "canonical_ports": [5435],
+        }
+    ]

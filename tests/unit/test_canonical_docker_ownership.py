@@ -20,7 +20,14 @@ from automation.canonical_docker_ownership import (
 )
 
 
-def _container(name: str, project: str, working_dir: str) -> dict[str, object]:
+def _container(
+    name: str,
+    project: str,
+    working_dir: str,
+    *,
+    published_ports: tuple[int, ...] = (),
+    running: bool = True,
+) -> dict[str, object]:
     return {
         "Id": f"id-{name}",
         "Name": f"/{name}",
@@ -30,6 +37,13 @@ def _container(name: str, project: str, working_dir: str) -> dict[str, object]:
                 "com.docker.compose.project.working_dir": working_dir,
             }
         },
+        "HostConfig": {
+            "PortBindings": {
+                f"{port}/tcp": [{"HostIp": "0.0.0.0", "HostPort": str(port)}]
+                for port in published_ports
+            }
+        },
+        "State": {"Running": running},
     }
 
 
@@ -144,8 +158,8 @@ def test_cleanup_plan_selects_only_compose_resources_owned_by_canonical_roots(
         ],
     )
 
-    assert plan["schema_version"] == "1.1"
-    assert plan["selection_policy"] == "compose-ownership-labels-v2"
+    assert plan["schema_version"] == "1.2"
+    assert plan["selection_policy"] == "compose-ownership-labels-and-reserved-ports-v3"
     assert plan["allowed_compose_projects"]["lotus-core"] == (
         "c:/users/sandeep/projects/lotus-core"
     )
@@ -200,6 +214,189 @@ def test_cleanup_plan_blocks_reused_project_name_from_another_worktree() -> None
             "ownership_state": MISSING_LABELLED_CHECKOUT,
         }
     ]
+
+
+def test_cleanup_plan_classifies_missing_foreign_checkout_on_canonical_port() -> None:
+    missing_checkout = r"C:\Users\Sandeep\projects\worktrees\lotus-performance-538"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "performance-lineage-db",
+                "lotus-performance-538",
+                missing_checkout,
+                published_ports=(5435,),
+            )
+        ],
+        volumes=[],
+        images=[],
+        canonical_port_owners={
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+        checkout_exists=lambda _: False,
+    )
+
+    assert plan["ownership_conflicts"] == [
+        {
+            "id": "id-performance-lineage-db",
+            "name": "performance-lineage-db",
+            "compose_project": "lotus-performance-538",
+            "compose_working_dir": missing_checkout,
+            "expected_working_dir": "c:/users/sandeep/projects/lotus-performance",
+            "conflict_reason": "foreign_compose_project_binds_canonical_port",
+            "ownership_state": MISSING_LABELLED_CHECKOUT,
+            "canonical_port_owner_project": "lotus-performance",
+            "canonical_port_owner_working_dir": (
+                "c:/users/sandeep/projects/lotus-performance"
+            ),
+            "canonical_ports": [5435],
+        }
+    ]
+
+
+@pytest.mark.parametrize("registered", [False, True])
+def test_cleanup_plan_refuses_active_or_registered_foreign_checkout_on_canonical_port(
+    registered: bool,
+) -> None:
+    checkout = r"C:\Users\Sandeep\projects\worktrees\lotus-performance-active"
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "performance-lineage-db",
+                "lotus-performance-active",
+                checkout,
+                published_ports=(5435,),
+            )
+        ],
+        volumes=[],
+        images=[],
+        canonical_port_owners={
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            }
+        },
+        registered_worktrees=[checkout] if registered else [],
+        checkout_exists=lambda _: not registered,
+    )
+
+    assert plan["ownership_conflicts"][0]["ownership_state"] == ACTIVE_FOREIGN_OWNER
+
+
+def test_cleanup_plan_ignores_foreign_noncanonical_or_stopped_port() -> None:
+    owner = {
+        5435: {
+            "compose_project": "lotus-performance",
+            "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+        }
+    }
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "unrelated-db",
+                "unrelated",
+                r"C:\missing\unrelated",
+                published_ports=(6543,),
+            ),
+            _container(
+                "stopped-db",
+                "old-performance",
+                r"C:\missing\old-performance",
+                published_ports=(5435,),
+                running=False,
+            ),
+        ],
+        volumes=[],
+        images=[],
+        canonical_port_owners=owner,
+        checkout_exists=lambda _: False,
+    )
+
+    assert plan["ownership_conflicts"] == []
+
+
+def test_cleanup_plan_keeps_ambiguous_multi_owner_port_conflict_non_actionable() -> (
+    None
+):
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "ambiguous-runtime",
+                "foreign-runtime",
+                r"C:\missing\foreign-runtime",
+                published_ports=(5435, 8201),
+            )
+        ],
+        volumes=[],
+        images=[],
+        canonical_port_owners={
+            5435: {
+                "compose_project": "lotus-performance",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-performance",
+            },
+            8201: {
+                "compose_project": "lotus-core",
+                "working_dir": r"C:\Users\Sandeep\projects\lotus-core",
+            },
+        },
+        checkout_exists=lambda _: False,
+    )
+
+    conflict = plan["ownership_conflicts"][0]
+    assert conflict["ownership_state"] == ACTIVE_FOREIGN_OWNER
+    assert conflict["conflict_reason"] == (
+        "foreign_compose_project_binds_multiple_canonical_port_owners"
+    )
+    assert conflict["canonical_ports"] == [5435, 8201]
+
+
+def test_cleanup_plan_keeps_one_ambiguous_canonical_port_non_actionable() -> None:
+    plan = build_cleanup_plan(
+        projects_root=r"C:\Users\Sandeep\projects",
+        workbench_repo_path=r"C:\Users\Sandeep\projects\lotus-workbench",
+        containers=[
+            _container(
+                "ambiguous-runtime",
+                "foreign-runtime",
+                r"C:\missing\foreign-runtime",
+                published_ports=(8000,),
+            )
+        ],
+        volumes=[],
+        images=[],
+        canonical_port_owners={
+            8000: {
+                "ambiguous": True,
+                "owners": [
+                    {
+                        "compose_project": "lotus-advise",
+                        "working_dir": r"C:\Users\Sandeep\projects\lotus-advise",
+                    },
+                    {
+                        "compose_project": "lotus-manage",
+                        "working_dir": r"C:\Users\Sandeep\projects\lotus-manage",
+                    },
+                ],
+            }
+        },
+        checkout_exists=lambda _: False,
+    )
+
+    conflict = plan["ownership_conflicts"][0]
+    assert conflict["ownership_state"] == ACTIVE_FOREIGN_OWNER
+    assert conflict["conflict_reason"] == (
+        "foreign_compose_project_binds_multiple_canonical_port_owners"
+    )
 
 
 def test_cleanup_plan_blocks_nested_worktree_reusing_canonical_project() -> None:
@@ -592,7 +789,9 @@ def test_docker_inspect_batches_large_inventories_below_windows_command_limit(
 
     requested_batches: list[list[str]] = []
 
-    def fake_run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+    def fake_run(
+        args: list[str], **_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
         identifiers = args[3:]
         requested_batches.append(identifiers)
         return subprocess.CompletedProcess(

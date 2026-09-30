@@ -24,27 +24,33 @@ if __package__:
         COMPOSE_WORKING_DIR_LABEL,
         MISSING_LABELLED_CHECKOUT,
         build_cleanup_plan,
+        canonical_port_owner_roots,
         canonical_project_roots,
         collect_registered_worktree_paths,
         inspect_docker,
         normalize_docker_path,
         path_entry_exists,
+        published_host_ports,
     )
+    from automation.canonical_runtime_inventory import canonical_port_owners_for
 else:
     from canonical_docker_ownership import (  # type: ignore[no-redef]
         COMPOSE_PROJECT_LABEL,
         COMPOSE_WORKING_DIR_LABEL,
         MISSING_LABELLED_CHECKOUT,
         build_cleanup_plan,
+        canonical_port_owner_roots,
         canonical_project_roots,
         collect_registered_worktree_paths,
         inspect_docker,
         normalize_docker_path,
         path_entry_exists,
+        published_host_ports,
     )
+    from canonical_runtime_inventory import canonical_port_owners_for  # type: ignore[no-redef]
 
-PLAN_SCHEMA_VERSION = "1.1"
-SELECTION_POLICY = "compose-ownership-labels-v2"
+PLAN_SCHEMA_VERSION = "1.2"
+SELECTION_POLICY = "compose-ownership-labels-and-reserved-ports-v3"
 RECEIPT_SCHEMA_VERSION = "lotus.canonical-orphan-retirement-receipt.v1"
 EXECUTION_CONFIRMATION = "RETIRE_EXACT_ORPHAN"
 
@@ -158,23 +164,65 @@ def _assert_exact_path(value: object, expected: str, field_name: str) -> None:
         raise OrphanRetirementRefused(f"{field_name} does not match the approved plan")
 
 
-def validate_orphan_retirement(
+def _validate_canonical_port_authority(
+    *,
+    target: Mapping[str, Any],
+    canonical_port_owner_project: str,
+    canonical_ports: Sequence[int],
+    canonical_port_owners: Mapping[int, Mapping[str, Any]],
+    expected_working_dir: str,
+    projects_root: str,
+    workbench_repo_path: str,
+) -> None:
+    if not canonical_ports or list(canonical_ports) != sorted(set(canonical_ports)):
+        raise OrphanRetirementRefused(
+            "canonical ports must be a nonempty sorted unique list"
+        )
+    _assert_exact(
+        target.get("canonical_port_owner_project"),
+        canonical_port_owner_project,
+        "canonical port owner project",
+    )
+    _assert_exact_path(
+        target.get("canonical_port_owner_working_dir"),
+        expected_working_dir,
+        "canonical port owner working directory",
+    )
+    target_ports = target.get("canonical_ports")
+    if not isinstance(target_ports, list) or target_ports != list(canonical_ports):
+        raise OrphanRetirementRefused("canonical ports do not match the approved plan")
+    port_owner_roots = canonical_port_owner_roots(projects_root, workbench_repo_path)
+    canonical_root = port_owner_roots.get(canonical_port_owner_project.casefold())
+    if not canonical_root:
+        raise OrphanRetirementRefused("canonical port owner project is not canonical")
+    _assert_exact_path(
+        canonical_root, expected_working_dir, "canonical repository root"
+    )
+    for port in canonical_ports:
+        owner = canonical_port_owners.get(port)
+        if not owner:
+            raise OrphanRetirementRefused(
+                "canonical port is no longer reserved by the approved owner"
+            )
+        _assert_exact(
+            owner.get("compose_project"),
+            canonical_port_owner_project,
+            "current canonical port owner project",
+        )
+        _assert_exact_path(
+            owner.get("working_dir"),
+            expected_working_dir,
+            "current canonical port owner working directory",
+        )
+
+
+def _validate_plan_freshness(
     *,
     plan: Mapping[str, Any],
     plan_generated_at: datetime,
     now: datetime,
     max_plan_age_seconds: int,
-    container_id: str,
-    container_name: str,
-    compose_project: str,
-    labelled_working_dir: str,
-    expected_working_dir: str,
-    projects_root: str,
-    workbench_repo_path: str,
-    live_container: Mapping[str, Any],
-    registered_worktrees: set[str],
-    path_exists: Callable[[str], bool],
-) -> dict[str, Any]:
+) -> None:
     if plan.get("schema_version") != PLAN_SCHEMA_VERSION:
         raise OrphanRetirementRefused("unsupported cleanup-plan schema_version")
     if plan.get("selection_policy") != SELECTION_POLICY:
@@ -186,6 +234,79 @@ def validate_orphan_retirement(
         raise OrphanRetirementRefused("cleanup plan timestamp is in the future")
     if age > timedelta(seconds=max_plan_age_seconds):
         raise OrphanRetirementRefused("cleanup plan is stale")
+
+
+def _validate_live_container_identity(
+    *,
+    live_container: Mapping[str, Any],
+    container_id: str,
+    container_name: str,
+    compose_project: str,
+    labelled_working_dir: str,
+) -> str:
+    live_id = str(live_container.get("Id") or live_container.get("ID") or "")
+    _assert_exact(live_id, container_id, "live container ID")
+    _assert_exact(
+        _container_name(live_container), container_name, "live container name"
+    )
+    live_labels = _labels(live_container)
+    _assert_exact(
+        live_labels.get(COMPOSE_PROJECT_LABEL), compose_project, "live Compose project"
+    )
+    live_labelled_working_dir = live_labels.get(COMPOSE_WORKING_DIR_LABEL)
+    _assert_exact_path(
+        live_labelled_working_dir,
+        labelled_working_dir,
+        "live labelled working directory",
+    )
+    if not isinstance(live_labelled_working_dir, str):
+        raise OrphanRetirementRefused("live labelled working directory is missing")
+    return live_labelled_working_dir
+
+
+def _validate_checkout_absence(
+    *,
+    labelled_working_dir: str,
+    registered_worktrees: set[str],
+    path_exists: Callable[[str], bool],
+) -> None:
+    if path_exists(labelled_working_dir):
+        raise OrphanRetirementRefused("labelled checkout now exists")
+    normalized_labelled_path = normalize_docker_path(labelled_working_dir)
+    if normalized_labelled_path in {
+        normalize_docker_path(worktree) for worktree in registered_worktrees
+    }:
+        raise OrphanRetirementRefused(
+            "labelled checkout is still a registered Git worktree"
+        )
+
+
+def validate_orphan_retirement(
+    *,
+    plan: Mapping[str, Any],
+    plan_generated_at: datetime,
+    now: datetime,
+    max_plan_age_seconds: int,
+    container_id: str,
+    container_name: str,
+    compose_project: str,
+    labelled_working_dir: str,
+    expected_working_dir: str,
+    canonical_port_owner_project: str = "",
+    canonical_ports: Sequence[int] = (),
+    canonical_port_owners: Mapping[int, Mapping[str, Any]] | None = None,
+    projects_root: str,
+    workbench_repo_path: str,
+    live_container: Mapping[str, Any],
+    registered_worktrees: set[str],
+    path_exists: Callable[[str], bool],
+) -> dict[str, Any]:
+    _validate_plan_freshness(
+        plan=plan,
+        plan_generated_at=plan_generated_at,
+        now=now,
+        max_plan_age_seconds=max_plan_age_seconds,
+    )
 
     target = _target_from_plan(plan, container_id)
     _assert_exact(target.get("name"), container_name, "container name")
@@ -202,50 +323,63 @@ def validate_orphan_retirement(
     )
 
     allowed_roots = canonical_project_roots(projects_root, workbench_repo_path)
-    canonical_root = allowed_roots.get(compose_project.casefold())
-    if not canonical_root:
-        raise OrphanRetirementRefused("Compose project is not canonical")
-    _assert_exact_path(
-        canonical_root, expected_working_dir, "canonical repository root"
+    port_conflict = (
+        target.get("conflict_reason") == "foreign_compose_project_binds_canonical_port"
     )
-
-    live_id = str(live_container.get("Id") or live_container.get("ID") or "")
-    _assert_exact(live_id, container_id, "live container ID")
-    _assert_exact(
-        _container_name(live_container), container_name, "live container name"
-    )
-    live_labels = _labels(live_container)
-    _assert_exact(
-        live_labels.get(COMPOSE_PROJECT_LABEL), compose_project, "live Compose project"
-    )
-    live_labelled_working_dir = live_labels.get(COMPOSE_WORKING_DIR_LABEL)
-    _assert_exact_path(
-        live_labelled_working_dir,
-        labelled_working_dir,
-        "live labelled working directory",
-    )
-
-    if not isinstance(live_labelled_working_dir, str):
-        raise OrphanRetirementRefused("live labelled working directory is missing")
-    if path_exists(live_labelled_working_dir):
-        raise OrphanRetirementRefused("labelled checkout now exists")
-    normalized_labelled_path = normalize_docker_path(live_labelled_working_dir)
-    if normalized_labelled_path in {
-        normalize_docker_path(worktree) for worktree in registered_worktrees
-    }:
-        raise OrphanRetirementRefused(
-            "labelled checkout is still a registered Git worktree"
+    if port_conflict:
+        _validate_canonical_port_authority(
+            target=target,
+            canonical_port_owner_project=canonical_port_owner_project,
+            canonical_ports=canonical_ports,
+            canonical_port_owners=canonical_port_owners or {},
+            expected_working_dir=expected_working_dir,
+            projects_root=projects_root,
+            workbench_repo_path=workbench_repo_path,
+        )
+    else:
+        canonical_root = allowed_roots.get(compose_project.casefold())
+        if not canonical_root:
+            raise OrphanRetirementRefused("Compose project is not canonical")
+        _assert_exact_path(
+            canonical_root, expected_working_dir, "canonical repository root"
         )
 
-    return {
+    live_labelled_working_dir = _validate_live_container_identity(
+        live_container=live_container,
+        container_id=container_id,
+        container_name=container_name,
+        compose_project=compose_project,
+        labelled_working_dir=labelled_working_dir,
+    )
+    if port_conflict:
+        live_canonical_ports = sorted(
+            published_host_ports(live_container) & set(canonical_port_owners or {})
+        )
+        if live_canonical_ports != list(canonical_ports):
+            raise OrphanRetirementRefused(
+                "live canonical port overlap does not match the approved plan"
+            )
+
+    _validate_checkout_absence(
+        labelled_working_dir=live_labelled_working_dir,
+        registered_worktrees=registered_worktrees,
+        path_exists=path_exists,
+    )
+
+    checks = {
         "plan_fresh": True,
         "exact_plan_target": True,
-        "canonical_project": True,
         "live_identity_matches": True,
         "labelled_checkout_absent": True,
         "labelled_checkout_not_registered": True,
         "scope": "exact_container_only",
     }
+    if port_conflict:
+        checks["canonical_port_owner"] = True
+        checks["live_canonical_port_overlap"] = True
+    else:
+        checks["canonical_project"] = True
+    return checks
 
 
 def validate_live_request(
@@ -261,6 +395,15 @@ def validate_live_request(
     )
     # Git enumeration is the slowest ownership probe and must succeed before the final Docker and
     # filesystem snapshot. Missing or inaccessible canonical roots are refusal conditions.
+    target = _target_from_plan(plan, args.container_id)
+    current_port_owners = (
+        canonical_port_owners_for(
+            Path(args.projects_root), Path(args.workbench_repo_path)
+        )
+        if target.get("conflict_reason")
+        == "foreign_compose_project_binds_canonical_port"
+        else {}
+    )
     registered_worktrees = collect_registered_worktree_paths(allowed_roots)
     live_container = inspect_container(args.container_id)
     checks = validate_orphan_retirement(
@@ -273,6 +416,9 @@ def validate_live_request(
         compose_project=args.compose_project,
         labelled_working_dir=args.labelled_working_dir,
         expected_working_dir=args.expected_working_dir,
+        canonical_port_owner_project=getattr(args, "canonical_port_owner_project", ""),
+        canonical_ports=getattr(args, "canonical_port", []),
+        canonical_port_owners=current_port_owners,
         projects_root=args.projects_root,
         workbench_repo_path=args.workbench_repo_path,
         live_container=live_container,
@@ -331,6 +477,9 @@ def collect_remaining_conflicts(
         volumes=volumes,
         images=images,
         registered_worktrees=collect_registered_worktree_paths(allowed_roots),
+        canonical_port_owners=canonical_port_owners_for(
+            Path(projects_root), Path(workbench_repo_path)
+        ),
     )
     return {
         "generated_at": plan["generated_at"],
@@ -356,6 +505,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--compose-project", required=True)
     parser.add_argument("--labelled-working-dir", required=True)
     parser.add_argument("--expected-working-dir", required=True)
+    parser.add_argument("--canonical-port-owner-project", default="")
+    parser.add_argument("--canonical-port", action="append", type=int, default=[])
     parser.add_argument("--projects-root", required=True)
     parser.add_argument("--workbench-repo-path", required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -374,6 +525,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "compose_working_dir": args.labelled_working_dir,
         "expected_working_dir": args.expected_working_dir,
     }
+    if args.canonical_port_owner_project or args.canonical_port:
+        target["canonical_port_owner_project"] = args.canonical_port_owner_project
+        target["canonical_ports"] = args.canonical_port
     plan_sha256 = ""
     mutation_started = False
     checks: dict[str, Any] = {}

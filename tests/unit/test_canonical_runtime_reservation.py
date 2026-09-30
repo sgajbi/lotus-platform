@@ -274,6 +274,47 @@ def test_scope_uses_real_temporary_git_revisions_and_resolved_compose_ports(tmp_
     assert selected_scope["projects"]["lotus-workbench"] == inventory.normalize_docker_path(str(selected))
 
 
+def test_canonical_port_owners_resolve_exact_project_roots_and_refuse_ambiguity(
+    tmp_path, monkeypatch
+):
+    from automation import canonical_runtime_inventory as inventory
+
+    workbench = tmp_path / "lotus-workbench"
+
+    def unique_configs(arguments, cwd=None):
+        assert arguments[:3] == ["docker", "compose", "config"]
+        published = {"lotus-core": 8201, "lotus-performance": 5435}.get(cwd.name)
+        ports = [{"published": str(published)}] if published else []
+        return json.dumps(
+            {"name": cwd.name, "services": {"api": {"ports": ports}}}
+        )
+
+    monkeypatch.setattr(inventory, "command", unique_configs)
+    owners = inventory.canonical_port_owners_for(tmp_path, workbench)
+
+    assert owners[5435] == {
+        "compose_project": "lotus-performance",
+        "working_dir": inventory.normalize_docker_path(
+            str(tmp_path / "lotus-performance")
+        ),
+    }
+    assert owners[80]["compose_project"] == "canonical-ingress"
+
+    def ambiguous_configs(arguments, cwd=None):
+        assert arguments[:3] == ["docker", "compose", "config"]
+        return json.dumps(
+            {
+                "name": cwd.name,
+                "services": {"api": {"ports": [{"published": "5435"}]}},
+            }
+        )
+
+    monkeypatch.setattr(inventory, "command", ambiguous_configs)
+    ambiguous = inventory.canonical_port_owners_for(tmp_path, workbench)
+    assert ambiguous[5435]["ambiguous"] is True
+    assert len(ambiguous[5435]["owners"]) > 1
+
+
 def test_shipped_powershell_adapter_refuses_missing_holder_before_outbound_io():
     shell = shutil.which("pwsh") or shutil.which("powershell")
     if not shell:

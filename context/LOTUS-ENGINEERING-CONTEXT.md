@@ -553,9 +553,14 @@ For local front-office product bring-up, demo readiness, UI screenshots, and pop
     `lotus-core` checkout boundary, but an alias from a temporary or other checkout is a conflict,
     not an owned resource. Classify active foreign owners, missing labelled checkouts, and
     unproven resource-only owners distinctly while keeping every class fail-closed for normal
-    cleanup. A proven missing checkout may be retired only through the separate
+    cleanup. A running otherwise-foreign Compose project that binds a canonical reserved port must
+    be included with observed project/path evidence separate from the canonical port-owner
+    project/path and exact overlap. Stopped/noncanonical-port claims are independent, while
+    multiple canonical owners remain ambiguous and non-actionable. A proven missing checkout may
+    be retired only through the separate
     `canonical_orphan_retirement.py` action, using a fresh plan, caller-supplied plan SHA-256, exact
-    target fields, live label reinspection, path absence, and Git worktree exclusion. That action
+    target fields, live label/port reinspection, current Compose port-owner resolution, path
+    absence, and Git worktree exclusion. That action
     is one-container-only and must never imply volume, image, network, project, prefix, or active
     owner cleanup.
 14. classify composite Workbench panels from the complete governed panel contract, not from one
