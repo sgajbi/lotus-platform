@@ -1,0 +1,84 @@
+# Lotus Composite Implementation — Agent Execution Brief
+
+**Purpose:** Implement the complete configurable composite-performance target in the existing Lotus ecosystem.  
+**Authority:** `03_lotus_composite_implementation_requirements.md` and its approved amendments.  
+**Important:** This package is a target specification, not evidence that all capabilities currently exist.
+
+## Copy-ready instruction
+
+You are implementing the Lotus composite-performance product. Read the repository's current `AGENTS.md`, engineering context, architecture and contract guidance, then read this package in the following order:
+
+1. `03_lotus_composite_implementation_requirements.md` — full product requirements.
+2. `02_composite_gaps_and_lotus_readiness.md` — source gaps, bounded code observations and market context.
+3. `01_composite_requirements_source_baseline.md` — source traceability only.
+4. `05_composite_numerical_oracles.json` — independent synthetic fixtures to turn into repo-native tests.
+
+Implement the complete target. Ignore inherited Release 1 and future-phase restrictions in the neutral source baseline. Catalogue authoring, configurable engines/rules, external/Core/hybrid sourcing, migration, freezes/overrides/restatements, rich analytics, GIPS controls, lineage, reports, UI/API journeys and scalability are all required product capabilities. Work in dependency-ordered increments, but do not silently defer or remove any capability.
+
+### A. Inspect before changing
+
+Establish the current commit and read the actual code, schemas, tests, migrations and APIs for every affected boundary. Treat the review document as a dated starting point, not a current exhaustive audit. Identify whether each requirement is already implemented, partially implemented, missing or not verified. An endpoint, README assertion, stored decision record or passing aggregate coverage score does not prove the underlying business workflow.
+
+Create a traceability ledger with requirement ID, owner/repository, component/API, policy/method, current state, code evidence, tests, documentation, dependencies, required decision and next action. Keep implementation state separate from test and target-environment acceptance.
+
+Prioritize investigation of missing-month chaining, business exclusion versus degraded-data status, external return admission, model-fee support, annual full-year dispersion and governed freeze/override workflows. Do not report a published defect based solely on a low-level function when upstream guards may prevent it; prove the end-to-end behaviour.
+
+### B. Preserve domain ownership
+
+Reuse Performance for financial return/contribution/attribution authority and Manage for approved composite definitions, eligibility/membership and universe authority. Core and registered external producers own source facts. Validate the proposed Risk, Report, Render, Archive, Gateway, Workbench and Platform responsibilities against their current contracts before assigning work.
+
+Do not create a new composite repository, competing ledger, duplicate rule engine in the frontend, or financial calculations in report templates merely because the feature is large. Separate scalable workers from domain ownership. Use versioned contracts, not cross-service database joins.
+
+### C. Implement configurable, governed methods
+
+Implement typed, versioned policy and method registries, inheritance, validation, simulation, effective dating, independent approval and migration. The 10% flow and 5% cash rules are reference-profile values, not constants. The unresolved 10%/15% drift choice is not permission to choose a customer's policy silently.
+
+Support every specified alternative through configuration when methodologically valid. Do not make arbitrary SQL or customer code execution a substitute for a safe rule language. Integrity controls—authorization, complete-universe checks, immutable publication, audit and standards guardrails—must not be disableable policy toggles.
+
+### D. Enforce GIPS applicability rather than adding a label
+
+Use current authoritative GIPS materials listed in the specification. Build the provision-level applicability/control/test register and require qualified methodology/compliance approval for production profiles. All official methods, composite population policies, fee treatment, corrections and GIPS presentation workflows must satisfy their applicable controls.
+
+Do not assume every business exclusion in the source is a GIPS rule. Do not remove an underperformer, retrospectively optimize membership, claim compliance for software alone, or use a research/model cohort as an actual strategy track record. Draft guidance is not a final standard. A legitimate unresolved interpretation blocks official activation, not implementation of the supported choices.
+
+### E. Deliver three genuine source routes
+
+External-only, Core-only and hybrid must work through real admission contracts with explicit authority by fact family, scope and effective date. Implement raw-accounting, portfolio-return and composite-series migration where specified. Preserve source identifiers, units, precision, methods, currency, fee basis and evidence depth.
+
+Do not fabricate Core portfolios, retained Lotus calculation IDs, historical members or transaction lineage to fit an existing internal materialization schema. Composite-only history cannot provide genuine member-level analytics. Reconciliation, overlap/gap detection, parallel run, cutover approval and complete exit export are required.
+
+### F. Make official history stable and correctable
+
+Implement independent source ingestion, candidate calculation and official publication. Freeze exact periods/views/snapshots. Reopening, override, correction, replacement and withdrawal require their specified approval, reason, evidence, concurrency and impact controls.
+
+“Overwrite” of published data means a new approved immutable version, never deletion of old evidence. Preserve original/as-reported, exact-version, as-known and latest-approved queries. A composite override must not invent member contributions. Known material errors must not be hidden behind a freeze. Restatements must identify affected metrics, reports and recipients and publish internally consistent version vectors.
+
+### G. Deliver analytics and reports as real workflows
+
+Implement every catalogue family and report product with its declared inputs, formula/method, sampling, units, population and availability rules. Distinguish annual dispersion, monthly cross-sectional dispersion and composite time-series volatility. Reconcile contributions/attribution and show genuine residuals. Do not output zero or an empty column for an unavailable metric.
+
+Expose all functionality through documented APIs and the relevant Workbench journeys. Reports consume pinned authoritative data; they do not recalculate returns. Complete lineage must reach source/policy/method evidence at its honest depth, and remain accessible after ordinary job expiry.
+
+### H. Prove correctness, recovery and scale
+
+Turn the 18 numerical fixtures into independent repo-native tests and implement the 105 scenario matrix plus property/differential tests. Execute unit, integration, contract, registered HTTP, worker, persistence/restart, report and end-to-end tests. Verify negative cases, not only happy paths.
+
+Prove external/Core/hybrid journeys, missing populations, source conflicts, closed-history retention, large/negative flows, partial history, annualization, fee views, freeze/override, unauthorized approval, stale revisions, report consistency and tenant isolation. Never treat survivors as the complete expected universe.
+
+Meet the specification's declared workload/SLO targets or report the precise unmet target with measured bottleneck and an engineering plan. Record hardware, dataset, method/build, source mocks versus live sources, cost and cold/warm conditions. Do not imply that controlled tests certify a bank deployment or untested capacity.
+
+### I. Execution hygiene and closeout
+
+Follow the current repo's delivery gates and branch/PR policy. Keep changes bounded and green, coordinate cross-repo contract dependencies, use one working branch per active repo task, and avoid unrelated refactoring. Do not bypass failing financial tests, weaken assertions or update expected numbers merely to obtain a green run.
+
+Before each implementation increment, state the requirement IDs and contract/migration impact. At closeout provide a factual evidence report containing: changed files and APIs; implemented methods/policies; passing commands and fixture results; UI/report workflows; source/standards decisions; migration and rollback steps; operational/capacity evidence; remaining unmet requirements and next actions.
+
+Do not declare the complete product finished because one calculation endpoint or one repository is complete. No commercial superiority, firm GIPS compliance or target-environment readiness claim is authorized by this brief alone.
+
+## Required first output from the agent
+
+Produce a current-state coverage ledger and proposed cross-repository implementation plan, including the first coherent end-to-end increment, identified financial/control risks, unresolved approval decisions and the tests that will demonstrate success. Continue into implementation according to the user's repository workflow; do not stop at a generic design summary.
+
+## Required completion evidence
+
+The completion pack must link each requirement to code/API, approved policy/method, automated test, user/operational documentation and deployment evidence where applicable. Mark unavailable external data or pending institutional approval explicitly. Such constraints do not justify fake outputs or silently reducing the product target.

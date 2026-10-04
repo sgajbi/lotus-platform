@@ -151,6 +151,12 @@ Reference baseline:
 
 ## Recommended Next Implementation Order
 
+- [RFC-0110: Composite performance product and delivery foundation](RFC-0110-composite-performance-product-and-delivery-foundation.md)
+  (proposed full programme under Platform #923; #924 delivers the neutral documentation foundation.
+  Performance correctness and operations/support APIs precede Excel and downstream UI. The linked
+  single ledger preserves all requirements and evidence boundaries; foundation publication does
+  not certify the complete product.)
+
 RFC-0108 latest current-scope gold-pass updates: Gateway PR #179 moves proposal ownership to
 `lotus-advise` and limits manage to strategic versioned run/supportability/capability endpoints;
 Workbench PR #137 hardens the live evidence boundary and screenshot quality for strategic manage

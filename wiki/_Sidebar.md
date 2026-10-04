@@ -22,6 +22,7 @@
 
 ## Engineering
 
+- [Composite Performance](Composite-Performance)
 - [Architecture](Architecture)
 - [Development Workflow](Development-Workflow)
 - [Validation and CI](Validation-and-CI)

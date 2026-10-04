@@ -1,0 +1,1238 @@
+# Lotus Composite Performance — Gold-Standard Product Requirements
+
+**Document ID:** LOTUS-CMP-001  
+**Version:** 2.0  
+**Date:** 4 October 2026  
+**Status:** Full product target for implementation and verification; not a statement of current completeness.  
+**Audience:** Lotus implementation agents, product and methodology owners, engineers, QA, operations, compliance and auditors.  
+**Scope:** Bank- and external-vendor-neutral; no inherited release restrictions or future-phase exclusions.
+
+> Deliver a configurable, scalable composite-performance product whose membership, numbers, rules, source authority, approvals and publication history can be explained and reproduced. Meeting the supplied third-party requirements is the minimum; the complete target below includes richer analytics, migration, operating controls and configuration.
+
+## How to use this specification
+
+Every numbered requirement and capability catalogue in this document is part of the target. Implementation can proceed in dependency-ordered increments, but agents must not discard advanced capabilities as “outside Release 1,” silently replace them with placeholders, or claim the whole product is complete after delivering only calculation endpoints. A customer can disable a capability through configuration or entitlement without removing it from the product.
+
+**SOURCE** means derived from the supplied text; **TARGET** means an added product requirement; **DECISION** means an institution must approve the specific policy before production use. All are requirements for implementation. A DECISION requires the supported options, validation and approval workflow to exist; it does not authorize an invented customer policy. Formulas and defaults below are proposed Lotus method contracts unless explicitly identified as a standards fact.
+
+Companion documents:
+
+- [Neutral source baseline](01_composite_requirements_source_baseline.md): faithful normalization, including the source's historical scope qualifications.
+- [Gaps, bounded Lotus readiness and vendor comparison](02_composite_gaps_and_lotus_readiness.md): source omissions, observed code boundaries and evidence-based market comparison.
+- [Agent execution brief](04_lotus_composite_agent_execution_brief.md): copy-ready implementation instructions and evidence expectations.
+
+The source text is available; the six screenshot uploads and original sample workbook were not readable in this working session. Do not treat sample-layout fidelity or screenshot-only rules as verified. No bank-specific data, screenshots or proprietary mandate names should be committed to public repositories; use the neutral requirements and synthetic fixtures.
+
+## Contents
+
+1. Product outcomes and invariants
+2. Architecture and ownership
+3. Domain model, time and states
+4. Composite catalogue and lifecycle
+5. Configurable engines and policy management
+6. External, Core and hybrid data
+7. Migration and source cutover
+8. Eligibility, assignment and re-entry
+9. Return engines and financial methods
+10. Benchmarks, currencies and fees
+11. Freezing, overrides, correction and restatement
+12. GIPS-aware control framework
+13. Composite analytics catalogue and formulas
+14. Contribution, attribution and carve-outs
+15. Lineage and reproducibility
+16. Reports and distribution
+17. API, events and operational workflows
+18. Workbench and maintainability
+19. Scalability, resilience and security
+20. Acceptance scenarios and numerical oracles
+21. Decision and traceability registers
+22. Definition of done and reference sources
+
+---
+
+## 1. Product outcomes and invariants
+
+### 1.1 Outcomes
+
+| ID | Required product outcome |
+|---|---|
+| CMP-GEN-001 | Cover all neutral source requirements, including authoring, rule configuration, historical membership, composite returns, asset-class capabilities, analytics and distribution, regardless of source release restrictions. |
+| CMP-GEN-002 | Support reusable institution/strategy/composite policies, configurable certified methods and governed extensions without institution-specific code forks. |
+| CMP-GEN-003 | Support external-only, Lotus Core, and hybrid source profiles; migration can begin with raw accounting data, portfolio returns or approved historical composite series. Evidence depth must remain explicit. |
+| CMP-GEN-004 | Support persisted, scheduled, event-triggered and on-demand calculations, with independent worker scaling and workload isolation. On-the-fly portfolio TWR alone does not satisfy composite operations. |
+| CMP-GEN-005 | Support provisional, approved, frozen, externally attested, overridden, restated, superseded and withdrawn results with clear authority and reproducible history. |
+| CMP-GEN-006 | Provide API-equivalent functionality for every user workflow, including authoring, simulation, imports, approvals, freezing, reports and inspection. |
+| CMP-GEN-007 | Maintain separate business eligibility, source readiness, calculation state, approval/publication state and lineage depth. Normal business exclusions must not automatically mean a defective calculation. |
+| CMP-GEN-008 | Prove claimed support with numerical, integration, security, operational and capacity evidence. A README, schema or endpoint name alone is insufficient. |
+
+### 1.2 Invariants that configuration cannot disable
+
+**CMP-INV-001.** Never silently drop an expected portfolio because its return, status, AUM or input file is missing. Distinguish a known policy exclusion from an unresolved data problem.
+
+**CMP-INV-002.** Never substitute zero for missing history, interpolate an official investment return, link across a genuine track-record break, or manufacture portfolio constituents for an imported composite-only series.
+
+**CMP-INV-003.** A later exclusion must not delete a portfolio's previously valid participation. Historical composite returns use the membership applicable to each period, not today's survivors.
+
+**CMP-INV-004.** A published financial fact is immutable. “Overwrite” means an approved replacement version or authority selection, not destruction of the original. Unpublished drafts may be replaced through optimistic concurrency and an audit record.
+
+**CMP-INV-005.** Freeze does not stop source ingestion or suppress known errors. It prevents unauthorized replacement of a selected official generation while corrections are investigated separately.
+
+**CMP-INV-006.** Approval cannot make an invalid formula, incompatible history splice, incomplete eligible universe or prohibited compliance policy valid. Non-compliant analysis may exist only in explicitly non-official contexts with appropriate labels.
+
+**CMP-INV-007.** No performance-based cherry-picking, retrospective optimization of eligibility to improve returns, fabricated upstream authority, cross-tenant access or hidden source fallback.
+
+**CMP-INV-008.** Every reported figure must carry enough metadata to distinguish calculated, imported, overridden, simulated, stale and unavailable values. Unsupported metrics return typed reasons, not plausible-looking numbers.
+
+## 2. Architecture and ownership
+
+### 2.1 Reuse Lotus boundaries
+
+The bounded repository inspection found composite-return calculation and materialization in Performance, and definition/membership products in Manage. This specification extends those boundaries; it is not authority to create a separate composite repository or a competing ledger. Reconfirm current contracts before implementation; the inspection was not a live certification. Repository evidence is in the companion review.
+
+The table below is the **proposed target ownership map**. Only the bounded Performance and Manage evidence cited in the companion review was inspected for this task. Verify the other repositories and all cross-service contracts before assigning implementation work; this table is not evidence of their current functionality.
+
+| Domain | Proposed accountable owner | Boundary |
+|---|---|---|
+| Canonical instruments, portfolios, valuations, transactions, source status history, prices and FX | `lotus-core`, with registered external producers where configured | Own source facts; do not infer composite performance or business eligibility. |
+| Composite definitions, approved policy packs, eligibility evaluation, membership revisions and universe qualification | `lotus-manage` | Own membership authority; do not calculate investment returns. |
+| Portfolio and composite returns, return ingestion/admission, weighting, linking, contribution, attribution and benchmark-return methods | `lotus-performance` | Own performance conclusions and certified financial methods. |
+| Time-series risk, factor/exposure risk and scenario calculations | `lotus-risk` | Consume pinned inputs; do not reconstruct missing investment history. |
+| Report assembly, templates, disclosures and report snapshots | `lotus-report` | Consume authoritative analytics; do not recalculate performance in templates. |
+| Rendering | `lotus-render`, subject to its actual supported contracts | Render typed datasets; report assembly remains Report's responsibility. |
+| Immutable evidence retention and retrieval | Domain stores and `lotus-archive` under explicit retention contracts | Archive is evidence custody, not another analytics authority. |
+| Consumer-facing API orchestration | `lotus-gateway` | Propagate trusted identity and source/result references; no duplicate rule engine. |
+| Configuration, review and report user journeys | `lotus-workbench` | Same permissions and APIs as non-UI consumers. |
+| Deployment, identity integration, observability and shared operating controls | `lotus-platform` | Domain services retain responsibility for financial correctness. |
+| Evidence-grounded narrative assistance | `lotus-ai` | Explain approved facts; never calculate authoritative returns or approve changes. |
+
+**CMP-ARC-001.** Composite calculation workers may be separately deployed and scaled within `lotus-performance`. Avoid a new repository merely for scale isolation.
+
+**CMP-ARC-002.** Separate deterministic domain engines from HTTP, persistence, queueing and UI concerns. Reuse certified return/risk methods instead of reimplementing them in reporting or a generic rule engine.
+
+**CMP-ARC-003.** Expose stateless evaluation and governed managed execution. Stateless requests are not automatically official; publication requires source, universe, policy and approval evidence or an explicit externally attested publication route.
+
+**CMP-ARC-004.** Domain integration uses versioned contracts and identifiers, not cross-service database joins. External-only operation must not require a fabricated Core portfolio or a live Core dependency.
+
+**CMP-ARC-005.** Use one authority for each entity/fact and purpose. Replicated read models declare their origin and freshness; they cannot silently become source-of-record writers.
+
+## 3. Domain model, time and states
+
+### 3.1 Required logical entities
+
+| Entity | Minimum contract |
+|---|---|
+| `FirmProfile` / `ReportingEntity` | Tenant, firm definition, business scope, compliance context, reporting currency and authorized approvers. |
+| `CompositeDefinitionVersion` | Stable ID/code, purpose, strategy dimensions, creation/inception dates, effective interval, lifecycle and immutable digest. |
+| `PolicyPackVersion` / `MethodVersion` | Typed resolved configuration, dependencies, standards applicability, author, approval and effective dates. |
+| `SourceAuthorityProfile` | Fact-family, portfolio/universe scope, date range, authority, fallback/override policy and reconciliation contract. |
+| `UniverseSnapshot` | Expected portfolio set, population owner, source cut/watermark, completeness and excluded/out-of-scope evidence. |
+| `PortfolioAttributeInterval` | Typed value, business-effective interval, recorded time, source revision and lineage. |
+| `RuleEvaluation` | Rule/version, target period, observations, threshold/operator, outcome, every reason and evidence references. |
+| `MembershipRevision` | Immutable decisions for a complete declared universe, resolved policy, approval and coverage intervals. |
+| `PortfolioReturnObservation` | Interval, value/unit, fee basis, currency, method, frequency, source authority and revision. |
+| `MemberReturnFact` | Joined approved membership, return observation, weighting assets and both membership and accounting lineage. |
+| `CompositePeriodResult` | Composite, period, fee/currency/method context, result, counts, assets, generation and supportability. |
+| `CompositeSeriesSnapshot` | Ordered period-result version vector, track-record segment, continuity and coverage. |
+| `MetricResult` | Metric/method version, value/unit/status, period, frequency, observations, dependencies and uncertainty. |
+| `FreezeRecord` / `OverrideInstruction` | Scope, prior/new authority, rationale, evidence, approvers, expiry and concurrency token. |
+| `CorrectionCase` / `RestatementCase` | Root cause, impact graph, old/new versions, materiality, approvals and redistribution plan. |
+| `MigrationBatch` / `ReconciliationCase` | File/API manifest, schema/mapping version, source cut, counts, reconciliation and acceptance. |
+| `ReportSnapshot` / `DeliveryReceipt` | Pinned financial versions, template/disclosures, digest, destination, attempt and acknowledgement state. |
+
+**CMP-DOM-001.** All keys, caches, object paths, repository reads and durable references must enforce tenant and authorized firm scope. Composite overlap must not inflate firm assets.
+
+**CMP-DOM-002.** Separate economic/effective time, valuation time, accounting/booking time, received time, calculation time, approval time and publication time. Preserve source timezones and timestamp precision.
+
+**CMP-DOM-003.** Use an explicit internal interval convention, preferably `[valid_from, valid_to)`. Convert inclusive source periods at adapters. Retain the original convention; validate month boundaries, leap days, daylight-saving shifts and end-of-day versus beginning-of-day status changes.
+
+**CMP-DOM-004.** Distinguish account opening, first funding, discretionary-management start, performance start, composite creation, composite performance inception, cessation and reactivation. Do not reset inception on rename or provider migration.
+
+**CMP-DOM-005.** Support `AS_REPORTED(publication_id)`, `LATEST_APPROVED`, `EXACT_VERSION`, `AS_KNOWN_AT(timestamp)` and separately `LATEST_CALCULATED`. Reject unsupported temporal queries rather than infer missing recorded-time history.
+
+### 3.2 Independent state axes
+
+| Axis | Required semantic values; names may map to existing contracts |
+|---|---|
+| Assignment | Matched, out of scope, ambiguous, unknown |
+| Rule | Pass, fail, unknown, not applicable |
+| Business eligibility | Eligible, ineligible, undetermined |
+| Source presence | Present, absent-but-expected, historical-only, confirmed terminated |
+| Data readiness | Complete, incomplete, unavailable, invalid |
+| Execution | Queued, running, waiting, failed, succeeded, cancelled |
+| Publication | Draft, provisional, pending approval, official, superseded, withdrawn |
+| Edit protection | Open, frozen, restatement-authorized |
+| Financial authority | Calculated, external-attested, manually overridden, simulated |
+| Evidence depth | Raw-input-reproducible, member-return-reproducible, composite-series-only |
+
+**CMP-DOM-006.** Reconcile universe counts as disjoint included, policy-excluded, undecidable and out-of-scope populations. Source-presence flags and multi-reason counts are overlays: their totals need not equal portfolio count. An excluded portfolio may have several reasons and remains one portfolio.
+
+## 4. Composite catalogue and lifecycle
+
+| ID | Required behaviour |
+|---|---|
+| CMP-CAT-001 | Create, clone, validate, approve, schedule, activate, suspend, retire and inspect composites through APIs and UI. Pre-established catalogues are templates, not a platform limitation. |
+| CMP-CAT-002 | Configure mandate, risk profile, model/model family, native currency, account type and typed attributes. Business unit, manager, fee band and jurisdiction can be reporting/analysis dimensions; official composite definitions require approved strategy/discretion relevance and cannot be based solely on an impermissible criterion. No proprietary strategy names in engine logic. |
+| CMP-CAT-003 | Distinguish actual strategy composites, internal analytical cohorts, simulated/model tracks, carve-out composites and composites using MWR/alternative-asset methods. Purpose controls permissible methods and presentation. |
+| CMP-CAT-004 | Support genuinely exclusive strategy families and overlapping applicable composites. Evaluate all relevant definitions and include portfolios wherever the approved standards/definition require; no first-match rule may omit required membership. Flag contradictory exclusive assignments. Deduplicate assets at firm level. |
+| CMP-CAT-005 | Version rename, benchmark change, strategy redefinition, merger, split, manager change, currency change and cessation separately. Require a continuation/new-track decision; never concatenate incompatible histories automatically. |
+| CMP-CAT-006 | Support minimum-asset rules, grace periods, closed/reopened composites and periods with zero members. A true no-member gap terminates continuity; display segments separately. |
+| CMP-CAT-007 | Support composite hierarchies and presentation groupings. Roll up primitive portfolio facts with approved weights and deduplication; never average child-composite returns without a specified economic method. |
+| CMP-CAT-008 | Retain all historical definitions, membership, descriptions, changes and terminated track records according to retention and legal-hold policies. Reports can access all available history, not a hard-coded five-year cap. |
+| CMP-CAT-009 | Separate native strategy currency from a report display currency. A translated view is not automatically a new strategy composite. |
+| CMP-CAT-010 | Permit backdated data corrections but prohibit a disguised retrospective definition change in official standards-bound history. A research reconstruction must be separately labelled. |
+
+## 5. Configurable engines and policy management
+
+### 5.1 Engine and policy registries
+
+**CMP-CFG-001.** Provide versioned registries for assignment, eligibility, flow classification, temporal observation, re-entry, valuation, portfolio returns, composite weighting, period linking, annualization, fee normalization, FX conversion, benchmarks, contribution smoothing, risk, dispersion, attribution, quality, materiality, publication and report templates.
+
+**CMP-CFG-002.** Each method version declares: identifier, owner, purpose, input/output schemas, units, accepted frequencies, numerical domain, dependencies, formula/specification, precision, determinism, complexity/resource limits, standards contexts, reference tests, compatibility and deprecation policy. Registry status is draft/validated/approved/retired; installation is not approval.
+
+**CMP-CFG-003.** Resolve configuration from platform method catalogue → tenant/firm profile → strategy-family profile → composite version → permitted run parameters. Persist the complete resolved policy and digest. A permitted run parameter must not override a mandatory official policy or change a frozen series invisibly.
+
+**CMP-CFG-004.** Business rules use a typed declarative language: boolean composition, comparisons, bounded set membership, interval overlap, count/min/max/average/sum, consecutive-day tests and approved derived measures. Disallow arbitrary executable code, SQL and unbounded expressions in business configuration.
+
+**CMP-CFG-005.** New financial algorithms may be supplied through maintained, reviewed extensions with isolated execution, dependency/version controls and independent fixtures. Do not pretend an arbitrary formula typed into a UI is a certified financial method.
+
+**CMP-CFG-006.** Validate units, currencies, null semantics, date coverage, input availability, conflicting conditions, impossible re-entry, dependency cycles, overlapping effective versions and duplicate authority. Reject configuration that cannot produce an auditable result.
+
+### 5.2 Authoring and change control
+
+**CMP-CFG-007.** Support visual editors, configuration-as-code import/export, schema validation, human-readable previews, inheritance inspection and semantic diffs. A schema migration must preserve old versions for replay.
+
+**CMP-CFG-008.** Lifecycle: draft → validated → independent approval → scheduled/effective → superseded/retired. Approval binds exact content and attachments; any subsequent change invalidates approval. No material self-approval.
+
+**CMP-CFG-009.** Provide an isolated simulation sandbox showing changed memberships, reasons, assets, periods, returns and data needs. Separate policy sensitivity from source corrections and market effects. Simulation cannot automatically select the best-performing policy for official history.
+
+**CMP-CFG-010.** Support bulk deployment across composites with an impact preview, bounded batch size, explicit all-or-nothing versus per-item semantics, approval and rollback through a new version. A rollback never deletes intervening evidence.
+
+**CMP-CFG-011.** Feature activation is configurable by tenant and composite, but audit, immutable publication, authorization, source completeness and standards guardrails are not optional toggles.
+
+**CMP-CFG-012.** All customer-specific choices below must be expressible through policy, not custom code. The reference 10% cash-flow and 5% cash tests are profile values, not universal constants. The full product includes user configuration immediately as a required capability, irrespective of historical source release restrictions.
+
+### 5.3 Illustrative reference profile
+
+Throughout this specification, method “certification” means internal validation and authorized methodology approval; it is not CFA Institute certification of software.
+
+This is a proposed schema, not a claim about existing endpoint payloads. `UNRESOLVED` or an unapproved dependency blocks official activation, while synthetic test profiles can exercise every supported option.
+
+```yaml
+policy_id: discretionary_monthly_reference
+version: 1
+state: DRAFT
+purpose: ACTUAL_STRATEGY_COMPOSITE
+membership:
+  frequency: CALENDAR_MONTH
+  timezone: UNRESOLVED
+  evaluate_all_rules: true
+  required_unknown: UNDETERMINED
+returns:
+  source_mode: HYBRID
+  source_authority_profile: UNRESOLVED
+  composite_method: BEGINNING_ASSET_WEIGHTED
+  link_method: GEOMETRIC
+  fee_views: [GROSS, NET_ACTUAL, NET_MODEL]
+  method_approval: UNRESOLVED
+rules:
+  significant_flow:
+    amount_policy: ABSOLUTE_NET   # proposed resolution, not source-confirmed
+    threshold_ratio: "0.10"
+    comparator: GREATER_THAN_OR_EQUAL
+    window: TARGET_CALENDAR_MONTH
+    denominator: PRIOR_MONTH_END_AUM
+    transaction_date_policy: UNRESOLVED
+    externality_mapping: UNRESOLVED
+    fx_policy: UNRESOLVED
+  onboarding:
+    exclude_performance_start_month: true
+    reentry: PRIOR_MONTH_END_STRATEGY_READINESS
+  accreditation:
+    observation_method: UNRESOLVED
+  drift:
+    metric: UNRESOLVED
+    threshold_ratio: null
+    observation_method: UNRESOLVED
+  no_model_cash:
+    maximum_ratio: "0.05"
+    eligible_comparator: LESS_THAN_OR_EQUAL
+    cash_definition: UNRESOLVED
+  strategy_transition:
+    fields: [mandate, risk_profile, native_reference_currency]
+    exclude_transition_month: true
+publication:
+  approval_required: true
+  freeze_on_official_publication: true
+  preserve_originals: true
+  correction_policy: GOVERNED_RESTATEMENT
+  force_inclusion_permission: DISABLED_UNTIL_APPROVED
+```
+
+## 6. External, Core and hybrid data
+
+### 6.1 Supported sourcing modes
+
+| Mode | Required operation | Guardrail |
+|---|---|---|
+| External accounting inputs | Ingest external positions, valuations, transactions, FX and statuses; Lotus calculates portfolio and composite returns. | Mapping/admission establishes a real external authority; do not relabel as Core-origin data. |
+| External portfolio returns | Ingest daily or monthly gross/net portfolio returns plus assets, eligibility and history. | Retain supplied return method, fee basis and provenance; no implied raw-input reproducibility. |
+| External composite history | Import approved historical composite periods, disclosures and available constituent evidence. | Publish as externally attested history; missing constituents and unavailable metrics remain explicit. |
+| Core sourced | Resolve pinned source products from `lotus-core`; compute or consume approved returns. | Contract, tenant, source cut, freshness and business-date evidence required. |
+| Hybrid by fact family | For example, Core universe/status, external returns, external benchmark, Core FX. | One approved authority per fact key and purpose; compatible timestamps and bases. |
+| Hybrid by period/cohort | External pre-cutover history, Core post-cutover; different books may transition separately. | Gap/overlap checks, reconciliation and approved cutover manifests. |
+| Parallel validation | Two sources or engines calculate the same interval for comparison. | Shadow is not official; disagreement is a reconciliation case, not averaging. |
+
+**CMP-SRC-001.** Declare authority at `(tenant, firm, fact_family, portfolio/composite scope, effective interval, purpose, fee view, currency)` with explicit precedence and version. Do not select whichever source happens to respond first.
+
+**CMP-SRC-002.** Support full snapshots, incremental changes, event streams, API batches and files. Input manifests declare whether omission means unchanged, not-in-snapshot, deletion/tombstone or a broken delivery. Unknown file semantics block authoritative use.
+
+**CMP-SRC-003.** Maintain an expected universe independently of the file's present rows. Reconcile expected, supplied, duplicate, missing, unexpected and terminated entities. A zero-row outage must not become an empty but complete composite.
+
+**CMP-SRC-004.** External identifier mappings are effective-dated and reversible: portfolio, account, institution, mandate, instrument, benchmark and classification. Handle renumbering, mergers, reused identifiers and upstream corrections without duplicating history.
+
+**CMP-SRC-005.** Source fallback is configured, pre-approved, visible and provenance-preserving. A fallback that changes financial authority or methodology requires the applicable approval; frozen results do not auto-switch to it.
+
+**CMP-SRC-006.** Preserve original payload/file digest, source schema, ingestion/mapping version, source record/version, event ID, received time, declared business date, producer and normalized content digest. Validate signatures/checksums when supplied.
+
+### 6.2 Canonical input contracts
+
+| Fact family | Minimum required content |
+|---|---|
+| Portfolio identity/status | Stable ID, firm, source ID mapping, domicile/nationality or minimized eligibility flags, accreditation intervals, dates, discretionary status, fee agreement, closure/suspension, restriction/block flags and provenance. |
+| Strategy binding | Mandate, risk profile, native currency, model family/version, effective dates and client-versus-manager change reason. |
+| Valuation/AUM | Portfolio, observation time/date, currency, amount, basis, cash/receivable/accrued-income coverage, valuation status, source revision and quality. |
+| Cash/cash equivalents | Amount, currency, approved classifications, inclusion of unsettled cash/receivables, encumbrance and calculation denominator. |
+| Transactions/flows | Stable transaction and revision IDs, economic/booking/settlement dates, type/externality, signed amount/currency, asset quantity/value for in-kind flows, reversal linkage, fee/tax classification and source. |
+| Return observations | Portfolio, exact period, decimal return and unit, currency, gross/net/model-fee basis, cumulative/annualized flag, frequency, method, source version and status. |
+| Drift/model observations | Actual and target weights or approved drift measure, metric definition, model/taxonomy version, timestamps, cash treatment and coverage. |
+| Reference series | Benchmark/risk-free IDs, levels or returns, total/price-return type, calendar, currency, hedging/tax basis, effective definitions and source rights. |
+| Holdings/exposures | Instrument positions, values, classifications, issuer, sector, geography, currency, duration/rating/factors and derivatives exposure conventions. |
+| Imported composite periods | Composite mapping, interval, return/fee/currency/method, publication status, official version, AUM/member counts/dispersion where supplied, provenance and evidence depth. |
+
+**CMP-SRC-007.** Inputs use unambiguous units. Monetary and exact ratio inputs support decimal strings; convert percentage uploads explicitly. Retain original precision; never claim more accuracy than an external source supplied.
+
+**CMP-SRC-008.** Validate uniqueness, completeness, chronology, interval overlap, base currency consistency, finite values, duplicate trade legs, cancellations and reversals. Backdated events generate impact notifications rather than quietly replacing official results.
+
+**CMP-SRC-009.** Null, false, zero, empty, not-applicable and unknown have different semantics. Missing mental-incapacity, restriction or fee flags must not silently become “no restriction.” Minimize sensitive attributes in downstream stores and reports.
+
+**CMP-SRC-010.** Income accruals, dividends, interest and receivable-to-cash movements must not be mistaken for external capital. An internal movement may be external to a carve-out but internal to the total portfolio; classify at the relevant measurement boundary.
+
+**CMP-SRC-011.** External daily returns can be linked to monthly returns after coverage checks; externally supplied monthly returns cannot reconstruct daily volatility, daily drawdown or transaction-level attribution. Such analytics are unavailable unless independent appropriate inputs exist.
+
+**CMP-SRC-012.** Readiness must be inspectable per source, portfolio, rule, period and metric. Missing market data for an optional metric does not invalidate a separately complete return, but missing a required eligible member return blocks a complete computed composite.
+
+## 7. Migration and source cutover
+
+**CMP-MIG-001.** Provide reusable migration mappings, dry runs, previews, validation reports, staged loading, resumable imports, quarantine/rejection handling and explicit promotion to governed authority. Support CSV/XLSX, structured JSON/API and bulk columnar formats through validated adapters, not handwritten one-off fixes.
+
+**CMP-MIG-002.** Support full-history recomputation, portfolio-return history migration, composite-only history migration and mixed evidence depth. An imported official period may be frozen as the accepted legacy record while a recomputed shadow version is compared separately.
+
+**CMP-MIG-003.** Migration manifests identify input files/products, checksums, source extraction time, record counts, relevant date ranges, portfolio mappings, currencies, fee bases, histories, policy versions, ownership and approvals.
+
+**CMP-MIG-004.** Reconcile identity/population counts, beginning/ending assets, flows, portfolio returns, composite weights/returns, counts, horizons, annual dispersion and report values where those fields exist. Tolerances specify absolute/relative/basis-point units and comparison precision; no blanket “within tolerance” without field-level evidence.
+
+**CMP-MIG-005.** Classify discrepancies: source-data, identity, date/calendar, FX, fee, rounding, method, eligibility, history completeness or unexplained. Unsupported historical evidence is not a matched result.
+
+**CMP-MIG-006.** Handle pre-inception records, closed portfolios, archived status intervals, source renumbering, superseded transactions and historical restatements. Do not migrate only today's active book and call it historical composite reconstruction.
+
+**CMP-MIG-007.** At cutover, pin the last legacy interval and first new interval, method/fee/currency compatibility, source authority transition, continuity segment, parallel-run differences and approvals. Overlaps require explicit winner selection; gaps remain visible.
+
+**CMP-MIG-008.** Keep system migration separate from track-record portability between firms/managers. A successful data import does not authorize a portability or compliance claim; retain the evidence and decision applicable to the history's ownership.
+
+**CMP-MIG-009.** Support rollback of an unpublished migration and superseding an accepted migration through a new version. Never delete previously distributed reports or orphan their referenced evidence.
+
+**CMP-MIG-010.** Produce a migration acceptance pack and an export/exit pack. Export definitions, rules, mappings, membership, return observations, approved versions, freeze/override histories and lineage in documented formats so the institution is not locked into Lotus.
+
+**CMP-MIG-011.** A member-return import must have its own genuine external authority/admission route. Do not forge a retained Lotus calculation ID to satisfy an existing internally sourced materialization contract.
+
+## 8. Eligibility, assignment and re-entry
+
+### 8.1 Evaluation contract
+
+**CMP-ELG-001.** For each target period, pin the complete universe, effective definitions, policy, business calendar and source cut. Resolve strategy assignment; evaluate every applicable rule; retain all failures and unknowns; emit an immutable membership revision.
+
+**CMP-ELG-002.** Each rule defines applicability, typed inputs and authority, input frequency, observation window, evaluation point, threshold/unit/operator, exclusion start/end, re-entry policy, missing-data outcome and reason codes. Daily observations may determine monthly membership without daily entry/exit.
+
+**CMP-ELG-003.** Any applicable known failure makes the portfolio ineligible; otherwise a required unknown makes it undetermined; otherwise it is eligible. Unknowns remain in evidence even where another rule proves exclusion. No short-circuiting that loses reasons.
+
+**CMP-ELG-004.** Under the source-reference profile, membership is finalized for the whole calendar month. Separate certified profiles may support other membership frequencies, but daily-derived monthly membership and an independently defined daily composite must not be confused.
+
+**CMP-ELG-005.** Provisional results declare evaluated-through date, incomplete observation windows, provisional reasons and expected finalization. A temporary intramonth net-flow breach may disappear before month-end.
+
+**CMP-ELG-006.** Re-entry requires all relevant failures to clear and every applicable next-period rule to pass. Resolving a block does not automatically clear drift, accreditation or funding failures.
+
+### 8.2 Required rule catalogue
+
+| Rule | Source-reference behaviour | Required configurable alternatives / unresolved decisions |
+|---|---|---|
+| Mandate/risk/currency mapping | Separate strategy tracks. Transition month excluded when these fields change. | Client-directed versus tactical/model changes; simultaneous changes; first/last-day changes; re-entry timing; same-strategy rename. |
+| Accredited-investor status | Effective-dated evaluation; source leaves any-ineligible-day versus requalification unresolved. | Any-day, month-end, sustained-qualified-days and approved requalification+readiness policies. Preserve separate business-reporting/standards contexts. |
+| Significant external flows | Net target-month flows at or above 10% of prior month-end AUM exclude that month. | Explicit signed versus absolute net; gross inflow/outflow; threshold, window and externality. Do not silently replace the source net rule with a transaction rule. |
+| Core-strategy drift | Eligibility depends on drift; threshold 10% versus 15% and observation method unresolved. | Max deviation, half-L1, relative deviation; prior-end/any-day/average/consecutive-day measures; manager rebalancing treatment. |
+| No-model direct-bond cash | Month-end cash ratio at most 5%. | Cash-equivalent definition, settled/unsettled treatment, denominator, liabilities and threshold comparator. |
+| New account | Exclude performance-start calendar month; entry next full month after discretionary/funded/invested tests. | Full-period-first-day exception, mandate-specific grace, funding versus performance date, paused/reopened accounts. |
+| Fee status | Zero management fee may exclude under the source business policy. | Include/exclude non-fee-paying portfolios by approved purpose; fee waiver, rebates, fee holidays and negative fee adjustments. |
+| Closure/suspension | May exclude; preserve historical participation. | Last full managed period, timestamp/timezone, temporary suspension, reopened account and closure-file semantics. |
+| Deceased/incapacity | May exclude under supplied policy. | Effective event versus received date, actual loss of discretion, restoration and sensitive-data minimization. |
+| Transaction blocks | Investment/all-transaction blocks trigger exclusion. | Block type, asset-specific impact, partial-day impact, pending approval and clearance date. |
+| Client/product/nationality restrictions | Material restrictions can exclude. | Materiality linked to strategy implementability; effective dates; rule applicability; nationality is not a universal standards exclusion. |
+| Minimum assets/deployment | Funded and substantially invested; configurable minimum assets. | Measurement basis, prospective threshold change, below-threshold observation, funding grace and denominator quality. |
+| Missing universe/input | Not specified in source. | Never infer closure; declare unknown/data failure and block affected official computation. |
+| Temporary new account | Product enhancement. | Segregate significant-flow assets using an approved operational policy; retain boundaries and reconciliation, not fictitious cash accounts. |
+
+**CMP-ELG-007.** Distinguish an investment manager's tactical drift/rebalance from loss of discretion caused by client restrictions. Outlier return or manager-controlled drift is a diagnostic, not automatic authority to discard bad performance.
+
+**CMP-ELG-008.** Support overrides of individual rule decisions only through an allowed, time-bounded policy with rationale, evidence and independent approval. Preserve original machine evaluations. An override cannot supply missing data or bypass standards restrictions.
+
+### 8.3 Drift and cash semantics
+
+**CMP-ELG-009.** A drift definition must specify dimension/taxonomy, model version, actual/target weight bases, cash, look-through, leverage/shorts, observation and zero targets. For target weights `t_j` and actual `a_j`:
+
+```text
+MAX_ABSOLUTE_DEVIATION = max_j abs(a_j - t_j)
+HALF_L1_DEVIATION      = 0.5 * sum_j abs(a_j - t_j)
+```
+
+Relative drift requires an explicit rule for `t_j = 0`. Do not call percentage-point drift a percentage relative difference. A metric, threshold and comparator are inseparable configuration.
+
+**CMP-ELG-010.** Cash eligibility defines the numerator (cash, cash equivalents, accrued income, unsettled trades and encumbrance treatment) and denominator (net assets, investable assets or another certified basis). Missing or nonpositive denominators are typed failures, not 0% cash.
+
+### 8.4 Significant-flow contract
+
+**CMP-FLW-001.** Net all qualifying external transactions over the complete target month using a versioned business-type mapping. Source terms such as Transfer, Incoming Payment, Money Transfer and Payment require semantic mapping; internal transfers are not automatically external.
+
+**CMP-FLW-002.** Support signed-net, absolute-net, gross-inflow, gross-outflow and gross-total measures as distinct policies. The recommended resolution for symmetric deposits/withdrawals is absolute net, but the source does not explicitly settle the sign convention.
+
+```text
+net_flow_M = sum(signed_qualifying_flows_converted_to_reference_currency)
+ratio_M    = abs(net_flow_M) / prior_month_end_AUM    # absolute-net profile only
+exclude_M  = ratio_M >= threshold
+```
+
+**CMP-FLW-003.** Pin flow date basis, timezone, holiday treatment, FX date/source, in-kind valuation, cancellation/reversal and duplicate treatment. Net only after currency normalization. Retain gross diagnostics even when the policy uses net flows.
+
+**CMP-FLW-004.** A zero, negative or missing denominator requires an explicit invalid/first-funding policy. Do not use today's AUM as an undocumented substitute.
+
+**CMP-FLW-005.** An individual flow exceeding 10% is not a final exclusion where subsequent monthly flows net below the threshold. Re-entry for month M+1 uses the appropriate M-end readiness plus M+1 rules; exclusion is not automatically carried forward.
+
+**CMP-FLW-006.** Keep significant-flow eligibility policy separate from large-flow valuation requirements within portfolio TWR. Both must have independently defined, compatible method/policy configurations.
+
+## 9. Return engines and financial methods
+
+The formulas in this section specify proposed Lotus engine contracts. They are not a claim that GIPS prescribes one formula for every situation. Each method must be certified for its intended use, with applicability mapped to the standards register in section 12. All example returns use decimal ratios: `0.02` means 2%.
+
+### 9.1 Portfolio-return admission and calculation
+
+**CMP-RET-001.** Support both supplied portfolio TWR and Lotus-calculated portfolio TWR. Preserve whether a return is independently calculated, imported, externally attested or manually corrected. An upstream return must carry method, currency, fee basis, dates, precision and coverage evidence. Publication additionally requires the applicable completeness and approval gates.
+
+**CMP-RET-002.** For genuinely complete daily observations within month M, link portfolio returns as `r_i,M = product_d(1 + r_i,d) - 1`. Do not average daily returns, substitute a monthly return for a missing day, double-count overlapping intervals, or create weekend returns unless the approved calendar explicitly defines them.
+
+**CMP-RET-003.** Reuse the portfolio TWR engine with documented external-flow timing, valuation boundaries, accrued income, fees and large-flow treatment. Support exact subperiod valuation when available and approved approximation methods when their prerequisites hold. Modified Dietz is an approximation, not automatically exact TWR.
+
+For a supported Modified Dietz subperiod:
+
+```text
+r = (V_end - V_begin - sum_j CF_j) /
+    (V_begin + sum_j alpha_j * CF_j)
+```
+
+`CF_j` is positive into the measured portfolio; `alpha_j` is the fraction of the subperiod for which that flow is invested under the approved beginning/end-of-day convention. Derive coefficients from real dated flows, not transaction row order. Invalid denominator or insufficient large-flow valuations must not be concealed by an arbitrary fallback.
+
+**CMP-RET-004.** The portfolio engine must distinguish market loss, capital withdrawal, fee debit, income accrual, corporate action and internal transfer. A dividend receivable followed by cash settlement is not two income events and is not an external subscription. Portfolio cash, accrued income and residual assets remain part of performance under the adopted accounting policy.
+
+**CMP-RET-015.** Raw-input calculation profiles must validate the approved fair-valuation hierarchy, trade-date accounting, accrual treatment, income and cash inclusion, business-calendar valuation frequency and large-flow valuations. Liquid and private/illiquid strategies require their applicable approved valuation calendars; the latter must not be forced through an unjustified daily observed-price assumption. Missing or stale prices and estimated valuations must be explicit. These controls apply to external return admission through attested method/evidence checks as well as internally calculated returns.
+
+### 9.2 Composite weighting methods
+
+Let `E_M` be the final eligible portfolio set for month M, `A_i,0` its beginning assets, and `r_i,M` its return. All weights and returns must have compatible dates, currency and fee views.
+
+| ID | Engine | Required calculation and controls |
+|---|---|---|
+| CMP-WGT-001 | Beginning-asset-weighted | `w_i,M = A_i,0 / sum(E_M assets)`; `R_M = sum_i(w_i,M * r_i,M)`. Preserve exact numerators, denominator, weights and contributions. Never use ending assets silently. |
+| CMP-WGT-002 | Beginning assets plus weighted external flows | Replace the weight numerator with `B_i = A_i,0 + sum_j(alpha_i,j * CF_i,j)`, then normalize across eligible portfolios. Require the approved method, complete dated flows, timing coefficients and valid denominators. |
+| CMP-WGT-003 | Aggregate composite method | Construct a composite measurement unit from complete compatible portfolio valuations and external-flow data, then apply the certified portfolio method to the aggregate. Eliminate flows internal to that measurement boundary without losing audit evidence. Do not infer this result from AUM change alone. |
+| CMP-WGT-004 | Daily aggregation, then linking | Weight compatible daily portfolio returns and link daily composite periods. Its membership observation/timing policy must be explicit. This method is not numerically assumed equivalent to a monthly weighted average of portfolio monthly TWRs. |
+| CMP-WGT-005 | Equal-weight and analytical alternatives | Support clearly identified comparative analysis, not substitution for an asset-weighted actual-strategy GIPS return. Maintain separate series identities, labels and publication rules. |
+
+**CMP-RET-005.** The method registry validates allowed combinations of membership frequency, return frequency and weighting method. Changing any of these is a financial-method change, not a presentation preference. A new engine version may reproduce an old method or introduce a new one; classify which before deployment.
+
+**CMP-RET-006.** At each calculated period, sum of eligible weights must equal one within the registered numerical tolerance; sum of unrounded member contributions must equal the composite return. Round only under a versioned policy. Preserve pre-display precision and return a reconciliation residual when independently rounded rows do not add exactly.
+
+**CMP-RET-007.** Detect duplicate portfolio facts, incompatible fee views, mixed native currencies, overlapping periods, non-finite values, zero/negative weighting assets and mismatched universe versions before computation. Short positions inside a positive-NAV portfolio do not automatically invalidate it. Zero/negative NAV and leveraged strategies require a specifically approved method, not absolute-value weights or discarded loss observations.
+
+### 9.3 Linking, horizons and continuity
+
+**CMP-RET-008.** Link actual period results using their historical eligible sets:
+
+```text
+R[a,b] = product_(M=a..b)(1 + R_M) - 1
+```
+
+An exclusion in April affects April, not the portfolio's valid January–March contribution. YTD is a chain of monthly composite results, not a recalculation using today's eligible portfolio set.
+
+**CMP-RET-009.** Support arbitrary valid date ranges and standard 1M, 3M, 6M, MTD, QTD, YTD, 1Y, 3Y, 5Y, 10Y, calendar-year, fiscal-year and since-inception horizons. Each horizon declares its exact boundaries, calendar, source frequency, completeness and annualization. MTD/intraday output requires appropriate source observations and is provisional until its observation window closes.
+
+**CMP-RET-010.** Return cumulative and annualized fields separately. For `N` complete monthly periods, the approved monthly-basis annualization is `(1 + R)^(12/N) - 1`; for exact-date annualization use a versioned year-fraction convention. Do not mix conventions between numerator, benchmark and risk. GIPS publication suppresses annualized returns for periods shorter than one year; a full calendar-year return is already a one-year return. [G1]
+
+**CMP-RET-011.** Track three different failures: a missing observation in an otherwise continuing track record; an actual no-member performance break; and a method/currency/history incompatibility. Missing data triggers repair; a genuine performance break creates separate segments. Neither permits silent multiplication across the gap. A horizon crossing a blocked period is unavailable as a complete horizon even if later periods can be calculated separately.
+
+**CMP-RET-012.** Return structured reasons such as `HISTORY_TOO_SHORT`, `MISSING_PERIOD`, `TRACK_RECORD_BREAK`, `UNIVERSE_INCOMPLETE`, `FEE_BASIS_MISMATCH`, `SOURCE_CONFLICT`, `INVALID_DENOMINATOR`, `METHOD_NOT_APPROVED` and `METRIC_NOT_APPLICABLE`. Zero is a valid observed return, never a default error representation.
+
+**CMP-RET-013.** Handle exactly -100% without a logarithm crash; treat below -100%, negative growth factors, denominator discontinuities and leveraged economic resets under explicit numerical-domain policies. Do not apply log-based linking, smoothing or growth ratios outside their domain. Preserve valid losses rather than censoring them.
+
+**CMP-RET-014.** A series snapshot pins every monthly result version. A corrected March changes all dependent cumulative horizons and applicable rolling metrics, not unrelated January-only reports. Preserve each old series snapshot for historical reporting.
+
+### 9.4 MWR and alternative strategies
+
+**CMP-MWR-001.** Support pooled composite MWR/IRR from dated external flows and beginning/terminal valuations where the elected method and standards context permit it. Use the performance solver's sign convention, root domain and date basis. Never asset-weight individual IRRs to obtain a composite IRR, and never geometrically link subperiod IRRs as if they were TWRs.
+
+**CMP-MWR-002.** For an investor-perspective cash-flow vector `C_j`, solve `sum_j C_j / (1+x)^tau_j = 0`, retaining residual, convergence, selected root policy and any multiple/no-root condition. Annualization/de-annualization must preserve the actual interval. Apply the GIPS eligibility test for presenting MWR rather than offering a free TWR/MWR switch in an official report. [G1, provision 1.A.35]
+
+**CMP-MWR-003.** For private-capital composites, support vintage, commitments, paid-in capital, distributions, residual NAV, DPI, RVPI and TVPI, plus approved public-market-equivalent methods when appropriate market data and licenses exist. Subscriptions, distributions, recallable amounts, subscription lines and fee/carry treatment require explicit policies and method fixtures. These are additional analytical capabilities, not universal required metrics for liquid discretionary composites.
+
+## 10. Benchmarks, currencies and fees
+
+### 10.1 Benchmark management
+
+**CMP-BMK-001.** Maintain benchmark identity, description, currency, total/price-return type, tax basis, hedging, source, license, calendar, inception, effective assignment and revision history. Support single indexes, blended indexes, dynamic allocations, target/hurdle series and approved custom benchmarks. Official comparison follows the appropriate total-return or documented no-appropriate-benchmark treatment. [G3]
+
+**CMP-BMK-002.** Blends define component weights, effective dates, rebalancing frequency, cash handling and missing-component rules. Weights that are fixed at rebalance dates and then drift are different from weights reset every day. Benchmark construction and all FX normalization must be reproducible from pinned observations.
+
+**CMP-BMK-003.** A benchmark change records the old/new series, effective date, rationale, historical presentation method and approval. Preserve the as-reported comparison. Do not retrospectively choose whichever index makes the composite look better. Support both originally assigned and explicitly labelled research-comparison views. [G3]
+
+**CMP-BMK-004.** Compute arithmetic active return `R_C - R_B` and geometric relative return `(1 + R_C)/(1 + R_B) - 1` as different metrics. Report units and labels; do not call both “excess return” without qualification. A benchmark growth factor of zero makes the geometric ratio unavailable.
+
+### 10.2 Currency handling
+
+**CMP-FX-001.** Keep portfolio reference currency, composite native currency, source-money currency and report currency separate. Convert member weighting assets at the defined beginning valuation fixing; convert external flows at their approved economic-date fixing. Neither a requested currency label nor an FX return alone proves monetary conversion.
+
+**CMP-FX-002.** For a valid native-currency return and FX quote `q_t = reporting currency units per native unit`, an unhedged return translation is `1 + r_report = (1 + r_native) * q_end/q_begin`. Retain quote direction, observations, triangulation, calendar and precision. A hedged strategy requires hedging economics; do not label a simple translation “hedged.”
+
+**CMP-FX-003.** Multi-period currency conversion must reconcile with the approved return and cash-flow timing method. Do not sum AUM across currencies without conversion. A native-currency strategy change requires explicit membership/history treatment; a display conversion must not reset inception.
+
+### 10.3 Gross, actual-net and model-net performance
+
+**CMP-FEE-001.** Expose separate gross-of-investment-management-fee, actual-net, and model-net series; each has a detailed cost taxonomy including transaction costs, management/advisory fees, performance fees, custody/admin fees, indirect fund costs, withholding taxes, rebates and bundled fees. Reject ambiguous “gross” uploads. GIPS gross/net and applicable wrap-fee treatment must be checked by the standards profile. [G1; G5]
+
+**CMP-FEE-002.** Net actual returns use actual fee accounting with an approved accrual/debit and external-flow treatment. A fee deduction cannot be treated as an external withdrawal merely to remove its performance impact. Zero-fee and fee-waiver periods remain explicit.
+
+**CMP-FEE-003.** Model-net calculation supports flat/tiered/AUM-linked schedules, effective changes and approved accrual frequency. Each method must specify whether an annual fee is an effective rate, nominal charge, average-assets charge or another convention. For the explicitly elected periodic wealth-haircut method, `1+r_net,t = (1+r_gross,t)*(1-f_t)`; this is not a universal shortcut for actual fee accounting.
+
+**CMP-FEE-004.** Enforce the adopted standards policy for model fees and prospective-client presentation. Prevent under-deduction intended to overstate net performance. Preserve actual and model fees independently; do not infer missing net returns from a management-fee percentage without the full calculation convention.
+
+**CMP-FEE-005.** Provide fee-drag analytics by period and horizon, with an explicitly additive or geometric definition. Gross/net member sets must be comparable; missing net data is a data issue, not authorization to select only portfolios with convenient net history. Tax-specific analytics carry a jurisdiction/method label and must not be presented as GIPS-mandated after-tax measures.
+
+**CMP-FEE-006.** For ordinary GIPS gross-of-fees and net-of-fees views, transaction costs remain reflected in returns; gross does not mean before every investment cost. The specialized bundled/wrap-fee profile must resolve actual versus permitted estimated transaction costs and required fee deductions using the applicable guidance. A pre-transaction-cost analytical series requires a separate label and cannot be silently promoted to the ordinary gross view. [G1, G5]
+
+## 11. Freezing, overrides, correction and restatement
+
+### 11.1 Required business operations
+
+“Overwrite” is a user action with several distinct meanings. The implementation must expose the following controlled operations rather than one generic update endpoint.
+
+| ID | Operation | Required behaviour |
+|---|---|---|
+| CMP-CTL-001 | Replace an unpublished draft | Allow revision under optimistic concurrency; retain actor, previous hash, new hash and reason. Invalidate dependent approvals. |
+| CMP-CTL-002 | Freeze a result | Freeze an exact composite/period/fee/currency/method/version, a period range or an approved publication bundle. Freezing locks official selection, not source ingestion. |
+| CMP-CTL-003 | Freeze imported history | Accept a validated legacy series as external-attested authority with evidence depth; freeze it without inventing a Lotus-calculated result. |
+| CMP-CTL-004 | Unfreeze/reopen | Require a reason, authorization, approval, expected version and affected-scope preview. Reopening permits a new candidate; it never edits the frozen original. |
+| CMP-CTL-005 | Correct source facts | Send or accept a versioned source-owner correction; recompute only affected facts and dependants. Preserve old source revisions. |
+| CMP-CTL-006 | Correct membership | Correct an actual historical classification/data error through a new membership revision. Distinguish it from prohibited retroactive policy redesign. |
+| CMP-CTL-007 | Override a rule outcome | Time-bound portfolio/rule/period override with original machine result, permitted reason, evidence and independent approval. Standards guardrails still apply. |
+| CMP-CTL-008 | Override a portfolio return | Replace the selected observation with an authoritative correction or evidenced externally attested value; retain calculated and replacement values. Trigger downstream impact. |
+| CMP-CTL-009 | Override a composite return | Allow only an evidenced correction/import-authority workflow for official use. Unsupported manual financial values remain non-official and cannot be made GIPS-reportable merely by approval. |
+| CMP-CTL-010 | Replace an engine/method version | Run old/new methods in parallel, classify correction versus prospective method change, approve impact and preserve historical replay. |
+| CMP-CTL-011 | Restate official results | Create an immutable replacement generation and new series/report snapshots, with materiality, approval, disclosures and distribution actions. |
+| CMP-CTL-012 | Withdraw a publication | Mark the exact report/result unavailable for current use with reason and notice; retain the historical artifact and recipients. Do not rewrite a report already delivered. |
+| CMP-CTL-013 | Revert a mistaken correction | Issue a new approved generation selecting or reproducing the prior valid economics. Never erase intervening versions or approvals. |
+| CMP-CTL-014 | Bulk correction/freeze | Preview all affected objects, enforce row-level authority and define atomic versus per-item semantics. Include partial-failure recovery and reconciliation. |
+
+### 11.2 Lifecycle and precedence
+
+**CMP-CTL-015.** Model calculation, approval, publication and protection as separate state axes. A typical workflow is `draft calculation → validation → independent approval → official publication → frozen`; correction runs beside it as a candidate. Freeze must also be possible on already-approved historical records and imported series.
+
+**CMP-CTL-016.** Define precedence explicitly: an approved current authority selection is not “the record with the latest timestamp.” Preserve default `LATEST_APPROVED`, exact/as-reported views and independent candidate/latest-calculated views. An unfinished replacement must not silently replace the official result or be represented as final.
+
+**CMP-CTL-017.** An override instruction identifies exact target fields/periods, fee basis/currency, source and proposed values, reason, supporting artifact, author, approver, effective/expiry times, materiality, affected consumers and content hash. Expiry creates an exception/reassessment; it must not unexpectedly rewrite historical official performance.
+
+**CMP-CTL-018.** A composite-level return replacement must not leave apparently reconciled constituent contribution or attribution behind. Preserve the original underlying calculation, expose the override difference, and either supply valid replacement decomposition or mark decomposition unavailable for that selected official value. Never pro-rate an unexplained difference over members to manufacture reconciliation.
+
+**CMP-CTL-019.** Distinguish a formatting-only correction from a financial correction. Formatting changes generate new report artifacts but do not invent new financial results. A corrected benchmark or disclosure can be material even when the composite return is unchanged.
+
+**CMP-CTL-020.** Freezing selected historical periods must not prevent calculation of later months. Later cumulative metrics pin the approved frozen historical versions; if a dependency is corrected, produce a candidate series and visible stale/impact status until approved.
+
+### 11.3 Materiality, impact and disclosure
+
+**CMP-ERR-001.** Configure materiality by metric, absolute/basis-point/relative size, cumulative impact, client significance, disclosure omission and business context. Quantitative tolerances are not the sole determinant; qualitative material errors need an escalation route.
+
+**CMP-ERR-002.** A correction case computes a dependency impact graph: source record → portfolio result → membership where relevant → composite periods → cumulative/rolling analytics → reports → recipients. Show old/new values, changes in reasons/counts, earliest impacted date and unaffected scope.
+
+**CMP-ERR-003.** Apply a documented GIPS error-correction workflow for material errors, including required recipients and verifier handling, using a recipient registry rather than a generic email list. [G2, provision 1.A.20] Non-material decisions must still retain investigation and policy evidence; materiality must not suppress source-data truth.
+
+**CMP-ERR-004.** Preserve delivery obligations separately from technical retries. Log each affected recipient class, issued version, notification, acknowledgement if available, failed delivery, escalation and completion decision. A successful download is not evidence that every required recipient received the correction.
+
+**CMP-ERR-005.** If an official result is known to be unreliable, expose an explicit warning and block fresh unqualified distribution pending the approved response. Freeze must not hide a known material error. Emergency withdrawal and controlled reissue must work without destructive database edits.
+
+**CMP-ERR-006.** Do not correct an old monthly return by booking an arbitrary offset into the current month. Source correction belongs to its economic period, followed by governed restatement or the documented non-material publication policy.
+
+## 12. GIPS-aware control framework
+
+### 12.1 Standards authority and claim boundary
+
+**CMP-GIP-001.** Treat official GIPS guidance as the authority, not the inherited source requirements or vendor marketing. Maintain the applicable GIPS Standards for Firms, handbook, errata, final Guidance Statements and authoritative Q&As as a versioned applicability register. Software supports a firm's compliance; a composite or software installation does not independently establish firm-wide compliance. [G0, G1, G2]
+
+**CMP-GIP-002.** Before enabling a standards-bound profile, a designated compliance/methodology owner must approve the register's applicability and evidence. Store provision/topic, authoritative reference, effective date, affected product contexts, implementation control, test, responsible owner, interpretation and review date. “Not applicable” needs a reason, not an unchecked box.
+
+**CMP-GIP-003.** The primary target is GIPS Standards for Firms with composite TWR reporting. MWR, pooled-fund, private-market, wrap-fee and overlay capabilities must activate their applicable controls. Separate asset-owner or other regimes must not reuse a Firms label without their own applicability assessment. All additional analytics remain subject to fair presentation and must not be labelled GIPS-required simply because Lotus calculates them.
+
+**CMP-GIP-004.** Maintain distinct `ACTUAL_STRATEGY`, `INTERNAL_COHORT`, `MODEL_SIMULATION` and `GIPS_REPORT` presentation contexts. No context may misrepresent fabricated or simulated history as actual performance. Research flexibility is not a route around official controls; publication permissions and disclaimers must be enforced at API and report levels.
+
+### 12.2 Mandatory control mapping
+
+This is an implementation map, not a reproduction of the standards. The owner must validate the complete authoritative applicability register, including requirements not enumerated here.
+
+| ID | Control area / authoritative anchor | Lotus implementation obligation |
+|---|---|---|
+| CMP-GIP-005 | Firm boundary and compliance administration — section 1 [G1] | Govern firm definition, total-firm-asset authority, claim approval, notification calendar and verification evidence. Prevent composite-level “certified compliant” badges. |
+| CMP-GIP-006 | Composite coverage and discretion — section 3 [G1] | Reconcile the actual managed universe against all applicable composite definitions and permissible exceptions. Keep nondiscretionary, excluded and unassigned populations inspectable. |
+| CMP-GIP-007 | Strategy definition and consistency — section 3 [G2] | Separate genuine strategy dimensions from sales segmentation. Manager name, fee schedule, favorable returns or tactical decisions alone cannot authorize a new official track. |
+| CMP-GIP-008 | Admission, termination and transitions — section 3 [G2] | Version policies and prove timely, consistent entry/exit and retained historical membership. Review every source rule before official use. |
+| CMP-GIP-009 | Cash-flow policies — sections 2 and 3 [G2] | Separate valuation-trigger and temporary-exclusion policies. Require ex-ante strategy rationale, independent thresholds and prospective changes; support temporary-new-account evidence. |
+| CMP-GIP-010 | Valuation and return methodology — section 2 [G1] | Validate method prerequisites, asset/flow coverage, fee basis, accruals and composite weighting. Reject unsupported approximation or precision claims. |
+| CMP-GIP-011 | History and continuity — sections 1 and 4 [G1] | Validate required presentation length, inception/termination stubs, discontinuities and permissible history linkage. Do not equate a software migration with portable performance. |
+| CMP-GIP-012 | Annual presentation — section 4 [G1] | Compile the applicable required return, benchmark, assets, portfolio-count, dispersion and risk fields with explicit applicability/availability states. |
+| CMP-GIP-013 | Benchmarks — final benchmark guidance [G3] | Validate benchmark type, description, changes, comparison periods and justified no-benchmark cases. |
+| CMP-GIP-014 | Disclosures and supplemental information — section 4 [G1] | Version a disclosure catalogue; test required blocks and prevent richer analytics from replacing required presentation. |
+| CMP-GIP-015 | Errors and redistribution — section 1 [G2] | Bind the correction case to the required recipient treatment, disclosure and verifier evidence. |
+| CMP-GIP-016 | Carve-outs — section 3 [G2] | Validate cash allocation, corresponding standalone-strategy treatment, universe and reporting disclosures before official inclusion. |
+| CMP-GIP-017 | Fees and specialized strategies — applicable final guidance [G5, G6] | Load wrap-fee/overlay-specific eligibility, calculation and disclosure controls instead of assuming generic NAV methods suffice. |
+| CMP-GIP-018 | Recordkeeping and evidence — section 1 [G1] | Retain the actual evidence supporting presented performance; deletion and legal-hold policies must respect the approved obligation. A backup alone is not a retrievable verifier pack. |
+
+**CMP-GIP-019.** GIPS-required annual internal dispersion is based on full-year member portfolio annual returns; it is different from month-by-month cross-sectional dispersion and from composite time-series volatility. Required three-year ex-post risk uses 36 monthly observations, with the applicable exceptions/disclosures. Configure presentation accordingly rather than substituting daily volatility. [G1, section 4]
+
+**CMP-GIP-020.** Build the annual TWR report history from the applicable five-year/since-inception starting requirement toward ten years, and retain longer history when available. Support appropriate small-composite count/dispersion presentation and partial periods without invented data. The report validator must use the exact authoritative conditions, not a generic minimum-count rule. [G1, section 4]
+
+**CMP-GIP-021.** Source exclusions for accreditation, deceased/incapacity flags, fee status, drift, cash, blocks and reference-currency changes are not automatically GIPS rules. Require a documented strategy/discretion basis and a permissible timing policy. A rule that fails this review may be used only in a correctly labelled internal cohort, while actual-strategy composite coverage remains intact. [G2, section 3]
+
+**CMP-GIP-022.** Approving a recalculation does not authorize retroactive composite redefinition or performance-improving policy changes. Distinguish correction of facts under the originally applicable policy, a permissible historical reconstruction, and a prospective strategy change. Preserve the decision and original series. [G2, section 3]
+
+### 12.3 Standards change management
+
+**CMP-GIP-023.** Provide a watchlist and human-reviewed workflow for guidance changes: discover → classify final/draft → assess applicability → impact simulation → methodology approval → tests/configuration update → effective deployment. Freeze the exact rules used for old calculations. Do not silently update historical results when a standards package changes.
+
+**CMP-GIP-024.** As checked on 4 October 2026, the official Work in Process page lists a trade-errors exposure draft with a comment period of 16 September–15 December 2026. It is a draft, not a finalized rule to hard-code. Track it for review while implementing currently applicable controls. [G4]
+
+**CMP-GIP-025.** Build a verifier workspace with read-only, time-bounded access to complete populations, definitions, rule decisions, source evidence, calculations, financial versions, disclosures and distributed reports. Export machine-readable and human-readable evidence without exposing unrelated clients or credentials.
+
+## 13. Composite analytics catalogue and formulas
+
+### 13.1 Common metric contract
+
+**CMP-ANA-001.** Every catalogue row below is a required product capability when its declared inputs and applicability conditions are met. A deployment lacking those inputs must show the feature as unavailable with a specific reason, not quietly omit it or claim support through a blank report column.
+
+**CMP-ANA-002.** Every metric result contains: metric ID/version, composite/series snapshot, fee/currency basis, exact period, frequency/calendar, value/unit, annualization convention, observation count, required minimum, coverage, benchmark/risk-free/model versions, input evidence, quality and publication status. Sample/population estimators and quantile interpolation are part of the method ID.
+
+**CMP-ANA-003.** Metrics use the exact selected historical composite series, including its real membership changes. Do not recompute historical volatility from today's constituent book. Historical realized risk and current holdings-based prospective risk are different products.
+
+**CMP-ANA-004.** The proposed analytics defaults are monthly observations, sample standard deviation and a minimum of 36 monthly observations for the standard three-year risk panel. Other panels may use explicitly certified daily/weekly/monthly methods and their own minima. “Available” does not imply statistically reliable; show short-sample warnings and uncertainty when appropriate.
+
+### 13.2 Required catalogue
+
+| ID | Metric / view | Inputs and required behaviour |
+|---|---|---|
+| CMP-AN-001 | Cumulative and annualized TWR | Standard/custom horizons; gross/actual-net/model-net; section 9 methods. |
+| CMP-AN-002 | Monthly/quarterly/calendar-year tables and wealth index | Pinned period series; explicit inception, termination and continuity segments. |
+| CMP-AN-003 | Benchmark and active/relative returns | Matched dates, currency and benchmark version; arithmetic and geometric variants labelled separately. |
+| CMP-AN-004 | Annual internal dispersion | Full-year qualifying member annual returns; equal/asset-weighted standard deviation, range and quartiles under approved methods. |
+| CMP-AN-005 | Monthly cross-sectional dispersion | Eligible member returns for that month; distinguish from the annual required measure. |
+| CMP-AN-006 | Annualized realized volatility | Composite and benchmark independently; frequency, estimator, annualization and history coverage explicit. |
+| CMP-AN-007 | Downside deviation | Approved minimum acceptable return (MAR) series and full-sample versus downside-only convention. |
+| CMP-AN-008 | Sharpe ratio | Compatible periodic risk-free returns; excess-return series; defined zero-volatility handling. |
+| CMP-AN-009 | Sortino ratio | MAR, downside convention and annualization; undefined when downside denominator is zero. |
+| CMP-AN-010 | Tracking error | Sample volatility of aligned periodic active returns, not difference of two volatilities. |
+| CMP-AN-011 | Information ratio | Arithmetic mean active return relative to tracking error using the same sample. |
+| CMP-AN-012 | Beta, correlation, R-squared and regression alpha | Aligned benchmark/excess series; regression specification, observations and coefficient uncertainty. |
+| CMP-AN-013 | Maximum drawdown and full drawdown curve | Wealth-index path with starting point; peak, trough, recovery and unrecovered flag. |
+| CMP-AN-014 | Time underwater and recovery duration | Same curve; calendar versus observation counts labelled; no invented recovery date. |
+| CMP-AN-015 | Calmar ratio | Annualized return divided by absolute max drawdown over the same specified interval; zero-drawdown handling. |
+| CMP-AN-016 | Best/worst period and rolling return distribution | Window definition; overlapping observations disclosed. |
+| CMP-AN-017 | Positive-period rate and benchmark hit rate | Explicit zero-return/tie treatment; no comparison when benchmark is missing. |
+| CMP-AN-018 | Upside/downside capture | Benchmark-conditioned observations; averaging, compounding, annualization and sign conventions explicit. |
+| CMP-AN-019 | Historical VaR and expected shortfall | Observed loss distribution, confidence, horizon and quantile convention; not automatically a forecast. |
+| CMP-AN-020 | Current-book modeled VaR/ES | Holdings, scenarios/covariance/factors and valuation models through Risk; distinguish from historical composite-return statistics. |
+| CMP-AN-021 | Skewness, excess kurtosis and tail observations | Estimator and small-sample rules; retain genuine outliers and investigate rather than winsorize official returns. |
+| CMP-AN-022 | Rolling volatility, beta, Sharpe and tracking error | Per-window completeness/minima; no silent gap interpolation. |
+| CMP-AN-023 | Member weights and return contribution | Single-period exact reconciliation; multi-period linking from section 14. |
+| CMP-AN-024 | Asset-class/sector/region/currency contribution and attribution | Compatible underlying exposures/returns/classification; residuals explicit. |
+| CMP-AN-025 | Fee and tax drag | Approved fee/tax methods; no double counting of indirect costs. |
+| CMP-AN-026 | AUM, counts and flow bridge | Beginning/ending eligible assets, inflows, outflows, income/market effects and membership changes reconciled. |
+| CMP-AN-027 | Eligibility coverage and exclusion analytics | Included/excluded/unknown counts and assets; all-reason and unique-portfolio views separate. |
+| CMP-AN-028 | Membership churn, transitions and re-entry | Effective monthly cohorts; tenure, entry/exit counts, reason changes and re-entry aging. |
+| CMP-AN-029 | Concentration and effective constituent count | Largest member/top-N weights, HHI and `1/HHI`; flag domination by few accounts. |
+| CMP-AN-030 | Return dispersion diagnostics | Member percentiles, outliers, min/max, interquartile range and standardized deviations with minimum-sample controls. |
+| CMP-AN-031 | Strategy representativeness | Model drift, cash, restrictions and implementation dispersion; no ex-post performance-based exclusions. |
+| CMP-AN-032 | Model-versus-actual comparison | Separate live/model/backtest identities and assumptions; never splice model history into actual track record. |
+| CMP-AN-033 | Current exposures and risk contributors | Asset class, issuer, sector, country, currency, rating, duration, spread and factors with look-through coverage. |
+| CMP-AN-034 | Stress/scenario analytics | Historical/hypothetical shocks; current-book versus historical-series scenario clearly identified. |
+| CMP-AN-035 | Source and data-confidence analytics | Completeness, stale data, external/Core shares, unresolved discrepancies, override prevalence and evidence depth. |
+| CMP-AN-036 | Restatement and frozen-result diagnostics | Frequency, magnitude, impacted periods/reports and pending corrections; changes never presented as investment gains/losses. |
+| CMP-AN-037 | Peer/composite comparisons | Approved peer universe, comparable method/currency/fee basis, licenses and survivorship caveats. |
+| CMP-AN-038 | Portfolio-versus-composite positioning | Portfolio relative return, contribution, weight and percentile; show whether portfolio is included in the comparison composite. |
+| CMP-AN-039 | Private-capital MWR and multiples | Section 9.4; required actual capital/NAV evidence and method eligibility. |
+| CMP-AN-040 | Economic-change explanation | Separate market, flows, fees, FX, membership and data/method corrections; reconciled amounts and residuals. |
+
+### 13.3 Registered statistical formulas
+
+These are proposed default method definitions, not claims of a unique industry formula. Alternative conventions need distinct method IDs and acceptance fixtures.
+
+For `n` aligned periodic returns `r_t`, benchmark returns `b_t`, periodic risk-free returns `f_t`, and annual frequency `K`:
+
+```text
+mean(x)          = sum_t x_t / n
+sample_sd(x)     = sqrt(sum_t (x_t - mean(x))^2 / (n - 1))
+annual_vol       = sample_sd(r) * sqrt(K)
+active_t         = r_t - b_t
+tracking_error   = sample_sd(active) * sqrt(K)
+information_ratio= mean(active) / sample_sd(active) * sqrt(K)
+excess_t         = r_t - f_t
+sharpe_ratio     = mean(excess) / sample_sd(excess) * sqrt(K)
+downside(MAR)    = sqrt(sum_t min(r_t - MAR_t, 0)^2 / n) * sqrt(K)
+sortino_ratio    = mean(r - MAR) * K / downside(MAR)
+beta             = sample_cov(r - f, b - f) / sample_var(b - f)
+alpha_periodic   = mean(r - f) - beta * mean(b - f)
+alpha_annual_lin = K * alpha_periodic
+```
+
+**CMP-ANA-005.** Use `K=12` for monthly and an explicitly registered business-calendar factor for daily. The annualizing square-root convention is an estimator assumption; serial correlation, illiquidity and valuation smoothing can undermine simple interpretation. Do not confuse arithmetic annualized alpha/mean excess with compounded realized return.
+
+**CMP-ANA-006.** Risk-free data must be converted from quoted yield to compatible periodic total return under the approved day-count and compounding convention. Do not subtract an annual yield directly from a monthly return. Missing risk-free data makes dependent metrics unavailable, not implicitly zero-risk-free.
+
+For a wealth index with `W_0=1`:
+
+```text
+W_t      = W_(t-1) * (1 + r_t)
+peak_t   = max(W_0, ..., W_t)
+drawdown_t = W_t / peak_t - 1
+max_drawdown = min_t drawdown_t
+```
+
+Report drawdown as a signed loss or positive magnitude with a declared convention. Sampling affects measured peaks/troughs: monthly observations cannot certify daily maximum drawdown.
+
+For annual member dispersion, construct `x_i` from only portfolios satisfying full-year membership for the selected year. Equal-weight sample dispersion is `sample_sd(x_i)`. The proposed asset-weighted population measure is `sqrt(sum_i v_i*(x_i-mu_w)^2)` with `mu_w=sum_i v_i*x_i` and `sum_i v_i=1`. Register the asset-weight basis; an unbiased weighted estimator is a different method, not the same field.
+
+For concentration, `HHI=sum_i w_i^2` and `effective_count=1/HHI` for valid nonnegative weights. Do not apply this interpretation blindly to leveraged/negative weights.
+
+**CMP-ANA-007.** Capture-ratio defaults use the benchmark-positive subset for upside and benchmark-negative subset for downside, geometrically compound each subset, and convert each to a comparable per-observation or annualized rate using a named convention. Exclude benchmark-zero observations from these subsets; insufficient subset, zero denominator or invalid growth factors yields an unavailable result. Provide an arithmetic-capture alternative with a different ID.
+
+**CMP-ANA-008.** For historical VaR/ES, define `loss_t=-r_t`, the requested horizon, confidence and empirical quantile convention. Expected shortfall must specify boundary/tie/fractional-tail treatment. Require a minimum effective tail sample; no automatic square-root scaling of heavy-tailed multi-period risk. Current-book scenarios must not be represented as realized composite history.
+
+### 13.4 Membership and asset diagnostics
+
+**CMP-ANA-009.** Calculate inclusion ratio against the expected strategy population, not only successfully delivered portfolios. Show denominator, in/out-of-scope definition, count ratio and asset ratio. Unknown eligibility must remain visible in the denominator and quality flags.
+
+**CMP-ANA-010.** Reason-level summaries may count one portfolio several times. Provide a separate deduplicated excluded count. For AUM bridges distinguish investment performance from external flows and assets entering/exiting because of membership; never label an eligibility change “investment P&L.”
+
+**CMP-ANA-011.** Explain outliers and strategy drift using source facts. Outlier detection opens an investigation; it must not automatically remove an underperformer or rewrite returns. Leave-one-out analysis and alternative eligibility cohorts are research outputs with explicit changed populations, not replacements for official history.
+
+## 14. Contribution, attribution and carve-outs
+
+### 14.1 Portfolio contribution to composite return
+
+**CMP-CON-001.** For beginning-asset-weighted period returns, expose each included portfolio's unrounded weight `w_i`, return `r_i` and contribution `c_i=w_i*r_i`. Reconcile weights to one and contributions to the composite return using the engine precision policy. Show contributions in percentage points or basis points, not currency P&L. Report presentation-rounding residuals separately; do not adjust a selected portfolio to force a display total.
+
+**CMP-CON-002.** Support multi-period linked contribution through a named, versioned method. A proposed Carino implementation, where each period's contributions sum to that period's return, is:
+
+```text
+R_total = product_t(1 + R_t) - 1
+k_t = ln(1 + R_t) / R_t           # continuous limit 1 when R_t = 0
+K   = ln(1 + R_total) / R_total   # continuous limit 1 when R_total = 0
+C_i = sum_t(k_t * c_i,t) / K
+sum_i C_i = R_total
+```
+
+Absent membership contributes zero for that period only when the portfolio is authoritatively absent or excluded; an unknown constituent is not a zero contribution. Maintain stable identities across entry, exit and source migrations. Logarithmic linking requires positive growth factors; use an approved non-logarithmic method or return a typed refusal where the method is undefined. Near-zero values require stable numerical evaluation, not division by rounded zero.
+
+**CMP-CON-003.** Provide contributor/detractor rankings, contribution distributions, top-N with an explicit remainder, and contribution by manager, geography, strategy subcategory and asset class where supported by actual evidence. Label overlapping classifications to avoid double counting. Annualized contributions need their own approved transformation; annualized composite return does not imply that ordinary contributions can be annualized independently.
+
+**CMP-CON-004.** Composite-level return overrides and imported composite-only series cannot generate genuine constituent contributions. Display contribution as unavailable, or show an explicitly named unreconciled authority adjustment alongside the independently calculated series. Never hide that adjustment in cash, fees or the largest portfolio.
+
+### 14.2 Attribution
+
+**CMP-ATT-001.** Provide holdings/return-based Brinson attribution for appropriate strategies, with allocation, selection and interaction, and configurable arithmetic/geometric active-return conventions. Support approved factor, currency and fixed-income attribution methods through the method registry. Implementation must include a method/data-availability matrix, not one generic “attribution supported” flag.
+
+**CMP-ATT-002.** For a single-period arithmetic Brinson–Fachler method, define portfolio group weights `a_j`, benchmark weights `b_j`, actual group returns `p_j`, benchmark group returns `q_j`, and total benchmark return `B`. A registered three-effect implementation uses:
+
+```text
+allocation_j  = (a_j - b_j) * (q_j - B)
+selection_j   = b_j * (p_j - q_j)
+interaction_j = (a_j - b_j) * (p_j - q_j)
+```
+
+The effects reconcile to portfolio minus benchmark return only under the method's complete-coverage and consistent-weight/return assumptions. Define off-benchmark groups, zero weights, shorts, derivatives, cash and missing groups explicitly. Do not derive a supposedly observed group return from contribution divided by weight when the true group return is unavailable.
+
+**CMP-ATT-003.** Composite attribution must use an approved aggregation of consistent member/group evidence, not today's aggregated holdings applied to historical returns. Distinguish attribution of the composite return, asset-weighted aggregation of constituent attribution, and attribution of a model. These may differ and require different method IDs and reconciliation bridges.
+
+**CMP-ATT-004.** Fixed-income attribution shall support duration/curve, spread, carry/income, selection, FX and residual components where required data exist. Scenario repricing is a separate analytical product. Attribute unexplained effects to a visible residual with diagnostics, not a fabricated factor. All optional factor datasets require licensing and source lineage.
+
+**CMP-ATT-005.** Provide multi-period linking with reconciliation to the stated arithmetic or geometric excess return. Do not mix a geometric excess-return headline with arithmetic linked effects without an explicit bridge. Fees, taxes and FX effects must match the return view and benchmark convention.
+
+### 14.3 Asset-class sleeves and actual carve-outs
+
+**CMP-CAR-001.** Distinguish asset-class contribution, asset-class sleeve return, and a separately maintained carve-out composite. An asset-class report does not by itself create a valid strategy track record.
+
+**CMP-CAR-002.** Support effective-dated classifications, trade-date positions, income/receivables, financing, allocation of external flows, internal transfers, cash allocation and fees. A transfer between sleeves is external to a sleeve but internal to the full portfolio. Sleeve transactions and valuations must reconcile to portfolio totals without double counting.
+
+**CMP-CAR-003.** Implement separate actual-cash and allocated-cash carve-out policies, with a compliance-applicability check against the current GIPS provisions and guidance. Retain the allocation method, effective dates, standalone-portfolio relationships, disclosures and reconstruction evidence. An approval cannot turn a hypothetical asset allocation into an actual carve-out. [G1, G2]
+
+**CMP-CAR-004.** Support weighted roll-up from disjoint sleeves using consistent period methodology. Geometrically linked asset-class returns are not additive. Report contributions where the question is “what explains total return,” and sleeve returns where the question is “how did this sleeve perform.”
+
+**CMP-CAR-005.** Treat negative/zero sleeve capital, leveraged exposures and derivative notional with method-specific denominator controls. A percentage return with an economically meaningless denominator must be refused or represented using an approved alternative measure, with a clear label.
+
+## 15. Lineage and reproducibility
+
+### 15.1 Evidence graph
+
+**CMP-LIN-001.** Maintain a queryable dependency graph from each report cell and metric to the series snapshot, monthly results, member facts, membership decisions, policy versions, source observations, imported file/API receipts, valuation/FX/fee evidence and engine build. The graph must cross service boundaries through stable typed references, not require access to another service's private tables.
+
+**CMP-LIN-002.** Distinguish evidence that Lotus observed from evidence a provider asserted. Record source business date and provider revision separately from retrieval timestamp, local batch ID and file upload time. Hashes attest byte/content identity, not economic accuracy or completeness.
+
+**CMP-LIN-003.** A reproducibility manifest must include tenant/firm/composite context, exact input versions and hashes, normalized input schema, membership and source-authority versions, method/policy version, engine build/image digest, decimal/rounding policy, calendar, FX/fee/benchmark context, interval semantics and deterministic ordering. Record random seeds for applicable simulation methods.
+
+**CMP-LIN-004.** Support reproducibility at three honest depths: raw-input replay; replay from accepted member returns and weighting assets; reproduction of an externally attested composite series. A less detailed migration must never be advertised as having transaction-level reconstruction.
+
+**CMP-LIN-005.** Provide forward impact queries: given a changed transaction, status, portfolio return, benchmark, rule or FX fixing, identify potentially affected membership periods, composites, metric windows, reports and recipients. Distinguish affected, recalculated, unchanged and republished outputs. A January correction can affect later YTD/SI, risk and linked-contribution windows without changing every later monthly return.
+
+**CMP-LIN-006.** Provide side-by-side explanation of any two result generations: added/removed members, changed inputs, changed rule outcomes, weighting deltas, currency/fee/method differences, resulting return delta and non-additive interaction where applicable. A “why did this number change?” response must not stop at “recalculated.”
+
+**CMP-LIN-007.** Replays must remain possible after ordinary compute-job expiry. Separate short-lived execution logs from retained financial evidence. Restore tests must verify referential integrity, immutable hashes and report reconstruction, not only database availability.
+
+**CMP-LIN-008.** Retention is configurable by record class, jurisdiction, reporting horizon and legal hold, while preserving all evidence needed to support retained/presented history. Five-year or ten-year display windows are not automatic deletion rules. Purging must produce a reviewed dependency-impact manifest and must not leave apparently reproducible results with broken evidence.
+
+**CMP-LIN-009.** Provide an auditor/verifier export with a signed or checksummed manifest, schema dictionary, policy decisions, sampling support and machine-readable data. Entitlements and source-data licensing remain enforced. Export integrity is not an audit opinion or a claim of independent verification.
+
+**CMP-LIN-010.** An evidence service outage must not cause invented lineage or publication without required proof. Allow idempotent resumption once the exact pinned evidence becomes available; do not replace a requested revision with a newer one silently.
+
+### 15.2 Minimum report-cell evidence contract
+
+```json
+{
+  "schema_version": "illustrative-v1",
+  "report_snapshot_id": "report-synthetic-2026-09-v2",
+  "cell_key": "composite-neutral-balanced-usd.net_actual.ytd",
+  "value": "0.030200000000",
+  "unit": "DECIMAL_RETURN",
+  "status": "AVAILABLE",
+  "publication_state": "OFFICIAL",
+  "authority_kind": "CALCULATED",
+  "evidence_depth": "MEMBER_RETURN_REPRODUCIBLE",
+  "series_snapshot_id": "series-synthetic-v2",
+  "method_ref": {"id": "GEOMETRIC_LINK", "version": 1},
+  "lineage_ref": "lineage-synthetic-001",
+  "display_rounding": {"decimal_places_percent": 2}
+}
+```
+
+This is an illustrative logical contract, not an instruction to duplicate an existing response envelope. Numeric values in authoritative exact-return exports may use decimal strings; any numeric compatibility projection must declare precision and units.
+
+## 16. Reports and distribution
+
+### 16.1 Required report products
+
+| ID | Report / purpose | Required content |
+|---|---|---|
+| RPT-01 | Detailed composite review | Mandate/strategy, risk/currency context; gross/net/model-fee views; rolling/calendar/SI returns; assets and counts; metrics; membership over time; all reasons; weights/contributions; method and source coverage. |
+| RPT-02 | Consolidated management dashboard | Comparable tracks with synchronized as-of dates, return bases and currencies; risk/active return; AUM/count trends; data quality and provisional/frozen/restated indicators. No forced portfolio-level disclosure. |
+| RPT-03 | GIPS presentation | Applicable annual history, numerical information and disclosures generated from an approved compliance profile, plus firm and verifier context. This is not merely RPT-01 with a GIPS logo. |
+| RPT-04 | Membership and eligibility evidence | Expected population, inclusion/exclusion/undetermined status, rule observations, multi-reason detail, transition history, re-entry and unresolved source exceptions. |
+| RPT-05 | Performance and risk analysis | Wealth/drawdown charts; benchmark comparison; dispersion; risk-adjusted, tail and capture metrics; sampling and availability caveats. |
+| RPT-06 | Contribution / attribution / carve-outs | Reconciled effects, linking methods, residuals, classifications, member/group evidence and carve-out cash policy. |
+| RPT-07 | Migration reconciliation | Source and target counts, asset/return differences, chronology, coverage depth, seam checks, mappings, accepted exceptions and sign-offs. |
+| RPT-08 | Restatement and correction notice | Before/after results, reason/materiality, periods affected, approvals, report replacements and recipient/distribution status. |
+| RPT-09 | Month-close operations | Input readiness, universe reconciliation, eligibility runs, unresolved exceptions, approvals, freeze status, batch timing and failed delivery. |
+| RPT-10 | Auditor / verifier evidence pack | Selected scope and exact versions, source manifests, methods, approvals, historical report copies and test/reconciliation evidence. |
+| RPT-11 | Configuration and policy register | Effective/historical definitions, inherited/resolved policy, approved changes, simulations and standards-applicability results. |
+| RPT-12 | Research and scenario comparison | Alternative methods or cohorts, counterfactuals and sensitivity, always distinguishable from actual official performance. |
+
+**CMP-RPT-001.** Support Excel, CSV, JSON/API datasets, PDF and accessible web views. Large raw exports shall also support a partitionable analytical format such as Parquet. Select transport independently: authenticated download, managed object storage, agreed file transfer or API/webhook delivery. Core calculations must not depend on a specific frontend or report format.
+
+**CMP-RPT-002.** Support one workbook per composite, one per mandate, and consolidated workbooks with separate tabs through templates. Define stable logical tables: `Summary`, `MonthlyReturns`, `AnnualReturns`, `Risk`, `Members`, `EligibilityReasons`, `MembershipHistory`, `Contribution`, `Attribution`, `Methods`, `Disclosures`, `Lineage` and `Restatement`. A configuration may omit irrelevant tables but cannot hide required disclosures.
+
+**CMP-RPT-003.** Every output carries reporting period, source cut, calculation/publication timestamps, currency, fee basis, cumulative versus annualized labels, template/method version, result generation, provisional/frozen/overridden/restated status and missing-data legend. A blank, zero, not-applicable and unavailable value are distinct.
+
+**CMP-RPT-004.** Excel cells contain authoritative numeric results rather than unreconciled spreadsheet formulas. Formula-based analytical extensions must be clearly separated from official values. Prevent spreadsheet-formula injection in text fields; preserve leading-zero identifiers and sufficient precision. Large membership detail must split into declared partitions rather than silently truncate at a format limit.
+
+**CMP-RPT-005.** Reports assemble from a single immutable manifest. A report must not mix a restated January return, an old YTD number and a newly calculated Sharpe ratio accidentally. Concurrent publication creates a new report candidate, not a partially updated existing report.
+
+**CMP-RPT-006.** Templates and disclosures have draft/review/approval/effective-date/version controls. Data selection filters and suppression rules are auditable. Branding and localization must not change the underlying economics, temporal cutoff or interpretation of returns.
+
+**CMP-RPT-007.** Detailed reports preserve historical members even when absent from the latest source file. Full-period review is cursor-paged or partitioned, with no fixed five-year history limit. Report filters must show whether counts/AUM refer to the full universe or selected display subset.
+
+**CMP-RPT-008.** Provide a disclosure registry with conditional applicability, approved wording, language, firm/composite scope, effective interval and required data dependencies. Incorrect or missing mandatory disclosures block publication of a GIPS presentation, not internal investigation views.
+
+**CMP-RPT-009.** Maintain a report-delivery and recipient register: intended audience, report version, destination, delivery attempt, acknowledgement, failure/retry and replacement notice. A successful file upload is not proof that the intended recipient received or reviewed it.
+
+**CMP-RPT-010.** Implement scheduled business-calendar reporting, ad hoc runs, month/quarter/year close, reopen/restatement and subscription delivery. Due-date changes are governed; incomplete data produces an exception or clearly provisional output, never a silently final report.
+
+**CMP-RPT-011.** Apply recipient-specific access and redaction without changing aggregate approved returns. Client identity, nationality, accreditation, health/legal status and restriction details require strict need-to-know access; management summaries should use reason categories and pseudonymous IDs where appropriate.
+
+**CMP-RPT-012.** Snapshot and test rendering: headings, negative values, long names, currencies, missing data, multi-page tables, font embedding/licensing, accessibility, chart labels and print margins. Semantic reconciliation tests must accompany visual tests.
+
+### 16.2 GIPS presentation assembly
+
+The template engine shall use a provision-level applicability registry rather than a hard-coded universal page. Data objects must support annual return history and required partial periods; benchmark returns and definition; composite assets, portfolio counts, firm assets; applicable dispersion and three-year risk information; fee schedules and return basis; strategy, inception and creation dates; significant policies and changes; relevant special-asset/carve-out information; and approved compliance/verification disclosures. The exact mandatory/conditional fields, small-count treatment and exceptions must be signed off against the selected current standards profile. [G1–G3]
+
+**CMP-RPT-013.** Portfolio count at year end, number of members present for a full year, and population used for a risk statistic are independent fields. Suppressing an exact small count must use the approved disclosure convention and must not erase the internal count.
+
+**CMP-RPT-014.** Provide validated annual-update and prospective-recipient workflows appropriate to the firm's obligations. Preserve the exact report delivered. Advertising, client reports, research reports and GIPS presentations require separate publication profiles; a compliance statement cannot be copied between them without validation.
+
+## 17. API, events and operational workflows
+
+### 17.1 API capability surface
+
+These are logical operations, not mandated new URL aliases. Reuse and extend existing Lotus contracts where ownership and semantics fit. Publish OpenAPI/JSON Schema, examples and compatibility tests for every operation.
+
+| Resource family | Required operations |
+|---|---|
+| Catalogue and firm profiles | Create/read/list/version/diff/validate/approve/activate/retire; composite description lists and history. |
+| Policy and method registry | Discover schemas, capabilities and constraints; draft/clone/resolve/validate/simulate/approve/schedule; compare versions. |
+| Sources and authority | Register connectors and contracts; map identifiers; declare authority intervals; inspect coverage and lineage; reconcile. |
+| Import and migration | Create upload session, validate manifest, dry run, stage, reconcile, approve, commit, rollback an unpublished candidate and inspect rejects. |
+| Universe and eligibility | Submit or resolve pinned population; evaluate; inspect all decisions/reasons; publish membership revision; attest completeness. |
+| Calculation | Submit batch or single-composite run; estimate workload; inspect/poll/cancel/resume/retry; calculate periods, series, analytics and contribution. |
+| Return authority | Import portfolio/composite returns; propose correction or override; compare; approve; publish replacement; withdraw; restore prior authority by new version. |
+| Freeze and restatement | Freeze scoped snapshot; request reopen; preview dependency impact; approve restatement; publish atomic replacement set; review historical locks. |
+| Results and evidence | Query exact/as-reported/latest-approved/as-known versions, series, metrics, members, lineage, reconciliation and differences. |
+| Reports | Validate/generate/preview/approve/distribute; retrieve manifest, files, delivery status and restatement notices. |
+| Operations and entitlements | Read health/readiness/queues/capacity; configure schedules; manage allowed roles/scopes; retrieve audit and support bundles. |
+
+**CMP-API-001.** Long operations return durable acceptance with a job/operation ID and status location. Admission must be atomic with idempotency reservation. Invalid commands must fail before being acknowledged as queued work.
+
+**CMP-API-002.** Every mutation requires trusted authenticated identity, tenant/firm authorization, correlation ID, an idempotency key where applicable, and an expected revision for changes to mutable heads. Exact replay returns the same economic outcome; changed-payload reuse conflicts. No privilege may be inferred from arbitrary caller-supplied role headers alone.
+
+**CMP-API-003.** Queries must expose applied filters, exact date interval, fee/currency, method, authority, availability, source cut and version-selection mode. “Latest” without a defined authority policy is not a valid official-query contract.
+
+**CMP-API-004.** Use stable cursor pagination pinned to a revision/snapshot for changing membership and evidence sets. A stale cursor produces a typed conflict and restart instruction. Provide total counts and completeness independently from page length.
+
+**CMP-API-005.** Use typed Problem Details and stable domain reason codes. Error messages must identify recoverable input/policy/action without leaking another tenant's object existence or sensitive raw data. Distinguish not-found, unavailable, conflicting, unauthorized, incomplete and method-unsupported.
+
+**CMP-API-006.** Provide schema evolution and contract compatibility tests. Decimal-string exact-money fields, percentage units, timezone and enum meanings are part of compatibility. A silent change from decimal returns to percent returns is a breaking change even when the JSON type remains numeric.
+
+**CMP-API-007.** API export and UI download must use identical versioned datasets. No spreadsheet-only edits, browser-only approval logic or unsupported direct database maintenance may be the sole way to operate a feature.
+
+### 17.2 Events and recovery
+
+**CMP-EVT-001.** Publish versioned domain events for source acceptance/correction, membership publication, calculation completion/refusal, approval, freeze/reopen, restatement, report generation/delivery and standards-policy updates. Events include scoped IDs, immutable revision/digest, effective dates, correlation/causation and minimal safe payload.
+
+**CMP-EVT-002.** Use transactional outbox or equivalent durable publication. Design for at-least-once transport with idempotent consumers and economically once-only publication. Do not assume queue-level “exactly once” eliminates side-effect duplication.
+
+**CMP-EVT-003.** Ordering is required within the appropriate tenant/composite/authority scope, not globally across all portfolios. Old events cannot replace newer approved authority. Event replay must respect original effective dates, source versions and frozen history.
+
+**CMP-EVT-004.** A dead-letter or retry-exhausted item remains visible and owned, with reason, retry history and a safe recovery command. Recovery requires a new attempt identity where necessary; changing configuration silently under an old immutable job is prohibited.
+
+### 17.3 End-to-end month close
+
+**CMP-OPS-001.** Implement this orchestrated workflow with inspectable checkpoints: establish source cutoff and expected universe; ingest/reconcile; evaluate eligibility; resolve eligible member returns and weights; calculate/reconcile; generate analytics; run standards/publication validations; prepare review pack; obtain approval; publish/freeze a series snapshot; render/distribute; record delivery evidence. Each checkpoint identifies inputs, outputs, blockers and the responsible actor/service.
+
+**CMP-OPS-002.** Allow parallel independent composites and safe partial operational progress. Official release of a requested report family is governed by its atomicity policy: either all required tracks/metrics are ready, or the published output explicitly identifies allowed unavailable sections. It must never silently omit a failed strategy.
+
+**CMP-OPS-003.** Preview impact before bulk changes, cancellation and retry. Cancellation stops uncommitted work without deleting already committed evidence. A cancelled report delivery does not undo a published calculation or erase a recipient's prior receipt.
+
+**CMP-OPS-004.** Provide playbooks for late files, absent portfolios, unavailable Core, disputed returns, bad FX, corrupted imports, expired credentials, blocked approvals, duplicate runs, interrupted migration, failed archive and restatement after delivery.
+
+## 18. Workbench, configuration experience and maintainability
+
+**CMP-UX-001.** Deliver task-oriented workspaces: Composite Catalogue; Policy Studio; Source/Migration Studio; Eligibility Explorer; Month-Close Console; Return and Risk Explorer; Freeze/Restatement Desk; Report Studio; Lineage Explorer; and Auditor Workspace. These may be modules within existing screens rather than separate applications.
+
+**CMP-UX-002.** The policy editor uses typed fields, unit-aware operators, validated observation windows and plain-language summaries. Provide expert JSON/YAML import/export generated from the same schema. Invalid/unknown combinations cannot be saved as active policy. Explain inherited defaults and overrides next to resolved values.
+
+**CMP-UX-003.** Before policy approval, show affected portfolios/composites, included/excluded/unknown deltas, threshold boundaries, return/asset effects, standards warnings and before/after examples. Simulations are not authority for retrospective cherry-picking. Historical replay of a proposed rule remains a research result unless a legitimate correction process authorizes a change.
+
+**CMP-UX-004.** Eligibility drill-down answers: “Why was this portfolio excluded?”, “What else failed?”, “Which observations were used?”, “What must change for re-entry?”, “Which period will be affected?” and “What was believed at the time?” Show both valid time and recorded time where relevant.
+
+**CMP-UX-005.** Freeze and overwrite actions must show the exact scope, original value/version, proposed value/authority, affected metrics/reports, method conflicts, rationale, supporting evidence and required approvals. A bulk approval cannot conceal different treatment across portfolios or periods.
+
+**CMP-UX-006.** Support saved views, bookmarks, comparison across composites, exportable filters, accessible keyboard navigation, regional date/number display, and configurable notifications. Notifications link to authorized evidence; they must not expose sensitive exclusion reasons in email subjects.
+
+**CMP-MNT-001.** Maintain a versioned domain glossary, data dictionary, policy/method registry, OpenAPI front door and operator documentation. Document unsupported combinations explicitly; avoid vague capability booleans.
+
+**CMP-MNT-002.** Financial engines must be deterministic, side-effect-free at their domain boundary and covered by independent expected-value tests. Source adapters, orchestration, persistence and presentation are separate modules. Test customer variations through configuration, not copied code paths.
+
+**CMP-MNT-003.** Apply repository engineering standards, static/type checks, unit/integration/contract/end-to-end tests, complexity controls, dependency/security checks and migration validation. Coverage percentages alone do not prove financial correctness or negative-path behaviour.
+
+**CMP-MNT-004.** Version schemas, policies, methods and engine builds independently. Document compatible changes, migration requirements and historical replay impact. Do not run an old immutable request under a new numerical method while retaining the old method identity.
+
+**CMP-MNT-005.** Extension SDKs must specify typed inputs/outputs, determinism, resource limits, licensing, test vectors, versioning and certification gates. Customer-authored arbitrary code cannot run with data-plane credentials inside the production rule engine.
+
+**CMP-MNT-006.** Observe the product at financial as well as technical level: expected/received portfolios, excluded/unknown ratios, input freshness, unresolved return/asset breaks, metric availability, restatement volume, publication lag and complete-universe failures. Low HTTP error rates do not establish a correct close.
+
+## 19. Scalability, resilience and security
+
+### 19.1 Workload and scale architecture
+
+**CMP-SCL-001.** Scale ingestion, rule evaluation, return calculation, risk analytics and rendering independently. Partition by tenant, business-date range and stable portfolio/composite keys. Pre-resolve shared portfolio returns once per exact input/method context and reuse them safely across overlapping composites; do not recalculate the same portfolio for every composite.
+
+**CMP-SCL-002.** Avoid portfolio-by-composite Cartesian scans. Resolve candidate strategy memberships through indexed/effective-dated attributes, evaluate shared observations once, and maintain an impact index for incremental recalculation. Explain query plans and computational complexity for representative workloads.
+
+**CMP-SCL-003.** Use bounded chunks, backpressure, fair scheduling, leases with fencing, idempotent checkpoints and controlled parallelism. One unavailable member or large tenant must not starve others. A worker crash cannot leave a generation falsely complete or publish only successful survivors.
+
+**CMP-SCL-004.** Decouple interactive reads from backfill/close workloads through authoritative read models and resource budgets. Caches include tenant, version, source cut, policy, fee/currency and authority context. Cache invalidation must never redirect a historical pinned query to current results.
+
+**CMP-SCL-005.** Support incremental dependency-based recalculation and full deterministic replay. For example, a corrected monthly return changes its composite month and dependent windows, whereas an unrelated instrument attribute outside the used classification interval must not trigger an unexplained full-history rebuild.
+
+**CMP-SCL-006.** Store large immutable histories in appropriately partitioned relational/columnar/object representations with manifest integrity, while preserving a consistent authority index. The storage technology is an architectural decision; no single database, message broker or cloud provider is mandated by this document.
+
+**CMP-SCL-007.** Validate capacity independently for member-return inputs and raw daily accounting reconstruction. A benchmark using precomputed monthly returns does not prove the same throughput for daily valuation, transaction or risk-factor processing.
+
+### 19.2 Proposed acceptance workload profiles
+
+These are engineering targets to implement and measure, not current Lotus achievements or a vendor-superiority claim. Hardware, network, software versions, dataset distribution, history sparsity, source latency and cold/warm cache conditions must be recorded. A benchmark adjustment requires explicit approval and rationale; it cannot be concealed by reducing the workload.
+
+| Profile | Required test population | Workload boundary |
+|---|---|---|
+| S — functional enterprise | 10,000 portfolios; 100 composites; 10 years of monthly history; at least 20 active eligibility rules | Full source-to-report integration, including irregular histories and adverse data. |
+| M — institutional | 100,000 portfolios; 1,000 composites; 20 years of monthly history; 50 rules; mean two candidate memberships | Incremental close, large imports, corrections, concurrent reads and reporting. |
+| L — scale qualification | 1,000,000 portfolios; 10,000 composites; up to 20 years / 240 monthly observations; 50 rules; mean two candidate memberships | Up to 240 million portfolio-month observations before version/replication overhead, evaluated from precomputed return/status evidence. |
+| D — daily/raw-data qualification | At least 100,000 portfolios with a separately declared daily valuation/transaction population and instruments/events per portfolio | Portfolio TWR production plus composite integration; explicitly account for much higher raw-data volume. |
+| H — heavy-tail/overlap stress | One composite with a very large member set; skewed tenants; high overlap; closed portfolios; sparse legacy coverage; 10% late/revised inputs | Verify memory bounds, fairness, deterministic retries, privacy and failure containment rather than ideal balanced partitions only. |
+
+**CMP-SCL-008.** The product has no hard-coded portfolio/composite/history ceiling at these profiles. Scaling beyond tested envelopes requires additional measured qualification, not a promise of unlimited capacity. Report logical observations separately from bytes, versions and source raw-data volume.
+
+### 19.3 Service objectives and proof
+
+| ID | Proposed engineering objective | Measurement and acceptance condition |
+|---|---|---|
+| SLO-01 | Read APIs p95 <=2 seconds, p99 <=5 seconds for bounded pages | Profile M under simultaneous close/backfill load; exclude separately advertised large export generation. |
+| SLO-02 | Durable job admission p95 <=1 second | After request validation; dependency processing runs asynchronously. Demonstrate no acknowledged job loss. |
+| SLO-03 | Final monthly composite close <=60 minutes at profile L | From complete, validated monthly member/status inputs and approved policies to calculation/analytics candidates; human approval and external delivery time reported separately. Declare metric mix and worker budget. |
+| SLO-04 | Large historical replay <=8 hours for profile L monthly returns | Measured return/membership/series pipeline, excluding unavailable external data and manual review; analytics and reports measured separately. |
+| SLO-05 | Generate 100,000-row detailed export <=120 seconds | From a pinned ready dataset; show bounded memory and no silent row loss. |
+| SLO-06 | 99.9% monthly availability target for production read/admission services | Define maintenance policy, dependency treatment and measurement from deployed probes. Financial correctness is a separate gate. |
+| SLO-07 | RPO 0 for acknowledged official-publication commits within the designed primary durability boundary | State replication assumptions. Cross-region disaster RPO must be separately measured; it must not inherit an unproven zero-loss claim. |
+| SLO-08 | Disaster recovery RTO <=4 hours; cross-region RPO <=15 minutes target | Restore source/evidence/authority/report consistency, not merely service processes; test recovery-point gaps and remediation. |
+| SLO-09 | Incremental reprocessing bounded by identified affected scope | Publish impacted versus actually recalculated work counts and explain conservative over-recalculation. |
+| SLO-10 | Near-linear worker scale-out where partitioning permits | Compare 1x, 2x and 4x workers at fixed source/storage capacity; report bottlenecks and throughput/cost, without extrapolating past saturation. |
+
+**CMP-SCL-009.** Benchmark manifests must disclose CPU/memory/storage/I/O, replica counts, indexes, queue settings, method versions, source mocks versus live adapters and failure injection. Targets requiring larger infrastructure need an explicit capacity/cost plan; agents must not manufacture passing evidence.
+
+**CMP-SCL-010.** Run restart, lease-expiry, retry storm, duplicate event, out-of-order correction, database failover, object-store outage and consumer-lag scenarios. Published result hashes and complete-universe reconciliation must match unaffected deterministic reference runs.
+
+### 19.4 Security and governance
+
+**CMP-SEC-001.** Enforce authenticated service/user identity, role and attribute-based authorization, least privilege, segregation of duties and tenant/firm boundaries at API, worker, repository, cache and object storage. The maker must not approve their own restricted action even through a different UI/API path.
+
+**CMP-SEC-002.** Encrypt transport and storage using institution-approved controls, rotate credentials and keys, avoid persisted bearer tokens, and support audit-safe secret handling. Sensitive business status belongs in controlled evidence, not unredacted telemetry.
+
+**CMP-SEC-003.** Imported files require type/size checks, malicious-content scanning where appropriate, schema validation and safe parsing. Block decompression bombs, path traversal, external spreadsheet links/macros and formulas from executing. Source mappings cannot execute arbitrary SQL or scripting.
+
+**CMP-SEC-004.** Apply tenant-level quotas, rate limits, query-cost limits and safe cancellation. Restrict broad lineage/recipient exports and support verified break-glass workflows with expiry and post-review; break-glass does not disable financial integrity.
+
+**CMP-SEC-005.** Financial/audit retention and privacy obligations must be reconciled through an approved policy. Pseudonymization and separately controlled identity mappings may preserve necessary evidence while reducing personal-data exposure. Do not erase source identity links unilaterally where they remain necessary for required audit evidence.
+
+## 20. Acceptance scenarios and numerical oracles
+
+### 20.1 Evidence requirements
+
+**CMP-TST-001.** Tests must cover domain calculations, source adapters, persistence/migrations, contracts, registered HTTP routes, workers, report datasets, UI workflows, authorization and failure recovery. Fixtures are synthetic and independently expected; copying production calculations into the test oracle is insufficient.
+
+**CMP-TST-002.** Each scenario records requirement IDs, input fixtures, approved policy profile, expected values/states, actual results, commands, environment, commit/build, evidence location and unresolved limitations. Passing isolated engine tests is not evidence of end-to-end publication safety.
+
+**CMP-TST-003.** Numeric tests use exact monetary values and independently derived return expectations, with documented method-specific tolerances. Status, identity, version selection, approval and completeness tests require exact agreement. Never relax tolerance to conceal currency, unit, sign or population mistakes.
+
+**CMP-TST-004.** The companion `05_composite_numerical_oracles.json` contains 18 independently prepared fixtures. Its calculations were checked when preparing this package; the fixtures have **not** been executed against Lotus. Agents must convert them into repo-native tests and add the broader scenarios below.
+
+### 20.2 Minimum scenario matrix
+
+| Test | Scenario | Required outcome |
+|---|---|---|
+| AT-001 | One portfolio matches one strategy definition | Deterministic assignment and pinned definition evidence. |
+| AT-002 | Portfolio matches multiple applicable strategy composites | Include wherever required by definitions; enforce exclusivity only in genuinely exclusive configured families. |
+| AT-003 | Conflicting exclusive rules | Assignment is ambiguous and official release is blocked; no arbitrary first-match selection. |
+| AT-004 | Definition changes prospectively | Historical published membership remains unchanged; new effective version applies from its approved date. |
+| AT-005 | Composite renamed or moved between display groups | Stable identity and inception/history retained. |
+| AT-006 | Composite retires, later starts a new eligible segment | Preserve termination and discontinuity; no silent linking across an empty managed period. |
+| AT-007 | Portfolio closes after participating historically | Earlier returns/membership remain; termination rule uses approved effective timing. |
+| AT-008 | Portfolio disappears from a current file | Absence is not inferred as closure; reconcile against expected universe. |
+| AT-009 | Complete file is legitimately empty versus file unavailable | Distinct completeness states, decisions and operational outcomes. |
+| AT-010 | Year-end, leap-day and timezone boundaries | No double inclusion, missing interval or incorrect target month. |
+| AT-011 | Portfolio fails three eligibility rules | All three reasons retained; excluded portfolio counted once. |
+| AT-012 | One of three failed rules is resolved | Only that reason clears at its defined next assessment; historical evidence remains. |
+| AT-013 | Required status data are unknown | Eligibility undetermined; missing data is not an eligible pass or normal exclusion. |
+| AT-014 | Non-accredited status then requalification | Any-day and approved requalification policies produce separately tested outcomes. |
+| AT-015 | Mandate/risk/currency changes mid-month | Transition rules apply to both departure/entry tracks without duplicate economic participation. |
+| AT-016 | New portfolio starts mid-month | Reference policy excludes opening month and tests subsequent full-month entry. |
+| AT-017 | Performance start is first day of month | Apply the selected entry policy explicitly; do not infer the source rule is universally GIPS-mandated. |
+| AT-018 | Cash exactly 5%, then just above | Inclusive boundary passes at 5%; above fails under that profile. |
+| AT-019 | Drift exactly at, below and above threshold | Approved comparison and observation window control result; no rounded-threshold ambiguity. |
+| AT-020 | Same observations under any-day, average and month-end drift | Distinct reproducible outcomes, not one hidden hard-coded test. |
+| AT-021 | Coordinated rebalance causes temporary drift | Approved strategy policy applies consistently, with no ad hoc performance-based waiver. |
+| AT-022 | Zero-fee portfolio is discretionary | Approved GIPS policy assessed; zero fee is not an unreviewed universal exclusion. |
+| AT-023 | Restriction removed but another block remains | Re-entry is refused until every applicable criterion is satisfied. |
+| AT-024 | Negative, zero or missing prior AUM | Cash-flow ratio is undefined/unsupported as appropriate; no automatic 0% or infinity-based decision. |
+| AT-025 | Flows +150 and -100 against AUM 1,000 | Net +50 / 5% does not breach a 10% ABS_NET monthly rule. |
+| AT-026 | Withdrawal -100 against AUM 1,000 | Exact 10% breach under ABS_NET; signed-only alternative must have a different approved policy. |
+| AT-027 | Large single inflow later offset in same month | Final monthly net rule differs from intramonth provisional state; no premature official exclusion. |
+| AT-028 | Cash-flow reversal, duplicate and late posting | Apply economic-event identity and approved effective date; no double count. |
+| AT-029 | In-kind external transfer and internal sleeve transfer | Value/classify appropriately; internal portfolio movement is not external to the whole portfolio. |
+| AT-030 | Large valuation-trigger flow versus significant membership flow | Independent policies and tests; one does not substitute for the other. |
+| AT-031 | Core-only approved inputs | Resolve pinned facts without copied accounting authority. |
+| AT-032 | External-only inputs with Core unavailable | Successful valid external route; no fabricated Core objects or hidden Core dependency. |
+| AT-033 | Hybrid status/returns/assets with declared authorities | Correct family/date ownership and full combined lineage. |
+| AT-034 | Core and external provider disagree | Reconciliation/authority policy applies; newest received record does not automatically win. |
+| AT-035 | Approved source switches at historical cutoff | No overlap double count or gap; comparability and seam checks pass. |
+| AT-036 | External returns have percent versus decimal units | Explicit conversion only; ambiguous units rejected before materialization. |
+| AT-037 | Import monthly returns without member weights | Cannot produce an asset-weighted composite; typed missing-input outcome. |
+| AT-038 | Import composite-only legacy history | Retain declared evidence depth; member analytics are unavailable, never fabricated. |
+| AT-039 | Duplicate external IDs, aliases and renamed portfolios | Stable canonical mapping and conflicts handled without cross-portfolio merges. |
+| AT-040 | Migration is interrupted and resumed | Idempotent continuation and reconciliation, with no partial official cutover. |
+| AT-041 | Unsupported provider methodology | Quarantine or approved separate analysis; no false method-equivalence label. |
+| AT-042 | Restatement arrives for an imported frozen period | New candidate plus impact review; original publication unchanged until governed replacement. |
+| AT-043 | AUM weights 100/300 and returns +10%/-2% | Weights 25%/75%; contributions +2.5/-1.5 percentage points; composite +1%. |
+| AT-044 | Composite months +1%, +2% | Linked return +3.02%, not +3% and not an average of member YTD returns. |
+| AT-045 | Member excluded in second month | First-month composite retains valid contribution; only second-month universe changes. |
+| AT-046 | Missing middle month | Requested full-interval cumulative return unavailable; cannot expose surviving months' +3.02% as full-period return. |
+| AT-047 | All members policy-excluded versus one missing eligible member | Distinct no-eligible-track versus data-blocked states; neither is a zero-return month. |
+| AT-048 | Daily and monthly aggregation methods | Independently reconcile each method; do not assert identical results without required assumptions. |
+| AT-049 | Mixed currencies or gross/net member facts | Reject incompatible aggregation, or perform explicitly evidenced conversion/fee transformation. |
+| AT-050 | Modified Dietz 100 start, 130 end, flow 20 at half weight | Return 10/110 = 9.090909…%; distinct from true daily TWR when subperiod data differ. |
+| AT-051 | Native return 2%, FX 1.3 to 1.4 reporting/native | Reporting return 9.846153846…%; translation is not hedged performance. |
+| AT-052 | Two-year total return 21% | Annualized return 10%; six-month history must not be annualized in a GIPS presentation. |
+| AT-053 | Return exactly -100% or below -100% | Method-domain controls; no invalid logarithm or plausible annualized result. |
+| AT-054 | Huge assets and small returns | Deterministic precision, correct weights and explicit rounding without monetary float loss. |
+| AT-055 | Gross, net actual and net model-fee views | Correct cost/fee definitions and reconciliation; no fee charged twice. |
+| AT-056 | Missing actual fees, model fee requested | Separate model-fee authority and approved calculation; not relabelled as actual net. |
+| AT-057 | Custody, management, performance, transaction and tax events | Categorized under approved policy; income/tax/fee treatment consistent in imported and calculated returns. |
+| AT-058 | Annual MWR -100 then +110 after one year | IRR +10%; composite MWR is not an asset-weighted average of portfolio IRRs. |
+| AT-059 | Multiple-root/no-root cash-flow patterns | Solver diagnostics and policy-based outcome, no arbitrary hidden root selection. |
+| AT-060 | Benchmark series/definition changes | Effective-dated linkage and disclosure; preserve previously used series versions. |
+| AT-061 | Missing appropriate benchmark | Approved no-benchmark explanation; not a zero-return benchmark. |
+| AT-062 | 35 versus 36 monthly risk observations | Enforce the selected GIPS risk-report applicability; internal short-history estimate separately labelled. |
+| AT-063 | 36 returns repeating +1%/-1%/0% | Sample annualized standard deviation 2.8685486624…% under sqrt(12) method. |
+| AT-064 | Six full-year members versus five full-year members | Apply annual-dispersion reporting logic using full-year population, not year-end count. |
+| AT-065 | Annual member returns 1%,2%,3%,4%,5%,6% | Sample dispersion 1.8708286934…%; not the composite's time-series volatility. |
+| AT-066 | Zero variance, missing risk-free series, invalid benchmark variance | Dependent ratios unavailable with specific reasons; no infinity or assumed zero-rate data. |
+| AT-067 | Wealth path +10%/-20%/+5% | Maximum drawdown -20%; initialize peak with starting wealth. |
+| AT-068 | VaR/ES insufficient tail sample | Insufficient-data result and sample diagnostics; no unjustified “precise” risk value. |
+| AT-069 | Same period returns at different sampling frequencies | Results retain frequency/method and cannot be displayed as interchangeable risk observations. |
+| AT-070 | Carino contributions across two months | Linked member contributions sum to 3.02%; near-zero and invalid-growth cases handled. |
+| AT-071 | Brinson single-period synthetic fixture | Allocation/selection/interaction sum to 1.3 percentage points active return. |
+| AT-072 | Missing actual group return or zero-weight group | No fabricated group return from contribution/weight; correct unsupported/residual treatment. |
+| AT-073 | Carve-out with cash allocations and sleeve transfer | Cash/flow reconciliation and approved carve-out evidence; not a cashless hypothetical proxy. |
+| AT-074 | Overlapping composites or nested sleeves | Firm AUM deduplicates actual assets; group reporting does not sum overlapping populations blindly. |
+| AT-075 | Normal policy exclusions with complete valid population | Official result may be valid; technical degraded status must not be inferred solely from exclusion count. |
+| AT-076 | Freeze one month versus full composite/view/series | Exact lock scope enforced; ingestion and independent candidate calculation continue. |
+| AT-077 | Draft overwritten with stale expected revision | Conflict; no lost update. |
+| AT-078 | Published result “overwritten” | New approved immutable replacement with old/new identity and full rationale. |
+| AT-079 | Composite override without revised member data | Visible authority adjustment/unavailable contribution; no fabricated constituent reconciliation. |
+| AT-080 | Revoke override or restore prior result | New version/authority decision; original and intermediate histories retained. |
+| AT-081 | Backdated source correction affects published reports | Dependency graph identifies monthly result, later windows, metrics and recipients; publication awaits approval. |
+| AT-082 | Approver attempts to approve own change | Refused across UI/API/service routes and audited. |
+| AT-083 | Material versus immaterial error | Approved policy determines correction, disclosure and distribution; no discretionary suppression. |
+| AT-084 | Concurrent restatement and report generation | Each report pins one complete version vector; no mixed generations. |
+| AT-085 | Incomplete higher restatement generation | No hidden fallback to older results under a latest-corrected query; exact older publication remains retrievable. |
+| AT-086 | Recalculate identical immutable inputs after restart | Same result/evidence identity under the declared precision/build contract. |
+| AT-087 | GIPS-incompatible policy submitted | Official activation blocked; research execution remains clearly non-official when allowed. |
+| AT-088 | Missing mandatory GIPS presentation field or disclosure | GIPS report publication blocked, with actionable validation messages. |
+| AT-089 | Compliance claim attempted for software alone | Refused; firm-level claim and approvals required. |
+| AT-090 | Retroactive policy change improves published returns | Reject as ordinary reconfiguration; legitimate corrections require documented independent justification. |
+| AT-091 | Ten-plus years of history requested | No five-year truncation; reporting minimum and evidence retention handled independently. |
+| AT-092 | Report re-render from historical manifest | Same financial dataset, versioned rendering and reproducible disclosures. |
+| AT-093 | Source missing but excluded historical portfolio exists | Membership/history report retains it and distinguishes source presence from prior eligibility. |
+| AT-094 | One member has multiple reasons in summary | Reason totals may overlap; deduplicated excluded count remains correct. |
+| AT-095 | CSV/Excel malicious text and long exports | Safe text, retained identifiers, explicit partitioning and no row truncation. |
+| AT-096 | Cross-tenant result, cache, cursor or object reference | Access denied without data or existence leakage. |
+| AT-097 | Worker crash, expired lease and duplicate message | Fenced retries; no duplicate financial publication or lost accepted job. |
+| AT-098 | Unavailable first members and ready later members | Fair bounded progress; no starvation and no survivor-only official result. |
+| AT-099 | Disaster restore with retained reports/evidence | Authority, hashes and dependencies verified; recovery gaps explicitly identified. |
+| AT-100 | Profile L close and history replay with concurrent reads | Measured declared SLOs, resource/cost envelope and reproducible test manifest. |
+| AT-101 | Live Core unavailable during approved external-only run | External route succeeds; declared Core/hybrid dependency failures remain correctly blocked. |
+| AT-102 | Standards exposure draft appears | Recorded for review; not silently activated as final policy. |
+| AT-103 | Old source correction outside used date/classification range | Impact determination explains no affected result, with no unnecessary official restatement. |
+| AT-104 | Provider return admitted with inadequate attestation | Data may be staged; official use refused until applicable evidence/approval requirements are met. |
+| AT-105 | Return narrative generated by assistance service | Every numerical statement resolves to approved evidence; no fabricated cause, constituent or compliance assertion. |
+
+### 20.3 Metamorphic and property tests
+
+**CMP-TST-005.** Add permutation invariance, deterministic chunking, exact replay, scale invariance of all positive asset weights, duplicate-input detection, tenant isolation and source-mode equivalence for genuinely identical normalized inputs. Splitting one portfolio into two identical-return sub-portfolios with conserved weights must not change a simple asset-weighted return, although portfolio counts/dispersion can change and must not be asserted invariant.
+
+**CMP-TST-006.** Cross-check return, linked contribution and attribution reconciliation at internal precision; test zero/near-zero, loss, leverage, large-decimal and sparse-history cases. A sum of rounded displayed contributions may differ from the displayed return; explain rounding rather than modifying economic facts.
+
+**CMP-TST-007.** Perform independent differential comparisons with accepted external-provider fixtures where rights and methodology permit. Differences must be decomposed into population, dates, currency, fees, flows, weights, precision and method—not waived simply because one result came from an incumbent vendor.
+
+## 21. Decision and traceability registers
+
+### 21.1 Institutional decisions, not scope exclusions
+
+The product must support the alternatives below. A specific tenant profile cannot be activated with unresolved mandatory decisions. The institution's methodology/compliance owner approves financial policies; engineering implements valid options and demonstrates their consequences.
+
+| Decision | Required choice / approval | Product requirement |
+|---|---|---|
+| DEC-01 | Firm boundary and applicable GIPS report contexts | Firm/composite/pool/overlay/wrap applicability, controlled claim and disclosure workflow. |
+| DEC-02 | Strategy definitions and discretion criteria | Approved actual strategy population, nondiscretionary treatment, overlapping/exclusive definitions and completeness. |
+| DEC-03 | Monthly flow sign, aggregation, timing and classification | ABS_NET/signed/directional alternatives; in-kind/reversal policy; denominator and exact threshold operator. |
+| DEC-04 | Large-flow valuation and significant-flow exclusion | Independent ex-ante policies and applicability, not a single threshold switch. |
+| DEC-05 | Drift formula, observation, threshold and rebalancing exceptions | Daily/average/month-end and versioned model/classification inputs. |
+| DEC-06 | Accreditation and legal/status changes | Any-day versus permitted requalification logic; strategy/discretion relevance approved. |
+| DEC-07 | New/terminated/transferred portfolio timing | Performance start, first full month, representative investment state and final full managed period. |
+| DEC-08 | Cash, minimum assets, fees and restrictions | Economic definitions, effective-date thresholds and GIPS review, not universal source defaults. |
+| DEC-09 | Portfolio/composite method and exact weighting | TWR/MWR applicability, daily/monthly weighting, missing/negative denominators and linking. |
+| DEC-10 | Fee/tax and benchmark convention | Gross/net/model fees; total-return benchmark; benchmark changes, currency and hedging. |
+| DEC-11 | Source authority and external evidence | Per fact/date ownership, admission, reconciliation, imported-history depth and cutover seam. |
+| DEC-12 | Freeze, manual override and error policy | Roles, scope, materiality, approved corrections, dependency impact and redistribution. |
+| DEC-13 | Risk methods and availability | Frequency, periods, minimum sample, risk-free, factor data, population and rounding. |
+| DEC-14 | Reporting and distribution | Templates, audience, disclosures, calendars, recipient tracking and publication atomicity. |
+| DEC-15 | Retention, privacy and deployment | Evidence horizon/legal hold, access, residency, source rights, recovery and capacity envelope. |
+| DEC-16 | Carve-outs, pooled funds and specialized mandates | Cash allocation, valuation frequency, applicable reports/methods and supporting disclosures. |
+
+### 21.2 Source-to-target coverage
+
+| Neutral baseline family | Lotus target sections | Acceptance examples |
+|---|---|---|
+| SRC-SCP / SRC-CMP | 1–5, 12 | AT-001–006, AT-087–091 |
+| SRC-HIS | 3, 6–8, 11, 15–16 | AT-007–010, AT-042, AT-081, AT-093 |
+| SRC-ELG / source rule catalogue | 5, 8, 12 | AT-011–030, AT-075, AT-087 |
+| SRC-RET | 6–7, 9–10, 13–14 | AT-031–061, AT-070–074 |
+| SRC-FLW | 8–9 | AT-024–030, AT-050 |
+| SRC-NEW | 3, 8 | AT-016–017, AT-023 |
+| SRC-AST | 13–14, 16 | AT-070–074 |
+| SRC-RSK | 10, 13, 16 | AT-060–069 |
+| SRC-RPT | 15–19 | AT-084, AT-088, AT-091–100 |
+| User additions: full configuration, external/Core/hybrid, scale, freeze/overwrite, richer analytics and beyond-baseline target | All sections, particularly 5–7, 11–19 | All AT scenarios plus measured operational evidence |
+
+Use the exact baseline IDs when creating the implementation backlog; the family mapping above is a navigation aid, not a substitute for row-level coverage. Source terminology is preserved only in the neutral archival baseline. A source release restriction must never be cited to exclude a target requirement.
+
+### 21.3 Required implementation coverage ledger
+
+**CMP-TRC-001.** Maintain one machine-readable and one human-readable ledger with columns: requirement ID; source/target/decision origin; implementing repo/component; contract/API; method/policy; implementation state; unit/integration/E2E evidence; migration impact; documentation; dependent decision; risk; owner; next action.
+
+**CMP-TRC-002.** Allowed states are `NOT_ASSESSED`, `MISSING`, `PARTIAL`, `IMPLEMENTED_NOT_VERIFIED`, `VERIFIED_IN_TEST`, `VERIFIED_IN_TARGET_ENVIRONMENT`, and `BLOCKED_ON_APPROVED_POLICY_OR_SOURCE`. No “supported” claim may hide an absent integration, absent data, mock-only evidence or an incomplete decision.
+
+**CMP-TRC-003.** Register proposed differences from this specification before implementation changes semantics. Record rationale, alternatives, financial/GIPS impact, customer effect and approval. An approved equivalent design can satisfy a requirement; a silently dropped feature cannot.
+
+## 22. Definition of done and reference sources
+
+### 22.1 Product completion gates
+
+**CMP-DON-001.** The target is complete only when each requirement and required catalogue item has an implemented path or an explicitly approved equivalent, with truthful evidence status. Customer-specific unavailable data may make a metric unavailable in that deployment; the product still needs the implemented method, contract, validation and tested unavailable-data behaviour.
+
+**CMP-DON-002.** Complete external-only, Core-only and hybrid journeys must run through registered APIs and approved publication/report workflows, including migration, correction and historical replay. At least one governed externally supplied portfolio-return route and one legacy composite-series route must be demonstrated; the existing retained-Core-TWR route alone is insufficient.
+
+**CMP-DON-003.** Deliver the policy/schema/method registries, numerical oracles, provision-applicability matrix, source mapping catalogue, coverage ledger, API examples, report templates, operational runbooks, scale evidence and restore proof. No undocumented direct database step may be essential to normal customer operation.
+
+**CMP-DON-004.** A qualified firm methodology/compliance owner must approve the active GIPS applicability and policy matrix, evidence and disclosure process. Independent verification, when undertaken, remains a separate professional activity. Lotus must not emit “GIPS-certified software” or automatically claim that an institution complies solely because calculation tests passed.
+
+**CMP-DON-005.** Closeout distinguishes implemented capability, test evidence, target-environment acceptance and commercial comparative claims. The companion vendor table is a research snapshot; superiority claims require current, like-for-like demonstration and cannot be inferred from competitors' undocumented features.
+
+### 22.2 Source and standards references
+
+This is an original product specification, not a reproduction of the standards or a legal opinion. The source references identify the authoritative materials the methodology owner and implementation agents must use for provision-level validation. Consult the live hub for current final guidance, errata and Q&As before activating a production profile. An exposure draft is not an adopted requirement. References reviewed on 4 October 2026.
+
+- **S0 — Supplied source:** Requirements text pasted by the user in this conversation; normalized in `01_composite_requirements_source_baseline.md`. Screenshots and the original sample workbook were not readable/available for validation.
+- **G0 — CFA Institute/GIPS official standards and firms hub:** [Standards](https://www.gipsstandards.org/standards/) and [GIPS Standards for Firms](https://www.gipsstandards.org/standards/gips-standards-for-firms/). Use the hub for current final guidance, errata and Q&A entry points.
+- **G1 — 2020 GIPS Standards for Firms:** [Official PDF](https://www.gipsstandards.org/wp-content/uploads/2021/03/2020_gips_standards_firms.pdf). Method, maintenance and report applicability anchors; do not treat this document's crosswalk as a complete substitute.
+- **G2 — GIPS Standards Handbook for Firms:** [Official searchable handbook](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/). Interpretive guidance for firm-wide responsibilities, input/method policies, maintenance, errors and presentation.
+- **G3 — Guidance Statement on Benchmarks for Firms:** [Official PDF](https://www.gipsstandards.org/wp-content/uploads/2023/08/gs_benchmarks_firms.pdf). Benchmark selection, methodology and presentation context.
+- **G4 — Work in Process:** [Official status page](https://www.gipsstandards.org/standards/work-in-process/). Standards change control must distinguish drafts from final guidance. At review, trade-error guidance was shown as an exposure draft rather than a final rule.
+- **G5 — Guidance Statement on Wrap Fee Portfolios:** [Official PDF](https://www.gipsstandards.org/wp-content/uploads/2021/09/gs_wrap_fee_portfolios.pdf). Specialized applicability, discretion, source evidence, fee calculation and report requirements.
+- **G6 — Guidance Statement on Overlay Strategies:** [Official PDF](https://www.gipsstandards.org/wp-content/uploads/2022/01/gs_overlay_2022.pdf). Specialized exposure, return, benchmark and presentation treatment; do not force ordinary funded-portfolio assumptions onto overlays.
+
+Specific Lotus repository evidence and public vendor references are retained in `02_composite_gaps_and_lotus_readiness.md`. Public vendor material is descriptive evidence, not proof of current deployed functionality, performance or GIPS compliance.

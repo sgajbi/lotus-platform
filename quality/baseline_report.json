@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 419,
+    "markdown_file_count": 425,
     "powershell_file_count": 69,
-    "python_file_count": 267,
-    "source_file_count": 980,
+    "python_file_count": 269,
+    "source_file_count": 994,
     "suffix_counts": {
-      ".json": 176,
-      ".md": 419,
+      ".json": 179,
+      ".md": 425,
       ".ps1": 69,
-      ".py": 267,
-      ".txt": 7,
+      ".py": 269,
+      ".txt": 10,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 392509
+    "total_source_lines": 416070
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -64,6 +64,14 @@
         "lines": 215,
         "name": "_scan_shell",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
+      },
+      {
+        "complexity": 37,
+        "end_line": 271,
+        "line": 187,
+        "lines": 85,
+        "name": "validate_ledger",
+        "path": "automation/validate_composite_documentation_foundation.py"
       },
       {
         "complexity": 35,
@@ -184,14 +192,6 @@
         "lines": 46,
         "name": "fetch_positionals",
         "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
-        "complexity": 18,
-        "end_line": 508,
-        "line": 466,
-        "lines": 43,
-        "name": "render_results",
-        "path": "codex/skills/gh-fix-ci/scripts/inspect_pr_checks.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 3978
+    "python_function_count": 4030
   },
-  "generated_at_utc": "2026-10-04T07:22:18Z",
+  "generated_at_utc": "2026-10-04T08:20:42Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -375,6 +375,11 @@
     {
       "lines": 23952,
       "path": "platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json",
+      "suffix": ".json"
+    },
+    {
+      "lines": 18532,
+      "path": "docs/composite-performance/implementation-ledger.v1.json",
       "suffix": ".json"
     },
     {
@@ -456,11 +461,6 @@
       "lines": 1385,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
       "suffix": ".ps1"
-    },
-    {
-      "lines": 1355,
-      "path": "automation/validate_engineering_context_system.py",
-      "suffix": ".py"
     }
   ],
   "openapi": {
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2023,
+    "collected_tests": 2099,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-example-expiry-927\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-composite-924\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2023 tests collected"
+    "summary": "2099 tests collected"
   }
 }

@@ -40,6 +40,7 @@ generated artifacts, or tests.
 
 ## Architecture
 
+- [Composite Performance Programme](composite-performance/README.md): complete target, current evidence, internal and client navigation.
 - [Platform Integration Architecture Bible](architecture/Platform%20Integration%20Architecture%20Bible.md)
 - [Private Banking Wealth Management UI Platform](architecture/Private%20Banking%20Wealth%20Management%20UI%20Platform.md)
 

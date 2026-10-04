@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-04T07:22:18Z`
+Generated: `2026-10-04T08:20:42Z`
 
 Repository: `lotus-platform`
 
@@ -16,11 +16,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `980`
-- Total source lines: `392509`
-- Python files: `267`
+- Source files: `994`
+- Total source lines: `416070`
+- Python files: `269`
 - PowerShell files: `69`
-- Markdown files: `419`
+- Markdown files: `425`
 
 ## Largest Files
 
@@ -29,17 +29,17 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 79939 | .json |
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
+| docs/composite-performance/implementation-ledger.v1.json | 18532 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
 | automation/New-Lotus-Service.ps1 | 6046 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
 | tests/unit/test_engineering_context_system_contract.py | 2823 | .py |
 | tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2525 | .py |
-| tests/unit/test_auto_merge_releasability_validator.py | 1915 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `3978`
+- Python functions: `4030`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -49,12 +49,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_auto_merge_releasability.py | has_fatal_main_fetch | 754 | 55 | 152 |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
+| automation/validate_composite_documentation_foundation.py | validate_ledger | 187 | 37 | 85 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
 | automation/audit_main_gate_coverage.py | main | 259 | 31 | 179 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
 | automation/verify_principal_credential.py | resolve_principal | 245 | 22 | 106 |
 | automation/gate_liveness_audit.py | blocking_workflow_invocations | 492 | 22 | 69 |
-| codex/skills/gh-address-comments/scripts/fetch_comments.py | fetch_all | 204 | 22 | 69 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `2023`
+- Unit tests collected: `2099`
 - Collection command return code: `0`
-- Collection summary: `2023 tests collected`
+- Collection summary: `2099 tests collected`
 
 ## Security Baseline
 
