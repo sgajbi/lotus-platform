@@ -151,6 +151,75 @@ def validate_evidence(item: object, expected_class: str) -> None:
         require(isinstance(item.get("environment"), str) and bool(item["environment"]), "evidence:environment")
 
 
+def nonempty_strings(value: object) -> bool:
+    return isinstance(value, list) and bool(value) and all(
+        isinstance(item, str) and bool(item.strip()) for item in value
+    )
+
+
+def validate_admission_plans(admission: dict) -> None:
+    """Planned observation/evaluation metadata cannot acquire evidence authority."""
+    owner = admission["owner_repository"]
+    source = admission["source_observation"]
+    object_keys(source, {"evidence_class", "repository", "commit", "path", "scope"}, "admission:source-shape")
+    require(source["evidence_class"] == "COMMITTED_SOURCE_OBSERVATION" and source["repository"] == owner,
+            "admission:source-class-owner")
+    require(committed_ref(source["commit"]) and relative_path(source["path"]), "admission:source-identity")
+    require(isinstance(source["scope"], str) and bool(source["scope"].strip()), "admission:source-scope")
+    evaluation = admission["evaluation_plan"]
+    object_keys(evaluation, {"repository", "state", "actual_test_ref", "independent_cases"}, "admission:test-shape")
+    require(evaluation["repository"] == owner and evaluation["state"] == "PLANNED"
+            and evaluation["actual_test_ref"] is None, "admission:test-planned-boundary")
+    require(nonempty_strings(evaluation["independent_cases"]), "admission:test-cases")
+    documentation = admission["documentation_plan"]
+    object_keys(documentation, {"internal", "external"}, "admission:docs-shape")
+    require(all(isinstance(value, str) and bool(value.strip()) for value in documentation.values()),
+            "admission:docs-plans")
+
+
+def validate_delivery_admissions(ledger: dict, requirements: dict) -> None:
+    """Optional admission plans share the ledger; they never promote requirement state."""
+    admissions = ledger.get("delivery_admissions", [])
+    require(isinstance(admissions, list), "admission:array")
+    assigned: set[str] = set()
+    owning_issues: set[str] = set()
+    features = {"feature/core-banking-integration", "feature/composite-performance"}
+    keys = {"owner_repository", "owning_issue", "features", "requirement_ids", "state",
+            "dependencies", "source_observation", "scope", "evaluation_plan",
+            "documentation_plan", "next_action"}
+    for admission in admissions:
+        object_keys(admission, keys, "admission:shape")
+        owner = admission["owner_repository"]
+        require(isinstance(owner, str) and owner in REPOSITORIES, "admission:owner")
+        issue = admission["owning_issue"]
+        require(issue_ref(issue) and issue.startswith(f"https://github.com/sgajbi/{owner}/issues/")
+                and issue != ledger["programme_issue"], "admission:owning-issue")
+        require(issue not in owning_issues, "admission:duplicate-owning-issue")
+        selected = admission["requirement_ids"]
+        require(nonempty_strings(selected), "admission:requirement-ids")
+        require(len(set(selected)) == len(selected) and set(selected) <= set(requirements),
+                "admission:requirement-inventory")
+        require(not (assigned & set(selected)), "admission:conflicting-ownership")
+        require(all(requirements[key]["owner"] == owner and issue in requirements[key]["related_issues"]
+                    for key in selected), "admission:requirement-owner-issue")
+        selected_features = admission["features"]
+        require(nonempty_strings(selected_features), "admission:features")
+        require(len(set(selected_features)) == len(selected_features) and set(selected_features) <= features
+                and "feature/composite-performance" in selected_features,
+                "admission:feature-inventory")
+        require(admission["state"] == "PLANNED", "admission:planned-boundary")
+        dependencies = admission["dependencies"]
+        require(isinstance(dependencies, list) and all(issue_ref(ref) for ref in dependencies),
+                "admission:dependencies")
+        require(len(set(dependencies)) == len(dependencies) and issue not in dependencies
+                and ledger["programme_issue"] not in dependencies, "admission:dependency-roles")
+        require(all(isinstance(admission[key], str) and bool(admission[key].strip())
+                    for key in ("scope", "next_action")), "admission:scope-action")
+        validate_admission_plans(admission)
+        assigned.update(selected)
+        owning_issues.add(issue)
+
+
 def validate_catalogues(ledger: dict, immutable_target: str) -> None:
     """Catalogue rows index specification obligations, not implementation evidence."""
     section = ""
@@ -188,12 +257,13 @@ def validate_ledger(
     ledger: dict, requirement_lines: dict, baseline_lines: dict,
     fixtures: list, immutable_target: str,
 ) -> None:
-    object_keys(ledger, {
+    ledger_keys = {
         "schema_version", "schema_ref", "programme_issue", "foundation_issue", "baseline",
         "evidence_classes", "priority_order", "requirements", "source_crosswalk",
         "source_decisions", "analytics", "reports", "scenarios", "institutional_decisions",
         "service_objectives", "workload_profiles", "examples", "current_observations", "semantic_deviations",
-    }, "ledger:shape")
+    }
+    object_keys(ledger, ledger_keys | ({"delivery_admissions"} if "delivery_admissions" in ledger else set()), "ledger:shape")
     require(ledger["schema_version"] == "lotus-composite-documentation-ledger.v1", "ledger:version")
     require(ledger["schema_ref"] == "../../automation/validate_composite_documentation_foundation.py", "ledger:schema-ref")
     require(set(ledger["evidence_classes"]) == CLASSES, "ledger:evidence-classes")
@@ -248,6 +318,7 @@ def validate_ledger(
         require(api["kind"] == "LOGICAL_REQUIREMENT" and api["current_api_ref"] is None, "api:logical-boundary")
         plan = row["test_plan"]
         require(plan["state"] == "PLANNED" and plan["actual_test_ref"] is None and plan["repository"] in REPOSITORIES, "test:planned-boundary")
+    validate_delivery_admissions(ledger, rows)
     validate_catalogues(ledger, immutable_target)
     unique_rows(ledger["source_decisions"], "id", {"SD-" + str(n).zfill(2) for n in range(1, 19)}, "source-decisions")
     for row in ledger["source_decisions"] + ledger["institutional_decisions"]:

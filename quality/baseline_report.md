@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-04T09:30:05Z`
+Generated: `2026-10-04T11:07:13Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `994`
-- Total source lines: `416240`
+- Total source lines: `416667`
 - Python files: `269`
 - PowerShell files: `69`
 - Markdown files: `425`
@@ -29,7 +29,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 79939 | .json |
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
-| docs/composite-performance/implementation-ledger.v1.json | 18532 | .json |
+| docs/composite-performance/implementation-ledger.v1.json | 18635 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
 | automation/New-Lotus-Service.ps1 | 6046 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4037`
+- Python functions: `4050`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -49,7 +49,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_auto_merge_releasability.py | has_fatal_main_fetch | 754 | 55 | 152 |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
-| automation/validate_composite_documentation_foundation.py | validate_ledger | 187 | 37 | 85 |
+| automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
 | automation/audit_main_gate_coverage.py | main | 259 | 31 | 179 |
 | automation/validate_bank_readiness_control_catalog.py | _validate_controls | 250 | 24 | 72 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `2148`
+- Unit tests collected: `2207`
 - Collection command return code: `0`
-- Collection summary: `2148 tests collected`
+- Collection summary: `2207 tests collected`
 
 ## Security Baseline
 
