@@ -90,6 +90,15 @@ marketing truth, or engineering authority.
 
 ## Task Routes
 
+For composite programme requirements, shared ownership, evidence and reader navigation, start at
+[`docs/composite-performance/README.md`](./docs/composite-performance/README.md) and
+[RFC-0110](./rfcs/RFC-0110-composite-performance-product-and-delivery-foundation.md).
+The full target and the single implementation ledger do not establish domain/runtime support.
+From the Platform root, validate with
+`python automation/validate_composite_documentation_foundation.py` and
+`python -m pytest tests/unit/test_composite_documentation_foundation.py -q`, then the native lane.
+Financial methods, APIs and their executable proof remain with each owning application.
+
 Use the [skill routing map](./context/LOTUS-SKILL-ROUTING-MAP.md) first. Common routes are:
 
 | Task | Read next |

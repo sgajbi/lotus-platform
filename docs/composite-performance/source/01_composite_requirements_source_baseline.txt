@@ -1,0 +1,208 @@
+# Composite Performance — Bank- and Vendor-Neutral Source Baseline
+
+**Document ID:** CMP-SOURCE-001  
+**Version:** 1.0  
+**Prepared:** 4 October 2026  
+**Status:** Normalized source baseline; unresolved source decisions remain unresolved.  
+**Audience:** Product owners, performance specialists, solution providers and implementation teams.
+
+## 1. Purpose and source boundary
+
+This document restates the supplied composite-performance requirements without institution names, vendor names or proprietary mandate labels. It is the reference baseline against which a solution can demonstrate coverage. It does not assert that any particular solution already supports these requirements.
+
+The authoritative material used is the requirements text pasted into this conversation, identified below as **S0**. Six screenshots were subsequently supplied, but readable image content was not available in the working session. Their contents, the original sample workbook, and the complete source document have **not** been validated. No screenshot-only requirements or sample numerical results have been invented.
+
+The companion documents are:
+
+- `02_composite_gaps_and_lotus_readiness.md`: omissions, ambiguities, improvements and a bounded Lotus evidence review.
+- `03_lotus_composite_implementation_requirements.md`: expanded, self-contained target requirements for a Lotus implementation agent.
+
+### 1.1 Normalization rules
+
+Institution references become **the institution**; supplier references become **the solution provider** or **the calculation service**. Named strategies become configurable mandate categories: **core discretionary**, **regional-focus**, **fund-based multi-asset**, **income-oriented**, and **investment-grade direct-bond/no-model**. These are neutral descriptive labels, not a newly approved strategy catalogue.
+
+Duplicate paragraphs, broken bullets, page footers and a corrupted duplicated passage have been removed. The complete readable duplicate was used instead of reconstructing corrupted wording. “Al” is read as **AI: accredited-investor status**, based on context. The isolated period label “TD” is normalized to **YTD**, consistent with the explicit reporting list elsewhere in S0. The inconsistent income-mandate label in S0 still requires canonical mapping.
+
+**Baseline** means a requirement stated in S0. **Conditional** means it is qualified by “where required,” “may,” or confirmation. **Open** means the source explicitly leaves a decision unresolved. These labels are not implementation-completion statuses.
+
+## 2. Business objective and initial scope
+
+The solution shall provide a consistent, scalable and auditable method of grouping discretionary portfolio management portfolios into strategy composites, determining eligible constituents, calculating composite performance and distributing results.
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-SCP-01 | Support pre-established composites in the initial release. End-user creation and maintenance of composites are outside that release's scope. | Baseline |
+| SRC-SCP-02 | Support configurable grouping and eligibility criteria even though the initial composite catalogue is pre-established. | Baseline |
+| SRC-SCP-03 | Support operational reporting and the institution's stated GIPS-aligned reporting objectives. The source does not provide a complete compliance specification. | Baseline / methodology open |
+
+## 3. Composite creation, assignment and membership history
+
+### 3.1 Composite definitions and automatic assignment
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-CMP-01 | Support creation, maintenance and governance of composite groupings through the agreed operational model, subject to the initial-release restriction on end-user authoring. | Baseline |
+| SRC-CMP-02 | Automatically assign portfolios using configurable tracking model, mandate type, base/reference currency and other institution-defined attributes. | Baseline |
+| SRC-CMP-03 | Maintain separate pre-established tracks by mandate, risk level and portfolio reference currency. The source describes separate USD and SGD tracks across applicable strategies and risk levels. | Baseline |
+| SRC-CMP-04 | Apply membership changes prospectively by calculation month by default. Previously reported periods remain locked unless an approved historical recalculation follows a material data error, correction or governed rules change. | Baseline |
+| SRC-CMP-05 | A mandate, risk-profile or reference-currency change excludes the portfolio for the transition month. Entry to the new composite requires the applicable month-end eligibility test. | Baseline |
+
+### 3.2 Membership evidence and closed portfolios
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-HIS-01 | Retain complete effective-dated membership history, with inclusion, exclusion and re-entry dates and reasons. | Baseline |
+| SRC-HIS-02 | Allow membership review over the selected reporting period, including up to five years or since inception where supporting history exists. | Baseline |
+| SRC-HIS-03 | Distinguish portfolios included in calculations, excluded under eligibility rules and no longer present in the current input population. | Baseline |
+| SRC-HIS-04 | Retain closed portfolios in historical datasets when required to calculate historical composites. | Baseline |
+
+**Open decisions:** maximum history available in detailed reports; whether closure is supplied for the closing month and the portfolio omitted thereafter; whether absence from a current input file means closure, a data-quality exception or another state. The source does not authorize a default interpretation of absence.
+
+## 4. Eligibility and exclusion rules
+
+### 4.1 Evaluation model
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-ELG-01 | Automatically include or exclude portfolios using configurable business rules and retain an audit trail of decisions. | Baseline |
+| SRC-ELG-02 | Support account status, significant cash flows, accreditation, nationality restrictions, product restrictions, deployment status, deceased status, client restrictions and other agreed criteria. | Baseline / some criteria conditional |
+| SRC-ELG-03 | Support daily event/status inputs, effective-dated status history, month-end snapshots and full-month aggregations. | Baseline |
+| SRC-ELG-04 | Define each rule's input frequency, observation window, evaluation point, exclusion period and re-entry conditions. Daily data must not automatically imply daily composite membership changes. | Baseline |
+| SRC-ELG-05 | Assess each target calendar month using each rule's observation and evaluation method. Exclusion applies to that monthly composite and its resulting YTD chain; earlier eligible reported months remain locked unless an approved correction/recalculation occurs. | Baseline; exact YTD semantics need clarification |
+| SRC-ELG-06 | Evaluate all applicable rules and retain every applicable exclusion reason, not only one primary reason. | Baseline |
+| SRC-ELG-07 | When a condition is resolved, stop applying that reason at the next relevant eligibility assessment while preserving its historical record. Re-entry requires all applicable conditions to be satisfied. | Baseline |
+
+### 4.2 Source rule catalogue
+
+| Rule | Neutral source description | Unresolved elements |
+|---|---|---|
+| Accredited-investor status | Use effective-dated AI status history. | Whether any Non-AI day excludes the full month, or requalification plus strategy representativeness can preserve eligibility. |
+| Significant external cash flow | Full-month exclusion when monthly net external flow reaches at least 10% of prior month-end AUM. | Signed versus absolute net amount; detailed classification and denominator treatment are not specified. See section 6. |
+| Core-strategy drift | Apply a portfolio-drift eligibility test to core mandates. | Threshold, formula, observation period and evaluation method. The source mentions 10%/15% as alternatives, not a confirmed selection. |
+| Direct-bond/no-model cash | Month-end cash must be 5% or less. | Exact numerator, denominator, cash-equivalent coverage and valuation convention. |
+| Newly onboarded portfolio | Exclude the calendar month containing the performance start date. | Variations and permitted exceptions. See section 7. |
+| Zero management fee | May trigger exclusion. | Mandatory versus optional exclusion, effective timing and fee definition. |
+| Closed/suspended/deceased/mental-incapacity status | May trigger exclusion. | Status-specific observation, exclusion timing and re-entry rules. |
+| Transaction blocks | Active investment blocks or all-transaction blocks trigger exclusion. | Effective timing and treatment of short-lived blocks. |
+| Material client restrictions | Material restrictions trigger exclusion. | Definition of materiality and observation timing. |
+| Mandate/risk/currency transition | Exclude the transition month. | Detailed month-end transition and re-entry sequencing. |
+
+### 4.3 Governance decisions still required
+
+Confirm whether drift uses prior month-end, any-day breach, average daily drift or another monthly measure; select the initial drift threshold; decide treatment of temporary drift during coordinated rebalancing; decide intra-month AI requalification treatment; and decide whether portfolio-specific overrides are permitted.
+
+Any permitted override or rule change must have justification, approval, effective dating and a complete audit trail. The source does not define approver roles, segregation of duties, workflow states or the technical mechanism.
+
+## 5. Composite performance calculation
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-RET-01 | Calculate and maintain composite performance for eligible portfolios using the institution's agreed methodology. | Baseline |
+| SRC-RET-02 | Support time-weighted rate of return (TWRR) and maintain gross-of-fee and net-of-fee results where required. | Baseline / fee definition open |
+| SRC-RET-03 | Use portfolio performance data supplied by the institution or calculated by the agreed calculation service; ownership must be confirmed. | Open |
+| SRC-RET-04 | Produce results by mandate, risk level and reference currency for 1M, 3M, 6M, YTD, 1Y, 3Y, 5Y and since inception. | Baseline |
+| SRC-RET-05 | Support calendar-year reporting and distinguish cumulative from annualized returns. The source uses “annualised returns by calendar year”; the exact presentation convention remains to be validated. | Baseline / terminology open |
+| SRC-RET-06 | Confirm calculation methodology, fee basis, history requirements and treatment of unavailable history before implementation acceptance. | Open |
+| SRC-RET-07 | Digitize the institution's governance process for errors in reported performance. | Baseline / workflow open |
+
+S0 does not specify the composite weighting formula, return observation frequency, portfolio-return input contract, minimum capital requirements, missing-period treatment or exact annualization formula.
+
+## 6. Significant cash-flow treatment
+
+### 6.1 Confirmed source behaviour
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-FLW-01 | Aggregate and net qualifying external cash-flow transactions over the complete target calendar month. Source business types include Transfer, Incoming Payment, Money Transfer and Payment. | Baseline |
+| SRC-FLW-02 | Compare the monthly net amount with the previous month-end AUM. A ratio of at least 10% excludes the portfolio for the full target month. | Baseline; sign interpretation open |
+| SRC-FLW-03 | Do not exclude solely because one transaction exceeds the threshold if later transactions bring the month's net amount below the threshold. | Baseline |
+| SRC-FLW-04 | Evaluate next-month re-entry using the target month-end drift eligibility test. | Baseline; applicability to no-model cash-test strategies open |
+| SRC-FLW-05 | Fix the threshold at 10% in the current phase; support user configurability through a future configuration journey. | Baseline |
+| SRC-FLW-06 | Support configurable significant-flow treatment more generally. | Baseline |
+
+**Open decisions:** treatment of in-progress months and provisional eligibility in interim reports. The source does not explicitly resolve whether a large net withdrawal breaches the rule, whether in-kind transfers count, or how FX and zero/missing prior AUM are handled.
+
+## 7. Newly onboarded portfolios
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-NEW-01 | Support configurable grace periods and automatic exclusion until onboarding criteria are met. | Baseline |
+| SRC-NEW-02 | Exclude the calendar month in which the portfolio's performance start date falls. | Baseline |
+| SRC-NEW-03 | Entry from the next full calendar month requires fully discretionary status, funding and substantial investment, evidenced by the applicable month-end drift or cash test. | Baseline |
+| SRC-NEW-04 | Automatically include the portfolio once all onboarding and other eligibility criteria are satisfied. | Baseline |
+
+**Open decisions:** whether grace periods vary by mandate or portfolio and whether immediate inclusion can ever be permitted. The broad phrase “partial opening month” and the explicit performance-start-month rule should be reconciled for a performance start on the first calendar day.
+
+## 8. Asset-class performance
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-AST-01 | Support performance calculation and reporting at composite and underlying asset-class levels. | Stated objective; scope confirmation required |
+| SRC-AST-02 | Support configurable asset-class structures and aggregation into overall composite results. | Methodology open |
+| SRC-AST-03 | Export asset-class results to Excel. | Conditional on asset-class scope |
+| SRC-AST-04 | Confirm carve-out methodology, output layout and detailed calculation specification. The sample described in S0 contains portfolio-level data and composite reporting only. | Open |
+
+No asset-class return inputs, cash allocation rules, internal-flow rules or aggregation weights are supplied in S0.
+
+## 9. Composite risk analytics
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-RSK-01 | Calculate and report agreed composite risk metrics when the required performance and market data exist. | Conditional |
+| SRC-RSK-02 | Support configurable metrics; prototype discussion included volatility, Sharpe or another risk-return ratio, and maximum drawdown. | Conditional |
+| SRC-RSK-03 | Define and supply benchmark/reference and risk-free series when a metric needs them. | Conditional |
+| SRC-RSK-04 | Confirm the metric catalogue, periods, annualization, risk-free series, benchmark ownership, information ratio requirements and initial-release scope. Risk analytics may be deferred. | Open |
+
+The source does not prescribe daily versus monthly volatility or a minimum number of observations.
+
+## 10. Reporting and distribution
+
+### 10.1 Timing and publication
+
+| ID | Source requirement | Status |
+|---|---|---|
+| SRC-RPT-01 | Produce scheduled reports under an agreed calculation calendar. Daily data may support eligibility; final membership and performance are produced at the agreed monthly calculation point. | Baseline |
+| SRC-RPT-02 | Clearly identify provisional latest-month results in interim output. | Baseline; precise provisional policy open |
+| SRC-RPT-03 | Support historical retrieval and Excel export. | Baseline |
+| SRC-RPT-04 | Keep delivery channel-neutral until file-transfer, API, scheduling and receiving-system arrangements are agreed. | Baseline |
+
+### 10.2 Detailed composite/mandate report
+
+**SRC-RPT-05.** Provide a standalone detailed report for each agreed composite/mandate scope containing gross and net performance; rolling and calendar-year results; AUM; portfolio weights and contributions where required; included and excluded counts; portfolio eligibility; all exclusion reasons; and membership history for the selected period.
+
+### 10.3 Consolidated management report
+
+**SRC-RPT-06.** Provide one summary template spanning mandates, risk levels and reference currencies, containing gross and net performance and agreed risk metrics. This management view does not require portfolio-level exclusion drill-down.
+
+**SRC-RPT-07.** Support the source-described grouping by mandate category, mandate and reference currency, and the columns 1M, 3M, 6M, YTD, 1Y, 3Y, 5Y, since inception and calendar years. The original layout has not been inspected.
+
+### 10.4 Reporting decisions
+
+Confirm exact fields and layouts; one report per composite versus mandate versus a multi-tab workbook; report file specification and API needs; calculation and delivery frequency; business-day calendar; receiving systems; and whether an existing frontend or a new user interface will be used.
+
+## 11. Consolidated source decision register
+
+| ID | Decision required | Related baseline |
+|---|---|---|
+| SD-01 | Approved composite catalogue, neutral-to-source mapping and income-mandate naming. | SRC-CMP-01–03 |
+| SD-02 | Maximum historical reporting and retention horizon. | SRC-HIS-01–04, SRC-RET-06 |
+| SD-03 | Closed-portfolio feed lifecycle and semantics of absence. | SRC-HIS-03–04 |
+| SD-04 | AI any-day exclusion versus requalification policy. | SRC-ELG-02–05 |
+| SD-05 | Drift formula, threshold, observations, calendar and rebalance treatment. | SRC-ELG-04–05 |
+| SD-06 | Cash-test definition and its application to re-entry. | SRC-ELG-04, SRC-FLW-04 |
+| SD-07 | Status/restriction timing, materiality and zero-fee treatment. | SRC-ELG-02–07 |
+| SD-08 | Portfolio overrides and approval authority. | SRC-ELG-01, SRC-CMP-04 |
+| SD-09 | Portfolio-return source, composite methodology and gross/net definitions. | SRC-RET-01–03 |
+| SD-10 | Exact period, calendar-year, annualization and missing-history conventions. | SRC-RET-04–06 |
+| SD-11 | Flow sign, classification, valuation/FX and prior-AUM edge cases. | SRC-FLW-01–03 |
+| SD-12 | Interim-month provisional treatment. | SRC-FLW-03, SRC-RPT-02 |
+| SD-13 | Onboarding exceptions, first-day starts and grace-period variation. | SRC-NEW-01–04 |
+| SD-14 | Asset-class scope, carve-out methodology, inputs and output. | SRC-AST-01–04 |
+| SD-15 | Risk scope, formulae, frequency and reference-data ownership. | SRC-RSK-01–04 |
+| SD-16 | Report specifications, delivery and operating calendar. | SRC-RPT-01–07 |
+| SD-17 | Error materiality, historical recalculation and corrected-report process. | SRC-CMP-04, SRC-RET-07 |
+| SD-18 | Exact interpretation of exclusions in the YTD chain. | SRC-ELG-05 |
+
+## 12. Baseline completion boundary
+
+This document is a source-faithful starting point, not a complete build specification. The expanded Lotus requirements deliberately add controls, precise algorithms, input contracts, analytics and acceptance evidence. Those additions must not be presented as already confirmed in S0.

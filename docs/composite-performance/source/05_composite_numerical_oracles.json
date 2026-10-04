@@ -1,0 +1,362 @@
+{
+  "schema_version": "lotus-composite-oracle-proposal-v1",
+  "status": "Independent specification fixtures; not executed against Lotus",
+  "return_unit": "DECIMAL_RETURN",
+  "numeric_comparison_absolute_tolerance": "0.000000000001",
+  "notes": [
+    "Source-derived ABS_NET withdrawal handling is a proposed policy, not a confirmed source choice.",
+    "No tolerance applies to categorical outcomes, source identity, completeness or approval state.",
+    "Reported internal Decimal precision and display rounding remain distinct.",
+    "All data are synthetic.",
+    "GIPS presentation and analytical method approval still require the specified applicability controls."
+  ],
+  "fixtures": [
+    {
+      "id": "OR-01",
+      "name": "Beginning-asset weighted monthly return",
+      "inputs": {
+        "assets": [
+          "100",
+          "300"
+        ],
+        "returns": [
+          "0.10",
+          "-0.02"
+        ]
+      },
+      "expected": {
+        "weights": [
+          "0.25",
+          "0.75"
+        ],
+        "contributions": [
+          "0.025",
+          "-0.015"
+        ],
+        "return": "0.01"
+      }
+    },
+    {
+      "id": "OR-02",
+      "name": "Geometric two-month chain",
+      "inputs": {
+        "monthly_returns": [
+          "0.01",
+          "0.02"
+        ]
+      },
+      "expected": {
+        "cumulative_return": "0.0302"
+      }
+    },
+    {
+      "id": "OR-03",
+      "name": "Monthly flow netting",
+      "inputs": {
+        "prior_month_end_aum": "1000",
+        "signed_external_flows": [
+          "150",
+          "-100"
+        ],
+        "threshold": "0.10",
+        "policy": "ABS_NET"
+      },
+      "expected": {
+        "net_flow": "50",
+        "ratio": "0.05",
+        "flow_rule": "PASS"
+      }
+    },
+    {
+      "id": "OR-04",
+      "name": "Withdrawal at threshold",
+      "inputs": {
+        "prior_month_end_aum": "1000",
+        "signed_external_flows": [
+          "-100"
+        ],
+        "threshold": "0.10",
+        "policy": "ABS_NET"
+      },
+      "expected": {
+        "ratio": "0.10",
+        "flow_rule": "FAIL"
+      }
+    },
+    {
+      "id": "OR-05",
+      "name": "Cash exactly at threshold",
+      "inputs": {
+        "cash": "50",
+        "aum": "1000",
+        "maximum_ratio": "0.05"
+      },
+      "expected": {
+        "ratio": "0.05",
+        "cash_rule": "PASS"
+      }
+    },
+    {
+      "id": "OR-06",
+      "name": "Reference currency translation",
+      "inputs": {
+        "native_return": "0.02",
+        "begin_fx_reporting_per_native": "1.3",
+        "end_fx_reporting_per_native": "1.4"
+      },
+      "expected": {
+        "reporting_return": "0.0984615384615384615384615384615384615384615384615"
+      }
+    },
+    {
+      "id": "OR-07",
+      "name": "Single-period Modified Dietz",
+      "inputs": {
+        "begin_value": "100",
+        "end_value": "130",
+        "external_flow": "20",
+        "remaining_period_weight": "0.5"
+      },
+      "expected": {
+        "return": "0.090909090909090909090909090909090909090909090909091"
+      }
+    },
+    {
+      "id": "OR-08",
+      "name": "24-month annualization",
+      "inputs": {
+        "cumulative_return": "0.21",
+        "complete_months": 24
+      },
+      "expected": {
+        "annualized_return": "0.1"
+      }
+    },
+    {
+      "id": "OR-09",
+      "name": "Six-month GIPS presentation",
+      "inputs": {
+        "cumulative_return": "0.10",
+        "complete_months": 6,
+        "presentation": "GIPS"
+      },
+      "expected": {
+        "cumulative_return": "0.10",
+        "annualized_return": null,
+        "reason": "PERIOD_LESS_THAN_ONE_YEAR"
+      }
+    },
+    {
+      "id": "OR-10",
+      "name": "36-month sample annualized standard deviation",
+      "inputs": {
+        "monthly_returns": [
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0",
+          "0.01",
+          "-0.01",
+          "0"
+        ],
+        "sample_denominator": "n-1",
+        "annualization_factor": 12
+      },
+      "expected": {
+        "annualized_stddev": "0.028685486624025447359251612312634999636325098375955"
+      }
+    },
+    {
+      "id": "OR-11",
+      "name": "Full-year member dispersion sample method",
+      "inputs": {
+        "full_year_member_annual_returns": [
+          "0.01",
+          "0.02",
+          "0.03",
+          "0.04",
+          "0.05",
+          "0.06"
+        ],
+        "method": "EQUAL_WEIGHT_SAMPLE_STDDEV"
+      },
+      "expected": {
+        "dispersion": "0.018708286933869706927918743661582746508780099038894"
+      }
+    },
+    {
+      "id": "OR-12",
+      "name": "Maximum drawdown including initial wealth",
+      "inputs": {
+        "period_returns": [
+          "0.10",
+          "-0.20",
+          "0.05"
+        ]
+      },
+      "expected": {
+        "wealth": [
+          "1",
+          "1.10",
+          "0.880",
+          "0.92400"
+        ],
+        "maximum_drawdown": "-0.20"
+      }
+    },
+    {
+      "id": "OR-13",
+      "name": "Carino linked member contribution",
+      "inputs": {
+        "period_returns": [
+          "0.01",
+          "0.02"
+        ],
+        "A_contributions": [
+          "0.025",
+          "0.005"
+        ],
+        "B_contributions": [
+          "-0.015",
+          "0.015"
+        ]
+      },
+      "expected": {
+        "A_linked_contribution": "0.030274630541907723798278421725685604316257567000362",
+        "B_linked_contribution": "-0.000074630541907723798278421725685604316257567000360925",
+        "sum": "0.030200000000000000000000000000000000000000000000001",
+        "cumulative_return": "0.0302"
+      }
+    },
+    {
+      "id": "OR-14",
+      "name": "Portfolio weight concentration",
+      "inputs": {
+        "weights": [
+          "0.25",
+          "0.75"
+        ]
+      },
+      "expected": {
+        "hhi": "0.625",
+        "effective_member_count": "1.6"
+      }
+    },
+    {
+      "id": "OR-15",
+      "name": "One-year money-weighted return",
+      "inputs": {
+        "investor_cashflows": [
+          "-100",
+          "110"
+        ],
+        "year_fractions": [
+          "0",
+          "1"
+        ]
+      },
+      "expected": {
+        "irr": "0.10"
+      }
+    },
+    {
+      "id": "OR-16",
+      "name": "Private-capital multiples",
+      "inputs": {
+        "paid_in": "100",
+        "distributions": "40",
+        "residual_value": "90"
+      },
+      "expected": {
+        "dpi": "0.4",
+        "rvpi": "0.9",
+        "tvpi": "1.3"
+      }
+    },
+    {
+      "id": "OR-17",
+      "name": "Brinson-Fachler single-period reconciliation",
+      "inputs": {
+        "portfolio_weights": [
+          "0.6",
+          "0.4"
+        ],
+        "benchmark_weights": [
+          "0.5",
+          "0.5"
+        ],
+        "portfolio_group_returns": [
+          "0.10",
+          "0.02"
+        ],
+        "benchmark_group_returns": [
+          "0.08",
+          "0.03"
+        ]
+      },
+      "expected": {
+        "portfolio_return": "0.068",
+        "benchmark_return": "0.055",
+        "allocation": [
+          "0.0025",
+          "0.0025"
+        ],
+        "selection": [
+          "0.01",
+          "-0.005"
+        ],
+        "interaction": [
+          "0.002",
+          "0.001"
+        ],
+        "active_return": "0.013"
+      }
+    },
+    {
+      "id": "OR-18",
+      "name": "Mandatory month gap blocks requested chain",
+      "inputs": {
+        "monthly_returns": [
+          "0.01",
+          null,
+          "0.02"
+        ],
+        "required_periods": 3
+      },
+      "expected": {
+        "cumulative_return": null,
+        "reason": "REQUIRED_PERIOD_UNAVAILABLE",
+        "forbidden_survivor_chain": "0.0302"
+      }
+    }
+  ]
+}

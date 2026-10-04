@@ -1,0 +1,76 @@
+{
+  "schema_version": "lotus-composite-source-manifest.v1",
+  "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
+  "foundation_issue": "https://github.com/sgajbi/lotus-platform/issues/924",
+  "source_package_id": "LOTUS-CMP-001-v2.0-2026-10-04",
+  "archive_semantics": "Immutable archival text. Embedded historical companion references are not public navigation. requirements.md and RFC-0110 govern the published target and delivery.",
+  "inputs": [
+    {
+      "original_filename": "01_composite_requirements_source_baseline.md",
+      "sha256": "30ee292c10d81c495ae7c41c89e1babf6fe2e6d8e019580aa37065ece23ea399",
+      "publication_status": "PUBLISHED_IMMUTABLE_ARCHIVE",
+      "archive_path": "source/01_composite_requirements_source_baseline.txt"
+    },
+    {
+      "original_filename": "02_composite_gaps_and_lotus_readiness.md",
+      "sha256": "ab4527d0f0e1962d33c39d4dd05dfc911ca93792c5eae4486b0eb35ec8328acf",
+      "publication_status": "WITHHELD_NON_NEUTRAL_RESEARCH",
+      "archive_path": null
+    },
+    {
+      "original_filename": "03_lotus_composite_implementation_requirements.md",
+      "sha256": "4877241220d23808cb589c9986b679f9230cb9668547f475d68b1de2c8a05fed",
+      "publication_status": "PUBLISHED_IMMUTABLE_ARCHIVE",
+      "archive_path": "source/03_lotus_composite_implementation_requirements.txt"
+    },
+    {
+      "original_filename": "04_lotus_composite_agent_execution_brief.md",
+      "sha256": "83b99a06d2c276090faa4e887c0e1dfc63e24900a39f3d721bf410fc31cb5c93",
+      "publication_status": "PUBLISHED_IMMUTABLE_ARCHIVE",
+      "archive_path": "source/04_lotus_composite_agent_execution_brief.txt"
+    },
+    {
+      "original_filename": "05_composite_numerical_oracles.json",
+      "sha256": "faf40e73c552d117ac466c711ac430551f5e20d8907ec20069bc2f9493316f61",
+      "publication_status": "PUBLISHED_IMMUTABLE_ARCHIVE",
+      "archive_path": "source/05_composite_numerical_oracles.json"
+    },
+    {
+      "original_filename": "README (1).md",
+      "sha256": "d6baf171916a2670dd1507624b5fa40fddffeece0d4c7d4e92f7ed9ab84b4615",
+      "publication_status": "WITHHELD_NON_NEUTRAL_RESEARCH",
+      "archive_path": null
+    }
+  ],
+  "editorial_substitutions": [
+    {
+      "from": "# Lotus Composite Performance — Gold-Standard Product Requirements",
+      "to": "# Lotus Composite Performance — Product Requirements"
+    },
+    {
+      "from": "- [Neutral source baseline](01_composite_requirements_source_baseline.md): faithful normalization, including the source's historical scope qualifications.",
+      "to": "- [Immutable neutral source baseline](source/01_composite_requirements_source_baseline.txt): archival provenance, including historical scope qualifications; the current target overrides release restrictions."
+    },
+    {
+      "from": "- [Gaps, bounded Lotus readiness and vendor comparison](02_composite_gaps_and_lotus_readiness.md): source omissions, observed code boundaries and evidence-based market comparison.",
+      "to": "- [Current coverage and reader map](README.md): the single implementation ledger, committed-source observations and owning delivery issues."
+    },
+    {
+      "from": "- [Agent execution brief](04_lotus_composite_agent_execution_brief.md): copy-ready implementation instructions and evidence expectations.",
+      "to": "- [RFC-0110](../../rfcs/RFC-0110-composite-performance-product-and-delivery-foundation.md): current delivery instructions, ownership and evidence boundaries. The [original execution brief](source/04_lotus_composite_agent_execution_brief.txt) is archival text; its historical companion references are not current product navigation."
+    },
+    {
+      "from": "**CMP-DON-005.** Closeout distinguishes implemented capability, test evidence, target-environment acceptance and commercial comparative claims. The companion vendor table is a research snapshot; superiority claims require current, like-for-like demonstration and cannot be inferred from competitors' undocumented features.",
+      "to": "**CMP-DON-005.** Closeout distinguishes implemented capability, test evidence, target-environment acceptance and comparative claims. Comparative claims require current, like-for-like demonstration and cannot be inferred from undocumented features. Historical comparison material is withheld from public product documentation."
+    },
+    {
+      "from": "- **S0 — Supplied source:** Requirements text pasted by the user in this conversation; normalized in `01_composite_requirements_source_baseline.md`. Screenshots and the original sample workbook were not readable/available for validation.",
+      "to": "- **S0 — Supplied source:** User-supplied requirements text, normalized in [the immutable source baseline](source/01_composite_requirements_source_baseline.txt). Screenshots and the original sample workbook were not readable/available for validation."
+    },
+    {
+      "from": "Specific Lotus repository evidence and public vendor references are retained in `02_composite_gaps_and_lotus_readiness.md`. Public vendor material is descriptive evidence, not proof of current deployed functionality, performance or GIPS compliance.",
+      "to": "Current committed-source observations and their bounded interpretations live in [the implementation ledger](implementation-ledger.v1.json). The historical comparison input is withheld from public publication. Product support, performance and compliance require their own evidence."
+    }
+  ],
+  "publication_note": "Neutral navigation and claim-boundary edits only; no requirement, formula, option, scenario or catalogue exclusion is authorized."
+}

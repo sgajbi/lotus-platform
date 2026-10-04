@@ -5,6 +5,11 @@ RFC's linked evidence.
 
 ## RFC Reader Map
 
+[RFC-0110 composite performance](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/RFC-0110-composite-performance-product-and-delivery-foundation.md)
+preserves the full product target and a single evidence ledger. The documentation foundation is
+distinct from full programme acceptance; Performance correctness and operating APIs precede Excel
+and downstream UI.
+
 | Goal | Destination |
 | --- | --- |
 | Browse every RFC and its lifecycle state | [Authoritative RFC inventory](https://github.com/sgajbi/lotus-platform/blob/main/rfcs/README.md) |
