@@ -171,6 +171,11 @@ ownership context is blocked.
 
 ## Evidence Packet
 
+For a requirement-scoped programme change, use the
+[planned delivery admission profile](./references/campaign-playbook.md#requirement-scoped-delivery-admission)
+to distinguish owning issue, programme, dependencies and evidence depth before source work.
+Keep ordinary small bugs on the existing lightweight path; planned admission never promotes support.
+
 Assemble this packet before creating or updating an issue:
 
 - `Lens`: one primary canonical `lens/*` label; mention secondary lenses in the body.

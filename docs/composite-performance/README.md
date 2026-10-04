@@ -26,6 +26,26 @@ Four neutral inputs are archived byte-for-byte as plain text or JSON. Their orig
 
 ## Updating evidence
 
+### Planned delivery admission
+
+Optional `delivery_admissions` in the single ledger distinguish one owning issue from programme
+and dependency links. The three planned examples bind CMP-RPT-001 to Report #417, CMP-SRC-006
+to Performance #607 and CMP-ELG-001 to Manage #778. The other 318 requirements acquire no admission
+fields; all 321 remain NOT_ASSESSED. Historical source cuts carry explicit scope and require current
+owner reinspection. These plans neither assess a requirement nor authorize an API or financial method.
+
+An admission names known requirement IDs, matching owner/issue, canonical feature(s), dependencies,
+bounded scope, a committed-source observation, independent evaluation plan, internal/external
+documentation plans and next action. Duplicate/conflicting ownership, a programme used as owner,
+missing required plan information or claimed executable/target-environment evidence fail the native
+guard. Existing requirements/catalogues/oracles and institutional decision boundaries remain intact.
+The required dependency list may be `[]` to declare no prerequisites. Each present dependency must
+be a canonical issue link, unique and distinct from the owning issue and programme parent.
+Issue existence, prerequisite meaning, labels and remote source contents still require owner verification; local structural
+validation proves the recorded contract, not those external facts. See the
+[requirement-scoped campaign profile](../../codex/skills/lotus-app-issue-discovery/references/campaign-playbook.md#requirement-scoped-delivery-admission)
+for issue intake and truthful closeout. Ordinary small bugs use the existing lightweight issue process.
+
 A requirement row carries exact origin, repository/component, logical contract/API status, method/policy and dependent decisions, implementation state, source assessment, separate unit/integration/target-environment evidence, migration impact, documentation, risk, owner and next action. `null` API/test references mean no runtime binding has been supplied. Planned issue references identify related work, not proof of full issue scope or completion.
 
 Use only the CMP-TRC-002 states. A source assessment must pin repository, full commit, path, scope and review evidence. `VERIFIED_IN_TEST` requires actual executable test evidence; `VERIFIED_IN_TARGET_ENVIRONMENT` additionally requires scoped target-environment acceptance. `BLOCKED_ON_APPROVED_POLICY_OR_SOURCE` must name the blocking decision/source. Update the single ledger and its human projection together. Register semantic changes before implementation; approval is never inferred from a passing document guard.

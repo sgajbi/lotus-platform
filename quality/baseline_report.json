@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 416240
+    "total_source_lines": 416667
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -66,10 +66,10 @@
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
-        "complexity": 37,
-        "end_line": 271,
-        "line": 187,
-        "lines": 85,
+        "complexity": 38,
+        "end_line": 342,
+        "line": 256,
+        "lines": 87,
         "name": "validate_ledger",
         "path": "automation/validate_composite_documentation_foundation.py"
       },
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4037
+    "python_function_count": 4050
   },
-  "generated_at_utc": "2026-10-04T09:30:05Z",
+  "generated_at_utc": "2026-10-04T11:07:13Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -378,7 +378,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 18532,
+      "lines": 18635,
       "path": "docs/composite-performance/implementation-ledger.v1.json",
       "suffix": ".json"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2148,
+    "collected_tests": 2207,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2148 tests collected"
+    "summary": "2207 tests collected"
   }
 }

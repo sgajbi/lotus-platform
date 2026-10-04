@@ -16,6 +16,54 @@ into an operating loop that a future agent can follow without prior chat context
 9. [Report Progress To The User](#9-report-progress-to-the-user)
 10. [Improve The Skill When Learning Repeats](#10-improve-the-skill-when-learning-repeats)
 11. [Improve The Docs Knowledge Base When Standards Are Missing](#11-improve-the-docs-knowledge-base-when-standards-are-missing)
+12. [Requirement-Scoped Delivery Admission](#requirement-scoped-delivery-admission)
+
+## Requirement-Scoped Delivery Admission
+
+Apply this profile when selecting an implementation/architecture/test/documentation change against
+an identified programme requirement. Ordinary small bugs retain existing issue practice. Reuse an
+existing accountable issue after open/closed issue and active-branch/PR searches; do not fabricate
+one issue per unassigned requirement or create a competing coverage ledger.
+
+Record in the programme's canonical ledger before source work:
+
+| Field | Required interpretation |
+| --- | --- |
+| Owning issue and repository | One accountable issue in the requirement owner's repo, distinct from parent/dependencies |
+| Requirement IDs and feature(s) | Known individual IDs; `feature/composite-performance`, `feature/core-banking-integration`, or both for one shared implementation |
+| Dependencies | Explicit list of existing owner issues, or `[]` declaring no prerequisites; unique, not self or the programme parent |
+| Source observation and scope | Repo/full commit/path and bounded meaning; historical observation requires current reinspection |
+| Evaluation plan | Independent positive/negative numerical/state/API cases; PLANNED with no invented actual-test receipt |
+| Documentation plans | Internal method/lifecycle/runbook and external API/tutorial/interpretation obligations |
+| Scope and next action | One bounded owner slice, conflicts/decision blockers and no unsupported delivery claim |
+
+For composites, optional `delivery_admissions` share the existing
+`docs/composite-performance/implementation-ledger.v1.json`; they do not change requirement evidence
+or institutional approval. Current examples name Report #417, Performance #607 and Manage #778.
+The local guard rejects unknown IDs/features, wrong/missing owner, parent-as-owner, conflicting
+ownership, absent dependency/test/docs/source plans and unsupported promotion. Unselected rows
+remain NOT_ASSESSED without mandatory admission fields. Do not treat a source observation, issue
+closure, label or passing document test as a source assessment, executable proof or financial authority.
+
+Template for the owning issue: requirement IDs/feature; current committed-source observation and
+limitation; owner and bounded scope; parent/dependencies/active-work conflicts; independent cases
+and expected values/states; internal/external documentation; rollout/migration and truthful closure.
+Verify actual prerequisite meaning, GitHub issue state/labels, remote source and required approvals separately; a local
+syntax/consistency check cannot prove those facts. Do not mutate labels unconditionally to perform
+this intake; canonical label reconciliation remains a separately governed #925 obligation.
+
+From the `lotus-platform` repository root, Windows PowerShell and Linux/macOS use:
+
+```text
+python automation/validate_composite_documentation_foundation.py
+python -m pytest tests/unit/test_composite_documentation_foundation.py -q
+python codex/skills/lotus-app-issue-discovery/scripts/validate_issue_discovery_skill.py
+python automation/validate_lotus_skill_alignment.py
+```
+
+Follow protected delivery and exact-main validation before updating supported claims. Publish
+changed authored wiki and verify committed parity; sync changed skill source only after main.
+Close only the accepted slice: the full programme and remaining #925 acceptance stay open.
 
 ## 1. Start Or Resume
 

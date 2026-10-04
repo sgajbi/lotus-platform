@@ -36,6 +36,172 @@ def validate(ledger, publication):
     guard.validate_ledger(ledger, requirements, baseline, fixtures, immutable_target)
 
 
+def planned_admission():
+    return {
+        "owner_repository": "lotus-report",
+        "owning_issue": "https://github.com/sgajbi/lotus-report/issues/417",
+        "features": ["feature/composite-performance"],
+        "requirement_ids": ["CMP-RPT-001"],
+        "state": "PLANNED",
+        "dependencies": ["https://github.com/sgajbi/lotus-performance/issues/540"],
+        "source_observation": {
+            "evidence_class": "COMMITTED_SOURCE_OBSERVATION", "repository": "lotus-report",
+            "commit": "f62053d91a3a44d3c7dcacf14982ffce870febb4",
+            "path": "src/app/report_ordering_catalogue/definitions.py",
+            "scope": "Catalogue observation only; composite review remains planned.",
+        },
+        "scope": "First pinned composite-review Excel family; no financial recalculation.",
+        "evaluation_plan": {
+            "repository": "lotus-report", "state": "PLANNED", "actual_test_ref": None,
+            "independent_cases": ["Parse workbook cells against accepted producer facts.",
+                                  "Reject missing member/month and cross-tenant retrieval."],
+        },
+        "documentation_plan": {"internal": "Dataset and cell-lineage lifecycle dictionary.",
+                               "external": "API tutorial and unavailable-state workbook legend."},
+        "next_action": "Owner review current source and dependencies before a bounded implementation.",
+    }
+
+
+@pytest.mark.parametrize("features", [
+    ["feature/composite-performance"],
+    ["feature/core-banking-integration", "feature/composite-performance"],
+])
+def test_planned_single_and_shared_feature_admission_passes(ledger, publication, features):
+    admission = planned_admission()
+    admission["features"] = features
+    ledger["delivery_admissions"] = [admission]
+    validate(ledger, publication)
+    assert {row["implementation_state"] for row in ledger["requirements"]} == {"NOT_ASSESSED"}
+
+
+def test_unselected_foundation_requires_no_delivery_fields(ledger, publication):
+    ledger.pop("delivery_admissions", None)
+    validate(ledger, publication)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("owner_repository", "lotus-platform"), ("owner_repository", ""),
+    ("owning_issue", "https://github.com/sgajbi/lotus-platform/issues/923"),
+    ("owning_issue", "https://github.com/sgajbi/lotus-report/issues/398"),
+    ("features", []), ("features", ["feature/unknown"]),
+    ("features", ["feature/core-banking-integration"]),
+    ("features", ["feature/composite-performance", "feature/composite-performance"]),
+    ("requirement_ids", []), ("requirement_ids", ["CMP-UNKNOWN-001"]),
+    ("requirement_ids", ["CMP-RPT-001", "CMP-RPT-001"]),
+    ("dependencies", None), ("dependencies", ["https://github.com/sgajbi/lotus-report/issues/417"]),
+    ("dependencies", ["https://github.com/sgajbi/lotus-platform/issues/923"]),
+    ("dependencies", ["not-an-issue"]),
+    ("scope", ""), ("next_action", ""),
+    ("state", "VERIFIED_IN_TARGET_ENVIRONMENT"),
+    ("source_observation", {}), ("evaluation_plan", {}), ("documentation_plan", {}),
+])
+def test_invalid_planned_delivery_admission_fails(ledger, publication, field, value):
+    admission = planned_admission()
+    admission[field] = value
+    ledger["delivery_admissions"] = [admission]
+    with pytest.raises(guard.FoundationError, match="admission:"):
+        validate(ledger, publication)
+
+
+@pytest.mark.parametrize("field", list(planned_admission()))
+def test_delivery_admission_required_fields_fail_closed(ledger, publication, field):
+    admission = planned_admission()
+    del admission[field]
+    ledger["delivery_admissions"] = [admission]
+    with pytest.raises(guard.FoundationError, match="admission:"):
+        validate(ledger, publication)
+
+
+@pytest.mark.parametrize("section,field,value", [
+    ("source_observation", "evidence_class", "TARGET_ENVIRONMENT_ACCEPTANCE"),
+    ("source_observation", "repository", "lotus-core"),
+    ("source_observation", "commit", "main"),
+    ("source_observation", "path", "../outside.md"),
+    ("source_observation", "scope", ""),
+    ("evaluation_plan", "state", "PASS"),
+    ("evaluation_plan", "repository", "lotus-platform"),
+    ("evaluation_plan", "actual_test_ref", "tests/unit/unrelated.py"),
+    ("evaluation_plan", "independent_cases", []),
+    ("evaluation_plan", "independent_cases", [""]),
+    ("documentation_plan", "internal", ""),
+    ("documentation_plan", "external", ""),
+])
+def test_plan_cannot_masquerade_as_assessed_or_executable_evidence(
+    ledger, publication, section, field, value,
+):
+    admission = planned_admission()
+    admission[section][field] = value
+    ledger["delivery_admissions"] = [admission]
+    with pytest.raises(guard.FoundationError, match="admission:"):
+        validate(ledger, publication)
+
+
+def test_duplicate_requirement_ownership_fails(ledger, publication):
+    admission = planned_admission()
+    ledger["delivery_admissions"] = [admission, copy.deepcopy(admission)]
+    with pytest.raises(guard.FoundationError, match="admission:"):
+        validate(ledger, publication)
+
+
+def test_conflicting_issues_cannot_own_the_same_requirement(ledger, publication):
+    original = planned_admission()
+    conflicting = copy.deepcopy(original)
+    conflicting["owning_issue"] = "https://github.com/sgajbi/lotus-report/issues/418"
+    ledger["delivery_admissions"] = [original, conflicting]
+    with pytest.raises(guard.FoundationError, match="admission:conflicting-ownership"):
+        validate(ledger, publication)
+
+
+def test_one_issue_can_own_multiple_known_requirements(ledger, publication):
+    admission = planned_admission()
+    admission["requirement_ids"].append("CMP-RPT-002")
+    ledger["delivery_admissions"] = [admission]
+    validate(ledger, publication)
+
+
+@pytest.mark.parametrize("case,expected_exit", [
+    ("valid", 0), ("no-prerequisite", 0), ("bad-owner", 1),
+    ("missing-dependencies", 1), ("non-list-dependencies", 1),
+    ("malformed-dependency", 1), ("duplicate-dependency", 1),
+    ("self-dependency", 1), ("parent-dependency", 1),
+])
+def test_real_admission_cli_dependency_and_ownership_contract(tmp_path, ledger, case, expected_exit):
+    for directory in (
+        guard.DOCS, "rfcs", "wiki", "docs/standards",
+        "platform-contracts/domain-data-products", "platform-contracts/domain-vocabulary",
+        "codex/skills/lotus-app-issue-discovery",
+    ):
+        shutil.copytree(ROOT / directory, tmp_path / directory)
+    admission = planned_admission()
+    if case == "bad-owner":
+        admission["owning_issue"] = ledger["programme_issue"]
+    elif case == "no-prerequisite":
+        admission["dependencies"] = []
+    elif case == "missing-dependencies":
+        del admission["dependencies"]
+    elif case == "non-list-dependencies":
+        admission["dependencies"] = admission["dependencies"][0]
+    elif case == "malformed-dependency":
+        admission["dependencies"] = ["not-an-issue"]
+    elif case == "duplicate-dependency":
+        admission["dependencies"] *= 2
+    elif case == "self-dependency":
+        admission["dependencies"] = [admission["owning_issue"]]
+    elif case == "parent-dependency":
+        admission["dependencies"] = [ledger["programme_issue"]]
+    ledger["delivery_admissions"] = [admission]
+    (tmp_path / guard.DOCS / "implementation-ledger.v1.json").write_text(
+        json.dumps(ledger), encoding="utf-8"
+    )
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "automation/validate_composite_documentation_foundation.py"),
+         "--root", str(tmp_path)], capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == expected_exit, result.stdout + result.stderr
+    if expected_exit:
+        assert "admission:" in result.stdout
+
+
 def test_complete_real_foundation_passes():
     guard.validate_foundation(ROOT)
 

@@ -1,6 +1,109 @@
 {
   "schema_version": "lotus-composite-documentation-ledger.v1",
   "schema_ref": "../../automation/validate_composite_documentation_foundation.py",
+  "delivery_admissions": [
+    {
+      "owner_repository": "lotus-report",
+      "owning_issue": "https://github.com/sgajbi/lotus-report/issues/417",
+      "features": ["feature/composite-performance"],
+      "requirement_ids": ["CMP-RPT-001"],
+      "state": "PLANNED",
+      "dependencies": [
+        "https://github.com/sgajbi/lotus-manage/issues/714",
+        "https://github.com/sgajbi/lotus-performance/issues/540",
+        "https://github.com/sgajbi/lotus-gateway/issues/820"
+      ],
+      "source_observation": {
+        "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
+        "repository": "lotus-report",
+        "commit": "f62053d91a3a44d3c7dcacf14982ffce870febb4",
+        "path": "src/app/report_ordering_catalogue/definitions.py",
+        "scope": "Catalogue has no composite family at this cut; this is not a requirement source assessment."
+      },
+      "scope": "First pinned composite-review Excel family through existing Report/Render/Archive lifecycle; no financial recalculation.",
+      "evaluation_plan": {
+        "repository": "lotus-report",
+        "state": "PLANNED",
+        "actual_test_ref": null,
+        "independent_cases": [
+          "Parse every workbook financial cell against accepted pinned producer facts and versions.",
+          "Reject missing member/month and cross-tenant retrieval; retain unavailable states and original/corrected generations."
+        ]
+      },
+      "documentation_plan": {
+        "internal": "Dataset/cell-lineage lifecycle dictionary, compatibility and re-render runbook.",
+        "external": "Registered API tutorial, worked +1%/+3.02% workbook and unavailable-state legend."
+      },
+      "next_action": "Report owner reviews current source and qualified upstream contracts before any bounded implementation; #417 remains open."
+    },
+    {
+      "owner_repository": "lotus-performance",
+      "owning_issue": "https://github.com/sgajbi/lotus-performance/issues/607",
+      "features": ["feature/composite-performance"],
+      "requirement_ids": ["CMP-SRC-006"],
+      "state": "PLANNED",
+      "dependencies": [
+        "https://github.com/sgajbi/lotus-manage/issues/714",
+        "https://github.com/sgajbi/lotus-performance/issues/540",
+        "https://github.com/sgajbi/lotus-performance/issues/488"
+      ],
+      "source_observation": {
+        "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
+        "repository": "lotus-performance",
+        "commit": "4ffad93e7c57789d3521ace5205bf682a6513995",
+        "path": "app/adapters/composite_member_result_source.py",
+        "scope": "Historical source cut cited by #607 requires internal calculation identity; current owner reinspection remains pending, not assessed."
+      },
+      "scope": "One external monthly member-return method with three declared members and original/corrected versions, reusing governed materialization.",
+      "evaluation_plan": {
+        "repository": "lotus-performance",
+        "state": "PLANNED",
+        "actual_test_ref": null,
+        "independent_cases": [
+          "Verify OR-01 +1%, OR-02 +3.02% and OR-18 missing-month refusal through registered external admission.",
+          "Prove worker/PostgreSQL restart, conflicting replay, missing expected member and external-only operation without fabricated Core/calculation identity."
+        ]
+      },
+      "documentation_plan": {
+        "internal": "External authority schema, adapter boundaries and quarantine/recovery/correction runbook.",
+        "external": "Provider onboarding and API examples with explicit return units, fee/currency and evidence depth."
+      },
+      "next_action": "Performance owner reviews current source and #488 overlap before scoped #607 work; no #610 or institutional-policy implementation is admitted here."
+    },
+    {
+      "owner_repository": "lotus-manage",
+      "owning_issue": "https://github.com/sgajbi/lotus-manage/issues/778",
+      "features": ["feature/composite-performance"],
+      "requirement_ids": ["CMP-ELG-001"],
+      "state": "PLANNED",
+      "dependencies": [
+        "https://github.com/sgajbi/lotus-manage/issues/714",
+        "https://github.com/sgajbi/lotus-performance/issues/540"
+      ],
+      "source_observation": {
+        "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
+        "repository": "lotus-manage",
+        "commit": "a83c2f93e31c36b78b12a85ce8e692ccf66867f3",
+        "path": "src/api/routers/composite_membership.py",
+        "scope": "Historical #778 source cut accepts supplied decisions/approval references; current policy-product assessment remains pending."
+      },
+      "scope": "Typed monthly eligibility and content-bound independent policy approval over a qualified expected universe; reuse existing membership authority.",
+      "evaluation_plan": {
+        "repository": "lotus-manage",
+        "state": "PLANNED",
+        "actual_test_ref": null,
+        "independent_cases": [
+          "Independently verify +150/-100 flows against 1000 yield 5% ABS_NET and -100 withdrawal breaches 10% under the synthetic profile.",
+          "Refuse maker self-approval/stale revision, preserve multi-reason unknowns and demonstrate registered API/PostgreSQL/restart/Performance consumer boundaries."
+        ]
+      },
+      "documentation_plan": {
+        "internal": "Rule/source/method dictionary, approval diagrams and policy transition runbook.",
+        "external": "Configuration and re-entry tutorials with policy options, expected values and unavailable states."
+      },
+      "next_action": "Manage owner assesses current #714 authority and active work before #778 implementation; unresolved institutional choices block official activation."
+    }
+  ],
   "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
   "foundation_issue": "https://github.com/sgajbi/lotus-platform/issues/924",
   "baseline": {
