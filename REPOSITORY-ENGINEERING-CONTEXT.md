@@ -142,6 +142,18 @@ Do not create ad hoc substitutes for an existing repo-native entrypoint.
 
 ## Validation And CI Expectations
 
+### Vulnerability example evaluation practice
+
+The native feature, PR and main lanes select the checked-in vulnerability-exception example
+explicitly in both the register and technology-policy validators and evaluate it at `2026-07-29`,
+consistent with its positive semantic tests. This is
+historical schema/semantic proof, not current operational acceptance or an expiry renewal.
+Actual registers use `--register` or the technology CLI's `--exception-register` with today's
+default evaluation; do not reuse the fixture date
+for operational checks. Expired approved/proposed exceptions remain blocking. See the
+[contract commands](./platform-contracts/vulnerability-exceptions/README.md) for runnable
+PowerShell and Bash examples and operational promotion boundaries.
+
 Platform uses these GitHub lanes:
 
 1. Remote Feature Lane;

@@ -118,9 +118,15 @@ works.
   `python automation\validate_mainline_commit_provenance.py`
 - digest-based deployment promotion manifest validation:
   `python automation\validate_deployment_promotion_manifest.py`
-- dependency/container vulnerability exception register validation, report-only before lane
-  promotion:
-  `python automation\validate_vulnerability_exception_register.py --report-only`
+- blocking historical vulnerability-exception example proof (from the `lotus-platform` root in
+  PowerShell or Bash):
+  `python automation/validate_vulnerability_exception_register.py --register platform-contracts/vulnerability-exceptions/examples/lotus-platform-vulnerability-exception-register.valid.json --as-of-date 2026-07-29`
+  The technology-policy consumer selects that same example/date with
+  `python automation/validate_technology_governance_policy.py --exception-register platform-contracts/vulnerability-exceptions/examples/lotus-platform-vulnerability-exception-register.valid.json --as-of-date 2026-07-29`.
+  This is schema/semantic fixture proof, not current operational acceptance. Real registers use
+  `--register <operational-register.json>` or the technology CLI's `--exception-register` with
+  today's default evaluation; expired active
+  exceptions fail. Broader operational lane adoption remains subject to promotion criteria.
 - platform-stack security, identity, retention, scrape, health, resource, and bootstrap contract:
   `python automation\validate_platform_stack.py`
 
@@ -205,8 +211,11 @@ works.
 - dependency and container vulnerability exception posture: versioned exception-register schema,
   package/image/layer identity, owner and GitHub issue, severity, scanner availability,
   exposure/exploitability proof, compensating controls, rollback, expiry, planned fix, approval,
-  and remediation-proof semantics. The command remains report-only until repository baselines,
-  false-positive policy, and lane placement are intentionally promoted.
+  and remediation-proof semantics. Platform blocks on the explicit historical example/date;
+  operational registers retain current-date expiry enforcement. Broader operational lane adoption
+  remains report-only until repository baselines, false-positive policy and lane placement are
+  intentionally promoted. The [contract guide](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/vulnerability-exceptions/README.md)
+  explains both commands and their evidence boundaries.
 - authenticated BFF principal-session contract posture: source-safe issuer/audience/session-binding
   schema, least-privilege Gateway header projection, hostile browser authority-header rejection,
   non-certifying local/dev fixtures, and explicit blockers for bank IdP selection, production token
