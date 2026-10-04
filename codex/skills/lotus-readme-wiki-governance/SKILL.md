@@ -120,6 +120,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - remove scratch-note language such as "TODO", "maybe", "rough", "temp", or unqualified
      "production-ready" claims unless they are intentionally documented in a roadmap or gap
      section.
+   - preserve technical database terms such as "indexed temporary relation" or "temporary table";
+     classify each occurrence rather than waiving a page containing both technical terms and notes.
+   - distinguish named GitHub evidence citations from repository file links; apply the route and
+     local wiki-page rules in [the documentation standard](./references/lotus-readme-wiki-standard.md#publication-link-and-prose-classification).
    - run `python codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py --wiki-dir <repo>/wiki --changed-page <Page.md>`
      once for each changed wiki page when repo-local wiki source changed; use
      `--all-professional-pages` only for an explicit full-wiki polish campaign. Fix structural
