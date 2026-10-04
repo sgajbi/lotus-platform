@@ -67,6 +67,8 @@ Read these bundled references as needed:
   proof flags, per-lens notes, and campaign summary.
 
 Use `scripts/ensure_issue_discovery_labels.py` before filing or relabeling issues. Use
+the [feature-label reconciliation profile](references/campaign-playbook.md#canonical-feature-label-reconciliation)
+for full-catalogue authorization, preview, shared issues and legacy-selector preservation. Use
 `scripts/validate_issue_discovery_skill.py` after changing the lens catalog, labels, or ledger
 template. Use `scripts/plan_issue_discovery_campaign.py` to generate a repeatable repo/profile
 campaign plan before broad reviews or app handoffs. Add `--include-bank-readiness` when the review

@@ -88,6 +88,8 @@ LABELS = [
     ("lens/ai-human-oversight", "1f6feb", "Lens: human review, confidence thresholds, escalation, approval"),
     ("lens/ai-cost-latency-reliability", "1f6feb", "Lens: AI token budgets, latency, timeouts, fallback, reliability"),
     ("lens/ai-agent-tool-governance", "1f6feb", "Lens: AI agent tool permissions, scoped credentials, action logs"),
+    ("feature/core-banking-integration", "0052CC", "Core banking integration requirements, implementation and independent acceptance"),
+    ("feature/composite-performance", "5319E7", "Cohesive composite performance requirements, implementation and acceptance"),
 ]
 
 
