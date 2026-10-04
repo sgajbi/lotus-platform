@@ -17,6 +17,7 @@ into an operating loop that a future agent can follow without prior chat context
 10. [Improve The Skill When Learning Repeats](#10-improve-the-skill-when-learning-repeats)
 11. [Improve The Docs Knowledge Base When Standards Are Missing](#11-improve-the-docs-knowledge-base-when-standards-are-missing)
 12. [Requirement-Scoped Delivery Admission](#requirement-scoped-delivery-admission)
+13. [Canonical Feature Label Reconciliation](#canonical-feature-label-reconciliation)
 
 ## Requirement-Scoped Delivery Admission
 
@@ -64,6 +65,68 @@ python automation/validate_lotus_skill_alignment.py
 Follow protected delivery and exact-main validation before updating supported claims. Publish
 changed authored wiki and verify committed parity; sync changed skill source only after main.
 Close only the accepted slice: the full programme and remaining #925 acceptance stay open.
+
+## Canonical Feature Label Reconciliation
+
+The existing `scripts/ensure_issue_discovery_labels.py` catalogue includes:
+
+| Feature label | Color | Description |
+| --- | --- | --- |
+| `feature/core-banking-integration` | `0052CC` | Core banking integration requirements, implementation and independent acceptance |
+| `feature/composite-performance` | `5319E7` | Cohesive composite performance requirements, implementation and acceptance |
+
+These labels record scope, not closure, independent QA or product readiness. A shared change may
+carry both labels on one accountable issue and implementation. Verify requirement/owner/source
+meaning before assigning either label; a title or existing label is not sufficient evidence.
+
+The helper reconciles its **entire declared catalogue**, including lens and impact metadata, in the
+explicit `--repository` (compatibility alias `--repo`). Its existing checked `gh label create --force`
+calls create a missing label or update the same named label's color/description. They do not rename
+or delete labels, replace issue associations or change labels outside the catalogue. Preserve the
+distinct `core-banking-integration` label and existing selectors until an approved compatibility
+migration. Do not remove legacy labels or rewrite census consumers as part of feature admission.
+
+From the `lotus-platform` repository root, preview and read current metadata first. These commands
+work in Windows PowerShell and Linux/macOS; replace the explicit example repo with the authorized
+owner/repo. The preview performs no GitHub calls; the API command is read-only and retrieves every
+page, including repositories with more than 100 labels:
+
+```text
+python codex/skills/lotus-app-issue-discovery/scripts/ensure_issue_discovery_labels.py --repository sgajbi/lotus-platform --dry-run
+gh api --paginate --slurp "repos/sgajbi/lotus-platform/labels?per_page=100"
+```
+
+Compare existing names, IDs, colors and descriptions with the preview. Obtain authorization for
+the full catalogue before running the same helper command without `--dry-run`. A grant for two
+feature labels alone does not authorize all catalogue writes; use only those two reviewed native
+`gh label create ... --force` commands from the preview under that narrower grant. No second helper,
+label lifecycle or coverage ledger is needed.
+
+Reconciliation uses exact names, so it does not depend on a truncated label-list page. Reruns are
+idempotent in final metadata and associations but still send requests. On permissions/authentication,
+API validation, server or transport refusal, the checked command stops and returns nonzero; it must
+not report complete success. Earlier successful upserts remain: this is not an atomic transaction.
+Record the repo, failing label and actual exit status; resolve the cause before an authorized retry.
+Do not delete labels to roll back, use alternate credentials or bypass repository permissions.
+
+After success, repeat the paginated read and verify canonical metadata plus unchanged IDs for
+existing labels, legacy/unrelated labels and issue associations. Local controlled-boundary tests
+prove command/refusal behavior; they do not prove live permissions or an estate-wide rollout.
+
+Issue assignment requires separate authorization. Inspect current labels, then use native additive
+editing for the verified single or shared feature, preserving all unrelated/legacy labels:
+
+```text
+gh issue view 925 --repo sgajbi/lotus-platform --json number,state,labels,url
+gh issue edit 925 --repo sgajbi/lotus-platform --add-label feature/core-banking-integration --add-label feature/composite-performance
+gh issue view 925 --repo sgajbi/lotus-platform --json number,state,labels,url
+```
+
+The middle command writes GitHub; run it only for an authorized, verified shared issue, or supply
+only the one appropriate feature. Never replace the label list, remove a legacy label, duplicate
+implementation work or infer readiness from feature membership. Existing lifecycle reconciliation
+continues to manage only its configured status labels. Use the existing RFC coverage auditor's
+read-only missing-label commands where its declared contract applies.
 
 ## 1. Start Or Resume
 

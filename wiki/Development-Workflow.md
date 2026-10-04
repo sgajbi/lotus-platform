@@ -1,5 +1,15 @@
 # Development Workflow
 
+Current scope: the governed Platform delivery workflow, evidence requirements and feature-label
+intake. Use the linked source profile for authorized label reconciliation; this page is operator
+guidance and does not certify a repository or product.
+
+| Reader | Start here |
+| --- | --- |
+| Requirement owner | [Feature scope and labels](#feature-scope-and-labels) |
+| Delivery engineer | [Normal working loop](#normal-working-loop) and [Common commands](#common-commands) |
+| Governance reviewer | [Stranded governance truth](#stranded-governance-truth) |
+
 ## Normal working loop
 
 1. load the smallest correct context set
@@ -35,6 +45,14 @@ validation, and branch cleanup evidence.
 Before deleting a local or remote branch, verify that it is merged or explicitly superseded with PR
 state plus `git log origin/main..<branch>`, `git diff origin/main..<branch>`, or cherry-pick
 evidence. Branch cleanup is required, but code and durable truth preservation comes first.
+
+## Feature scope and labels
+
+Use the existing [issue-discovery feature-label profile](https://github.com/sgajbi/lotus-platform/blob/main/codex/skills/lotus-app-issue-discovery/references/campaign-playbook.md#canonical-feature-label-reconciliation)
+to preview canonical metadata, reconcile only authorized catalogue scope and add single/shared
+feature labels without removing legacy selectors or unrelated labels. Feature membership does
+not prove issue closure, independent QA or product readiness; one shared change retains one
+accountable implementation. Label writes and issue assignment require their own authorization.
 
 ## Common commands
 
