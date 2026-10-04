@@ -3,6 +3,14 @@
 ## Governance role
 
 `lotus-platform` owns the standards and validators that keep Lotus engineering aligned.
+Current scope is governed contracts and executable proof; operational adoption and live evidence
+must satisfy their owning lane's promotion criteria.
+
+| Reader need | Start here |
+| --- | --- |
+| Current dependency controls and evidence limits | [Dependency and image posture](#dependency-and-image-posture) |
+| Domain ownership and publication boundaries | [Mesh governance boundaries](#mesh-governance-boundaries) |
+| Authoritative policy | [Important standards](#important-standards) |
 
 ## Key governance surfaces
 
@@ -61,17 +69,28 @@ expiry, and a planned fix path.
 
 The authored platform contract is
 `platform-contracts/vulnerability-exceptions/vulnerability-exception-register.schema.json`.
-Run:
+Historical example schema and semantic validation is blocking in Platform's native feature, PR
+and main lanes. From the `lotus-platform` root, PowerShell or Bash:
 
 ```powershell
-python automation\validate_vulnerability_exception_register.py --report-only
+python automation/validate_vulnerability_exception_register.py --register platform-contracts/vulnerability-exceptions/examples/lotus-platform-vulnerability-exception-register.valid.json --as-of-date 2026-07-29
+python automation/validate_technology_governance_policy.py --exception-register platform-contracts/vulnerability-exceptions/examples/lotus-platform-vulnerability-exception-register.valid.json --as-of-date 2026-07-29
 ```
 
-Use report-only mode while dependency/security and release-image baselines, false-positive policy,
-and lane placement are still being measured. Remove `--report-only` only for focused blocking proof
-after promotion criteria are met. Approved exceptions require scanner evidence, approval evidence,
+This proves the historical fixture at its documented evaluation date. It does not renew its expiry
+or approve current vulnerabilities. Operational checks select the actual register with
+`--register <operational-register.json>` or the technology CLI's `--exception-register` and retain
+the current-date default; expired
+approved or proposed exceptions return nonzero. Never use the fixture date for operational proof.
+
+Use report-only mode for actual registers while dependency/security and release-image baselines,
+false-positive policy and lane placement are still being measured. Remove `--report-only` for
+operational blocking proof only after promotion criteria are met. Approved exceptions require scanner evidence, approval evidence,
 exposure/exploitability proof for high, critical, or known-exploited findings, and a remediation
 path before any production-ready or bank-buyable claim.
+
+See the [Vulnerability Exception Register Contract](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/vulnerability-exceptions/README.md)
+for fixture and operational commands.
 
 ## Operating rule
 
