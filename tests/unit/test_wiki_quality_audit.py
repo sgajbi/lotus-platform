@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 AUDIT_PATH = (
@@ -37,6 +39,115 @@ def _set_github_origin(repo_root: Path, url: str) -> None:
     subprocess.run(
         ["git", "-C", str(repo_root), "remote", "add", "origin", url], check=True
     )
+
+
+@pytest.mark.parametrize("prose", [
+    "The migration scans immutable outbox evidence into an indexed temporary relation before bounded ledger batches.",
+    "PostgreSQL uses a temporary table for migration evidence.",
+    "The indexed TEMPORARY RELATIONS hold database evidence.",
+])
+def test_temporary_database_terms_are_operator_prose(prose: str) -> None:
+    assert _load_audit_module()._page_prose_failures("Persistence-Service.md", prose) == []
+
+
+@pytest.mark.parametrize("prose", [
+    "TODO finalize", "TBD", "FIXME", "temp notes", "temporary workaround",
+    "maybe implement later", "rough notes", "temporary\ntable of unfinished notes",
+    "temporary table workaround", "temporary relation notes",
+    "Use a temporary relation; temporary workaround remains.",
+    "Use a temporary table; TODO finish migration.",
+])
+def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
+    assert "contains scratch-note terms" in " ".join(
+        _load_audit_module()._page_prose_failures("Persistence-Service.md", prose)
+    )
+
+
+@pytest.mark.parametrize("route", [
+    "actions/runs/37190131449", "actions/runs/37190131449/job/111400413011",
+    "actions/workflows/feature-lane.yml", "issues/929#issuecomment-123",
+    "pull/926", "pull/926/files", "commit/2830c46efa41eb4a8426ee97af7bad33585f80b7",
+    "releases", "releases/latest", "releases/tag/v1.0.0", "compare/main...release",
+])
+def test_repository_evidence_routes_are_not_file_links(tmp_path: Path, route: str) -> None:
+    _set_github_origin(tmp_path, "https://github.com/example/repo.git")
+    assert _load_audit_module()._repository_github_link_failures(
+        "Evidence.md", f"[Evidence](https://github.com/example/repo/{route})",
+        repo_root=tmp_path,
+    ) == []
+
+
+@pytest.mark.parametrize("route", [
+    "actions/runs/no-number", "actions/runs/12/other/3", "actions/workflows",
+    "actions/workflows/../AGENTS.md", "issues/not-a-number", "pull/12/unknown",
+    "commit/not-a-sha", "releases/unknown", "compare/main", "blbo/main/AGENTS.md",
+    "blob/feature/AGENTS.md", "blob/main/%2e%2e/AGENTS.md", "blob/main",
+])
+def test_malformed_repository_routes_fail(tmp_path: Path, route: str) -> None:
+    _set_github_origin(tmp_path, "https://github.com/example/repo.git")
+    assert _load_audit_module()._repository_github_link_failures(
+        "Evidence.md", f"[Evidence](https://github.com/example/repo/{route})",
+        repo_root=tmp_path,
+    )
+
+
+@pytest.mark.parametrize("owner", ["example", "attacker"])
+def test_repository_evidence_origin_is_verified(tmp_path: Path, owner: str) -> None:
+    _set_github_origin(tmp_path, "https://github.com/example/repo.git")
+    failures = _load_audit_module()._repository_github_link_failures(
+        "Evidence.md", f"[Run](https://github.com/{owner}/repo/actions/runs/12)",
+        repo_root=tmp_path,
+    )
+    assert bool(failures) == (owner == "attacker")
+
+
+@pytest.mark.parametrize("bad_prose", [
+    "", "temporary workaround", "TODO finish",
+    "[Branch](https://github.com/example/repo/blob/feature/AGENTS.md)",
+    "[Malformed](https://github.com/example/repo/actions/runs/not-a-number)",
+    "[Fork](https://github.com/attacker/repo/actions/runs/12)",
+    "[Traversal](https://github.com/example/repo/blob/main/%2e%2e/AGENTS.md)",
+])
+def test_fixture_cli_preserves_base_checks_outside_changed_scope(
+    tmp_path: Path, bad_prose: str,
+) -> None:
+    repo_root = tmp_path / "repo"
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
+    wiki = repo_root / "wiki"
+    wiki.mkdir()
+    # A real repository directory must not shadow an existing bare wiki-page link.
+    (repo_root / "Supported-Features").mkdir()
+    (wiki / "Home.md").write_text(
+        "# Home\n\n[Features](Supported-Features)\n", encoding="utf-8"
+    )
+    (wiki / "_Sidebar.md").write_text(
+        "# Navigation\n\n[Home](Home)\n[Features](Supported-Features)\n", encoding="utf-8"
+    )
+    (wiki / "Supported-Features.md").write_text(
+        "# Features\n\nCurrent-state support uses an indexed temporary relation.\n"
+        "[Run](https://github.com/example/repo/actions/runs/12)\n"
+        f"{bad_prose}\n```text\nTODO temporary workaround\n```\n", encoding="utf-8",
+    )
+    result = subprocess.run(
+        [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki), "--repo-root",
+         str(repo_root), "--changed-page", "Home.md"],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == (1 if bad_prose else 0), result.stdout + result.stderr
+    if bad_prose:
+        assert "Supported-Features.md:" in result.stdout
+
+
+def test_bare_wiki_links_require_existing_pages(tmp_path: Path) -> None:
+    wiki = tmp_path / "wiki"
+    wiki.mkdir()
+    (tmp_path / "Missing-Page").mkdir()
+    failures = _load_audit_module()._page_link_failures(
+        "Home.md", "[Missing](Missing-Page)", wiki_dir=wiki, repo_root=tmp_path,
+        known_pages={"Home.md"},
+    )
+    assert any("repository-relative link" in failure for failure in failures)
+    assert any("broken local" in failure for failure in failures)
 
 
 def test_wiki_quality_audit_accepts_navigation_and_repo_evidence_links(tmp_path: Path) -> None:

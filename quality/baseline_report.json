@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 416070
+    "total_source_lines": 416240
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -123,6 +123,14 @@
       },
       {
         "complexity": 21,
+        "end_line": 334,
+        "line": 258,
+        "lines": 77,
+        "name": "_repository_github_link_failures",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
+        "complexity": 21,
         "end_line": 242,
         "line": 168,
         "lines": 75,
@@ -184,14 +192,6 @@
         "lines": 63,
         "name": "iter_steps",
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
-      },
-      {
-        "complexity": 18,
-        "end_line": 831,
-        "line": 786,
-        "lines": 46,
-        "name": "fetch_positionals",
-        "path": "automation/validate_auto_merge_releasability.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4030
+    "python_function_count": 4037
   },
-  "generated_at_utc": "2026-10-04T08:20:42Z",
+  "generated_at_utc": "2026-10-04T09:30:05Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2099,
+    "collected_tests": 2148,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-composite-924\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2099 tests collected"
+    "summary": "2148 tests collected"
   }
 }

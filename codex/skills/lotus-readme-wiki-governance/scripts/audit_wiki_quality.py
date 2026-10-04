@@ -18,6 +18,21 @@ BARE_URL_PATTERN = re.compile(r"(?<!\]\()https?://\S+")
 SCRATCH_PATTERN = re.compile(
     r"\b(TODO|maybe|rough|temp|temporary|TBD|FIXME)\b", re.IGNORECASE
 )
+DATABASE_TEMPORARY_PATTERN = re.compile(
+    r"temporary[ \t]+(?:relations?|tables?)\b"
+    r"(?![ \t]+(?:workaround|notes)\b)", re.IGNORECASE
+)
+
+# Evidence routes are syntax-checked citations, not checkout file paths.
+GITHUB_EVIDENCE_ROUTE_PATTERN = re.compile(
+    r"(?:actions/runs/[1-9][0-9]*(?:/job/[1-9][0-9]*)?"
+    r"|actions/workflows/[A-Za-z0-9_-][A-Za-z0-9_.-]*\.ya?ml"
+    r"|issues/[1-9][0-9]*"
+    r"|pull/[1-9][0-9]*(?:/(?:files|commits|checks))?"
+    r"|commit/[0-9a-fA-F]{7,40}"
+    r"|releases(?:/latest|/tag/[A-Za-z0-9_-][A-Za-z0-9_.-]*)?"
+    r"|compare/[A-Za-z0-9_-][A-Za-z0-9_./~-]*\.\.\.[A-Za-z0-9_-][A-Za-z0-9_./~-]*)"
+)
 
 ALLOWED_EXTERNAL_PREFIXES = ("http://", "https://", "mailto:", "#")
 REQUIRED_PAGES = ("Home.md", "_Sidebar.md")
@@ -211,6 +226,9 @@ def _publication_unsafe_repository_links(
         if target_path.is_absolute() or ".." in target_path.parts:
             continue
         wiki_target = (resolved_wiki / target_path).resolve()
+        normalized_target = _normalize_link_target(raw_target)
+        if normalized_target and (resolved_wiki / normalized_target).is_file():
+            continue
         repo_target = (resolved_repo / target_path).resolve()
         if (
             repo_target.exists()
@@ -248,8 +266,8 @@ def _repository_github_link_failures(
         if parsed.netloc.lower() != "github.com":
             continue
 
-        parts = parsed.path.strip("/").split("/", 4)
-        if len(parts) != 5:
+        parts = parsed.path.strip("/").split("/", 2)
+        if len(parts) < 2:
             continue
         expected_repository = (
             repository_identity[1] if repository_identity else repo_root.name.lower()
@@ -268,19 +286,28 @@ def _repository_github_link_failures(
                 f"{page_name}: repository GitHub link must target {expected_slug}: {target}"
             )
             continue
-        mode = parts[2]
+        route = unquote(parts[2]) if len(parts) == 3 else ""
+        if GITHUB_EVIDENCE_ROUTE_PATTERN.fullmatch(route) and all(
+            part not in {".", ".."} for part in route.split("/")
+        ):
+            continue
+        file_parts = route.split("/", 2)
+        mode = file_parts[0]
         if mode not in {"blob", "tree"}:
             failures.append(
                 f"{page_name}: repository GitHub file link must use blob or tree: {target}"
             )
             continue
-        if unquote(parts[3]) != "main":
+        if len(file_parts) != 3 or not file_parts[2]:
+            failures.append(f"{page_name}: malformed repository GitHub file link: {target}")
+            continue
+        if file_parts[1] != "main":
             failures.append(
                 f"{page_name}: repository GitHub link must target main: {target}"
             )
             continue
 
-        relative_path = unquote(parts[4]).replace("\\", "/")
+        relative_path = file_parts[2].replace("\\", "/")
         relative_parts = Path(relative_path).parts
         if (
             Path(relative_path).is_absolute()
@@ -481,7 +508,13 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
         failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
 
     scratch_terms = sorted(
-        {match.group(0) for match in SCRATCH_PATTERN.finditer(prose)}
+        {
+            match.group(0) for match in SCRATCH_PATTERN.finditer(prose)
+            if not (
+                match.group(0).lower() == "temporary"
+                and DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
+            )
+        }
     )
     if scratch_terms:
         failures.append(

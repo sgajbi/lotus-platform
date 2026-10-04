@@ -134,6 +134,28 @@ Emphasize:
 3. ecosystem-wide role,
 4. bootstrap and sync expectations.
 
+## Publication Link And Prose Classification
+
+Named links to existing local wiki pages may use the page name with or without `.md`.
+Resolve that wiki page before considering a same-named repository directory. Missing pages,
+parent/root-relative escapes and repository-relative file links remain failures. Repository files
+use owning-repository `blob/main/<path>` or `tree/main/<path>` URLs, matching the local file/directory
+type and staying inside the checkout.
+
+Owning-repository GitHub evidence citations retain their native URL shape: numbered Actions runs
+and jobs, named YAML workflows, numbered issues/pull requests (including files/commits/checks),
+commit hashes, releases/latest/tag and compare ranges. Validate route shape and repository identity;
+do not require `blob/main` for evidence. This is a syntax check, not proof that a remote run, issue,
+commit or release exists. Malformed or unknown routes do not bypass file-link controls.
+
+The prose classifier admits individual technical database noun phrases `temporary relation(s)`
+and `temporary table(s)` on one line. It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`,
+`temporary workaround`, `maybe implement later`, and database noun phrases immediately followed
+by `notes` or `workaround`. A legitimate database term never exempts other scratch-note occurrences
+in the same sentence or page. Fenced executable examples remain outside prose checks.
+Base prose, navigation and link checks apply wiki-wide; changed-page scope selects only the
+stricter professional first-screen and command-dump checks. Auditor failures propagate CLI exit 1.
+
 ## Anti-Patterns
 
 Avoid:
