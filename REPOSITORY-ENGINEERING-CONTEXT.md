@@ -290,6 +290,27 @@ Use the RFC index for deeper or historical decisions.
   first persistent DPM write. Exact-date/Decimal/source-quality admission remains unchanged.
 - Avoid repeating shared policy in README, wiki, context, and skills. Keep one authority and route
   readers to it.
+- Resource-only recovery is a separate operator-reviewed workflow in
+  `automation/Invoke-ResourceOnlyRecovery.ps1`; follow the
+  [recovery runbook](./docs/operations/resource-only-recovery.md). It retains the primary module's
+  original operation handle, requires exact dispositions and archive/isolated-restore evidence,
+  and never broadens normal ownership or orphan cleanup. It requires PowerShell 7.5 or later;
+  inspection and approval JSON use `-DateKind String` so timestamp-shaped labels retain their
+  exact strings. Historical corrections require append-only native-bound derivation, never
+  restamping or offset normalization. Local guard tests do not establish live
+  restoration; distinct observed daemons, retained verification resources and operator decisions
+  remain explicit evidence boundaries. The single current v2 contract separates immutable raw
+  native discovery from parent-owned START-timed target/all-consumer observations. Intermediate
+  v1 schemas refuse. Per-target checks never overwrite prepared/archive provenance; final live
+  freshness and the original fence precede source I/O. Unrelated Docker clients are not fenced.
+  Long archive/review retirement uses a separate fresh
+  disposition bound to the original archive approval/finished receipt, never rewrites provenance
+  or extends the observation freshness window.
+  Image archives distinguish OCI manifest identity, configuration identity, compressed content
+  digest and uncompressed DiffID. The actual CLI supplies archive-validated restoration selectors;
+  the wrapper requires pre-load absence and revalidates restored metadata before acceptance.
+  Classic config-ID checks remain intact. Unsupported image graphs/encodings and decompression
+  budget overflow refuse; precise bounded refusal codes are retained without raw native output.
 
 ## Context Maintenance Rule
 

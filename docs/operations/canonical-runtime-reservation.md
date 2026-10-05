@@ -62,6 +62,14 @@ Before cleanup, run `automation/Invoke-Canonical-FrontOffice-QA.ps1 -CleanPlanOn
 
 ## Evidence boundaries
 
+Resource-only images and volumes remain refused by normal cleanup. The separate
+[reviewed resource-only recovery workflow](resource-only-recovery.md) requires an explicit
+digest-bound operator disposition, complete archival and isolated restore verification before
+normal exact retirement. Its presence does not admit anonymous resources or certify live recovery.
+Immutable discovery does not grant current I/O: each recovery target requires fresh START-timed
+native target/all-consumer observations under the original stream. This fence does not exclude
+unrelated Docker clients or establish an application-consistent backup; use a quiet reviewed fixture.
+
 ### DPM cash pre-read
 
 `Invoke-DpmCommandCenterSeed.ps1` passes the explicitly configured
