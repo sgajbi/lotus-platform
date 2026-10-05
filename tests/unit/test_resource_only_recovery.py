@@ -1009,7 +1009,9 @@ def test_full_shipped_wrapper_holds_original_fence_and_preserves_native_failure(
     primary.mkdir(parents=True)
     shutil.copy2(ROOT / "automation/CanonicalRuntimeReservation.psm1", primary)
     storage = tmp_path / "archives"
-    storage.mkdir()
+    # The real policy boundary requires private POSIX storage. Do not rely on
+    # the runner's default umask to make a valid fixture admissible.
+    storage.mkdir(mode=0o700)
     approval, plan, inventory, snapshot = packet(storage)
     oci_mode = mode.startswith("real-policy-oci")
     config_id = IMAGE_ID
