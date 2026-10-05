@@ -4,20 +4,20 @@
     "note": "Initial baseline records hotspots before introducing import-boundary enforcement."
   },
   "code_size": {
-    "markdown_file_count": 425,
-    "powershell_file_count": 69,
-    "python_file_count": 269,
-    "source_file_count": 994,
+    "markdown_file_count": 426,
+    "powershell_file_count": 70,
+    "python_file_count": 275,
+    "source_file_count": 1002,
     "suffix_counts": {
       ".json": 179,
-      ".md": 425,
-      ".ps1": 69,
-      ".py": 269,
+      ".md": 426,
+      ".ps1": 70,
+      ".py": 275,
       ".txt": 10,
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 416903
+    "total_source_lines": 420928
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -67,6 +67,14 @@
       },
       {
         "complexity": 38,
+        "end_line": 652,
+        "line": 499,
+        "lines": 154,
+        "name": "validate_discovery",
+        "path": "automation/resource_recovery/policy.py"
+      },
+      {
+        "complexity": 38,
         "end_line": 342,
         "line": 256,
         "lines": 87,
@@ -82,12 +90,44 @@
         "path": "automation/check_branch_protection_policy.py"
       },
       {
+        "complexity": 34,
+        "end_line": 346,
+        "line": 203,
+        "lines": 144,
+        "name": "validate_approval",
+        "path": "automation/resource_recovery/policy.py"
+      },
+      {
         "complexity": 31,
         "end_line": 437,
         "line": 259,
         "lines": 179,
         "name": "main",
         "path": "automation/audit_main_gate_coverage.py"
+      },
+      {
+        "complexity": 30,
+        "end_line": 747,
+        "line": 655,
+        "lines": 93,
+        "name": "validate_live",
+        "path": "automation/resource_recovery/policy.py"
+      },
+      {
+        "complexity": 28,
+        "end_line": 1320,
+        "line": 1001,
+        "lines": 320,
+        "name": "test_full_shipped_wrapper_holds_original_fence_and_preserves_native_failure",
+        "path": "tests/unit/test_resource_only_recovery.py"
+      },
+      {
+        "complexity": 25,
+        "end_line": 265,
+        "line": 117,
+        "lines": 149,
+        "name": "image_identity",
+        "path": "automation/resource_recovery/archive_verification.py"
       },
       {
         "complexity": 24,
@@ -152,46 +192,6 @@
         "lines": 69,
         "name": "cash_evidence_from_overview",
         "path": "automation/resolve_canonical_cash_evidence.py"
-      },
-      {
-        "complexity": 20,
-        "end_line": 1229,
-        "line": 1177,
-        "lines": 53,
-        "name": "_declaration_assessment",
-        "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
-        "complexity": 20,
-        "end_line": 128,
-        "line": 81,
-        "lines": 48,
-        "name": "execute",
-        "path": "automation/canonical_runtime_reservation.py"
-      },
-      {
-        "complexity": 19,
-        "end_line": 158,
-        "line": 90,
-        "lines": 69,
-        "name": "load_manifest",
-        "path": "automation/validate_sibling_source_manifest.py"
-      },
-      {
-        "complexity": 18,
-        "end_line": 335,
-        "line": 273,
-        "lines": 63,
-        "name": "_validate_security",
-        "path": "automation/validate_platform_stack.py"
-      },
-      {
-        "complexity": 18,
-        "end_line": 189,
-        "line": 127,
-        "lines": 63,
-        "name": "iter_steps",
-        "path": "automation/validate_workflow_pipeline_exit_codes.py"
       }
     ],
     "largest_functions": [
@@ -234,6 +234,14 @@
         "lines": 343,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
+      },
+      {
+        "complexity": 28,
+        "end_line": 1320,
+        "line": 1001,
+        "lines": 320,
+        "name": "test_full_shipped_wrapper_holds_original_fence_and_preserves_native_failure",
+        "path": "tests/unit/test_resource_only_recovery.py"
       },
       {
         "complexity": 2,
@@ -308,6 +316,14 @@
         "path": "tests/unit/test_rfc_0076_canonical_demo_data_contract.py"
       },
       {
+        "complexity": 17,
+        "end_line": 1739,
+        "line": 1545,
+        "lines": 195,
+        "name": "test_shipped_cli_renews_retirement_without_rewriting_archive_provenance",
+        "path": "tests/unit/test_resource_only_recovery.py"
+      },
+      {
         "complexity": 31,
         "end_line": 437,
         "line": 259,
@@ -338,29 +354,13 @@
         "lines": 167,
         "name": "test_validate_service_addressing_accepts_canonical_hostnames",
         "path": "tests/unit/test_service_addressing_validator.py"
-      },
-      {
-        "complexity": 10,
-        "end_line": 637,
-        "line": 477,
-        "lines": 161,
-        "name": "launch_repository_task",
-        "path": "automation/repository_background_task.py"
-      },
-      {
-        "complexity": 5,
-        "end_line": 479,
-        "line": 323,
-        "lines": 157,
-        "name": "test_rfc_0104_preserves_batch_reporting_gold_standard_contract",
-        "path": "tests/unit/test_rfc_closure_governance.py"
       }
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4059
+    "python_function_count": 4129
   },
-  "generated_at_utc": "2026-10-04T12:19:08Z",
+  "generated_at_utc": "2026-10-05T13:25:46Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -433,6 +433,11 @@
       "suffix": ".md"
     },
     {
+      "lines": 1753,
+      "path": "tests/unit/test_resource_only_recovery.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1735,
       "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
@@ -456,11 +461,6 @@
       "lines": 1451,
       "path": "automation/validate_auto_merge_releasability.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1385,
-      "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "suffix": ".ps1"
     }
   ],
   "openapi": {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2220,
+    "collected_tests": 2338,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2220 tests collected"
+    "summary": "2338 tests collected"
   }
 }
