@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 420928
+    "total_source_lines": 421164
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -115,9 +115,9 @@
       },
       {
         "complexity": 28,
-        "end_line": 1320,
+        "end_line": 1322,
         "line": 1001,
-        "lines": 320,
+        "lines": 322,
         "name": "test_full_shipped_wrapper_holds_original_fence_and_preserves_native_failure",
         "path": "tests/unit/test_resource_only_recovery.py"
       },
@@ -205,8 +205,8 @@
       },
       {
         "complexity": 1,
-        "end_line": 1080,
-        "line": 607,
+        "end_line": 1144,
+        "line": 671,
         "lines": 474,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -237,9 +237,9 @@
       },
       {
         "complexity": 28,
-        "end_line": 1320,
+        "end_line": 1322,
         "line": 1001,
-        "lines": 320,
+        "lines": 322,
         "name": "test_full_shipped_wrapper_holds_original_fence_and_preserves_native_failure",
         "path": "tests/unit/test_resource_only_recovery.py"
       },
@@ -317,8 +317,8 @@
       },
       {
         "complexity": 17,
-        "end_line": 1739,
-        "line": 1545,
+        "end_line": 1741,
+        "line": 1547,
         "lines": 195,
         "name": "test_shipped_cli_renews_retirement_without_rewriting_archive_provenance",
         "path": "tests/unit/test_resource_only_recovery.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4129
+    "python_function_count": 4136
   },
-  "generated_at_utc": "2026-10-05T13:25:46Z",
+  "generated_at_utc": "2026-10-05T23:03:53Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -433,7 +433,7 @@
       "suffix": ".md"
     },
     {
-      "lines": 1753,
+      "lines": 1755,
       "path": "tests/unit/test_resource_only_recovery.py",
       "suffix": ".py"
     },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2338,
+    "collected_tests": 2358,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-935-resource-recovery\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2338 tests collected"
+    "summary": "2358 tests collected"
   }
 }
