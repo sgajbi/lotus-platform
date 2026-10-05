@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
+
+import pytest
 
 import automation.generate_enterprise_backend_quality_baseline as baseline_generator
 from automation.generate_enterprise_backend_quality_baseline import (
@@ -275,7 +278,9 @@ def test_quality_foundation_is_discoverable_from_docs_context_wiki_and_skill() -
     assert "Enterprise-Backend-Refactor-Quality" in sidebar
 
 
-def test_recorded_failed_collection_is_reported_by_the_quality_surface(monkeypatch) -> None:
+def test_recorded_failed_collection_is_reported_by_the_quality_surface(
+    monkeypatch,
+) -> None:
     """A baseline carrying a failed collection must not validate as accepted.
 
     pytest prints a collected count and exits nonzero when a module fails to
@@ -333,7 +338,7 @@ def test_successful_collection_summary_excludes_volatile_duration(monkeypatch) -
     monkeypatch.setattr(
         baseline_generator,
         "_run_command",
-        lambda _args: {
+        lambda _args, **_kwargs: {
             "available": True,
             "command": ["pytest"],
             "returncode": 0,
@@ -367,3 +372,169 @@ def test_collection_freshness_compares_one_count_on_every_runner() -> None:
             accepted, drifted
         )
     ), "a count that has moved beyond the tolerance must be reported"
+
+
+@pytest.mark.parametrize("count", [10, 11, 12])
+def test_collection_diagnostic_is_quiet_within_existing_tolerance(
+    monkeypatch, capsys, count
+):
+    monkeypatch.setattr(
+        baseline_generator,
+        "_load_baseline_report",
+        lambda _errors: {"tests": {"collected_tests": 10}},
+    )
+    baseline_generator._emit_collection_diagnostic(
+        {"collected_tests": count, "returncode": 0}, ""
+    )
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.parametrize(
+    "stdout,returncode,count,status",
+    [
+        ("tests/unit/test_a.py::test_a\n", 0, 1, "complete"),
+        (
+            "tests/unit/test_a.py::test_a\ntests/unit/test_a.py::test_a\n",
+            0,
+            2,
+            "duplicate-inventory",
+        ),
+        ("tests/../foreign.py::test_a\n", 0, 1, "malformed-inventory"),
+        ("tests/unit/test_a.py::test_a\n", 0, 2, "inconsistent-inventory"),
+        ("tests/unit/test_a.py::test_a\n", 2, 1, "partial-or-unavailable"),
+        (None, None, 0, "missing-inventory"),
+        ("x" * 1_048_577, 0, 1, "truncated-inventory"),
+    ],
+    ids=[
+        "complete",
+        "duplicate",
+        "malformed",
+        "inconsistent",
+        "partial",
+        "missing",
+        "truncated",
+    ],
+)
+def test_collection_diagnostic_labels_exact_and_bad_inventories(
+    monkeypatch, capsys, stdout, returncode, count, status
+):
+    monkeypatch.setattr(
+        baseline_generator,
+        "_load_baseline_report",
+        lambda _errors: {"tests": {"collected_tests": 10}},
+    )
+    baseline_generator._emit_collection_diagnostic(
+        {"collected_tests": count, "returncode": returncode}, stdout
+    )
+    lines = capsys.readouterr().err.splitlines()
+    assert lines[0] == "BEGIN LOTUS COLLECTION DIAGNOSTIC"
+    assert lines[-1] == "END LOTUS COLLECTION DIAGNOSTIC"
+    diagnostic = json.loads(lines[1])
+    diagnostic["node_ids"] = [json.loads(line)["node_id"] for line in lines[2:-1]]
+    assert status in diagnostic["status"]
+    assert diagnostic["returncode"] == returncode
+    assert diagnostic["parsed_count"] == count
+    assert diagnostic["raw_node_count"] == len(diagnostic["node_ids"])
+    assert diagnostic["unique_node_count"] == len(set(diagnostic["node_ids"]))
+    assert diagnostic["accepted_count"] == 10
+    assert diagnostic["python"] and diagnostic["platform"]
+    if status == "complete":
+        assert diagnostic["node_ids"] == ["tests/unit/test_a.py::test_a"]
+    else:
+        assert diagnostic["status"] != "complete"
+    assert baseline_generator._baseline_freshness_differences(
+        {"tests": {"collected_tests": 10}}, {"tests": {"collected_tests": count}}
+    ), "diagnostics cannot accept the original discrepancy"
+
+
+def test_default_command_payload_and_timeout_remain_unchanged(monkeypatch):
+    monkeypatch.setattr(
+        baseline_generator.subprocess,
+        "run",
+        lambda *_args, **_kwargs: subprocess.CompletedProcess(
+            ["tool"], 7, "first\nlast\n"
+        ),
+    )
+    result = baseline_generator._run_command(["tool"])
+    assert result == {
+        "available": True,
+        "command": ["tool"],
+        "returncode": 7,
+        "summary": "last",
+    }
+
+    def timeout(*_args, **_kwargs):
+        raise subprocess.TimeoutExpired(["tool"], 120)
+
+    monkeypatch.setattr(baseline_generator.subprocess, "run", timeout)
+    result = baseline_generator._run_command(["tool"], retain_stdout=True)
+    assert result["returncode"] is None
+    assert "stdout" not in result
+    assert result["summary"] == "timed out after 120 seconds"
+
+
+def test_real_collection_diagnostic_reuses_subprocess_and_stays_out_of_artifacts(
+    tmp_path, monkeypatch, capsys
+):
+    accepted = json.loads(
+        (ROOT / "quality/baseline_report.json").read_text(encoding="utf-8")
+    )
+    suite = tmp_path / "tests/unit"
+    suite.mkdir(parents=True)
+    (suite / "test_tiny.py").write_text(
+        "def test_tiny():\n    assert 2 + 2 == 4\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(baseline_generator, "ROOT", tmp_path)
+    monkeypatch.setattr(
+        baseline_generator, "_load_baseline_report", lambda _errors: accepted
+    )
+    real_run = subprocess.run
+    calls = []
+
+    def record_run(args, **kwargs):
+        calls.append(args)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(baseline_generator.subprocess, "run", record_run)
+    measured = baseline_generator._count_pytest_tests()
+    assert len(calls) == 1
+    assert calls[0][1:] == ["-m", "pytest", "--collect-only", "-q", "tests/unit"]
+    assert measured["returncode"] == 0
+    assert measured["collected_tests"] == 1
+    assert measured["summary"] == "1 tests collected"
+    assert "stdout" not in measured and "node_ids" not in measured
+    lines = capsys.readouterr().err.splitlines()
+    diagnostic = json.loads(lines[1])
+    assert diagnostic["status"] == "complete"
+    assert [json.loads(line)["node_id"] for line in lines[2:-1]] == [
+        "tests/unit/test_tiny.py::test_tiny"
+    ]
+    quality_dir = tmp_path / "quality"
+    monkeypatch.setattr(baseline_generator, "QUALITY_DIR", quality_dir)
+    accepted["tests"] = measured
+    baseline_generator.write_quality_artifacts(accepted)
+    written = json.loads(
+        (quality_dir / "baseline_report.json").read_text(encoding="utf-8")
+    )
+    assert written["tests"] == measured
+    assert "LOTUS COLLECTION DIAGNOSTIC" not in (
+        quality_dir / "baseline_report.json"
+    ).read_text(encoding="utf-8")
+
+    # A real import failure must remain failed, not become a healthy inventory.
+    (suite / "test_tiny.py").write_text(
+        "raise RuntimeError('representative broken collection')\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(
+        baseline_generator,
+        "_load_baseline_report",
+        lambda _errors: {"tests": {"collected_tests": 10}},
+    )
+    calls.clear()
+    failed = baseline_generator._count_pytest_tests()
+    assert len(calls) == 1
+    assert failed["returncode"] == 2
+    diagnostic = json.loads(capsys.readouterr().err.splitlines()[1])
+    assert "partial-or-unavailable" in diagnostic["status"]
+    assert diagnostic["status"] != "complete"
+    assert diagnostic["returncode"] == 2

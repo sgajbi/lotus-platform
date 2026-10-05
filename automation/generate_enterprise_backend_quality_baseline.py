@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import platform
 import subprocess
 import sys
 from collections import Counter
@@ -261,7 +262,7 @@ def collect_python_function_metrics(files: Iterable[Path]) -> list[FunctionMetri
     )
 
 
-def _run_command(args: list[str]) -> dict[str, object]:
+def _run_command(args: list[str], *, retain_stdout: bool = False) -> dict[str, object]:
     try:
         result = subprocess.run(
             args,
@@ -288,18 +289,23 @@ def _run_command(args: list[str]) -> dict[str, object]:
         }
 
     output_lines = [line for line in result.stdout.splitlines() if line.strip()]
-    return {
+    payload: dict[str, object] = {
         "available": True,
         "command": args,
         "returncode": result.returncode,
         "summary": output_lines[-1] if output_lines else "no output",
     }
+    if retain_stdout:
+        payload["stdout"] = result.stdout
+    return payload
 
 
 def _count_pytest_tests() -> dict[str, object]:
     result = _run_command(
-        [sys.executable, "-m", "pytest", "--collect-only", "-q", "tests/unit"]
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "tests/unit"],
+        retain_stdout=True,
     )
+    stdout = result.pop("stdout", None)
     summary = str(result["summary"])
     collected = 0
     for token in summary.split():
@@ -307,12 +313,70 @@ def _count_pytest_tests() -> dict[str, object]:
             collected = int(token)
             break
     result["collected_tests"] = collected
+    _emit_collection_diagnostic(result, stdout)
     if result["returncode"] == 0:
         # Pytest appends wall-clock duration to successful collection output.
         # Duration is not a quality signal and made a no-change regeneration
         # dirty the repository on every run.
         result["summary"] = f"{collected} tests collected"
     return result
+
+
+def _emit_collection_diagnostic(result: dict[str, object], stdout: object) -> None:
+    """Expose the existing collection's identities without changing gate policy."""
+    errors: list[str] = []
+    accepted = _load_baseline_report(errors)
+    if errors or accepted is None:
+        return
+    current = {"tests": result}
+    differences = _baseline_freshness_differences(
+        {"tests": accepted.get("tests", {})}, current
+    )
+    if not any("tests.collected_tests" in item for item in differences):
+        return
+    issues: list[str] = []
+    if result.get("returncode") != 0:
+        issues.append("partial-or-unavailable")
+    if not isinstance(stdout, str) or not stdout:
+        issues.append("missing-inventory")
+        stdout = ""
+    # This bound governs diagnostics only, never the measured count or verdict.
+    if len(stdout) > 1_048_576:
+        issues.append("truncated-inventory")
+        stdout = stdout[:1_048_576]
+    nodes: list[str] = []
+    for line in stdout.splitlines():
+        if not line.startswith("tests/"):
+            continue
+        if (
+            not line.startswith("tests/unit/")
+            or "::" not in line
+            or any(ord(char) < 32 or ord(char) == 127 for char in line)
+            or ".." in line.split("::", 1)[0].split("/")
+        ):
+            issues.append("malformed-inventory")
+            continue
+        nodes.append(line)
+    unique_count = len(set(nodes))
+    if unique_count != len(nodes):
+        issues.append("duplicate-inventory")
+    if len(nodes) != result["collected_tests"]:
+        issues.append("inconsistent-inventory")
+    payload = {
+        "status": ",".join(sorted(set(issues))) if issues else "complete",
+        "returncode": result.get("returncode"),
+        "accepted_count": _metric_value(accepted, ("tests", "collected_tests")),
+        "parsed_count": result["collected_tests"],
+        "raw_node_count": len(nodes),
+        "unique_node_count": unique_count,
+        "python": platform.python_version(),
+        "platform": sys.platform,
+    }
+    print("BEGIN LOTUS COLLECTION DIAGNOSTIC", file=sys.stderr)
+    print(json.dumps(payload, ensure_ascii=True), file=sys.stderr)
+    for node in nodes:
+        print(json.dumps({"node_id": node}, ensure_ascii=True), file=sys.stderr)
+    print("END LOTUS COLLECTION DIAGNOSTIC", file=sys.stderr)
 
 
 def _scan_secret_keyword_candidates(files: Iterable[Path]) -> list[dict[str, object]]:
@@ -1253,7 +1317,6 @@ def validate_quality_surface() -> list[str]:
             "the accepted test count describes a partial collection"
         )
     return errors
-
 
 
 def _collection_returncode(baseline: dict[str, object]) -> object:
