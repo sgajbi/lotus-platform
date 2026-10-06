@@ -45,14 +45,16 @@
       "dependencies": [
         "https://github.com/sgajbi/lotus-manage/issues/714",
         "https://github.com/sgajbi/lotus-performance/issues/540",
-        "https://github.com/sgajbi/lotus-performance/issues/488"
+        "https://github.com/sgajbi/lotus-performance/issues/488",
+        "https://github.com/sgajbi/lotus-manage/issues/779",
+        "https://github.com/sgajbi/lotus-manage/issues/778"
       ],
       "source_observation": {
         "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
         "repository": "lotus-performance",
-        "commit": "4ffad93e7c57789d3521ace5205bf682a6513995",
-        "path": "app/adapters/composite_member_result_source.py",
-        "scope": "Historical source cut cited by #607 requires internal calculation identity; current owner reinspection remains pending, not assessed."
+        "commit": "4b51411c1ed7f3eee29404a0435ee462a54fc481",
+        "path": "app/services/composite_materialization/source_contract.py",
+        "scope": "Committed source blob16b8874347103a30dc7a890a20bf4035be82cfae, _admit_definition line246, admits the internal Manage/Manage/Performance/Core ownership tuple. Manage779 supplies the coordinated typed producer authority profile supporting607; preserve internal v1/history and distinguish economic provider from publishing/materializing service. This is source observation, not external API, producer qualification or institutional approval proof."
       },
       "scope": "One external monthly member-return method with three declared members and original/corrected versions, reusing governed materialization.",
       "evaluation_plan": {
@@ -68,7 +70,7 @@
         "internal": "External authority schema, adapter boundaries and quarantine/recovery/correction runbook.",
         "external": "Provider onboarding and API examples with explicit return units, fee/currency and evidence depth."
       },
-      "next_action": "Performance owner reviews current source and #488 overlap before scoped #607 work; no #610 or institutional-policy implementation is admitted here."
+      "next_action": "Schema ownership488 is independently accepted/CLOSED; retained dependency link is resolved provenance, not pending work: https://github.com/sgajbi/lotus-performance/issues/488#issuecomment-6010836211. After qualified consolidation and scoped grant, coordinate Manage779's typed authority profile with607 consumer admission; require714 pinned universe,778 selected evaluated content-bound approval and distinct governed method/mandatory-calendar inputs. Reuse the owner/worker/ledger/engine; synthetic proof cannot establish official activation. No610 or institutional-policy approval is granted by this admission."
     },
     {
       "owner_repository": "lotus-manage",
@@ -18606,6 +18608,14 @@
     }
   ],
   "current_observations": [
+    {
+      "id": "OBS-MANAGE-EXTERNAL-AUTHORITY-PRODUCER",
+      "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
+      "repository": "lotus-manage",
+      "commit": "938830ec72c9be19bf37cfeb12da92f912e65b4c",
+      "path": "src/core/composite_membership.py",
+      "meaning": "Committed blob e1b9abe2cf01553694f23ded75d0a60fba7e8bbe lines33-41 fixes member-return owner to Performance and asset owner to Core. Manage779 owns the supporting typed/versioned producer profile, while607 retains consumer/calculation accountability under CMP-SRC-006. Current internal contract is a reuse foundation; source review does not verify external publication/admission, actual universe714, evaluated approval778 or institutional methodology."
+    },
     {
       "id": "OBS-PLATFORM-PRODUCT",
       "evidence_class": "COMMITTED_SOURCE_OBSERVATION",

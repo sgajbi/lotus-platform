@@ -33,8 +33,31 @@ contains three PLANNED examples: Report #417 for CMP-RPT-001, Performance #607 f
 and Manage #778 for CMP-ELG-001. Each separates its owning issue from dependencies and names
 source-observation scope, independent tests and internal/external documentation plans.
 
+### External monthly admission dependencies
+
+Performance [#607](https://github.com/sgajbi/lotus-performance/issues/607) retains CMP-SRC-006
+consumer admission, calculation and materialization ownership. Manage
+[#779](https://github.com/sgajbi/lotus-manage/issues/779) is its supporting producer dependency
+for a coordinated typed, versioned authority profile. Preserve existing internal v1 history;
+economic evidence-provider authority is distinct from publishing or materializing service ownership.
+
+| Dependency | Required evidence |
+| --- | --- |
+| Manage [#714](https://github.com/sgajbi/lotus-manage/issues/714) | Pinned expected universe, effective membership, source cut and actual-source qualification. |
+| Manage [#778](https://github.com/sgajbi/lotus-manage/issues/778) | Selected evaluated policy and independent content-bound approval; supplied decisions or approval strings do not substitute. |
+| Manage [#779](https://github.com/sgajbi/lotus-manage/issues/779) | Producer and consumer agreement on source kind, provider and per-fact/interval authority; no hidden hybrid fallback. |
+| Programme [#923](https://github.com/sgajbi/lotus-platform/issues/923) | Separate governed method, asset, fee/currency, precision and mandatory-calendar decisions. |
+
+Performance schema ownership [#488](https://github.com/sgajbi/lotus-performance/issues/488)
+is [independently accepted and closed](https://github.com/sgajbi/lotus-performance/issues/488#issuecomment-6010836211).
+Its ledger dependency is resolved provenance: reuse its schema owner and verification-only startup.
+Current committed Performance and Manage observations identify the internal ownership restrictions;
+they do not prove external publication, API admission, evaluated approval or official activation.
+Controlled synthetic proof remains distinct from qualified live-source acceptance. The selected
+monthly slice does not require every alternative eligibility rule to be delivered first.
+
 All 321 requirements remain NOT_ASSESSED. No admission promotes calculation, publication, API,
-institutional policy or target-environment authority; historical source cuts need owner reinspection.
+institutional policy or target-environment authority; observations identify their exact source cuts.
 Unselected requirements stay visible without mandatory delivery fields. Follow the
 [reader-map admission guide](https://github.com/sgajbi/lotus-platform/blob/main/docs/composite-performance/README.md#planned-delivery-admission)
 before selecting a bounded change. Parent #923 remains open; issue or label completion is not product completion.
