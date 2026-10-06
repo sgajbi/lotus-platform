@@ -45,7 +45,6 @@
       "dependencies": [
         "https://github.com/sgajbi/lotus-manage/issues/714",
         "https://github.com/sgajbi/lotus-performance/issues/540",
-        "https://github.com/sgajbi/lotus-performance/issues/488",
         "https://github.com/sgajbi/lotus-manage/issues/779",
         "https://github.com/sgajbi/lotus-manage/issues/778"
       ],
@@ -70,7 +69,7 @@
         "internal": "External authority schema, adapter boundaries and quarantine/recovery/correction runbook.",
         "external": "Provider onboarding and API examples with explicit return units, fee/currency and evidence depth."
       },
-      "next_action": "Schema ownership488 is independently accepted/CLOSED; retained dependency link is resolved provenance, not pending work: https://github.com/sgajbi/lotus-performance/issues/488#issuecomment-6010836211. After qualified consolidation and scoped grant, coordinate Manage779's typed authority profile with607 consumer admission; require714 pinned universe,778 selected evaluated content-bound approval and distinct governed method/mandatory-calendar inputs. Reuse the owner/worker/ledger/engine; synthetic proof cannot establish official activation. No610 or institutional-policy approval is granted by this admission."
+      "next_action": "Schema ownership488 is independently accepted/CLOSED; resolved provenance is retained here outside the active prerequisite list: https://github.com/sgajbi/lotus-performance/issues/488#issuecomment-6010836211. After qualified consolidation and scoped grant, coordinate Manage779's typed authority profile with607 consumer admission; require714 pinned universe,778 selected evaluated content-bound approval and distinct governed method/mandatory-calendar inputs. Reuse the owner/worker/ledger/engine; synthetic proof cannot establish official activation. No610 or institutional-policy approval is granted by this admission."
     },
     {
       "owner_repository": "lotus-manage",

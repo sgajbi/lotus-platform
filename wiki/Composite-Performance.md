@@ -46,11 +46,15 @@ economic evidence-provider authority is distinct from publishing or materializin
 | Manage [#714](https://github.com/sgajbi/lotus-manage/issues/714) | Pinned expected universe, effective membership, source cut and actual-source qualification. |
 | Manage [#778](https://github.com/sgajbi/lotus-manage/issues/778) | Selected evaluated policy and independent content-bound approval; supplied decisions or approval strings do not substitute. |
 | Manage [#779](https://github.com/sgajbi/lotus-manage/issues/779) | Producer and consumer agreement on source kind, provider and per-fact/interval authority; no hidden hybrid fallback. |
-| Programme [#923](https://github.com/sgajbi/lotus-platform/issues/923) | Separate governed method, asset, fee/currency, precision and mandatory-calendar decisions. |
+
+Programme [#923](https://github.com/sgajbi/lotus-platform/issues/923) governs separate method,
+asset, fee/currency, precision and mandatory-calendar decisions. It is the parent governance
+issue, not a blocking child dependency.
 
 Performance schema ownership [#488](https://github.com/sgajbi/lotus-performance/issues/488)
 is [independently accepted and closed](https://github.com/sgajbi/lotus-performance/issues/488#issuecomment-6010836211).
-Its ledger dependency is resolved provenance: reuse its schema owner and verification-only startup.
+Its resolved provenance remains in the ledger's next action, outside the active prerequisite list:
+reuse its schema owner and verification-only startup.
 Current committed Performance and Manage observations identify the internal ownership restrictions;
 they do not prove external publication, API admission, evaluated approval or official activation.
 Controlled synthetic proof remains distinct from qualified live-source acceptance. The selected
