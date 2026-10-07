@@ -67,6 +67,8 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
     "The worker creates an owner-only POSIX directory under the OS temporary directory, "
     "with mode 0700 and no-follow opens.",
     "Operating-system TEMPORARY DIRECTORIES contain mode 0600 diagnostic files.",
+    "Use the OS temporary directory: mode 0700 is required.",
+    "OS temporary directories (mode 0700) hold private diagnostic files.",
 ])
 def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
     assert _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose) == []
@@ -75,6 +77,12 @@ def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
 @pytest.mark.parametrize("prose", [
     "temporary directory notes", "temporary directory workaround",
     "temporary directories notes", "temporary directories workaround",
+    "temporary directory: notes", "temporary directory — notes",
+    "temporary directory (workaround)", "TEMPORARY DIRECTORIES: NOTES",
+    "temporary directories — workaround", "temporary directories (NOTES)",
+    "temporary directory; notes", "temporary directory, workaround",
+    "temporary directory [notes]", "temporary directory - workaround",
+    "temporary directory – notes", "temporary directory. workaround",
     "temporary\ndirectory notes", "temporary directoryname",
     "Use an OS temporary directory; TODO finish the operator notes.",
     "Use an OS temporary directory; TBD.",
@@ -90,6 +98,9 @@ def test_directory_terms_do_not_waive_scratch_notes(prose: str) -> None:
 
 @pytest.mark.parametrize("bad_prose", [
     "", "temporary directory notes", "temporary directory workaround",
+    "temporary directory: notes", "temporary directory — notes",
+    "temporary directory (workaround)", "TEMPORARY DIRECTORIES: NOTES",
+    "temporary directories — workaround", "temporary directories (NOTES)",
     "Use an OS temporary directory; TODO finish.",
     "Use an OS temporary directory; TBD.",
     "Use an OS temporary directory; FIXME.",
@@ -110,7 +121,7 @@ def test_directory_fixture_cli_preserves_prose_and_changed_page_scope(
     )
     (wiki / "Operations-Runbook.md").write_text(
         "# Operations Runbook\n\nCurrent-state support creates an owner-only POSIX "
-        "directory under the worker OS temporary directory with mode 0700.\n"
+        "directory under the worker OS temporary directory, with mode 0700.\n"
         "[Run](https://github.com/example/repo/actions/runs/12)\n"
         f"{bad_prose}\n", encoding="utf-8",
     )
