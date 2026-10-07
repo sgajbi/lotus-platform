@@ -362,7 +362,7 @@ def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
                 parts.append(_directory_inline_qualifier_text(line[run.end():closing], references))
                 index = closing + len(run[0])
         else:
-            parts.append(line[index])
+            parts.append(escape(line[index], quote=False) if line[index] in "<>" else line[index])
             index += 1
     return "".join(parts)
 

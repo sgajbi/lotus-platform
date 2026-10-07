@@ -307,6 +307,64 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_MALFORMED_ANGLE_CASES = [
+    (f"temporary directory: {token}{qualifier}", accepted)
+    for token, accepted in (
+        ("</ span>", True), ("< span>", True), ("</ /span>", True),
+        ("</span extra>", False), ("<span", True), ("</span", True),
+        ("<span title='unterminated>", True), ("<?span?>", True),
+        ("<!DOCTYPE span>", True), ("<![CDATA[span]]>", True),
+        ("</ >", False), ("<>", False), ("<!--", False),
+        ("<span>", False), ("</span>", False), ("<!-- hidden -->", False),
+        ('<span title="</ span>notes">', False),
+    )
+    for qualifier in ("notes", "workaround")
+] + [
+    ("temporary directory: **</ span>notes**", True),
+    ("temporary directory: _</ span>workaround_", True),
+    ("temporary directory: [</ span>notes](Operations-Runbook)", True),
+    ("temporary directory: [<span>notes</span>](Operations-Runbook)", False),
+    ("temporary directory: **<span>workaround</span>**", False),
+    (r"temporary directory: \</ span>notes", True),
+    (r"temporary directory: \<span>notes", True),
+    ("temporary directory: `</ span>notes`", True),
+    ("temporary directory: `<span>notes`", True),
+    ("temporary directory: <ops@example.com> notes", True),
+    ("temporary directory: n&#111;tes", False),
+    ("temporary directory: work&#97;round", False),
+    ("temporary directory: &#110;otes", False),
+    ("temporary directory: &#60;/ span&#62;notes", True),
+    ("temporary directory: &lt;span&gt;notes", True),
+    ("temporary directory: &lt;&gt;notes", False),
+    ("temporary directory: &amp;lt;span&amp;gt;notes", True),
+    ("temporary directory: `n&#111;tes`", True),
+    (r"temporary directory: n\&#111;tes", True),
+    ("temporary directory: [n&#111;tes](Operations-Runbook)", False),
+    ("temporary directory: **n&#111;tes**", False),
+    ("temporary directory: notes_directory", True),
+    ("temporary directory: workaround_mode", True),
+    ("temporary directory: <span>mode 0700</span>", True),
+    ("temporary directory: </ span>notes TODO finish", False),
+] + [
+    (f"temporary directory: </ span>{newline}notes", True)
+    for newline in ("\r", "\n", "\r\n")
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_MALFORMED_ANGLE_CASES)
+def test_directory_malformed_angle_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+def test_directory_malformed_angle_preserves_named_link_guard(tmp_path: Path) -> None:
+    _assert_directory_prose_actual_and_cli(
+        tmp_path, 'temporary directory: </ span>notes https://example.com',
+        True, bare_url_failure_expected=True,
+    )
+
+
 DIRECTORY_MULTILINE_COMMENT_CASES = [
     (f"Intro <!--{separator}{noun}: {qualifier}{separator}--> mode 0700", True)
     for separator in ("\r", "\n", "\r\n", "\v", "\f", "\x85", "\u2028", "\u2029")
