@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-07T20:42:40Z`
+Generated: `2026-10-07T22:06:52Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `1002`
-- Total source lines: `423671`
+- Total source lines: `424141`
 - Python files: `275`
 - PowerShell files: `70`
 - Markdown files: `426`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4210`
+- Python functions: `4222`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -49,12 +49,12 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_auto_merge_releasability.py | has_fatal_main_fetch | 754 | 55 | 152 |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _decision_link_target_end | 1039 | 48 | 80 |
 | automation/resource_recovery/policy.py | validate_discovery | 499 | 38 | 154 |
 | automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
-| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _directory_inline_link_end | 130 | 36 | 59 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _directory_inline_link_end | 146 | 36 | 59 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
 | automation/resource_recovery/policy.py | validate_approval | 203 | 34 | 144 |
-| automation/audit_main_gate_coverage.py | main | 259 | 31 | 179 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `4263`
+- Unit tests collected: `4375`
 - Collection command return code: `0`
-- Collection summary: `4263 tests collected`
+- Collection summary: `4375 tests collected`
 
 ## Security Baseline
 

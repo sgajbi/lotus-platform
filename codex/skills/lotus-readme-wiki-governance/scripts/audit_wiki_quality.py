@@ -26,14 +26,30 @@ SCRATCH_PATTERN = re.compile(
 )
 DECISION_PROSE_SPACE = r"[ \t\r\n]+"
 GOVERNED_DECISION_PATTERN = re.compile(
-    DECISION_PROSE_SPACE.join((
-        "proposed", "temporary", "decision", "requires", "an", "accountable", "reviewed",
-        "owner", "and", "at", "most",
-        r"(?:[1-9][0-9]*|one|two|three|four|five|six|seven|eight|nine|ten)",
-        r"days?", "from", r"approval,[ \t\r\n]+with", "earlier", "reassessment",
-    )) + r"(?:[ \t\r\n]+on[ \t\r\n]+(?a:[A-Za-z0-9 ,/\-\t\r\n]*"
+    DECISION_PROSE_SPACE.join(
+        (
+            "proposed",
+            "temporary",
+            "decision",
+            "requires",
+            "an",
+            "accountable",
+            "reviewed",
+            "owner",
+            "and",
+            "at",
+            "most",
+            r"(?:[1-9][0-9]*|one|two|three|four|five|six|seven|eight|nine|ten)",
+            r"days?",
+            "from",
+            r"approval,[ \t\r\n]+with",
+            "earlier",
+            "reassessment",
+        )
+    )
+    + r"(?:[ \t\r\n]+on[ \t\r\n]+(?a:[A-Za-z0-9 ,/\-\t\r\n]*"
     r"[A-Za-z0-9][A-Za-z0-9 ,/\-\t\r\n]*))?",
-    re.IGNORECASE,
+    re.IGNORECASE | re.ASCII,
 )
 DATABASE_TEMPORARY_PATTERN = re.compile(
     r"temporary[ \t]+(?:relations?|tables?)\b"
@@ -487,6 +503,7 @@ def _directory_term_is_technical(prose: str, start: int, references: set[str]) -
     line = prose[line_start:].partition("\n")[0].partition("\r")[0]
     raw_line = _directory_noun_link_tail(line, start - line_start, noun.end() - line_start, references)
     return DIRECTORY_SCRATCH_QUALIFIER_PATTERN.match(_directory_qualifier_text(raw_line, references)) is None
+
 
 # Evidence routes are syntax-checked citations, not checkout file paths.
 GITHUB_EVIDENCE_ROUTE_PATTERN = re.compile(
@@ -1019,26 +1036,247 @@ def _decision_raw_context_end(prose: str, start: int, literal_end: int | None) -
     return end
 
 
+def _decision_link_target_end(
+    text: str, start: int, inline: bool
+) -> tuple[int | None, int]:
+    """Read one paragraph's metadata; return the consumed frontier even on refusal."""
+    index = start
+    while index < len(text) and text[index] in " \t\r\n":
+        index += 1
+    destination_start = index
+    if inline and text[index : index + 1] == ")":
+        return index + 1, index + 1
+    title_only = inline and text[index : index + 1] in ('"', "'")
+    if not title_only:
+        angle = text[index : index + 1] == "<"
+        index += int(angle)
+        depth = 0
+        while index < len(text):
+            character = text[index]
+            if (
+                character == "\\"
+                and index + 1 < len(text)
+                and text[index + 1] in punctuation
+            ):
+                index += 2
+                continue
+            if angle:
+                if character == ">":
+                    index += 1
+                    break
+                if character == "<" or character in "\r\n":
+                    return None, index + 1
+            elif character in " \t\r\n" or (character == ")" and depth == 0):
+                break
+            elif ord(character) < 32 or ord(character) == 127:
+                return None, index + 1
+            elif character == "(":
+                depth += 1
+            elif character == ")":
+                depth -= 1
+            index += 1
+        else:
+            if angle or depth:
+                return None, index
+        if depth or index == destination_start:
+            return None, index
+    destination_end = index
+    while index < len(text) and text[index] in " \t\r\n":
+        index += 1
+    separated = index != destination_end
+    title_end = (
+        _directory_link_title_end(text, index) if separated or title_only else None
+    )
+    if title_end is not None:
+        index = title_end
+        while index < len(text) and text[index] in " \t":
+            index += 1
+        if inline:
+            while index < len(text) and text[index] in "\r\n \t":
+                index += 1
+            return (
+                (index + 1, index + 1)
+                if text[index : index + 1] == ")"
+                else (None, index)
+            )
+        return (
+            (index, index)
+            if index == len(text) or text[index] in "\r\n"
+            else (None, index)
+        )
+    if text[index : index + 1] in ('"', "'", "(") and (separated or title_only):
+        # The title helper inspected the remaining paragraph once. Do not retry
+        # overlapping incomplete titles; their HTML still follows normal traversal.
+        return None, len(text)
+    if inline:
+        return (
+            (index + 1, index + 1) if text[index : index + 1] == ")" else (None, index)
+        )
+    tail = destination_end
+    while tail < len(text) and text[tail] in " \t":
+        tail += 1
+    return (tail, tail) if tail == len(text) or text[tail] in "\r\n" else (None, tail)
+
+
+def _decision_reference_context(
+    prose: str,
+) -> tuple[set[str], dict[int, int], list[tuple[int, int]]]:
+    """Cache complete definition metadata and paragraph limits once per page."""
+    breaks = list(
+        re.finditer(
+            r"(?:\r\n|\r(?!\n)|(?<!\r)\n)[ \t]*(?:\r\n|\r(?!\n)|(?<!\r)\n)", prose
+        )
+    )
+    paragraphs = list(
+        zip(
+            [0] + [match.end() for match in breaks],
+            [match.start() for match in breaks] + [len(prose)],
+            strict=True,
+        )
+    )
+    references: set[str] = set()
+    definitions: dict[int, int] = {}
+    definition_pattern = re.compile(
+        r"[ \t]{0,3}\[((?:\\[^\r\n]|[^\[\]\\]){1,999})\]:[ \t]*"
+    )
+    opaque_until = 0
+    for begin, end in paragraphs:
+        if end <= opaque_until:
+            continue
+        text = prose[begin:end]
+        index = max(0, opaque_until - begin)
+        while index < len(text) and text[index] in "\r\n":
+            index += 1
+        while index < len(text):
+            line_end = re.compile(r"[\r\n]|$").search(text, index)
+            assert line_end is not None
+            stop = line_end.start()
+            token_start = index
+            while (
+                token_start < stop
+                and token_start - index < 3
+                and text[token_start] == " "
+            ):
+                token_start += 1
+            literal = DIRECTORY_INLINE_TAG_PATTERN.match(prose, begin + token_start)
+            literal_end = literal.end() if literal else None
+            raw_end = _decision_raw_context_end(prose, begin + token_start, literal_end)
+            if raw_end is not None:
+                opaque_until = raw_end
+                index = raw_end - begin
+                while index < len(text) and text[index] in "\r\n":
+                    index += 1
+                continue
+            definition = definition_pattern.match(text, index)
+            if definition is None:
+                if re.fullmatch(
+                    r" {0,3}(?:#{1,6}(?:[ \t].*)?|(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})",
+                    text[index:stop],
+                ):
+                    index = stop
+                    while index < len(text) and text[index] in "\r\n":
+                        index += 1
+                    continue
+                break
+            target_start = definition.end()
+            target_end, _ = _decision_link_target_end(text, target_start, False)
+            if target_end is None:
+                break
+            label = _directory_reference_label(definition[1])
+            if not label:
+                break
+            references.add(label)
+            definitions[begin + index] = begin + target_end
+            index = target_end
+            while index < len(text) and text[index] in "\r\n":
+                index += 1
+    return references, definitions, paragraphs
+
+
 def _decision_plain_starts(prose: str, candidates: list[int]) -> set[int]:
     """Traverse page-local literal/element context once for ordered candidate offsets."""
     # WHATWG void elements have no body. A non-void tag's slash does not close it.
     void_tags = {
-        "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
-        "meta", "source", "track", "wbr",
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "source",
+        "track",
+        "wbr",
     }
     elements: list[str] = []
+    references, definitions, paragraphs = _decision_reference_context(prose)
+    paragraph_number = 0
+    paragraph_text = prose[paragraphs[0][0] : paragraphs[0][1]]
+    labels: list[int] = []
+    metadata_frontier = 0
     plain: set[int] = set()
     index = 0
     for start in candidates:
         while index < start:
+            while (
+                paragraph_number + 1 < len(paragraphs)
+                and index >= paragraphs[paragraph_number][1]
+            ):
+                paragraph_number += 1
+                begin, stop = paragraphs[paragraph_number]
+                paragraph_text = prose[begin:stop]
+                labels.clear()
+            if index in definitions:
+                index = definitions[index]
+                continue
             end = _directory_literal_token_end(prose, index)
             token = prose[index:end] if end is not None else ""
             is_tag = DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token) is not None
-            raw_end = _decision_raw_context_end(prose, index, end) if end is None or is_tag else None
+            raw_end = (
+                _decision_raw_context_end(prose, index, end)
+                if end is None or is_tag
+                else None
+            )
             if raw_end is not None:
                 index = raw_end
                 continue
             if end is None:
+                if prose[index] == "[":
+                    labels.append(index)
+                elif prose[index] == "]" and labels:
+                    opening = labels.pop()
+                    suffix = index + 1
+                    if (
+                        suffix >= metadata_frontier
+                        and prose[suffix : suffix + 1] == "("
+                    ):
+                        begin = paragraphs[paragraph_number][0]
+                        metadata_end, frontier = _decision_link_target_end(
+                            paragraph_text, suffix + 1 - begin, True
+                        )
+                        metadata_frontier = begin + frontier
+                        if metadata_end is not None:
+                            index = begin + metadata_end
+                            continue
+                    elif prose[suffix : suffix + 1] == "[":
+                        begin = paragraphs[paragraph_number][0]
+                        reference = re.compile(
+                            r"\[((?:\\[^\r\n]|[^\[\]\\]){0,999})\]"
+                        ).match(paragraph_text, suffix - begin)
+                        label = (
+                            reference[1] or prose[opening + 1 : index]
+                            if reference
+                            else ""
+                        )
+                        if (
+                            reference
+                            and _directory_reference_label(label) in references
+                        ):
+                            index = begin + reference.end()
+                            continue
                 index += 1
                 continue
             if is_tag:

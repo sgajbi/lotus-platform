@@ -610,6 +610,211 @@ def test_security_decision_ascii_raw_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+SECURITY_DECISION_KEYWORD_ASCII_CASES = [
+    (SECURITY_DECISION_STATEMENT.replace(word, lookalike), False)
+    for word, lookalike in (
+        ("decision", "decisıon"),
+        ("requires", "requıres"),
+        ("reassessment", "reaſſessment"),
+        ("decision", "decİsion"),
+    )
+] + [(SECURITY_DECISION_STATEMENT, True), (SECURITY_DECISION_STATEMENT.upper(), True)]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_KEYWORD_ASCII_CASES)
+def test_security_decision_keyword_ascii_actual_and_cli(
+    tmp_path: Path,
+    prose: str,
+    accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+SECURITY_DECISION_LINK_METADATA_CASES = [
+    (prefix + "\n\n" + SECURITY_DECISION_STATEMENT, accepted)
+    for prefix, accepted in (
+        ('[Evidence](Home "<span>")', True),
+        ('[Evidence](Home "</span>")', True),
+        ("[Evidence](Home '<script>')", True),
+        ("[Evidence](Home (</style>))", True),
+        ("[Evidence](Home#<span>)", True),
+        ('[Evidence](<Home> "<textarea>")', True),
+        ('[Evidence [nested]](Home#(nested) "<span>")', True),
+        (r'[Evidence](Home "quoted \" <span>")', True),
+        ('[Evidence](Home\n "<span>")', True),
+        ('[Evidence](Home\r\n "<span>\r\ncontinued")', True),
+        ('[Evidence](\nHome\n "</span>"\n)', True),
+        ('[<span>Evidence](Home "</span>")', False),
+        ('[<span>Evidence</span>](Home "<span>")', True),
+        ('<span>[Evidence](Home "</span>")', False),
+        ('[Evidence](Home "<span>"', False),
+        ('[Evidence](Home "<span>', False),
+        ('[Evidence](<Home\npath> "<span>")', False),
+        ('[Evidence](Home "<span>\n\ncontinued")', False),
+        ('[Evidence](Home "<span>")\n\n<span>Context.', False),
+        (r'\[Evidence](Home "<span>")', False),
+        ('[Evidence][ref]\n\n[ref]: Home "<span>"', True),
+        ('[ref]: Home "</span>"\n\n[Evidence][ref]', True),
+        ('[ref]: Home\n "<span>"\n\n[Evidence][ref]', True),
+        ('[ref]: Home "<span>\ncontinued"\n\n[Evidence][ref]', True),
+        ('[ref]: Home "<span>"\n[next]: Home "</span>"\n\n[Evidence][next]', True),
+        ('## Evidence\n[ref]: Home "<span>"\n\n[Evidence][ref]', True),
+        ('---\n[ref]: Home "<span>"\n\n[Evidence][ref]', True),
+        ('[ref\n label]: Home "<span>"\n\n[Evidence][ref\n label]', True),
+        ('[Evidence\n nested](Home "<span>")', True),
+        ("[<span>]: Home\n\n[Evidence][<span>]", True),
+        ('[ref]: Home "<span>"\n\n[<span>Evidence][ref]', False),
+        ('[ref]: Home "<span>"\n\n[<span>Evidence</span>][ref]', True),
+        ('[ref]: Home "<span>"\n\n[ref][]', True),
+        ('[ref]: Home "<span>"\n\n[ref]', True),
+        ('[ref]: Home "<span>\n\n[Evidence][ref]', False),
+        ('Context text.\n[ref]: Home "<span>"', False),
+        ('[ref]: Home "<span>" trailing', False),
+        ('[ref]: Home\n"<span>" trailing', False),
+        ("[Evidence][unknown<span>]", False),
+        ("<!-- Context.\n\n[<span>]: Home\n-->\n\n[Evidence][<span>]", False),
+        ("<script>Context.\n\n[<span>]: Home\n</script>\n\n[Evidence][<span>]", False),
+        (
+            '<!-- Context.\n\n[ignored]: Home\n-->\n[ref]: Home "<span>"\n\n[Evidence][ref]',
+            True,
+        ),
+        ('[Evidence](Home "<span>") [Other](Home "</span>")', True),
+    )
+]
+
+
+SECURITY_DECISION_REFERENCE_PHASE_CASES = [
+    (prefix + "\n\n" + SECURITY_DECISION_STATEMENT, accepted)
+    for prefix, accepted in (
+        ('Context. <script>Body.</script>\n\n[ref]: Home "<span>"\n\n[Evidence][ref]', True),
+        ('Context. <!-- Body. -->\n\n[ref]: Home "<span>"\n\n[Evidence][ref]', True),
+        ('Context. `<!-- <script>`\n\n[ref]: Home "<span>"\n\n[Evidence][ref]', True),
+        ('Context. [Evidence](Home "<script>")\n\n[ref]: Home "<span>"\n\n[Evidence][ref]', True),
+        ('[ ]: Home "<span>"', False),
+        ('[Evidence][<!--]\n\n[<!--]: Home\n[<span>]: Home\n-->\n\n[Other][<span>]', True),
+        ('[<!--]: Home\n\n[Evidence][<!--]\n\n[ref]: Home "<span>"\n\n[Other][ref]', True),
+        ('[Evidence][<!--]\nContext. -->\n\n[<!--]: Home\n[ref]: Home "<span>"\n\n[Other][ref]', True),
+    )
+]
+
+
+@pytest.mark.parametrize("label", ["<span>", "</span>", "<script>", "<!--"])
+def test_security_decision_forward_tag_reference_actual_and_cli(tmp_path: Path, label: str) -> None:
+    prose = f'[Evidence][{label}]\n\n[{label}]: Home\n\n{SECURITY_DECISION_STATEMENT}'
+    _assert_directory_prose_actual_and_cli(tmp_path, "\n\n" + prose, True)
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_REFERENCE_PHASE_CASES)
+def test_security_decision_reference_phase_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, "\n\n" + prose, accepted)
+
+
+@pytest.mark.parametrize("tag", ["script", "style", "pre", "textarea"])
+@pytest.mark.parametrize("quote", ['"', "'"])
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+@pytest.mark.parametrize("state", ["closed", "incomplete", "unclosed"])
+def test_security_decision_block_attribute_boundary_actual_and_cli(
+    tmp_path: Path, tag: str, quote: str, newline: str, state: str,
+) -> None:
+    opening = f"<{tag} title={quote}value{newline}{newline}continued"
+    if state != "incomplete":
+        opening += f"{quote}>"
+    closing = f"</{tag}>" if state != "unclosed" else ""
+    prose = (
+        f'{opening}Body.{closing}{newline}{newline}[ref]: Home "<span>"'
+        f"{newline}{newline}[Evidence][ref]{newline}{newline}{SECURITY_DECISION_STATEMENT}"
+    )
+    _assert_directory_prose_actual_and_cli(tmp_path, "\n\n" + prose, state == "closed")
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_LINK_METADATA_CASES)
+def test_security_decision_link_metadata_actual_and_cli(
+    tmp_path: Path,
+    prose: str,
+    accepted: bool,
+) -> None:
+    # Definition blocks need an authored blank boundary after the fixture intro.
+    _assert_directory_prose_actual_and_cli(tmp_path, "\n\n" + prose, accepted)
+
+
+@pytest.mark.parametrize("kind", ["inline", "reference", "incomplete"])
+def test_security_decision_metadata_work_growth_is_page_local(
+    monkeypatch: pytest.MonkeyPatch,
+    kind: str,
+) -> None:
+    audit = _load_audit_module()
+    original = audit._decision_link_target_end
+    original_token = audit._directory_literal_token_end
+    original_context = audit._decision_plain_starts
+    reads = 0
+    context_positions: list[list[int]] = []
+    active_positions: list[int] | None = None
+
+    class CountedText(str):
+        def __getitem__(self, key: int | slice) -> str:
+            nonlocal reads
+            reads += 1 if isinstance(key, int) else len(range(*key.indices(len(self))))
+            return super().__getitem__(key)
+
+    def target(text: str, start: int, inline: bool) -> tuple[int | None, int]:
+        return original(CountedText(text), start, inline)
+
+    monkeypatch.setattr(audit, "_decision_link_target_end", target)
+
+    def token(text: str, start: int) -> int | None:
+        if active_positions is not None:
+            active_positions.append(start)
+        return original_token(text, start)
+
+    monkeypatch.setattr(audit, "_directory_literal_token_end", token)
+
+    def context(*args: object) -> set[int]:
+        nonlocal active_positions
+        positions: list[int] = []
+        context_positions.append(positions)
+        active_positions = positions
+        try:
+            return original_context(*args)
+        finally:
+            active_positions = None
+
+    monkeypatch.setattr(audit, "_decision_plain_starts", context)
+    work: list[int] = []
+    for repetitions in (16, 32, 64):
+        if kind == "inline":
+            prefix = " ".join(['[Evidence](Home "<span>")'] * repetitions)
+        elif kind == "reference":
+            prefix = "\n".join(
+                f'[ref{number}]: Home "<span>"' for number in range(repetitions)
+            )
+        else:
+            prefix = '[Evidence](Home "<span> ' + '[Other](Home "' * repetitions
+        reads = 0
+        context_positions.clear()
+        prose = prefix + "\n\n" + SECURITY_DECISION_STATEMENT
+        assert bool(audit._page_prose_failures("Operations-Runbook.md", prose)) == (
+            kind == "incomplete"
+        )
+        work.append(reads)
+        assert reads <= len(prose) * 4
+        assert len(context_positions) == 1
+        assert sum(map(len, context_positions)) <= len(prose)
+        # Block definition facts precede one monotonic inline-context traversal;
+        # forward uses do not trigger declaration-visibility rescans.
+        assert all(positions == sorted(set(positions)) for positions in context_positions)
+        # A fresh page must have no cached reference or enclosing element state.
+        assert (
+            audit._page_prose_failures(
+                "Operations-Runbook.md", SECURITY_DECISION_STATEMENT
+            )
+            == []
+        )
+    assert work[1] <= work[0] * 2 + 32
+    assert work[2] <= work[1] * 2 + 32
+
+
 @pytest.mark.parametrize("repetitions", [16, 32, 64])
 @pytest.mark.parametrize("kind", ["valid", "unfinished", "incomplete_prefix"])
 def test_security_decision_context_work_is_page_local(
