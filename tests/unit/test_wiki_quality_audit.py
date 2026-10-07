@@ -488,6 +488,44 @@ def test_security_decision_trigger_and_multiple_contexts_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+SECURITY_DECISION_RAW_MATCHING_CLOSER_CASES = [
+    (f"<{opening}>Context.</{closing}>\n\n{SECURITY_DECISION_STATEMENT}", False)
+    for opening in ("pre", "script", "style", "textarea")
+    for closing in ("pre", "script", "style", "textarea")
+    if opening != closing
+] + [
+    (f"<{tag}>Context.</{tag}>\n\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag in ("pre", "script", "style", "textarea")
+] + [
+    (f"<{tag}>Context.</{wrong}>\n</{tag}>\n\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag, wrong in (("pre", "script"), ("script", "style"),
+                       ("style", "textarea"), ("textarea", "pre"))
+] + [
+    (f"<{tag}>Context.</{wrong}>\n</{tag}> Context. {SECURITY_DECISION_STATEMENT}", False)
+    for tag, wrong in (("pre", "script"), ("script", "style"),
+                       ("style", "textarea"), ("textarea", "pre"))
+] + [
+    (SECURITY_DECISION_STATEMENT + f"\n\n<{tag}>Context.</{wrong}>\n\n"
+     + SECURITY_DECISION_STATEMENT, False)
+    for tag, wrong in (("pre", "script"), ("script", "style"),
+                       ("style", "textarea"), ("textarea", "pre"))
+] + [
+    ("<SCRIPT\nContext.</STYLE>\r\n\r\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<SCRIPT\nContext.</STYLE>\r\n</sCrIpT>\r\n\r\n" + SECURITY_DECISION_STATEMENT, True),
+    ("   <textarea title='</textarea>'>Context.</pre>\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("`<script>Context.</style>`\n\n" + SECURITY_DECISION_STATEMENT, True),
+    (r"\<script>Context.\</style>" + "\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!-- <script>Context.</style> -->\n\n" + SECURITY_DECISION_STATEMENT, True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_RAW_MATCHING_CLOSER_CASES)
+def test_security_decision_matching_raw_closer_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 @pytest.mark.parametrize("repetitions", [16, 32, 64])
 @pytest.mark.parametrize("kind", ["valid", "unfinished", "incomplete_prefix"])
 def test_security_decision_context_work_is_page_local(

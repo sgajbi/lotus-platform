@@ -134,7 +134,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      comment contexts through their first terminator or end of input; preserve complete
      code/escape/autolink/attribute precedence and earliest short-comment boundaries;
      recognize zero-to-three-space line-start pre/script/style/textarea openers, including
-     incomplete end-of-line openers, and keep raw bodies opaque through a type-1 end tag;
+     incomplete end-of-line openers, and keep raw bodies opaque until the corresponding
+     case-insensitive closing tag or end of input; a different raw-element closer cannot
+     expose obligations. This Lotus enclosure rule is stricter than CommonMark type-1 termination;
      line-start raw contexts include their closing line, while following plain paragraphs
      remain supported. This bounded exclusion does not broaden directory/database parsing
      or claim full Markdown rendering, DOM repair or visibility inference;

@@ -178,13 +178,16 @@ excludes later decisions through end of input, including across blank paragraphs
 escape/code/autolink/attribute tokens take precedence over contained openers; existing earliest
 short-comment boundaries remain unchanged. Zero-to-three ASCII-space line-start `pre`, `script`,
 `style` and `textarea` openers followed by space/tab, `>` or CR/LF/end of input also exclude raw
-bodies, including incomplete end-of-line openers. A type-1 end tag ends that raw context;
+bodies, including incomplete end-of-line openers. The corresponding case-insensitive closing
+tag ends that raw context; a different raw-element closer leaves it opaque until the matching
+closer or end of input. This is a stronger Lotus enclosure policy: CommonMark type-1 blocks
+allow any of the four raw-element end tags, without requiring it to match the opener.
 code/comment-looking body text cannot alter its termination. Complete opening attributes are
 opaque before scanning the body. Line-start raw contexts include the entire closing line;
 properly closed contexts followed by a new plain paragraph remain supported.
-These decision-local rules are based on [CommonMark raw HTML](https://spec.commonmark.org/0.31.2/#raw-html)
-and [HTML block types 1–5](https://spec.commonmark.org/0.31.2/#html-blocks), with conservative
-unterminated-context exclusion. They do not implement container blocks, indented-code parsing,
+These decision-local rules draw on [CommonMark raw HTML](https://spec.commonmark.org/0.31.2/#raw-html)
+and [HTML block types 1–5](https://spec.commonmark.org/0.31.2/#html-blocks), with stronger matching-opener
+and unterminated-context exclusion for Lotus decision admission. They do not implement container blocks, indented-code parsing,
 all raw HTML block families, a complete renderer or DOM repair, and do not change the legacy
 directory/database classifier or reference collector.
 Inline markup, hidden HTML,
