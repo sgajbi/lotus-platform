@@ -217,6 +217,10 @@ boundaries, and keep qualifier scans bounded by raw CR/LF. Other scratch and bar
 guards still inspect original prose inside comments. The existing line-based backtick
 fence exclusion and separate line-start comment-block reference policy remain unchanged;
 this does not introduce general block parsing or rewrite fences inside comment-looking text.
+Only complete tokens admitted by the local HTML recognizer project as markup. Escape
+unrecognized angle characters at the projection boundary so malformed closing syntax,
+partial tags and unsupported declarations remain visible literal text. Ordinary entities
+still decode once; code, escapes and autolinks retain their existing literal entity behavior.
 An active autolink in an outer link label invokes the existing no-nested-links rule:
 retain the outer metadata as visible literal syntax rather than eliding it. Complete code
 spans, escaped angle openers and whole HTML tokens do not create active autolinks; links
