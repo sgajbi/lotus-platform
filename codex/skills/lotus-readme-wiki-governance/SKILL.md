@@ -128,6 +128,14 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      reject statements inside recognized enclosing HTML element bodies across sentence or
      paragraph breaks; closed markup followed by a new plain paragraph remains supported;
      unmatched or misnested closing tags block later admission despite subsequent closers;
+     for this decision admission only, exclude PI, ASCII-letter declarations, CDATA and
+     comment contexts through their first terminator or end of input; preserve complete
+     code/escape/autolink/attribute precedence and earliest short-comment boundaries;
+     recognize zero-to-three-space line-start pre/script/style/textarea openers, including
+     incomplete end-of-line openers, and keep raw bodies opaque through a type-1 end tag;
+     line-start raw contexts include their closing line, while following plain paragraphs
+     remain supported. This bounded exclusion does not broaden directory/database parsing
+     or claim full Markdown rendering, DOM repair or visibility inference;
    - preserve technical terms such as "indexed temporary relation", "temporary table", or an OS
      "temporary directory"; directory/table/relation phrases followed by "notes" or "workaround"
      remain scratch prose;

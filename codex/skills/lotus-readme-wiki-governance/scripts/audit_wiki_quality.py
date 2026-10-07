@@ -966,6 +966,38 @@ def _page_heading_failures(page_name: str, text: str) -> list[str]:
     return failures
 
 
+def _decision_raw_context_end(prose: str, start: int, literal_end: int | None) -> int | None:
+    """Bound decision exclusion without changing the directory's inline-token grammar."""
+    if prose[start] != "<":
+        return None
+    line_start = max(prose.rfind("\n", 0, start), prose.rfind("\r", 0, start)) + 1
+    block = start - line_start <= 3 and not prose[line_start:start].strip(" ")
+    raw_text = re.compile(r"<(?:pre|script|style|textarea)(?=[ \t\r\n>]|$)", re.IGNORECASE).match(prose, start)
+    if block and raw_text is not None:
+        # Complete attributes remain opaque; an incomplete EOL opener still opens raw context.
+        search_start = literal_end if literal_end is not None else raw_text.end()
+        closing = re.compile(r"</(?:pre|script|style|textarea)>", re.IGNORECASE).search(prose, search_start)
+        end = closing.end() if closing is not None else len(prose)
+    else:
+        delimiter = next((ending for opening, ending in (
+            ("<?", "?>"), ("<![CDATA[", "]]>"), ("<!--", "-->"),
+        ) if prose.startswith(opening, start)), None)
+        if delimiter is None and re.compile(r"<![A-Za-z]").match(prose, start):
+            delimiter = ">"
+        if delimiter is None:
+            return None
+        if prose.startswith(("<!-->", "<!--->"), start):
+            return literal_end
+        closing_start = prose.find(delimiter, start + 2)
+        end = closing_start + len(delimiter) if closing_start != -1 else len(prose)
+    if block:
+        # Raw blocks include the whole closing line; punctuation cannot expose trailing prose.
+        line_end = re.compile(r"[\r\n]|$").search(prose, end)
+        assert line_end is not None
+        end = line_end.start()
+    return end
+
+
 def _decision_term_is_plain(prose: str, start: int) -> bool:
     # WHATWG void elements have no body. A non-void tag's slash does not close it.
     void_tags = {
@@ -976,13 +1008,20 @@ def _decision_term_is_plain(prose: str, start: int) -> bool:
     index = 0
     while index < start:
         end = _directory_literal_token_end(prose, index)
+        token = prose[index:end] if end is not None else ""
+        is_tag = DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token) is not None
+        raw_end = _decision_raw_context_end(prose, index, end) if end is None or is_tag else None
+        if raw_end is not None:
+            if index <= start < raw_end:
+                return False
+            index = raw_end
+            continue
         if end is None:
             index += 1
             continue
         if index <= start < end:
             return False
-        token = prose[index:end]
-        if DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token):
+        if is_tag:
             tag = re.match(r"<(/?)([A-Za-z][A-Za-z0-9-]*)", token)
             if tag is not None:
                 closing, name = tag.groups()
