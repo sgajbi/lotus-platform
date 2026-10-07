@@ -319,6 +319,42 @@ def test_security_decision_prose_actual_and_cli(tmp_path: Path, prose: str, acce
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+SECURITY_DECISION_HTML_CONTEXT_CASES = [
+    (f"<{tag}{attribute}>Context. {SECURITY_DECISION_STATEMENT}</{tag}>", False)
+    for tag, attribute in (
+        ("span", " hidden"), ("div", ""), ("script", ""), ("style", ""),
+        ("span", ' title="Context. earlier statement"'),
+        ("span", ' data-note="owner > Context." hidden'),
+    )
+] + [
+    (f"<{tag}{attribute}>Context.\n\n{SECURITY_DECISION_STATEMENT}</{tag}>", False)
+    for tag, attribute in (("span", " hidden"), ("div", ""), ("script", ""), ("style", ""))
+] + [
+    ("<div><span hidden>Context.</span>\n\n" + SECURITY_DECISION_STATEMENT + "</div>", False),
+    ("<SPAN HIDDEN>Context. " + SECURITY_DECISION_STATEMENT + "</SPAN>", False),
+    ("<span hidden/>Context. " + SECURITY_DECISION_STATEMENT, False),
+    ("<div><span>Context.</div>\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<span hidden>Context.", True),
+    (SECURITY_DECISION_STATEMENT, True),
+    ("<span hidden>Earlier context.</span>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<div><span>Earlier context.</span></div>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<script>Earlier context.</script>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<style>Earlier context.</style>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!-- <span hidden>Earlier context. -->\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("`<span hidden>Earlier context.`\n\n" + SECURITY_DECISION_STATEMENT, True),
+    (r"\<span hidden>Earlier context." + "\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<br>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ('<img src="diagnostic.png">\n\n' + SECURITY_DECISION_STATEMENT, True),
+    ("<span title=\"" + SECURITY_DECISION_STATEMENT + '\">Context.</span>', False),
+    ("<!-- Context.\n\n" + SECURITY_DECISION_STATEMENT + " -->", False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_HTML_CONTEXT_CASES)
+def test_security_decision_html_context_actual_and_cli(tmp_path: Path, prose: str, accepted: bool) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 def test_security_decision_preserves_navigation_and_all_page_scope(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     _set_github_origin(repo_root, "https://github.com/example/repo.git")
