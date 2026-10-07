@@ -209,6 +209,14 @@ beginning with a letter. URI bodies exclude ASCII controls, spaces and angle bra
 Their address/URI labels remain visible, with internal delimiter and entity-looking text
 literal. Code spans and escapes retain precedence; whole HTML attributes/comments remain
 opaque. This does not add general HTML or malformed-autolink rendering conformance.
+Complete comments and equal-length backtick code spans can cross raw line endings in the
+whole-prose token scan. Code contents remain literal and precede comment recognition;
+escaped openers and incomplete comments cannot hide directory nouns. Quoted attributes
+own comment-looking text inside their complete tag. Keep source offsets and complete-token
+boundaries, and keep qualifier scans bounded by raw CR/LF. Other scratch and bare-URL
+guards still inspect original prose inside comments. The existing line-based backtick
+fence exclusion and separate line-start comment-block reference policy remain unchanged;
+this does not introduce general block parsing or rewrite fences inside comment-looking text.
 An active autolink in an outer link label invokes the existing no-nested-links rule:
 retain the outer metadata as visible literal syntax rather than eliding it. Complete code
 spans, escaped angle openers and whole HTML tokens do not create active autolinks; links
