@@ -23,6 +23,16 @@ BARE_URL_PATTERN = re.compile(r"(?<!\]\()https?://\S+")
 SCRATCH_PATTERN = re.compile(
     r"\b(TODO|maybe|rough|temp|temporary|TBD|FIXME)\b", re.IGNORECASE
 )
+DECISION_PROSE_SPACE = r"[ \t\r\n]+"
+GOVERNED_DECISION_PATTERN = re.compile(
+    DECISION_PROSE_SPACE.join((
+        "proposed", "temporary", "decision", "requires", "an", "accountable", "reviewed",
+        "owner", "and", "at", "most",
+        r"(?:[1-9][0-9]*|one|two|three|four|five|six|seven|eight|nine|ten)",
+        r"days?", "from", r"approval,[ \t\r\n]+with", "earlier", "reassessment",
+    )) + r"(?:[ \t\r\n]+on[ \t\r\n]+[A-Za-z0-9 ,/\-\t\r\n]+)?",
+    re.IGNORECASE,
+)
 DATABASE_TEMPORARY_PATTERN = re.compile(
     r"temporary[ \t]+(?:relations?|tables?)\b"
     r"(?![ \t]+(?:workaround|notes)\b)", re.IGNORECASE
@@ -956,6 +966,39 @@ def _page_heading_failures(page_name: str, text: str) -> list[str]:
     return failures
 
 
+def _decision_term_is_governed(prose: str, start: int) -> bool:
+    """Recognize a bounded plain requirement statement, without approving its risk decision."""
+    prefix = re.search(r"\bproposed[ \t\r\n]+$", prose[:start], re.IGNORECASE)
+    if prefix is None:
+        return False
+    index = 0
+    while index < start:
+        end = _directory_literal_token_end(prose, index)
+        if end is not None:
+            if index <= start < end:
+                return False
+            index = end
+        else:
+            index += 1
+    before = prose[:prefix.start()].replace("\r\n", "\n").replace("\r", "\n")
+    paragraph = re.split(r"\n[ \t]*\n", before)[-1]
+    # Keep this new admission limited to plain prose; title punctuation cannot supply a boundary.
+    if "[" in paragraph or "]" in paragraph:
+        return False
+    sentence_prefix = re.split(r"[.!?]", paragraph)[-1].strip(" \t\r\n")
+    if sentence_prefix.lower() not in {"", "a"}:
+        return False
+    ending = re.search(r"[.!?]|$", prose[start:])
+    assert ending is not None
+    statement = prose[prefix.start():start + ending.start()].strip(" \t\r\n")
+    normalized = statement.replace("\r\n", "\n").replace("\r", "\n")
+    if re.search(r"\n[ \t]*\n", normalized):
+        return False
+    if re.search(r"\b(?:notes|workaround)\b", statement, re.IGNORECASE):
+        return False
+    return GOVERNED_DECISION_PATTERN.fullmatch(statement) is not None
+
+
 def _page_prose_failures(page_name: str, text: str) -> list[str]:
     failures: list[str] = []
     prose = _prose_without_fenced_code(text)
@@ -973,6 +1016,7 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
                     match.start() in hidden_directory_nouns
                     or DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
                     or _directory_term_is_technical(prose, match.start(), directory_references)
+                    or _decision_term_is_governed(prose, match.start())
                 )
             )
         }

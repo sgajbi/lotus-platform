@@ -148,6 +148,22 @@ commit hashes, releases/latest/tag and compare ranges. Validate route shape and 
 do not require `blob/main` for evidence. This is a syntax check, not proof that a remote run, issue,
 commit or release exists. Malformed or unknown routes do not bypass file-link controls.
 
+The prose classifier also admits the plain requirement statement
+`proposed temporary decision requires an accountable reviewed owner and at most DURATION days from approval, with earlier reassessment`,
+with optional plain `on ...` reassessment triggers. `DURATION` is an ASCII positive integer
+without leading zeros or one of `one` through `ten`; singular `day` is supported. This is
+lexical classification, not approval of the owner, the duration, the decision or expired risk
+acceptances. ASCII space/tab and single CR/LF prose wrapping are supported within the statement;
+blank paragraphs and sentence terminators cannot bridge obligations. The statement must begin
+the sentence, optionally preceded by `A`; scratch-note prefixes cannot lend it a valid substring.
+Whole statements inside existing recognized HTML metadata/comments, code spans or escapes do not
+qualify. Earlier Markdown bracket syntax in the same paragraph makes this narrow admission
+unsupported, preventing link/reference title punctuation from creating a false sentence boundary.
+Inline markup, hidden HTML,
+link destinations and fenced examples cannot supply those obligations. Unsupported phrasing
+remains conservatively rejected. `notes`/`workaround` in the decision statement remains rejected,
+as do unrelated temporary occurrences and all existing unfinished markers in mixed prose.
+
 The prose classifier admits individual technical noun phrases `temporary relation(s)`,
 `temporary table(s)`, and OS `temporary directory`/`temporary directories` on one line.
 It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`, `temporary workaround`,
