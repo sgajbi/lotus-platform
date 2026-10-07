@@ -307,11 +307,121 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_INLINE_TAG_GRAMMAR_CASES = [
+    (f'<{name} title="temporary directory: notes">', True)
+    for name in ("span", "SPAN", "s1", "custom-tag", "a--", "x2-y3")
+] + [
+    (f'<span {attribute} title="temporary directory: notes">', True)
+    for attribute in (
+        "hidden", "_hidden", ":hidden", "data.label", "xml:lang", "data-1",
+        'x=""', "x=''", "x=plain", "x=plain/segment", 'x="a > <em>"',
+        "x='a \" <em>'", 'x="a\n\nb"', 'x="back\\slash"',
+        "x \t= \t'quoted'", "x\n=\n'quoted'", "x=literal&amp;entity",
+    )
+] + [
+    (f'<span{separator}title="temporary directory: notes"{ending}>', True)
+    for separator in (" ", "\t", "\n", "\r", "\r\n", " \t\n \t")
+    for ending in ("", " ", "/", "\n/")
+] + [
+    (token, False)
+    for token in (
+        '<1span title="temporary directory: notes">',
+        '<_span title="temporary directory: notes">',
+        '<span.x title="temporary directory: notes">',
+        '<span:x title="temporary directory: notes">',
+        '< span title="temporary directory: notes">',
+        '<span ="temporary directory: notes">',
+        '<span 1title="temporary directory: notes">',
+        '<span ti!tle="temporary directory: notes">',
+        '<span x="hidden"title="temporary directory: notes">',
+        '<span x= title="temporary directory: notes">',
+        '<span x=bad`value title="temporary directory: notes">',
+        '<span x=bad=value title="temporary directory: notes">',
+        '<span x=bad\'value title="temporary directory: notes">',
+        '<span title="temporary directory: notes> ',
+        '<span title=\'temporary directory: notes> ',
+        '<span title="temporary directory: notes"/ >',
+        '<span title="temporary directory: notes"//>',
+        '</span title="temporary directory: notes">',
+        '<span\vtitle="temporary directory: notes">',
+        '<span\ftitle="temporary directory: notes">',
+        '<span\x85title="temporary directory: notes">',
+        '<span\u2028title="temporary directory: notes">',
+        '<span\n\ntitle="temporary directory: notes">',
+        '<span x\n\n=hidden title="temporary directory: notes">',
+        '<span x=\n\nhidden title="temporary directory: notes">',
+        '<span title="temporary directory: notes"\n\n>',
+    )
+]
+
+
+@pytest.mark.parametrize("token, recognized", DIRECTORY_INLINE_TAG_GRAMMAR_CASES)
+def test_directory_inline_tag_complete_grammar(token: str, recognized: bool) -> None:
+    audit = _load_audit_module()
+    assert bool(audit.DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token)) is recognized
+
+
+@pytest.mark.parametrize("token, recognized", DIRECTORY_INLINE_TAG_GRAMMAR_CASES)
+@pytest.mark.parametrize("consumer", ("hidden_noun", "qualifier"))
+def test_directory_inline_tag_policy_actual_and_cli(
+    tmp_path: Path, token: str, recognized: bool, consumer: str,
+) -> None:
+    if consumer == "hidden_noun":
+        prose, accepted = token + "mode 0700", recognized
+    else:
+        prose = "temporary directory: " + token.replace("temporary directory: notes", "hidden metadata") + "notes"
+        accepted = not recognized or "\n" in token or "\r" in token
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+DIRECTORY_INLINE_TAG_CLOSING_CASES = [
+    (f'</{name}{separator}>', True)
+    for name in ("span", "CUSTOM-tag", "s1")
+    for separator in ("", " ", "\t", "\n", "\r\n")
+] + [(token, False) for token in (
+    '</span extra>', '</span title="hidden">', '</span/>', '</ span>',
+    '</1span>', '</span.x>', '</span\n\n>', '</span\v>',
+)]
+
+
+@pytest.mark.parametrize("token, recognized", DIRECTORY_INLINE_TAG_CLOSING_CASES)
+def test_directory_inline_tag_closing_actual_and_cli(
+    tmp_path: Path, token: str, recognized: bool,
+) -> None:
+    audit = _load_audit_module()
+    assert bool(audit.DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token)) is recognized
+    accepted = not recognized or "\n" in token or "\r" in token
+    _assert_directory_prose_actual_and_cli(tmp_path, "temporary directory: " + token + "notes", accepted)
+
+
+DIRECTORY_INLINE_TAG_LITERAL_CASES = [
+    (r'\<span title="temporary directory: notes">mode 0700', False),
+    ('`<span title="temporary directory: notes">mode 0700`', False),
+    ('Intro `<span title="temporary directory: notes\n">mode 0700`', False),
+    ('<!-- temporary directory: notes -->mode 0700', True),
+    ('<!--\ntemporary directory: notes\n-->mode 0700', True),
+    ('<span title="temporary directory: notes">temporary directory: workaround</span>', False),
+    ('<span title="temporary directory: notes">TODO finish</span>', False),
+    ('temporary directory: <ops@example.com> notes', True),
+    ('temporary directory: <span>n&#111;tes</span>', False),
+    ('temporary directory: </span extra>notes', True),
+    ('temporary directory: **<span>notes</span>**', False),
+    ('temporary directory: [<span>notes</span>](Operations-Runbook)', False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_INLINE_TAG_LITERAL_CASES)
+def test_directory_inline_tag_literal_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 DIRECTORY_MALFORMED_ANGLE_CASES = [
     (f"temporary directory: {token}{qualifier}", accepted)
     for token, accepted in (
         ("</ span>", True), ("< span>", True), ("</ /span>", True),
-        ("</span extra>", False), ("<span", True), ("</span", True),
+        ("</span extra>", True), ("<span", True), ("</span", True),
         ("<span title='unterminated>", True), ("<?span?>", True),
         ("<!DOCTYPE span>", True), ("<![CDATA[span]]>", True),
         ("</ >", False), ("<>", False), ("<!--", False),
@@ -780,6 +890,7 @@ def _assert_directory_prose_actual_and_cli(
     (wiki / "Operations-Runbook.md").write_text(
         "# Operations Runbook\n\nCurrent-state support requires owner-only OS directory permissions.\n"
         f"{prose}\n", encoding="utf-8",
+        newline="",
     )
     result = subprocess.run(
         [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki), "--repo-root",

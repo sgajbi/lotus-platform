@@ -144,6 +144,7 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      recognize complete comments across lines only after complete equal-run code spans and escapes;
      retain visible adjacent nouns, raw qualifier-line boundaries and original scratch/URL guards;
      project only recognized complete HTML tokens; preserve literal angles and ordinary entity decoding;
+     apply CommonMark opening/closing tag and attribute grammar; malformed attributes cannot hide nouns;
      preserve non-CR/LF separators during fence removal and directory-reference collection;
      retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries;
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under
