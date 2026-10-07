@@ -183,6 +183,10 @@ quoted/parenthesized titles), and resolved full, collapsed or shortcut reference
 Backslashes escape only ASCII punctuation in labels, destinations and titles. A backslash
 before whitespace or a control character does not make an invalid bare destination valid;
 ordinary letters remain visible label text and cannot be skipped by the scanner.
+An immediately preceding `!` is an image marker only with an even number of contiguous
+backslashes before it, including zero. An odd run escapes the bang, leaving a literal `!`
+followed by an ordinary link label. The same rule applies when deciding whether a nested
+label is an image or a link; code spans and escaped bracket delimiters retain their rules.
 References use Unicode case-folded, whitespace-normalized labels and valid single-line
 definition blocks beginning at document start or after a blank line, outside fenced code.
 Malformed or unresolved metadata, escaped openers/closers, complete code spans, images and
