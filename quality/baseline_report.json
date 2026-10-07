@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 423379
+    "total_source_lines": 423512
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 36,
-        "end_line": 186,
-        "line": 128,
+        "end_line": 188,
+        "line": 130,
         "lines": 59,
         "name": "_directory_inline_link_end",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -171,8 +171,8 @@
       },
       {
         "complexity": 21,
-        "end_line": 797,
-        "line": 721,
+        "end_line": 799,
+        "line": 723,
         "lines": 77,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4201
+    "python_function_count": 4206
   },
-  "generated_at_utc": "2026-10-07T18:59:24Z",
+  "generated_at_utc": "2026-10-07T19:46:08Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,7 +413,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2088,
+      "lines": 2184,
       "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 4105,
+    "collected_tests": 4156,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "4105 tests collected"
+    "summary": "4156 tests collected"
   }
 }
