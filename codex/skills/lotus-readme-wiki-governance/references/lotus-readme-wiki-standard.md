@@ -195,6 +195,20 @@ retains the label's visible continuation and elides only recognized closing-labe
 During noun-label bracket scanning, complete inline HTML tokens recognized by the existing
 local token policy are opaque: attribute and comment brackets cannot alter label pairing.
 Malformed tokens remain literal; code span, escape, image and nested-link rules are unchanged.
+Complete [CommonMark autolinks](https://spec.commonmark.org/0.31.2/#autolinks) precede inline
+HTML tokens in the local projection. Email addresses use the specified ASCII local-part and
+domain-segment grammar; URI schemes contain 2–32 ASCII letters/digits/plus/period/hyphen,
+beginning with a letter. URI bodies exclude ASCII controls, spaces and angle brackets.
+Their address/URI labels remain visible, with internal delimiter and entity-looking text
+literal. Code spans and escapes retain precedence; whole HTML attributes/comments remain
+opaque. This does not add general HTML or malformed-autolink rendering conformance.
+An active autolink in an outer link label invokes the existing no-nested-links rule:
+retain the outer metadata as visible literal syntax rather than eliding it. Complete code
+spans, escaped angle openers and whole HTML tokens do not create active autolinks; links
+inside recognized image descriptions do not invalidate a surrounding link. Apply this
+same distinction to both noun-local and qualifier link scans. Keep recognized image
+metadata opaque, including its reference suffix, rather than counting that suffix as
+a separate nested shortcut link.
 Supported [CommonMark link families](https://spec.commonmark.org/0.31.2/#links) are complete
 inline links (empty, angle or balanced bare destinations, escaped punctuation and optional
 quoted/parenthesized titles), and resolved full, collapsed or shortcut reference links.

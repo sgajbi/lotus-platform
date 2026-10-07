@@ -35,6 +35,12 @@ DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
 )
 INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)")
 DIRECTORY_INLINE_TAG_PATTERN = re.compile(r"<!--.*?-->|</?[A-Za-z][^<>\"']*(?:(?:\"[^\"]*\"|'[^']*')[^<>\"']*)*>")
+DIRECTORY_AUTOLINK_PATTERN = re.compile(
+    r"<([A-Za-z][A-Za-z0-9+.-]{1,31}:[^\x00-\x20\x7f<>]*"
+    r"|[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@"
+    r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?"
+    r"(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)>"
+)
 DIRECTORY_EMPHASIS_RUN_PATTERN = re.compile(r"\*+|_+|~+")
 DIRECTORY_REFERENCE_LABEL_PATTERN = re.compile(r"\[((?:\\[^\r\n]|[^\[\]\\\r\n]){0,999})\]")
 DIRECTORY_REFERENCE_DEFINITION_PATTERN = re.compile(
@@ -212,8 +218,9 @@ def _directory_literal_token_end(line: str, start: int) -> int | None:
     if line[start] == "\\" and start + 1 < len(line) and line[start + 1] in punctuation:
         return start + 2
     code = INLINE_CODE_SPAN_PATTERN.match(line, start)
+    autolink = DIRECTORY_AUTOLINK_PATTERN.match(line, start)
     tag = DIRECTORY_INLINE_TAG_PATTERN.match(line, start)
-    token = code or tag
+    token = code or autolink or tag
     return token.end() if token else None
 
 
@@ -261,10 +268,13 @@ def _directory_emphasis_end(
 def _directory_qualifier_link(line: str, start: int, references: set[str]) -> tuple[int, int] | None:
     stack = [start]
     pairs: list[tuple[int, int]] = []
+    autolinks: list[int] = []
     index = start + 1
     while index < len(line):
         literal_end = _directory_literal_token_end(line, index)
         if literal_end is not None:
+            if DIRECTORY_AUTOLINK_PATTERN.match(line, index):
+                autolinks.append(index)
             index = literal_end
             continue
         if line[index] == "[":
@@ -273,7 +283,9 @@ def _directory_qualifier_link(line: str, start: int, references: set[str]) -> tu
             opening = stack.pop()
             if not stack:
                 end = _directory_link_metadata_end(line, index, line[start + 1:index], references)
-                if end is None or any(
+                if end is None or _directory_has_nested_autolink(
+                    line, start, index, autolinks, pairs, references,
+                ) or any(
                     not _directory_label_is_image(line, nested_open)
                     and _directory_link_metadata_end(
                         line, nested_close, line[nested_open + 1:nested_close], references
@@ -283,8 +295,34 @@ def _directory_qualifier_link(line: str, start: int, references: set[str]) -> tu
                     return None
                 return index, end
             pairs.append((opening, index))
+            if _directory_label_is_image(line, opening):
+                image_end = _directory_link_metadata_end(
+                    line, index, line[opening + 1:index], references,
+                )
+                if image_end is not None:
+                    index = image_end
+                    continue
         index += 1
     return None
+
+
+def _directory_has_nested_autolink(
+    line: str, opening: int, closing: int, autolinks: list[int],
+    pairs: list[tuple[int, int]], references: set[str],
+) -> bool:
+    if _directory_label_is_image(line, opening):
+        return False
+    return any(
+        opening < position < closing and not any(
+            opening < image_open < position < image_close < closing
+            and _directory_label_is_image(line, image_open)
+            and _directory_link_metadata_end(
+                line, image_close, line[image_open + 1:image_close], references,
+            ) is not None
+            for image_open, image_close in pairs
+        )
+        for position in autolinks
+    )
 
 
 def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
@@ -293,6 +331,7 @@ def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
     index = 0
     while index < len(line):
         code = INLINE_CODE_SPAN_PATTERN.match(line, index)
+        autolink = DIRECTORY_AUTOLINK_PATTERN.match(line, index)
         literal_end = _directory_literal_token_end(line, index)
         if code:
             contents = code[2]
@@ -300,6 +339,9 @@ def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
                 contents = contents[1:-1]
             parts.append(escape(contents, quote=False))
             index = code.end()
+        elif autolink:
+            parts.append(escape(autolink[1], quote=False))
+            index = autolink.end()
         elif literal_end is not None:
             token = line[index:literal_end]
             parts.append(escape(token[1], quote=False) if token.startswith("\\") else token)
@@ -332,6 +374,7 @@ def _directory_noun_link_tail(
     code_spans = {match.start(): match.end() for match in INLINE_CODE_SPAN_PATTERN.finditer(line)}
     stack: list[int] = []
     pairs: list[tuple[int, int]] = []
+    autolinks: list[int] = []
     index = 0
     while index < len(line):
         if index in code_spans:
@@ -341,12 +384,22 @@ def _directory_noun_link_tail(
             continue
         literal_end = _directory_literal_token_end(line, index)
         if literal_end is not None:
+            if DIRECTORY_AUTOLINK_PATTERN.match(line, index):
+                autolinks.append(index)
             index = literal_end
             continue
         if line[index] == "[":
             stack.append(index)
         elif line[index] == "]" and stack:
-            pairs.append((stack.pop(), index))
+            opening = stack.pop()
+            pairs.append((opening, index))
+            if stack and _directory_label_is_image(line, opening):
+                image_end = _directory_link_metadata_end(
+                    line, index, line[opening + 1:index], references,
+                )
+                if image_end is not None:
+                    index = image_end
+                    continue
         index += 1
     for opening, closing in pairs:
         if not opening < noun_start < noun_end <= closing or _directory_label_is_image(line, opening):
@@ -355,7 +408,9 @@ def _directory_noun_link_tail(
         metadata_end = _directory_link_metadata_end(line, closing, label, references)
         if metadata_end is None:
             continue
-        nested_link = any(
+        nested_link = _directory_has_nested_autolink(
+            line, opening, closing, autolinks, pairs, references,
+        ) or any(
             opening < nested_open < nested_close < closing
             and not _directory_label_is_image(line, nested_open)
             and _directory_link_metadata_end(

@@ -135,6 +135,11 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      distinguishing active image markers from escaped bangs at both noun and nested labels;
      treat complete existing inline HTML tokens as opaque during noun-label bracket scanning,
      so quoted attribute and comment brackets cannot alter label pairing;
+     recognize complete CommonMark email/URI autolinks before inline HTML projection,
+     retaining their visible labels and literal internal delimiters under the authored grammar;
+     retain literal outer link metadata when a label contains an active autolink,
+     excluding contained code/escapes/HTML tokens and recognized image descriptions;
+     keep recognized image metadata opaque during both bracket scans;
      retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries;
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under
      the standard's bounded flanking/literal rules, so split `n**o**tes` and `**work**around`

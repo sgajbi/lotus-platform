@@ -307,6 +307,122 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_NESTED_AUTOLINK_CASES = [
+    (f"[{label}](Operations-Runbook) notes", True)
+    for autolink in ("<ops@example.com>", "<irc://example.com/[x]>")
+    for label in (f"{autolink} temporary directory", f"temporary directory {autolink}")
+] + [
+    (f"[{label}][target] notes\n\n[target]: Operations-Runbook", True)
+    for autolink in ("<ops@example.com>", "<irc://example.com/[x]>")
+    for label in (f"{autolink} temporary directory", f"temporary directory {autolink}")
+] + [
+    ('[<ops@example.com> temporary directory][] notes\n\n[<ops@example.com> temporary directory]: Operations-Runbook', False),
+    ('[<ops@example.com> temporary directory] notes\n\n[<ops@example.com> temporary directory]: Operations-Runbook', False),
+    ('[temporary directory](Operations-Runbook) notes', False),
+    ('[`<ops@example.com>` temporary directory](Operations-Runbook) notes', False),
+    (r'[\<ops@example.com> temporary directory](Operations-Runbook) notes', False),
+    ('[<!-- <ops@example.com> -->temporary directory](Operations-Runbook) notes', False),
+    ('[<span title="<ops@example.com>">temporary directory</span>](Operations-Runbook) notes', False),
+    ('[![<ops@example.com>](Operations-Runbook) temporary directory](Operations-Runbook) notes', False),
+    ('[![<ops@example.com>][image] temporary directory](Operations-Runbook) notes\n\n[image]: Operations-Runbook', False),
+    (r'[\![<ops@example.com>](Operations-Runbook) temporary directory](Operations-Runbook) notes', True),
+    ('![<ops@example.com> temporary directory](Operations-Runbook) notes', True),
+    ('`[<ops@example.com> temporary directory](Operations-Runbook) notes`', True),
+    ('temporary directory: [<ops@example.com>](Operations-Runbook) notes', True),
+    ('temporary directory: [notes <ops@example.com>](Operations-Runbook)', False),
+    ('temporary directory: [![<ops@example.com>](Operations-Runbook) notes](Operations-Runbook)', True),
+    ('[<ops@example.com> temporary directory](Operations-Runbook) mode 0700', True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_NESTED_AUTOLINK_CASES)
+def test_directory_nested_autolink_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+DIRECTORY_AUTOLINK_GRAMMAR_CASES = [
+    (f"<{local}@example.com>", True)
+    for local in ("ops", "Ops", "1", "a.b", "a!b", "a#b", "a$b", "a%b", "a&b",
+                  "a'b", "a*b", "a+b", "a/b", "a=b", "a?b", "a^b", "a_b",
+                  "a`b", "a{b", "a|b", "a}b", "a~b", "a-b")
+] + [
+    (f"<ops@{domain}>", accepted)
+    for domain, accepted in (("x", True), ("a-b.example", True), ("a" * 63, True),
+                             ("a" * 64, False), ("-bad.com", False), ("bad-.com", False),
+                             ("bad..com", False), ("bad_com", False), ("", False))
+] + [
+    (f"<{scheme}:payload>", accepted)
+    for scheme, accepted in (("ab", True), ("HTTPS", True), ("a+b.c-d", True),
+                             ("a" * 32, True), ("a" * 33, False), ("a", False),
+                             ("1a", False), ("a_b", False))
+] + [
+    (f"<ab:{body}>", accepted)
+    for body, accepted in (("", True), ("a%20b", True), ("[a]*_`&x;", True),
+                           ("a\\b", True), ("a'b\"c", True), ("a b", False),
+                           ("a\t", False), ("a\n", False), ("a\r", False),
+                           ("a\x00", False), ("a\x1f", False), ("a\x7f", False),
+                           ("a<b", False), ("a>b", False))
+] + [("<ops\\+@example.com>", False), ("< ops@example.com>", False),
+     ("<ops@example.com >", False), ("ops@example.com", False)]
+
+
+@pytest.mark.parametrize("token, recognized", DIRECTORY_AUTOLINK_GRAMMAR_CASES)
+def test_directory_autolink_complete_grammar(token: str, recognized: bool) -> None:
+    audit = _load_audit_module()
+    assert (audit.DIRECTORY_AUTOLINK_PATTERN.fullmatch(token) is not None) is recognized
+    if recognized:
+        assert audit._directory_qualifier_text(token, set()) == token[1:-1]
+
+
+DIRECTORY_AUTOLINK_CASES = [
+    (f"temporary directory: <{label}> notes the ownership exception", True)
+    for label in ("ops@example.com", "Ops+audit@Example.COM", "1@x", "a.b@a-b.example",
+                  "a&b@example.com", "a*b@example.com", "a_b@example.com", "a`b@example.com",
+                  "irc://example.com", "MAILTO:ops@example.com", "ab:",
+                  "a+b.c-d:payload", "irc://example.com/[x]*_`", "irc://example.com/a\\b",
+                  "irc://example.com/?a=1&b=2", "irc://example.com/&lt;notes&gt;")
+] + [
+    ('temporary directory: <span title="ops@example.com">notes</span>', False),
+    ('temporary directory: <span title="<ops@example.com>">notes</span>', False),
+    ('temporary directory: <!-- <ops@example.com> -->notes', False),
+    ('temporary directory: <ops@example.com> mode 0700', True),
+    ('temporary directory: `notes`', False),
+    ('temporary directory: `<ops@example.com>` notes', True),
+    (r'temporary directory: \<ops@example.com> notes', True),
+    ('temporary directory: < ops@example.com> notes', True),
+    ('temporary directory: <ops@example.com notes', True),
+    ('temporary directory: [<ops@example.com>](Operations-Runbook) notes', True),
+    ('temporary directory: [<irc://example.com/[x]>](Operations-Runbook) notes', True),
+    ('[temporary directory](Operations-Runbook) <ops@example.com> notes', True),
+    ('temporary directory: **<ops@example.com>** notes', True),
+    ('temporary directory: **n<ops@example.com>otes**', True),
+    ('temporary directory: ![<ops@example.com>](Operations-Runbook) notes', True),
+    ('temporary directory: <em>notes</em>', False),
+    ('temporary directory: notes', False),
+    ('temporary directory: **workaround**', False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_AUTOLINK_CASES)
+def test_directory_autolink_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("uri", [
+    "https://example.com", "https://example.com/[x]*_`", "https://example.com/a\\b",
+    "https://example.com/?a=1&b=2", "https://example.com/&lt;notes&gt;",
+])
+def test_directory_autolink_preserves_named_link_guard(tmp_path: Path, uri: str) -> None:
+    _assert_directory_prose_actual_and_cli(
+        tmp_path, f"temporary directory: <{uri}> notes the ownership exception", True,
+        bare_url_failure_expected=True,
+    )
+
+
 DIRECTORY_NOUN_HTML_CASES = [
     (f'[{tag}temporary directory</span>](Operations-Runbook) {qualifier}', accepted)
     for tag in ('<span title="]">', "<span title='['>", '<span title="[nested]">')
@@ -449,8 +565,12 @@ def test_directory_image_marker_policy_actual_and_cli(
 
 def _assert_directory_prose_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool, *, link_failure_expected: bool = False,
+    bare_url_failure_expected: bool = False,
 ) -> None:
     findings = _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose)
+    if bare_url_failure_expected:
+        assert findings == ["Operations-Runbook.md: contains bare URL; use a named Markdown link"]
+        findings = []
     assert (findings == []) is accepted
     repo_root = tmp_path / "repo"
     _set_github_origin(repo_root, "https://github.com/example/repo.git")
@@ -469,10 +589,13 @@ def _assert_directory_prose_actual_and_cli(
          str(repo_root), "--changed-page", "Operations-Runbook.md"],
         capture_output=True, text=True, check=False,
     )
-    assert result.returncode == (0 if accepted and not link_failure_expected else 1), result.stdout + result.stderr
+    expected_exit = 0 if accepted and not (link_failure_expected or bare_url_failure_expected) else 1
+    assert result.returncode == expected_exit, result.stdout + result.stderr
     assert ("contains scratch-note terms" not in result.stdout) is accepted
     if link_failure_expected:
         assert "broken local or repo-relative link" in result.stdout
+    if bare_url_failure_expected:
+        assert "contains bare URL; use a named Markdown link" in result.stdout
 
 
 @pytest.mark.parametrize("prose", [
