@@ -156,7 +156,14 @@ For directory phrases, any same-line punctuation or Markdown delimiter run befor
 `workaround` also remains scratch prose. This includes emphasis, inline code, strikethrough,
 quotes and escaped formatting, including incomplete wrappers. Delimiters never cross CR/LF
 line boundaries. Technical punctuation such as `temporary directory, with mode 0700` remains
-valid. Database phrase grammar is unchanged. Underscore closing delimiters are recognized
+valid. Fence removal and directory-reference collection preserve every non-CR/LF separator
+as same-line data, including VT, FF, NEL and Unicode separators; they do not invent new
+fence or definition lines. Complete active HTML tokens hide contained directory nouns,
+using the existing code/escape/autolink precedence and token grammar before noun matching.
+Complete quoted attribute tokens may span raw lines; malformed tokens remain literal.
+Only directory nouns receive this metadata exemption: other scratch terms and bare URLs
+remain subject to their original-source checks. Database phrase grammar is unchanged.
+Underscore closing delimiters are recognized
 without treating an identifier such as `notes_directory` as that noun.
 Formatted technical descriptions such as `temporary directory: **mode 0700**` remain valid.
 Complete inline formatting is also recognized throughout the candidate qualifier: split

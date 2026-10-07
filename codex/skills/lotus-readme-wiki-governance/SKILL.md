@@ -140,6 +140,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      retain literal outer link metadata when a label contains an active autolink,
      excluding contained code/escapes/HTML tokens and recognized image descriptions;
      keep recognized image metadata opaque during both bracket scans;
+     ignore directory nouns inside complete active HTML metadata, with existing literal-token precedence;
+     preserve non-CR/LF separators during fence removal and directory-reference collection;
      retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries;
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under
      the standard's bounded flanking/literal rules, so split `n**o**tes` and `**work**around`
