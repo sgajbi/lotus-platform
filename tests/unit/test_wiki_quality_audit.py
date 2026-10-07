@@ -63,6 +63,67 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
     )
 
 
+@pytest.mark.parametrize("prose", [
+    "The worker creates an owner-only POSIX directory under the OS temporary directory, "
+    "with mode 0700 and no-follow opens.",
+    "Operating-system TEMPORARY DIRECTORIES contain mode 0600 diagnostic files.",
+])
+def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
+    assert _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose) == []
+
+
+@pytest.mark.parametrize("prose", [
+    "temporary directory notes", "temporary directory workaround",
+    "temporary directories notes", "temporary directories workaround",
+    "temporary\ndirectory notes", "temporary directoryname",
+    "Use an OS temporary directory; TODO finish the operator notes.",
+    "Use an OS temporary directory; TBD.",
+    "Use an OS temporary directory; FIXME.",
+    "Use an OS temporary directory; temporary workaround remains.",
+    "Use an OS temporary directory; rough notes remain.",
+])
+def test_directory_terms_do_not_waive_scratch_notes(prose: str) -> None:
+    assert "contains scratch-note terms" in " ".join(
+        _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose)
+    )
+
+
+@pytest.mark.parametrize("bad_prose", [
+    "", "temporary directory notes", "temporary directory workaround",
+    "Use an OS temporary directory; TODO finish.",
+    "Use an OS temporary directory; TBD.",
+    "Use an OS temporary directory; FIXME.",
+    "Use an OS temporary directory; temporary workaround remains.",
+])
+def test_directory_fixture_cli_preserves_prose_and_changed_page_scope(
+    tmp_path: Path, bad_prose: str,
+) -> None:
+    repo_root = tmp_path / "repo"
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
+    wiki = repo_root / "wiki"
+    wiki.mkdir()
+    (wiki / "Home.md").write_text(
+        "# Home\n\n[Operations](Operations-Runbook)\n", encoding="utf-8"
+    )
+    (wiki / "_Sidebar.md").write_text(
+        "# Navigation\n\n[Home](Home)\n[Operations](Operations-Runbook)\n", encoding="utf-8"
+    )
+    (wiki / "Operations-Runbook.md").write_text(
+        "# Operations Runbook\n\nCurrent-state support creates an owner-only POSIX "
+        "directory under the worker OS temporary directory with mode 0700.\n"
+        "[Run](https://github.com/example/repo/actions/runs/12)\n"
+        f"{bad_prose}\n", encoding="utf-8",
+    )
+    result = subprocess.run(
+        [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki), "--repo-root",
+         str(repo_root), "--changed-page", "Operations-Runbook.md"],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == (1 if bad_prose else 0), result.stdout + result.stderr
+    if bad_prose:
+        assert "Operations-Runbook.md: contains scratch-note terms" in result.stdout
+
+
 @pytest.mark.parametrize("route", [
     "actions/runs/37190131449", "actions/runs/37190131449/job/111400413011",
     "actions/workflows/feature-lane.yml", "issues/929#issuecomment-123",

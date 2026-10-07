@@ -148,10 +148,11 @@ commit hashes, releases/latest/tag and compare ranges. Validate route shape and 
 do not require `blob/main` for evidence. This is a syntax check, not proof that a remote run, issue,
 commit or release exists. Malformed or unknown routes do not bypass file-link controls.
 
-The prose classifier admits individual technical database noun phrases `temporary relation(s)`
-and `temporary table(s)` on one line. It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`,
-`temporary workaround`, `maybe implement later`, and database noun phrases immediately followed
-by `notes` or `workaround`. A legitimate database term never exempts other scratch-note occurrences
+The prose classifier admits individual technical noun phrases `temporary relation(s)`,
+`temporary table(s)`, and OS `temporary directory`/`temporary directories` on one line.
+It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`, `temporary workaround`,
+`maybe implement later`, and these noun phrases immediately followed by `notes` or `workaround`.
+A legitimate technical term never exempts other scratch-note occurrences
 in the same sentence or page. Fenced executable examples remain outside prose checks.
 Base prose, navigation and link checks apply wiki-wide; changed-page scope selects only the
 stricter professional first-screen and command-dump checks. Auditor failures propagate CLI exit 1.

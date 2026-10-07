@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-05T23:03:53Z`
+Generated: `2026-10-07T04:55:52Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `1002`
-- Total source lines: `421164`
+- Total source lines: `421271`
 - Python files: `275`
 - PowerShell files: `70`
 - Markdown files: `426`
@@ -29,7 +29,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 79939 | .json |
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
-| docs/composite-performance/implementation-ledger.v1.json | 18635 | .json |
+| docs/composite-performance/implementation-ledger.v1.json | 18644 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
 | automation/New-Lotus-Service.ps1 | 6046 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4136`
+- Python functions: `4139`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `2358`
+- Unit tests collected: `2378`
 - Collection command return code: `0`
-- Collection summary: `2358 tests collected`
+- Collection summary: `2378 tests collected`
 
 ## Security Baseline
 
