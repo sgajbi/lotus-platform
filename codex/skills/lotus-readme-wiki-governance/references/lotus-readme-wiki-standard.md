@@ -173,6 +173,12 @@ remain literal. Equal-run code spans expose literal contents without reparsing M
 entities or HTML; exactly one ASCII space is trimmed from each end only when both ends
 have a space and the contents are not all spaces. Additional/asymmetric spaces and tabs remain.
 Matching one- or two-tilde strikethrough exposes its text; longer or unmatched runs remain literal.
+Supported backtick fence exclusion admits zero to three ASCII indentation spaces; VT, FF, NEL
+and Unicode separators remain raw data. Four-space indented-code markers are not fence openers
+and cannot hide following unindented prose; this policy does not implement a general indented-code renderer.
+Complete comments end at the earliest `<!-->` or `<!--->` short token, otherwise the first `-->`;
+following visible text survives. Complete decimal (1–7 digits), hexadecimal (1–6 digits) and
+defined named Markdown references require a semicolon and decode once. Malformed references remain literal.
 Complete non-image
 inline/resolved full, collapsed or shortcut links expose their label using the same metadata
 recognizer as noun links. Escaped/unmatched delimiters and unresolved/malformed links remain

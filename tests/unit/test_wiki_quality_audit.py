@@ -968,6 +968,92 @@ def test_directory_tilde_controls_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_FENCE_INDENT_CASES = [
+    (f"Intro.{newline}{indent}```{newline}temporary directory: notes{newline}```", False)
+    for newline in ("\n", "\r", "\r\n")
+    for indent in ("\v", "\f", "\u0085", "\u2028", "\u2029", "\u00a0", "\u2003", "    ", "\t")
+] + [
+    (f"Intro.\n{indent}```\ntemporary directory: notes\n{indent}```", True)
+    for indent in ("", " ", "  ", "   ")
+] + [
+    (f"Intro.\n```\nprivate code\n{indent}```\ntemporary directory: notes", False)
+    for indent in ("", " ", "  ", "   ")
+] + [
+    ("Intro.\n```\nprivate code\n\v```\ntemporary directory: notes\n```", True),
+    ("Intro.\n    ```\nUnindented temporary directory: notes", False),
+]
+
+DIRECTORY_SHORT_COMMENT_CASES = [
+    (f"{token}temporary directory: {word}-->", False)
+    for token in ("<!-->", "<!--->")
+    for word in ("notes", "workaround")
+] + [
+    (f"temporary directory: {token}{word}-->", False)
+    for token in ("<!-->", "<!--->")
+    for word in ("notes", "workaround")
+] + [
+    ("<!--temporary directory: notes-->mode 0700", True),
+    ("<!-- hidden\ntemporary directory: notes -->mode 0700", True),
+    ("temporary directory: <!-- notes\nworkaround -->mode 0700", False),
+    ("temporary directory: <!-- hidden--interior -->notes", False),
+    ("temporary directory: <!---->notes", False),
+    ("temporary directory: <!-->mode 0700", True),
+    ("temporary directory: <!--->mode 0700", True),
+    (r"temporary directory: \<!-->notes-->", False),
+    ("temporary directory: `<!-->notes-->`", False),
+    ("`<!-->temporary directory: notes-->`", False),
+    ("temporary directory: <span title='<!-->notes-->'>mode 0700</span>", True),
+    ("temporary directory: <span title='<!-->private-->'>notes</span>", False),
+    ("temporary directory: n<!-->o<!--->tes", False),
+    ("temporary directory: n<!--long\ncomment-->otes", True),
+]
+
+DIRECTORY_CHARACTER_REFERENCE_CASES = [
+    (f"temporary directory: n{reference}tes", True)
+    for reference in ("&#111", "&#x6f", "&#X6F", "&#00000111;", "&#x0000006f;",
+                      "&#;", "&#x;", "&MadeUpEntity;", "&notit;", "&amp;#111;")
+] + [
+    (f"temporary directory: n{reference}tes", False)
+    for reference in ("&#111;", "&#x6f;", "&#X6F;", "&#0000111;", "&#x00006f;")
+] + [
+    ("temporary directory: &#110;otes", False),
+    ("temporary directory:&Tab;notes", False),
+    ("temporary directory: work&#97round", True),
+    ("temporary directory: work&#97;round", False),
+    ("temporary directory: &copy;mode 0700", True),
+    ("temporary directory: n`&#111;`tes", True),
+    (r"temporary directory: n\&#111;tes", True),
+    ("temporary directory: n<em>&#111;</em>tes", False),
+    ("temporary directory: n<em>&#111</em>tes", True),
+    ("temporary directory: n[&#111;](Operations-Runbook)tes", False),
+    ("temporary directory: n[&#111](Operations-Runbook)tes", True),
+    ("temporary directory: <ops&#111;@example.com> mode 0700", True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_FENCE_INDENT_CASES)
+def test_directory_fence_indent_actual_and_cli(tmp_path: Path, prose: str, accepted: bool) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_SHORT_COMMENT_CASES)
+def test_directory_short_comment_actual_and_cli(tmp_path: Path, prose: str, accepted: bool) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_CHARACTER_REFERENCE_CASES)
+def test_directory_character_reference_actual_and_cli(tmp_path: Path, prose: str, accepted: bool) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("prose", [
+    "[temporary directory](foo<bar>) notes", "[temporary directory](foo>bar) notes",
+    r"[temporary directory](foo\<bar\>) notes", r"[temporary directory](foo\>bar) notes",
+])
+def test_directory_bare_angles_preserve_scratch_and_navigation(tmp_path: Path, prose: str) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, False, link_failure_expected=True)
+
+
 def _assert_directory_prose_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool, *, link_failure_expected: bool = False,
     bare_url_failure_expected: bool = False,
