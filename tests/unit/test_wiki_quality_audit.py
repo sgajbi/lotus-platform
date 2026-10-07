@@ -850,7 +850,7 @@ DIRECTORY_SPLIT_QUALIFIER_CASES = [
     (f"temporary directory: {word[:split]}{marker}{word[split:]}{marker}", False)
     for word in ("notes", "workaround")
     for split in range(1, len(word))
-    for marker in ("*", "**", "***", "****", "*****", "******", "`", "``", "~~")
+    for marker in ("*", "**", "***", "****", "*****", "******", "`", "``", "~", "~~")
 ] + [
     (f"temporary directory: n[o]{suffix}tes{definition}", False)
     for suffix, definition in (
@@ -920,6 +920,49 @@ def test_directory_split_qualifier_policy_actual_and_cli(
 
 @pytest.mark.parametrize("prose, accepted", DIRECTORY_IMAGE_MARKER_CASES)
 def test_directory_image_marker_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+DIRECTORY_TILDE_CONTROL_CASES = [
+    (f"temporary directory: {prefix}{left}{fragment}{right}{suffix}", True)
+    for prefix, fragment, suffix in (("n", "o", "tes"), ("work", "a", "round"))
+    for left, right in (("~~~", "~~~"), ("~~~~", "~~~~"), ("~", "~~"), ("~~", "~"), ("~", ""))
+] + [
+    (f"temporary directory: {prefix}{fragment}{suffix}", True)
+    for prefix, suffix in (("n", "tes"),)
+    for fragment in (r"\~o\~", "`~o~`", "``~o~``")
+] + [
+    (r"temporary directory: work\~a\~round", True),
+    ("temporary directory: work`~a~`round", True),
+    ("temporary directory: work``~a~``round", True),
+    ("temporary directory: n~**o**~tes", True),
+    ("temporary directory: work~<em>a</em>~round", True),
+    ("temporary directory: n~o**te**s~", False),
+    ("temporary directory: work~a<em>roun</em>d~", False),
+    ("temporary directory: n~o[te](Operations-Runbook)s~", False),
+    ("temporary directory: n[~o~](Operations-Runbook)tes", False),
+    ("[temporary directory](Operations-Runbook) work~a~round", False),
+    ("temporary directory: n~o[te][target]s~\n\n[target]: Operations-Runbook", False),
+    ("temporary directory: n~[o](Operations-Runbook)~tes", True),
+    ("temporary directory: n~`o`~tes", True),
+    ("temporary directory: n~o`te`s~", False),
+    ("temporary directory: n~`~o~`~tes", True),
+    ("temporary directory: n~<span title='~metadata~'>o</span>~tes", True),
+    ("temporary directory: n~o<span title='~metadata~'>te</span>s~", False),
+    ("temporary directory: ~mode 0700~", True),
+    ("temporary directory: ~notes_directory~", True),
+    ("temporary directory: n~o~teskeeper", True),
+    ("temporary directory: work~a~round_directory", True),
+] + [
+    (f"temporary directory: n~o~{newline}tes", True)
+    for newline in ("\r", "\n", "\r\n")
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_TILDE_CONTROL_CASES)
+def test_directory_tilde_controls_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool,
 ) -> None:
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)

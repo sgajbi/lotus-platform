@@ -172,7 +172,8 @@ equal star/underscore runs use whitespace/punctuation flanking; intraword unders
 remain literal. Equal-run code spans expose literal contents without reparsing Markdown,
 entities or HTML; exactly one ASCII space is trimmed from each end only when both ends
 have a space and the contents are not all spaces. Additional/asymmetric spaces and tabs remain.
-Paired double-tilde strikethrough exposes its text. Complete non-image
+Matching one- or two-tilde strikethrough exposes its text; longer or unmatched runs remain literal.
+Complete non-image
 inline/resolved full, collapsed or shortcut links expose their label using the same metadata
 recognizer as noun links. Escaped/unmatched delimiters and unresolved/malformed links remain
 literal. Emphasis recognition skips complete code, HTML and link/image tokens, so destination,
