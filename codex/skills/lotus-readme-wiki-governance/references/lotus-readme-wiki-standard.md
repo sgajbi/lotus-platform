@@ -239,6 +239,12 @@ a separate nested shortcut link.
 Supported [CommonMark link families](https://spec.commonmark.org/0.31.2/#links) are complete
 inline links (empty, angle or balanced bare destinations, escaped punctuation and optional
 quoted/parenthesized titles), and resolved full, collapsed or shortcut reference links.
+Directory-reference labels follow [CommonMark matching](https://spec.commonmark.org/0.31.2/#matches):
+Unicode case folding with edge trimming and internal collapse of spaces, tabs, CR and LF only.
+Other characters retain their identity, including NBSP, EM SPACE, vertical tab and form feed,
+both inside and at the edges of definition/use labels. Identical non-ASCII labels still resolve;
+an ASCII-space label does not match a distinct non-ASCII label. Existing single-raw-line label
+recognition and navigation validation remain unchanged.
 Backslashes escape only ASCII punctuation in labels, destinations and titles. A backslash
 before whitespace or a control character does not make an invalid bare destination valid;
 ordinary letters remain visible label text and cannot be skipped by the scanner.

@@ -172,6 +172,11 @@ def _directory_inline_link_end(line: str, start: int) -> int | None:
     return title_end + 1 if title_end < len(line) and line[title_end] == ")" else None
 
 
+def _directory_reference_label(label: str) -> str:
+    """Normalize only CommonMark label whitespace, retaining other identity."""
+    return re.sub(r"[ \t\r\n]+", " ", label.casefold().strip(" \t\r\n"))
+
+
 def _directory_reference_labels(prose: str) -> set[str]:
     labels: set[str] = set()
     definition_block = True
@@ -190,7 +195,7 @@ def _directory_reference_labels(prose: str) -> set[str]:
             definition_block = False
             continue
         target = f"({definition[2]})"
-        label = " ".join(definition[1].casefold().split())
+        label = _directory_reference_label(definition[1])
         if label and _directory_inline_link_end(target, 0) == len(target):
             labels.add(label)
         else:
@@ -212,7 +217,7 @@ def _directory_link_metadata_end(
             return None
         label = reference[1] or label
         suffix = reference.end()
-    normalized = " ".join(label.casefold().split())
+    normalized = _directory_reference_label(label)
     return suffix if normalized in references else None
 
 
