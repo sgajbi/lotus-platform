@@ -4,6 +4,7 @@ import argparse
 import re
 import subprocess
 import sys
+import unicodedata
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -33,6 +34,8 @@ DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
     r"(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w))", re.IGNORECASE
 )
 INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)")
+DIRECTORY_INLINE_TAG_PATTERN = re.compile(r"<!--.*?-->|</?[A-Za-z][^<>\"']*(?:(?:\"[^\"]*\"|'[^']*')[^<>\"']*)*>")
+DIRECTORY_EMPHASIS_RUN_PATTERN = re.compile(r"\*+|_+|~+")
 DIRECTORY_REFERENCE_LABEL_PATTERN = re.compile(r"\[((?:\\[^\r\n]|[^\[\]\\\r\n]){0,999})\]")
 DIRECTORY_REFERENCE_DEFINITION_PATTERN = re.compile(
     r"^[ \t]{0,3}\[((?:\\[^\r\n]|[^\[\]\\\r\n]){1,999})\]:[ \t]*(.+)$"
@@ -67,18 +70,9 @@ class _DirectoryQualifierParser(HTMLParser):
         self.parts.append(data)
 
 
-def _directory_qualifier_text(raw_line: str) -> str:
-    # Code-span contents and backslash-escaped angles are literal Markdown text.
-    protected = INLINE_CODE_SPAN_PATTERN.sub(
-        lambda match: match[1] + escape(match[2], quote=False) + match[1], raw_line
-    )
-    protected = re.sub(
-        r"(\\+)<",
-        lambda match: match[1][:-1] + "&lt;" if len(match[1]) % 2 else match[0],
-        protected,
-    )
+def _directory_qualifier_text(raw_line: str, references: set[str]) -> str:
     parser = _DirectoryQualifierParser()
-    parser.feed(protected)
+    parser.feed(_directory_inline_qualifier_text(raw_line, references))
     parser.close()
     return "".join(parser.parts)
 
@@ -208,6 +202,123 @@ def _directory_label_is_image(line: str, opening: int) -> bool:
     return (opening - 2 - index) % 2 == 0
 
 
+def _directory_literal_token_end(line: str, start: int) -> int | None:
+    if line[start] == "\\" and start + 1 < len(line) and line[start + 1] in punctuation:
+        return start + 2
+    code = INLINE_CODE_SPAN_PATTERN.match(line, start)
+    tag = DIRECTORY_INLINE_TAG_PATTERN.match(line, start)
+    token = code or tag
+    return token.end() if token else None
+
+
+def _directory_emphasis_edges(line: str, start: int, end: int) -> tuple[bool, bool]:
+    before = line[start - 1] if start else " "
+    after = line[end] if end < len(line) else " "
+    before_punctuation = unicodedata.category(before).startswith("P") or before in punctuation
+    after_punctuation = unicodedata.category(after).startswith("P") or after in punctuation
+    left = not after.isspace() and (not after_punctuation or before.isspace() or before_punctuation)
+    right = not before.isspace() and (not before_punctuation or after.isspace() or after_punctuation)
+    if line[start] == "_":
+        return left and (not right or before_punctuation), right and (not left or after_punctuation)
+    return left, right
+
+
+def _directory_emphasis_end(
+    line: str, start: int, marker: str, references: set[str],
+) -> int | None:
+    if marker[0] == "~" and len(marker) != 2:
+        return None
+    opening, _ = _directory_emphasis_edges(line, start, start + len(marker))
+    if not opening:
+        return None
+    index = start + len(marker)
+    while index < len(line):
+        literal_end = _directory_literal_token_end(line, index)
+        if literal_end is not None:
+            index = literal_end
+            continue
+        if line[index] == "[" and (link := _directory_qualifier_link(line, index, references)):
+            index = link[1]
+            continue
+        run = DIRECTORY_EMPHASIS_RUN_PATTERN.match(line, index)
+        if run:
+            _, closing = _directory_emphasis_edges(line, index, run.end())
+            # Equal runs satisfy the multiple-of-three rule without partial runs.
+            if run[0] == marker and closing:
+                return index
+            index = run.end()
+        else:
+            index += 1
+    return None
+
+
+def _directory_qualifier_link(line: str, start: int, references: set[str]) -> tuple[int, int] | None:
+    stack = [start]
+    pairs: list[tuple[int, int]] = []
+    index = start + 1
+    while index < len(line):
+        literal_end = _directory_literal_token_end(line, index)
+        if literal_end is not None:
+            index = literal_end
+            continue
+        if line[index] == "[":
+            stack.append(index)
+        elif line[index] == "]":
+            opening = stack.pop()
+            if not stack:
+                end = _directory_link_metadata_end(line, index, line[start + 1:index], references)
+                if end is None or any(
+                    not _directory_label_is_image(line, nested_open)
+                    and _directory_link_metadata_end(
+                        line, nested_close, line[nested_open + 1:nested_close], references
+                    ) is not None
+                    for nested_open, nested_close in pairs
+                ):
+                    return None
+                return index, end
+            pairs.append((opening, index))
+        index += 1
+    return None
+
+
+def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
+    """Expose complete local inline text; keep unmatched syntax and literal contents."""
+    parts: list[str] = []
+    index = 0
+    while index < len(line):
+        code = INLINE_CODE_SPAN_PATTERN.match(line, index)
+        literal_end = _directory_literal_token_end(line, index)
+        if code:
+            contents = code[2]
+            if contents.startswith(" ") and contents.endswith(" ") and contents.strip(" "):
+                contents = contents[1:-1]
+            parts.append(escape(contents, quote=False))
+            index = code.end()
+        elif literal_end is not None:
+            token = line[index:literal_end]
+            parts.append(escape(token[1], quote=False) if token.startswith("\\") else token)
+            index = literal_end
+        elif line[index] == "[" and (link := _directory_qualifier_link(line, index, references)):
+            closing, end = link
+            if _directory_label_is_image(line, index):
+                parts.append(escape(line[index:end], quote=False))
+            else:
+                parts.append(_directory_inline_qualifier_text(line[index + 1:closing], references))
+            index = end
+        elif run := DIRECTORY_EMPHASIS_RUN_PATTERN.match(line, index):
+            closing = _directory_emphasis_end(line, index, run[0], references)
+            if closing is None:
+                parts.append(run[0])
+                index = run.end()
+            else:
+                parts.append(_directory_inline_qualifier_text(line[run.end():closing], references))
+                index = closing + len(run[0])
+        else:
+            parts.append(line[index])
+            index += 1
+    return "".join(parts)
+
+
 def _directory_noun_link_tail(
     line: str, noun_start: int, noun_end: int, references: set[str],
 ) -> str:
@@ -257,7 +368,7 @@ def _directory_term_is_technical(prose: str, start: int, references: set[str]) -
     line_start = max(prose.rfind("\n", 0, start), prose.rfind("\r", 0, start)) + 1
     line = prose[line_start:].partition("\n")[0].partition("\r")[0]
     raw_line = _directory_noun_link_tail(line, start - line_start, noun.end() - line_start, references)
-    return DIRECTORY_SCRATCH_QUALIFIER_PATTERN.match(_directory_qualifier_text(raw_line)) is None
+    return DIRECTORY_SCRATCH_QUALIFIER_PATTERN.match(_directory_qualifier_text(raw_line, references)) is None
 
 # Evidence routes are syntax-checked citations, not checkout file paths.
 GITHUB_EVIDENCE_ROUTE_PATTERN = re.compile(
