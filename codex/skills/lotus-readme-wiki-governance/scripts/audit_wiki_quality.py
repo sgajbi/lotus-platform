@@ -34,7 +34,18 @@ DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
     r"(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w))", re.IGNORECASE
 )
 INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)([\s\S]*?)(?<!`)\1(?!`)")
-DIRECTORY_INLINE_TAG_PATTERN = re.compile(r"<!--[\s\S]*?-->|</?[A-Za-z][^<>\"']*(?:(?:\"[^\"]*\"|'[^']*')[^<>\"']*)*>")
+DIRECTORY_HTML_SPACE = r"[ \t]*(?:(?:\r\n|\r|\n)[ \t]*)?"
+DIRECTORY_HTML_ATTRIBUTE = (
+    r"(?=[ \t\r\n])" + DIRECTORY_HTML_SPACE + r"[A-Za-z_:][A-Za-z0-9_.:-]*"
+    + r"(?:" + DIRECTORY_HTML_SPACE + r"=" + DIRECTORY_HTML_SPACE
+    + r"(?:\"[^\"]*\"|'[^']*'|[^ \t\r\n\"'=<>`]+))?"
+)
+DIRECTORY_INLINE_TAG_PATTERN = re.compile(
+    r"<!--[\s\S]*?-->"
+    + r"|<[A-Za-z][A-Za-z0-9-]*(?:" + DIRECTORY_HTML_ATTRIBUTE + r")*"
+    + DIRECTORY_HTML_SPACE + r"/?>"
+    + r"|</[A-Za-z][A-Za-z0-9-]*" + DIRECTORY_HTML_SPACE + r">"
+)
 DIRECTORY_AUTOLINK_PATTERN = re.compile(
     r"<([A-Za-z][A-Za-z0-9+.-]{1,31}:[^\x00-\x20\x7f<>]*"
     r"|[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@"

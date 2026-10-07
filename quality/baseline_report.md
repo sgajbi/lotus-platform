@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-07T10:46:37Z`
+Generated: `2026-10-07T11:16:09Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `1002`
-- Total source lines: `422601`
+- Total source lines: `422732`
 - Python files: `275`
 - PowerShell files: `70`
 - Markdown files: `426`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4178`
+- Python functions: `4182`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -51,7 +51,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | automation/resource_recovery/policy.py | validate_discovery | 499 | 38 | 154 |
 | automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
-| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _directory_inline_link_end | 103 | 36 | 59 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _directory_inline_link_end | 114 | 36 | 59 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
 | automation/resource_recovery/policy.py | validate_approval | 203 | 34 | 144 |
 | automation/audit_main_gate_coverage.py | main | 259 | 31 | 179 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `3384`
+- Unit tests collected: `3638`
 - Collection command return code: `0`
-- Collection summary: `3384 tests collected`
+- Collection summary: `3638 tests collected`
 
 ## Security Baseline
 

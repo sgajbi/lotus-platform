@@ -221,6 +221,14 @@ Only complete tokens admitted by the local HTML recognizer project as markup. Es
 unrecognized angle characters at the projection boundary so malformed closing syntax,
 partial tags and unsupported declarations remain visible literal text. Ordinary entities
 still decode once; code, escapes and autolinks retain their existing literal entity behavior.
+Opening and closing tags use the [CommonMark raw HTML lexical grammar](https://spec.commonmark.org/0.31.2/#raw-html):
+ASCII tag/attribute names, separated attributes, optional complete value specifications,
+quoted or constrained nonempty unquoted values, and permitted syntactic whitespace.
+Each whitespace segment permits spaces/tabs and at most one raw line ending; quoted
+contents can span lines. Self-closing syntax is supported; closing tags have no attributes.
+Malformed tokens, including `</span extra>`, remain literal and cannot hide directory nouns.
+This supersedes prior permissive closing-token admission without broadening comment policy
+or adding general rendering, sanitization, declarations or processing instructions.
 An active autolink in an outer link label invokes the existing no-nested-links rule:
 retain the outer metadata as visible literal syntax rather than eliding it. Complete code
 spans, escaped angle openers and whole HTML tokens do not create active autolinks; links
