@@ -382,6 +382,63 @@ def test_security_decision_malformed_html_context_actual_and_cli(
     )
 
 
+SECURITY_DECISION_RAW_CONTEXT_CASES = [
+    (f"{opening}Context.{separator}{SECURITY_DECISION_STATEMENT}{closing}", False)
+    for opening, closing in (("<?instruction ", "?>"), ("<!DOCTYPE ", ">"),
+                             ("<![CDATA[", "]]>"), ("<!--", "-->"))
+    for separator in (" ", "\n\n")
+] + [
+    (opening + "Context.\n\n" + SECURITY_DECISION_STATEMENT, False)
+    for opening in ("<?instruction ", "<!DOCTYPE ", "<![CDATA[", "<!--")
+] + [
+    (opening + "Context." + closing + "\n\n" + SECURITY_DECISION_STATEMENT, True)
+    for opening, closing in (("<?instruction ", "?>"), ("<!DOCTYPE ", ">"),
+                             ("<![CDATA[", "]]>"), ("<!--", "-->"))
+] + [
+    (opening + "Context." + closing + " Context. " + SECURITY_DECISION_STATEMENT, False)
+    for opening, closing in (("<?instruction ", "?>"), ("<!DOCTYPE ", ">"),
+                             ("<![CDATA[", "]]>"), ("<!--", "-->"))
+] + [
+    (f"<{tag}{opener_suffix}Context.\n\n{SECURITY_DECISION_STATEMENT}</{tag}>", False)
+    for tag in ("pre", "script", "style", "textarea")
+    for opener_suffix in (">", "\n")
+] + [
+    (f"<{tag}\nContext.\n\n{SECURITY_DECISION_STATEMENT}", False)
+    for tag in ("pre", "script", "style", "textarea")
+] + [
+    (f"<{tag}\nContext.</{tag}>\n\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag in ("pre", "script", "style", "textarea")
+] + [
+    ("   <?instruction Context.\r\n\r\n" + SECURITY_DECISION_STATEMENT + "?>", False),
+    ("<!A Context.\n\n" + SECURITY_DECISION_STATEMENT + ">", False),
+    ("<SCRIPT\tContext.\n\n" + SECURITY_DECISION_STATEMENT + "</SCRIPT>", False),
+    ("<textarea>Context.</textarea> Context. " + SECURITY_DECISION_STATEMENT, False),
+    ("<?instruction Context.\n`?>` Context. " + SECURITY_DECISION_STATEMENT, False),
+    ("<![CDATA[Context.\n<!-- ]]> Context. " + SECURITY_DECISION_STATEMENT, False),
+    ("<script>Context.\n`</script>`\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<style>Context.\n<!-- </style>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<?instruction <!-- <span> --> ?>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<![CDATA[<? <span> --> ]]>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!DOCTYPE '<? <span>'>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!-- <? <![CDATA[ <!DOCTYPE <script -->\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ('<span title="<? <![CDATA[ <!DOCTYPE <!-- <script">Context.</span>\n\n'
+     + SECURITY_DECISION_STATEMENT, True),
+    ('<script title="</script>">Context.\n\n' + SECURITY_DECISION_STATEMENT, False),
+    ("<!-->\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!--->\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<instruction@example.test>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("Context.\n`<? <![CDATA[ <!DOCTYPE <!-- <script`\n\n" + SECURITY_DECISION_STATEMENT, True),
+] + [
+    ("\\" + opening + "Context.\n\n" + SECURITY_DECISION_STATEMENT, True)
+    for opening in ("<?instruction ", "<!DOCTYPE ", "<![CDATA[", "<!--", "<script\n")
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_RAW_CONTEXT_CASES)
+def test_security_decision_raw_context_actual_and_cli(tmp_path: Path, prose: str, accepted: bool) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 def test_security_decision_preserves_navigation_and_all_page_scope(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     _set_github_origin(repo_root, "https://github.com/example/repo.git")

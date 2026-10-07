@@ -167,6 +167,22 @@ A slash on a non-void opening tag does not close it.
 This uses the WHATWG void-element set, without DOM repair or CSS visibility inference.
 Properly closed markup followed by a new plain paragraph remains supported; literal code,
 comments and escaped tags do not open element context.
+Decision admission also excludes processing instructions (`<?` to `?>`), declarations
+(`<!` followed by an ASCII letter, through the first `>`), CDATA (`<![CDATA[` to `]]>`),
+and comments through their first terminator. An unterminated recognized context conservatively
+excludes later decisions through end of input, including across blank paragraphs. Complete
+escape/code/autolink/attribute tokens take precedence over contained openers; existing earliest
+short-comment boundaries remain unchanged. Zero-to-three ASCII-space line-start `pre`, `script`,
+`style` and `textarea` openers followed by space/tab, `>` or CR/LF/end of input also exclude raw
+bodies, including incomplete end-of-line openers. A type-1 end tag ends that raw context;
+code/comment-looking body text cannot alter its termination. Complete opening attributes are
+opaque before scanning the body. Line-start raw contexts include the entire closing line;
+properly closed contexts followed by a new plain paragraph remain supported.
+These decision-local rules are based on [CommonMark raw HTML](https://spec.commonmark.org/0.31.2/#raw-html)
+and [HTML block types 1–5](https://spec.commonmark.org/0.31.2/#html-blocks), with conservative
+unterminated-context exclusion. They do not implement container blocks, indented-code parsing,
+all raw HTML block families, a complete renderer or DOM repair, and do not change the legacy
+directory/database classifier or reference collector.
 Inline markup, hidden HTML,
 link destinations and fenced examples cannot supply those obligations. Unsupported phrasing
 remains conservatively rejected. `notes`/`workaround` in the decision statement remains rejected,
