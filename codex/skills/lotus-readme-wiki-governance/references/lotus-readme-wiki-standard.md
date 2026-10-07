@@ -175,6 +175,23 @@ remain literal, including entity syntax; decoded literal markup is not reparsed 
 This lexical convention is not a complete browser rendering guarantee. CSS overrides,
 visibility/open state, sanitizer transformations, HTML5 tree repair/raw-text behavior,
 JavaScript and arbitrary Markdown rendering are outside its scope.
+For a directory noun inside a same-line Markdown link label, the local qualifier check
+retains the label's visible continuation and elides only recognized closing-label metadata.
+Supported [CommonMark link families](https://spec.commonmark.org/0.31.2/#links) are complete
+inline links (empty, angle or balanced bare destinations, escaped punctuation and optional
+quoted/parenthesized titles), and resolved full, collapsed or shortcut reference links.
+Backslashes escape only ASCII punctuation in labels, destinations and titles. A backslash
+before whitespace or a control character does not make an invalid bare destination valid;
+ordinary letters remain visible label text and cannot be skipped by the scanner.
+References use Unicode case-folded, whitespace-normalized labels and valid single-line
+definition blocks beginning at document start or after a blank line, outside fenced code.
+Malformed or unresolved metadata, escaped openers/closers, complete code spans, images and
+outer labels containing links retain their literal suffix. For example, an undefined
+`[temporary directory][target] notes` contains visible identifier text; a resolved reference
+with the same spelling does not. Technical text inside the label still intervenes before
+an outside qualifier. Raw CR/LF bounds this check; multiline link grammar, full CommonMark
+block parsing and general rendering are not implemented. Other scratch and navigation/link
+checks continue to inspect the original source; link metadata does not waive those guards.
 A legitimate technical term never exempts other scratch-note occurrences
 in the same sentence or page. Fenced executable examples remain outside prose checks.
 Base prose, navigation and link checks apply wiki-wide; changed-page scope selects only the

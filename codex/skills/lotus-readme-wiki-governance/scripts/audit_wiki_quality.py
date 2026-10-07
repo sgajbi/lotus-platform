@@ -7,6 +7,7 @@ import sys
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
+from string import punctuation
 from urllib.parse import unquote, urlparse
 
 
@@ -32,6 +33,10 @@ DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
     r"(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w))", re.IGNORECASE
 )
 INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)")
+DIRECTORY_REFERENCE_LABEL_PATTERN = re.compile(r"\[((?:\\[^\r\n]|[^\[\]\\\r\n]){0,999})\]")
+DIRECTORY_REFERENCE_DEFINITION_PATTERN = re.compile(
+    r"^[ \t]{0,3}\[((?:\\[^\r\n]|[^\[\]\\\r\n]){1,999})\]:[ \t]*(.+)$"
+)
 HTML_LINE_BREAK_TAGS = frozenset({
     # WHATWG default flow/list/text-bearing table layout plus br. This local
     # lexical set excludes CSS, sanitization, visibility and HTML5 tree repair.
@@ -78,11 +83,171 @@ def _directory_qualifier_text(raw_line: str) -> str:
     return "".join(parser.parts)
 
 
-def _directory_term_is_technical(prose: str, start: int) -> bool:
+def _directory_link_title_end(line: str, start: int) -> int | None:
+    if start >= len(line) or line[start] not in "\"'(":
+        return None
+    closing = ")" if line[start] == "(" else line[start]
+    index = start + 1
+    while index < len(line):
+        if line[index] == "\\" and index + 1 < len(line) and line[index + 1] in punctuation:
+            index += 2
+            continue
+        if line[index] == closing:
+            return index + 1
+        if closing == ")" and line[index] == "(":
+            return None
+        index += 1
+    return None
+
+
+def _directory_inline_link_end(line: str, start: int) -> int | None:
+    """Read complete same-line destination/title metadata, without rendering it."""
+    index = start + 1
+    while index < len(line) and line[index] in " \t":
+        index += 1
+    if index == len(line):
+        return None
+    if line[index] == ")":
+        return index + 1
+    title_end = _directory_link_title_end(line, index)
+    if title_end is not None:
+        tail = title_end
+        while tail < len(line) and line[tail] in " \t":
+            tail += 1
+        if tail < len(line) and line[tail] == ")":
+            return tail + 1
+    angle = line[index] == "<"
+    if angle:
+        index += 1
+    depth = 0
+    while index < len(line):
+        character = line[index]
+        if character == "\\" and index + 1 < len(line) and line[index + 1] in punctuation:
+            index += 2
+            continue
+        if angle:
+            if character == "<":
+                return None
+            if character == ">":
+                index += 1
+                break
+        elif character in " \t":
+            break
+        elif ord(character) < 32 or ord(character) == 127:
+            return None
+        elif character == "(":
+            depth += 1
+        elif character == ")":
+            if depth == 0:
+                return index + 1
+            depth -= 1
+        index += 1
+    else:
+        return None
+    if depth:
+        return None
+    separated = index < len(line) and line[index] in " \t"
+    while index < len(line) and line[index] in " \t":
+        index += 1
+    if index < len(line) and line[index] == ")":
+        return index + 1
+    if not separated:
+        return None
+    title_end = _directory_link_title_end(line, index)
+    if title_end is None:
+        return None
+    while title_end < len(line) and line[title_end] in " \t":
+        title_end += 1
+    return title_end + 1 if title_end < len(line) and line[title_end] == ")" else None
+
+
+def _directory_reference_labels(prose: str) -> set[str]:
+    labels: set[str] = set()
+    definition_block = True
+    for line in prose.splitlines():
+        if not line.strip():
+            definition_block = True
+            continue
+        definition = DIRECTORY_REFERENCE_DEFINITION_PATTERN.fullmatch(line) if definition_block else None
+        if definition is None:
+            definition_block = False
+            continue
+        target = f"({definition[2]})"
+        label = " ".join(definition[1].casefold().split())
+        if label and _directory_inline_link_end(target, 0) == len(target):
+            labels.add(label)
+        else:
+            definition_block = False
+    return labels
+
+
+def _directory_link_metadata_end(
+    line: str, closing: int, label: str, references: set[str],
+) -> int | None:
+    suffix = closing + 1
+    if line[suffix:suffix + 1] == "(":
+        inline_end = _directory_inline_link_end(line, suffix)
+        if inline_end is not None:
+            return inline_end
+    if line[suffix:suffix + 1] == "[":
+        reference = DIRECTORY_REFERENCE_LABEL_PATTERN.match(line, suffix)
+        if reference is None:
+            return None
+        label = reference[1] or label
+        suffix = reference.end()
+    normalized = " ".join(label.casefold().split())
+    return suffix if normalized in references else None
+
+
+def _directory_noun_link_tail(
+    line: str, noun_start: int, noun_end: int, references: set[str],
+) -> str:
+    """Elide only recognized metadata around this noun; preserve visible label text."""
+    code_spans = {match.start(): match.end() for match in INLINE_CODE_SPAN_PATTERN.finditer(line)}
+    stack: list[int] = []
+    pairs: list[tuple[int, int]] = []
+    index = 0
+    while index < len(line):
+        if index in code_spans:
+            if index <= noun_start < code_spans[index]:
+                return line[noun_end:]
+            index = code_spans[index]
+            continue
+        if line[index] == "\\" and index + 1 < len(line) and line[index + 1] in punctuation:
+            index += 2
+            continue
+        if line[index] == "[":
+            stack.append(index)
+        elif line[index] == "]" and stack:
+            pairs.append((stack.pop(), index))
+        index += 1
+    for opening, closing in pairs:
+        if not opening < noun_start < noun_end <= closing or line[opening - 1:opening] == "!":
+            continue
+        label = line[opening + 1:closing]
+        metadata_end = _directory_link_metadata_end(line, closing, label, references)
+        if metadata_end is None:
+            continue
+        nested_link = any(
+            opening < nested_open < nested_close < closing
+            and line[nested_open - 1:nested_open] != "!"
+            and _directory_link_metadata_end(
+                line, nested_close, line[nested_open + 1:nested_close], references
+            ) is not None
+            for nested_open, nested_close in pairs
+        )
+        if not nested_link:
+            return line[noun_end:closing] + line[metadata_end:]
+    return line[noun_end:]
+
+
+def _directory_term_is_technical(prose: str, start: int, references: set[str]) -> bool:
     noun = DIRECTORY_TEMPORARY_PATTERN.match(prose, start)
     if noun is None:
         return False
-    raw_line = prose[noun.end():].partition("\n")[0].partition("\r")[0]
+    line_start = max(prose.rfind("\n", 0, start), prose.rfind("\r", 0, start)) + 1
+    line = prose[line_start:].partition("\n")[0].partition("\r")[0]
+    raw_line = _directory_noun_link_tail(line, start - line_start, noun.end() - line_start, references)
     return DIRECTORY_SCRATCH_QUALIFIER_PATTERN.match(_directory_qualifier_text(raw_line)) is None
 
 # Evidence routes are syntax-checked citations, not checkout file paths.
@@ -566,6 +731,7 @@ def _page_heading_failures(page_name: str, text: str) -> list[str]:
 def _page_prose_failures(page_name: str, text: str) -> list[str]:
     failures: list[str] = []
     prose = _prose_without_fenced_code(text)
+    directory_references = _directory_reference_labels(prose)
     if BARE_URL_PATTERN.findall(prose):
         failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
 
@@ -576,7 +742,7 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
                 match.group(0).lower() == "temporary"
                 and (
                     DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
-                    or _directory_term_is_technical(prose, match.start())
+                    or _directory_term_is_technical(prose, match.start(), directory_references)
                 )
             )
         }
