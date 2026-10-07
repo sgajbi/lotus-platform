@@ -123,10 +123,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - preserve technical terms such as "indexed temporary relation", "temporary table", or an OS
      "temporary directory"; directory/table/relation phrases followed by "notes" or "workaround"
      remain scratch prose;
-     for directory phrases, this includes same-line punctuation such as colons, dashes, or parentheses
-     before the scratch qualifier, while technical punctuation such as "directory, with mode 0700" remains valid;
-     emphasis (`*`, `**`, `_`, `__`) or inline-code backticks around directory scratch qualifiers
-     do not make them valid prose; formatted technical permission descriptions remain valid.
+     for directory phrases, same-line punctuation and Markdown delimiter runs before the qualifier
+     remain scratch prose, including emphasis, inline code, strikethrough, quotes and escaped formatting;
+     technical descriptions such as "directory, with mode 0700" and formatted permissions remain valid.
      classify each occurrence rather than waiving a page containing both technical terms and notes.
    - distinguish named GitHub evidence citations from repository file links; apply the route and
      local wiki-page rules in [the documentation standard](./references/lotus-readme-wiki-standard.md#publication-link-and-prose-classification).
