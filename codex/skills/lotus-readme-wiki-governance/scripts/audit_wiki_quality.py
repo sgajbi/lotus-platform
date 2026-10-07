@@ -700,6 +700,8 @@ def _prose_without_fenced_code(text: str) -> str:
     in_fence = False
     for line in text.splitlines():
         if line.strip().startswith("```"):
+            # Excluded blocks still separate paragraphs and reference definitions.
+            prose_lines.append("")
             in_fence = not in_fence
             continue
         if not in_fence:

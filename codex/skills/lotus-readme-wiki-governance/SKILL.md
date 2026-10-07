@@ -137,6 +137,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under
      the standard's bounded flanking/literal rules, so split `n**o**tes` and `**work**around`
      cannot evade refusal; preserve internal punctuation, technical identifiers and line boundaries.
+     Preserve a blank boundary when excluding recognized fenced code so following valid references
+     remain resolvable; fence-contained definitions and scratch content remain excluded.
      Keep original source for every other prose and navigation/link check; do not globally strip Markdown.
      classify each occurrence rather than waiving a page containing both technical terms and notes.
    - distinguish named GitHub evidence citations from repository file links; apply the route and
