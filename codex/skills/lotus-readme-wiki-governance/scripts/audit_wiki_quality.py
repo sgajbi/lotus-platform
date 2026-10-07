@@ -4,6 +4,8 @@ import argparse
 import re
 import subprocess
 import sys
+from html import escape
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -23,10 +25,62 @@ DATABASE_TEMPORARY_PATTERN = re.compile(
     r"(?![ \t]+(?:workaround|notes)\b)", re.IGNORECASE
 )
 DIRECTORY_TEMPORARY_PATTERN = re.compile(
-    r"temporary[ \t]+director(?:y|ies)\b"
-    r"(?!(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w)))",
+    r"temporary[ \t]+director(?:y|ies)\b",
     re.IGNORECASE,
 )
+DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
+    r"(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w))", re.IGNORECASE
+)
+INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)")
+HTML_LINE_BREAK_TAGS = frozenset({
+    "address", "article", "aside", "blockquote", "br", "dd", "details", "dialog",
+    "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form",
+    "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "li", "main", "nav",
+    "ol", "p", "pre", "section", "summary", "table", "tbody", "td", "th",
+    "thead", "tr", "ul",
+})
+
+
+class _DirectoryQualifierParser(HTMLParser):
+    """Extract local qualifier text; this is not a general Markdown renderer."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in HTML_LINE_BREAK_TAGS:
+            self.parts.append("\n")
+
+    def handle_endtag(self, tag: str) -> None:
+        self.handle_starttag(tag, [])
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+
+def _directory_qualifier_text(raw_line: str) -> str:
+    # Code-span contents and backslash-escaped angles are literal Markdown text.
+    protected = INLINE_CODE_SPAN_PATTERN.sub(
+        lambda match: match[1] + escape(match[2], quote=False) + match[1], raw_line
+    )
+    protected = re.sub(
+        r"(\\+)<",
+        lambda match: match[1][:-1] + "&lt;" if len(match[1]) % 2 else match[0],
+        protected,
+    )
+    parser = _DirectoryQualifierParser()
+    parser.feed(protected)
+    parser.close()
+    return "".join(parser.parts)
+
+
+def _directory_term_is_technical(prose: str, start: int) -> bool:
+    noun = DIRECTORY_TEMPORARY_PATTERN.match(prose, start)
+    if noun is None:
+        return False
+    raw_line = prose[noun.end():].partition("\n")[0].partition("\r")[0]
+    return DIRECTORY_SCRATCH_QUALIFIER_PATTERN.match(_directory_qualifier_text(raw_line)) is None
 
 # Evidence routes are syntax-checked citations, not checkout file paths.
 GITHUB_EVIDENCE_ROUTE_PATTERN = re.compile(
@@ -519,7 +573,7 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
                 match.group(0).lower() == "temporary"
                 and (
                     DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
-                    or DIRECTORY_TEMPORARY_PATTERN.match(prose, match.start())
+                    or _directory_term_is_technical(prose, match.start())
                 )
             )
         }

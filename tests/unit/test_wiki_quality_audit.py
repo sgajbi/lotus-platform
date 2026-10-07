@@ -36,6 +36,24 @@ FORMATTED_DIRECTORY_SCRATCH_PROSE = [
     r"temporary directory: \`notes\`",
 ]
 
+HTML_DIRECTORY_SCRATCH_PROSE = [
+    "temporary directory: <em>notes</em>",
+    "temporary directory: <strong>workaround</strong>",
+    "temporary directories: <span title='permissions'>notes</span>",
+    "TEMPORARY DIRECTORIES: <span><strong>WORKAROUND</strong></span>",
+    "temporary directory: n<em>o</em>tes",
+    "temporary directory: <!-- explanation --><em>notes</em>",
+    "temporary directory: <em>notes",
+    'temporary directory: <em title="a > b">notes</em>',
+    "temporary directory:&nbsp;notes",
+    "temporary directory: &#110;otes",
+    "temporary directories: &#x77;orkaround",
+    "temporary directory: &ast;&ast;notes&ast;&ast;",
+    "Use the OS temporary directory for mode 0700; temporary directory: <em>notes</em> remain.",
+    "temporary directories — <span>_notes_</span>",
+    "temporary directory: <code>workaround</code>",
+]
+
 
 def _load_audit_module():
     spec = importlib.util.spec_from_file_location("audit_wiki_quality", AUDIT_PATH)
@@ -97,6 +115,17 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
     "Use the OS temporary directory: ~~notes_directory~~ contains private files.",
     "Use the OS temporary directory:\n~~notes~~ describe its permissions.",
     "Use the OS temporary directory:\r\n'workaround' describes a different step.",
+    "Use the OS temporary directory: <em>mode 0700</em> protects private files.",
+    'Use the OS temporary directory: <span title="notes > workaround">mode 0700</span>.',
+    "Use the OS temporary directory: <!-- notes --><strong>mode 0700</strong>.",
+    "Use the OS temporary directory: <em>notes_directory</em> holds private files.",
+    "Use the OS temporary directory: <br>notes describe another line.",
+    "Use the OS temporary directory: <p>workaround describes another paragraph.</p>",
+    "Use the OS temporary directory: &#10;notes describe another line.",
+    "Use the OS temporary directory: &lt;em&gt;notes&lt;/em&gt; is literal markup.",
+    r"Use the OS temporary directory: \<em>notes\</em> is literal markup.",
+    "Use the OS temporary directory: `<em>notes</em>` is literal code.",
+    "Use the OS temporary directory: `&#110;otes` is literal code.",
 ])
 def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
     assert _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose) == []
@@ -112,6 +141,7 @@ def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
     "temporary directory [notes]", "temporary directory - workaround",
     "temporary directory – notes", "temporary directory. workaround",
     *FORMATTED_DIRECTORY_SCRATCH_PROSE,
+    *HTML_DIRECTORY_SCRATCH_PROSE,
     "temporary\ndirectory notes", "temporary directoryname",
     "Use an OS temporary directory; TODO finish the operator notes.",
     "Use an OS temporary directory; TBD.",
@@ -131,6 +161,7 @@ def test_directory_terms_do_not_waive_scratch_notes(prose: str) -> None:
     "temporary directory (workaround)", "TEMPORARY DIRECTORIES: NOTES",
     "temporary directories — workaround", "temporary directories (NOTES)",
     *FORMATTED_DIRECTORY_SCRATCH_PROSE,
+    *HTML_DIRECTORY_SCRATCH_PROSE,
     "Use an OS temporary directory; TODO finish.",
     "Use an OS temporary directory; TBD.",
     "Use an OS temporary directory; FIXME.",
@@ -151,7 +182,7 @@ def test_directory_fixture_cli_preserves_prose_and_changed_page_scope(
     )
     (wiki / "Operations-Runbook.md").write_text(
         "# Operations Runbook\n\nCurrent-state support creates an owner-only POSIX "
-        "directory under the worker OS temporary directory, with **mode 0700**, "
+        "directory under the worker OS temporary directory, with <strong title='notes'>mode 0700</strong>, "
         "_owner-only_ access and `no-follow` opens.\n"
         "[Run](https://github.com/example/repo/actions/runs/12)\n"
         f"{bad_prose}\n", encoding="utf-8",

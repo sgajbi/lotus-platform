@@ -159,6 +159,12 @@ line boundaries. Technical punctuation such as `temporary directory, with mode 0
 valid. Database phrase grammar is unchanged. Underscore closing delimiters are recognized
 without treating an identifier such as `notes_directory` as that noun.
 Formatted technical descriptions such as `temporary directory: **mode 0700**` remain valid.
+Directory qualifier classification renders only the remainder of the noun's raw CR/LF-bounded
+line with the standard HTML parser: inline tags, attributes and comments do not supply prose,
+while named/numeric character references supply their decoded text. `br` and block elements
+preserve rendered line breaks. Backslash-escaped angles and complete inline-code contents
+remain literal, including entity syntax; decoded literal markup is not reparsed as tags.
+This local qualifier check is not a browser, CSS/JavaScript or arbitrary Markdown renderer.
 A legitimate technical term never exempts other scratch-note occurrences
 in the same sentence or page. Fenced executable examples remain outside prose checks.
 Base prose, navigation and link checks apply wiki-wide; changed-page scope selects only the
