@@ -126,6 +126,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      for directory phrases, same-line punctuation and Markdown delimiter runs before the qualifier
      remain scratch prose, including emphasis, inline code, strikethrough, quotes and escaped formatting;
      matching one- or two-tilde strikethrough exposes qualifier text; longer or unmatched runs remain literal;
+     recognize supported backtick fences using zero-to-three ASCII indentation spaces, not Unicode stripping;
+     honor earliest complete short/long comment boundaries and decode only complete Markdown character references once;
      technical descriptions such as "directory, with mode 0700" and formatted permissions remain valid.
      classify the local directory qualifier's rendered inline HTML text, not tag names, attributes or comments;
      preserve raw CR/LF and both tag boundaries from the explicit default-layout set in

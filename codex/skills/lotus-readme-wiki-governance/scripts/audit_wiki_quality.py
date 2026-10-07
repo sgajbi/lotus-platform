@@ -6,6 +6,7 @@ import subprocess
 import sys
 import unicodedata
 from html import escape
+from html.entities import html5
 from html.parser import HTMLParser
 from pathlib import Path
 from string import punctuation
@@ -41,7 +42,7 @@ DIRECTORY_HTML_ATTRIBUTE = (
     + r"(?:\"[^\"]*\"|'[^']*'|[^ \t\r\n\"'=<>`]+))?"
 )
 DIRECTORY_INLINE_TAG_PATTERN = re.compile(
-    r"<!--[\s\S]*?-->"
+    r"<!--(?:>|->|[\s\S]*?-->)"
     + r"|<[A-Za-z][A-Za-z0-9-]*(?:" + DIRECTORY_HTML_ATTRIBUTE + r")*"
     + DIRECTORY_HTML_SPACE + r"/?>"
     + r"|</[A-Za-z][A-Za-z0-9-]*" + DIRECTORY_HTML_SPACE + r">"
@@ -53,6 +54,9 @@ DIRECTORY_AUTOLINK_PATTERN = re.compile(
     r"(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)>"
 )
 DIRECTORY_EMPHASIS_RUN_PATTERN = re.compile(r"\*+|_+|~+")
+DIRECTORY_CHARACTER_REFERENCE_PATTERN = re.compile(
+    r"&(?:#[0-9]{1,7}|#[xX][0-9A-Fa-f]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});"
+)
 DIRECTORY_REFERENCE_LABEL_PATTERN = re.compile(r"\[((?:\\[^\r\n]|[^\[\]\\\r\n]){0,999})\]")
 DIRECTORY_REFERENCE_DEFINITION_PATTERN = re.compile(
     r"^[ \t]{0,3}\[((?:\\[^\r\n]|[^\[\]\\\r\n]){1,999})\]:[ \t]*(.+)$"
@@ -360,7 +364,8 @@ def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
             index = autolink.end()
         elif literal_end is not None:
             token = line[index:literal_end]
-            parts.append(escape(token[1], quote=False) if token.startswith("\\") else token)
+            if not token.startswith("<!--"):
+                parts.append(escape(token[1], quote=False) if token.startswith("\\") else token)
             index = literal_end
         elif line[index] == "[" and (link := _directory_qualifier_link(line, index, references)):
             closing, end = link
@@ -377,6 +382,14 @@ def _directory_inline_qualifier_text(line: str, references: set[str]) -> str:
             else:
                 parts.append(_directory_inline_qualifier_text(line[run.end():closing], references))
                 index = closing + len(run[0])
+        elif line[index] == "&":
+            reference = DIRECTORY_CHARACTER_REFERENCE_PATTERN.match(line, index)
+            if reference and (reference[0].startswith("&#") or reference[0][1:] in html5):
+                parts.append(reference[0])
+                index = reference.end()
+            else:
+                parts.append("&amp;")
+                index += 1
         else:
             parts.append(escape(line[index], quote=False) if line[index] in "<>" else line[index])
             index += 1
@@ -792,7 +805,7 @@ def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     in_fence = False
     for line in re.split(r"\r\n|\r|\n", text):
-        if line.strip().startswith("```"):
+        if re.match(r" {0,3}```", line):
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
             in_fence = not in_fence
