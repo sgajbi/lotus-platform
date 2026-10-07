@@ -307,6 +307,61 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_MULTILINE_COMMENT_CASES = [
+    (f"Intro <!--{separator}{noun}: {qualifier}{separator}--> mode 0700", True)
+    for separator in ("\r", "\n", "\r\n", "\v", "\f", "\x85", "\u2028", "\u2029")
+    for noun in ("temporary directory", "TEMPORARY DIRECTORIES")
+    for qualifier in ("notes", "**workaround**")
+] + [
+    (f"Intro {ticks}<!--\ntemporary directory: notes\n-->{ticks}", False)
+    for ticks in ("`", "``", "```", "````")
+] + [
+    (f"Intro {ticks}<!-- temporary directory: notes -->{ticks}", False)
+    for ticks in ("`", "``", "```", "````")
+] + [
+    ("Intro `<!--\ntemporary directory: notes\n-->``", True),
+    ("Intro ``<!--\ntemporary directory: notes\n-->`", True),
+    ("Intro `literal\n` <!--\ntemporary directory: notes\n-->", True),
+    ("Intro `<!--\ntemporary directory: notes\n-->` temporary directory: workaround", False),
+    ("Intro \\<!--\ntemporary directory: notes\n-->", False),
+    ("Intro \\\\<!--\ntemporary directory: notes\n-->", True),
+    ("Intro <!--\ntemporary directory: notes", False),
+    ("Intro <!--\ntemporary directory: notes\n-- >", False),
+    ("Intro &lt;!--\ntemporary directory: notes\n--&gt;", False),
+    ('<span title="<!--\ntemporary directory: notes\n-->">mode 0700</span>', True),
+    ("<span title='<!--\ntemporary directory: workaround\n-->'>mode 0700</span>", True),
+    ('Intro `<span title="<!--\ntemporary directory: notes\n-->">mode 0700</span>`', False),
+    ('<span title="<!--\ntemporary directory: notes\n-->">temporary directory: notes</span>', False),
+    ('<span title="<!--\nignored\n-->">temporary directory: notes</span>', False),
+    ("<!--\ntemporary directory: notes\n-->temporary directory: workaround", False),
+    ("temporary directory: notes <!--\ntemporary directory: workaround\n-->", False),
+    ("temporary directory: <!--\nignored\n-->notes", True),
+    ("temporary directory: <!-- ignored -->notes", False),
+    ("<!--\ntemporary directory: notes; TODO finish\n-->", False),
+    ("<!--\ntemporary directory: notes\n--> TODO finish", False),
+    ("<!--\ntemporary directory: notes\n-->\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("<!--\n[target]: Operations-Runbook\n-->\n[temporary directory][target] notes", True),
+    ("Intro <!--\n```\ntemporary directory: notes\n```\n--> mode 0700", True),
+    ("Intro <!--\n```\nignored\n```\n--> temporary directory: notes", False),
+    ("```\n<!--\ntemporary directory: notes\n-->\n```\ntemporary directory: notes", False),
+    ("Intro <!--\v```\ntemporary directory: notes\n--> mode 0700", True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_MULTILINE_COMMENT_CASES)
+def test_directory_multiline_comment_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+def test_directory_multiline_comment_preserves_named_link_guard(tmp_path: Path) -> None:
+    _assert_directory_prose_actual_and_cli(
+        tmp_path, '<!--\ntemporary directory: notes; https://example.com\n-->',
+        True, bare_url_failure_expected=True,
+    )
+
+
 DIRECTORY_RAW_SEPARATOR_CASES = [
     (f"temporary directory:{separator}{qualifier}", False)
     for separator in ("\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029")

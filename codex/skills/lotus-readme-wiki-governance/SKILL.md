@@ -141,6 +141,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      excluding contained code/escapes/HTML tokens and recognized image descriptions;
      keep recognized image metadata opaque during both bracket scans;
      ignore directory nouns inside complete active HTML metadata, with existing literal-token precedence;
+     recognize complete comments across lines only after complete equal-run code spans and escapes;
+     retain visible adjacent nouns, raw qualifier-line boundaries and original scratch/URL guards;
      preserve non-CR/LF separators during fence removal and directory-reference collection;
      retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries;
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under

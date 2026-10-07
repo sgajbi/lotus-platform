@@ -33,8 +33,8 @@ DIRECTORY_TEMPORARY_PATTERN = re.compile(
 DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
     r"(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w))", re.IGNORECASE
 )
-INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)")
-DIRECTORY_INLINE_TAG_PATTERN = re.compile(r"<!--.*?-->|</?[A-Za-z][^<>\"']*(?:(?:\"[^\"]*\"|'[^']*')[^<>\"']*)*>")
+INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)([\s\S]*?)(?<!`)\1(?!`)")
+DIRECTORY_INLINE_TAG_PATTERN = re.compile(r"<!--[\s\S]*?-->|</?[A-Za-z][^<>\"']*(?:(?:\"[^\"]*\"|'[^']*')[^<>\"']*)*>")
 DIRECTORY_AUTOLINK_PATTERN = re.compile(
     r"<([A-Za-z][A-Za-z0-9+.-]{1,31}:[^\x00-\x20\x7f<>]*"
     r"|[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@"
