@@ -27,6 +27,13 @@ FORMATTED_DIRECTORY_SCRATCH_PROSE = [
     "temporary directory: **notes", "temporary directories — _workaround",
     "temporary directory: __NOTES_", "temporary directories: `workaround",
     "Use the OS temporary directory, with mode 0700; temporary directory: **notes** remain.",
+    "temporary directory: ~~notes~~", "temporary directory: ~workaround~",
+    "TEMPORARY DIRECTORIES: ~~NOTES~~",
+    "temporary directories: ~~**_workaround_**~~", "temporary directory: ~~notes",
+    "temporary directory: 'notes'", 'temporary directories: "workaround"',
+    "temporary directory: “notes”", r"temporary directory: \*\*notes\*\*",
+    "temporary directory / notes", "temporary directories | workaround",
+    r"temporary directory: \`notes\`",
 ]
 
 
@@ -86,6 +93,10 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
     "Use the OS temporary directory: `mode 0700` is required.",
     "Use the OS temporary directory: notes_directory contains private files.",
     "Use the OS temporary directory.\n**notes** describe its permissions.",
+    "Use the OS temporary directory: ~~mode 0700~~ was replaced by mode 0600.",
+    "Use the OS temporary directory: ~~notes_directory~~ contains private files.",
+    "Use the OS temporary directory:\n~~notes~~ describe its permissions.",
+    "Use the OS temporary directory:\r\n'workaround' describes a different step.",
 ])
 def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
     assert _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose) == []

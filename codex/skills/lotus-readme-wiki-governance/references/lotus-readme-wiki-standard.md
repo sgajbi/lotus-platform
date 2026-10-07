@@ -152,12 +152,12 @@ The prose classifier admits individual technical noun phrases `temporary relatio
 `temporary table(s)`, and OS `temporary directory`/`temporary directories` on one line.
 It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`, `temporary workaround`,
 `maybe implement later`, and these noun phrases immediately followed by `notes` or `workaround`.
-For directory phrases, a same-line colon, semicolon, comma, period, dash, parentheses, or brackets
-before `notes` or `workaround` also remains scratch prose. Technical punctuation such as
-`temporary directory, with mode 0700` remains valid. Database phrase grammar is unchanged.
-Single/double asterisk or underscore emphasis and inline-code backticks around a directory
-scratch qualifier also remain rejected, including incomplete wrappers. Underscore closing
-delimiters are recognized without treating an identifier such as `notes_directory` as that noun.
+For directory phrases, any same-line punctuation or Markdown delimiter run before `notes` or
+`workaround` also remains scratch prose. This includes emphasis, inline code, strikethrough,
+quotes and escaped formatting, including incomplete wrappers. Delimiters never cross CR/LF
+line boundaries. Technical punctuation such as `temporary directory, with mode 0700` remains
+valid. Database phrase grammar is unchanged. Underscore closing delimiters are recognized
+without treating an identifier such as `notes_directory` as that noun.
 Formatted technical descriptions such as `temporary directory: **mode 0700**` remain valid.
 A legitimate technical term never exempts other scratch-note occurrences
 in the same sentence or page. Fenced executable examples remain outside prose checks.
