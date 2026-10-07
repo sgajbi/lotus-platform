@@ -135,8 +135,13 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      code/escape/autolink/attribute precedence and earliest short-comment boundaries;
      recognize zero-to-three-space line-start pre/script/style/textarea openers, including
      incomplete end-of-line openers, and keep raw bodies opaque until the corresponding
-     case-insensitive closing tag or end of input; a different raw-element closer cannot
+     ASCII-case-insensitive closing tag or end of input; Unicode case-fold lookalikes do not
+     terminate a recognized raw context, and a different raw-element closer cannot
      expose obligations. This Lotus enclosure rule is stricter than CommonMark type-1 termination;
+     if no complete opening token exists and a quoted attribute remains unfinished at its first
+     line boundary, keep that context opaque through end of input rather than treating quoted
+     closing text as a body terminator. Complete multiline opening attributes and unquoted
+     incomplete end-of-line openers retain their existing supported behavior;
      line-start raw contexts include their closing line, while following plain paragraphs
      remain supported. This bounded exclusion does not broaden directory/database parsing
      or claim full Markdown rendering, DOM repair or visibility inference;

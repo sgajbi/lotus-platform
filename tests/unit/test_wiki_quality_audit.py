@@ -526,6 +526,90 @@ def test_security_decision_matching_raw_closer_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+SECURITY_DECISION_UNFINISHED_RAW_QUOTE_CASES = [
+    (f"<{tag} title={quote}</{tag}>\n\n{SECURITY_DECISION_STATEMENT}", False)
+    for tag in ("pre", "script", "style", "textarea")
+    for quote in ("'", '"')
+] + [
+    (f"<{tag} title={quote}</{tag}>{quote}>Context.\n\n{SECURITY_DECISION_STATEMENT}", False)
+    for tag in ("pre", "script", "style", "textarea")
+    for quote in ("'", '"')
+] + [
+    (f"<{tag} title={quote}</{tag}>{quote}>Context.</{tag}>\n\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag in ("pre", "script", "style", "textarea")
+    for quote in ("'", '"')
+] + [
+    (f"<{tag}\nContext.</{tag}>\n\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag in ("pre", "script", "style", "textarea")
+] + [
+    ("   <SCRIPT title=\"</sCrIpT>\r\n\r\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<STYLE title='</style>\r\n\r\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<pre title=\"quoted > </pre>\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<textarea title='quoted > </textarea>\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<script title=\"&quot; </script>\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<style title='&#39; </style>\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<pre title=\"</pre>\ncompleted\">Context.</pre>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<textarea title='</textarea>\r\ncompleted'>Context.</textarea>\r\n\r\n"
+     + SECURITY_DECISION_STATEMENT, True),
+    ("<script title=\"</script>\ncompleted\">\n\n" + SECURITY_DECISION_STATEMENT, False),
+    ("<style title='complete'\nContext.</style>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<pre title=\"complete\"\nContext.</pre>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("`<script title=\"</script>`\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("\\<script title=\"\\</script>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!-- <script title=\"</script> -->\n\n" + SECURITY_DECISION_STATEMENT, True),
+    (SECURITY_DECISION_STATEMENT + "\n\n<script title=\"</script>\n\n"
+     + SECURITY_DECISION_STATEMENT, False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_UNFINISHED_RAW_QUOTE_CASES)
+def test_security_decision_unfinished_raw_quote_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+SECURITY_DECISION_ASCII_RAW_CASES = [
+    (f"<{tag}>Context.</{lookalike}>\n\n{SECURITY_DECISION_STATEMENT}", False)
+    for tag, lookalike in (("script", "ſcript"), ("script", "scrıpt"),
+                          ("script", "scrİpt"), ("style", "ſtyle"))
+] + [
+    (f"<{tag}>Context.</{lookalike}>\n</{tag.upper()}>\n\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag, lookalike in (("script", "ſcript"), ("script", "scrıpt"),
+                          ("script", "scrİpt"), ("style", "ſtyle"))
+] + [
+    (f"<{tag}>Context.</{lookalike}>\n</{tag}> Context. {SECURITY_DECISION_STATEMENT}", False)
+    for tag, lookalike in (("script", "ſcript"), ("script", "scrıpt"),
+                          ("script", "scrİpt"), ("style", "ſtyle"))
+] + [
+    (f"<{tag.upper()}>Context.</{tag}>\r\n\r\n{SECURITY_DECISION_STATEMENT}", True)
+    for tag in ("pre", "script", "style", "textarea")
+] + [
+    (f"<{tag} title=\"</{lookalike}>\">\n\n{SECURITY_DECISION_STATEMENT}", False)
+    for tag, lookalike in (("script", "ſcript"), ("script", "scrıpt"),
+                          ("script", "scrİpt"), ("style", "ſtyle"))
+] + [
+    (f"<{tag} title='</{lookalike}>'>Context.</{tag.upper()}>\n\n"
+     + SECURITY_DECISION_STATEMENT, True)
+    for tag, lookalike in (("script", "ſcript"), ("script", "scrıpt"),
+                          ("script", "scrİpt"), ("style", "ſtyle"))
+] + [
+    ("Unicode operator prose: ſcript scrıpt scrİpt ſtyle.\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("Context reviewed by José and 李.\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("`<script>Context.</ſcript>`\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("\\<script>Context.\\</scrİpt>\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<!-- <style>Context.</ſtyle> -->\n\n" + SECURITY_DECISION_STATEMENT, True),
+    ("<script title=\"</scrıpt>\n\n" + SECURITY_DECISION_STATEMENT, False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_ASCII_RAW_CASES)
+def test_security_decision_ascii_raw_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 @pytest.mark.parametrize("repetitions", [16, 32, 64])
 @pytest.mark.parametrize("kind", ["valid", "unfinished", "incomplete_prefix"])
 def test_security_decision_context_work_is_page_local(
