@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 421164
+    "total_source_lines": 421271
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -163,8 +163,8 @@
       },
       {
         "complexity": 21,
-        "end_line": 334,
-        "line": 258,
+        "end_line": 338,
+        "line": 262,
         "lines": 77,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4136
+    "python_function_count": 4139
   },
-  "generated_at_utc": "2026-10-05T23:03:53Z",
+  "generated_at_utc": "2026-10-07T04:55:52Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -378,7 +378,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 18635,
+      "lines": 18644,
       "path": "docs/composite-performance/implementation-ledger.v1.json",
       "suffix": ".json"
     },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2358,
+    "collected_tests": 2378,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-935-resource-recovery\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2358 tests collected"
+    "summary": "2378 tests collected"
   }
 }

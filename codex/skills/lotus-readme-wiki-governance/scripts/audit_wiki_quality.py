@@ -22,6 +22,10 @@ DATABASE_TEMPORARY_PATTERN = re.compile(
     r"temporary[ \t]+(?:relations?|tables?)\b"
     r"(?![ \t]+(?:workaround|notes)\b)", re.IGNORECASE
 )
+DIRECTORY_TEMPORARY_PATTERN = re.compile(
+    r"temporary[ \t]+director(?:y|ies)\b"
+    r"(?![ \t]+(?:workaround|notes)\b)", re.IGNORECASE
+)
 
 # Evidence routes are syntax-checked citations, not checkout file paths.
 GITHUB_EVIDENCE_ROUTE_PATTERN = re.compile(
@@ -512,7 +516,10 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
             match.group(0) for match in SCRATCH_PATTERN.finditer(prose)
             if not (
                 match.group(0).lower() == "temporary"
-                and DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
+                and (
+                    DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
+                    or DIRECTORY_TEMPORARY_PATTERN.match(prose, match.start())
+                )
             )
         }
     )
