@@ -191,7 +191,7 @@ def _directory_reference_labels(prose: str) -> set[str]:
             in_comment_block = "-->" not in line
             definition_block = True
             continue
-        if not line.strip():
+        if not line.strip(" \t"):
             definition_block = True
             continue
         definition = DIRECTORY_REFERENCE_DEFINITION_PATTERN.fullmatch(line) if definition_block else None

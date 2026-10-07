@@ -261,6 +261,8 @@ followed by an ordinary link label. The same rule applies when deciding whether 
 label is an image or a link; code spans and escaped bracket delimiters retain their rules.
 References use Unicode case-folded, whitespace-normalized labels and valid single-line
 definition blocks beginning at document start or after a blank line, outside fenced code.
+For this reference collector, a blank line is empty or contains only ASCII spaces/tabs;
+Unicode/control-only lines remain paragraph content and do not reopen definition collection.
 Excluding a recognized backtick-fenced block retains its blank paragraph boundary. Valid
 definitions after that block can begin a reference-definition block without an authored blank
 line; definitions/content inside the fence remain excluded. Fence recognition itself is unchanged.
