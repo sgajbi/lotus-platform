@@ -968,17 +968,36 @@ def _page_heading_failures(page_name: str, text: str) -> list[str]:
     return failures
 
 
+def _decision_raw_opener_quote_unfinished(prose: str, start: int) -> bool:
+    """Check only the incomplete opener's first line; quoted close text is not a body."""
+    quote = ""
+    for index in range(start, len(prose)):
+        character = prose[index]
+        if character in "\r\n":
+            break
+        if quote:
+            if character == quote:
+                quote = ""
+        elif character in "\"'":
+            quote = character
+        elif character == ">":
+            break
+    return bool(quote)
+
+
 def _decision_raw_context_end(prose: str, start: int, literal_end: int | None) -> int | None:
     """Bound decision exclusion without changing the directory's inline-token grammar."""
     if prose[start] != "<":
         return None
     line_start = max(prose.rfind("\n", 0, start), prose.rfind("\r", 0, start)) + 1
     block = start - line_start <= 3 and not prose[line_start:start].strip(" ")
-    raw_text = re.compile(r"<(pre|script|style|textarea)(?=[ \t\r\n>]|$)", re.IGNORECASE).match(prose, start)
+    raw_text = re.compile(r"<(pre|script|style|textarea)(?=[ \t\r\n>]|$)", re.IGNORECASE | re.ASCII).match(prose, start)
     if block and raw_text is not None:
         # Complete attributes remain opaque; an incomplete EOL opener still opens raw context.
+        if literal_end is None and _decision_raw_opener_quote_unfinished(prose, raw_text.end()):
+            return len(prose)
         search_start = literal_end if literal_end is not None else raw_text.end()
-        closing = re.compile(r"</" + raw_text.group(1) + r">", re.IGNORECASE).search(prose, search_start)
+        closing = re.compile(r"</" + raw_text.group(1) + r">", re.IGNORECASE | re.ASCII).search(prose, search_start)
         end = closing.end() if closing is not None else len(prose)
     else:
         delimiter = next((ending for opening, ending in (

@@ -178,12 +178,20 @@ excludes later decisions through end of input, including across blank paragraphs
 escape/code/autolink/attribute tokens take precedence over contained openers; existing earliest
 short-comment boundaries remain unchanged. Zero-to-three ASCII-space line-start `pre`, `script`,
 `style` and `textarea` openers followed by space/tab, `>` or CR/LF/end of input also exclude raw
-bodies, including incomplete end-of-line openers. The corresponding case-insensitive closing
+bodies, including incomplete end-of-line openers. Recognition and closing-tag case folding are
+ASCII-only; Unicode lookalike letters cannot act as a corresponding raw-element closer, while
+ordinary Unicode operator prose remains supported. The corresponding ASCII-case-insensitive closing
 tag ends that raw context; a different raw-element closer leaves it opaque until the matching
 closer or end of input. This is a stronger Lotus enclosure policy: CommonMark type-1 blocks
 allow any of the four raw-element end tags, without requiring it to match the opener.
 code/comment-looking body text cannot alter its termination. Complete opening attributes are
 opaque before scanning the body. Line-start raw contexts include the entire closing line;
+when no complete opening token exists and an attribute quote is still open at the first line
+boundary, the context remains opaque through end of input. Closing text inside that unfinished
+attribute cannot expose later obligations. A recognized complete multiline opening token still
+keeps its entire attributes opaque before body scanning; an unquoted incomplete end-of-line
+opener can still end at its corresponding body closer. This is the conservative Lotus EOF
+policy for unfinished quoted openers, not a renderer or a change to directory token grammar.
 properly closed contexts followed by a new plain paragraph remain supported.
 These decision-local rules draw on [CommonMark raw HTML](https://spec.commonmark.org/0.31.2/#raw-html)
 and [HTML block types 1–5](https://spec.commonmark.org/0.31.2/#html-blocks), with stronger matching-opener

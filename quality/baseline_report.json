@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 423555
+    "total_source_lines": 423671
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4207
+    "python_function_count": 4210
   },
-  "generated_at_utc": "2026-10-07T20:07:52Z",
+  "generated_at_utc": "2026-10-07T20:42:40Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,7 +413,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2222,
+      "lines": 2306,
       "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 4190,
+    "collected_tests": 4263,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "4190 tests collected"
+    "summary": "4263 tests collected"
   }
 }
