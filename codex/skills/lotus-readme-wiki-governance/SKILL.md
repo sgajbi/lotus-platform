@@ -139,6 +139,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      cannot evade refusal; preserve internal punctuation, technical identifiers and line boundaries.
      Preserve a blank boundary when excluding recognized fenced code so following valid references
      remain resolvable; fence-contained definitions and scratch content remain excluded.
+     Reference collection excludes line-start HTML comment blocks (zero to three spaces) through
+     their closing line or end of input, including internal blank lines; following definitions
+     may begin a new block. This bounded rule does not implement other raw HTML block families.
      Keep original source for every other prose and navigation/link check; do not globally strip Markdown.
      classify each occurrence rather than waiving a page containing both technical terms and notes.
    - distinguish named GitHub evidence citations from repository file links; apply the route and

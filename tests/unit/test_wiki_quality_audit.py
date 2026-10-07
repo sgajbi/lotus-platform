@@ -263,6 +263,50 @@ def test_invalid_directory_link_metadata_preserves_navigation_guard(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, True, link_failure_expected=True)
 
 
+DIRECTORY_COMMENT_REFERENCE_CASES = [
+    (f"{indent}<!--\n\n[{label}]: Operations-Runbook\n-->\n{noun} {qualifier}", "[target]" in noun)
+    for indent in ("", " ", "  ", "   ")
+    for noun, label in (
+        ("[temporary directory][target]", "target"),
+        ("[temporary directory][]", "temporary directory"),
+        ("[temporary directory]", "temporary directory"),
+    )
+    for qualifier in ("notes", "**workaround**")
+] + [
+    (newline.join(("<!--", "", "[target]: Operations-Runbook", "-->",
+                   "[temporary directory][target] notes")), True)
+    for newline in ("\r", "\n", "\r\n")
+] + [
+    ("<!--\n\n[target]: Operations-Runbook\n-->\n[temporary directory][target] mode 0700", True),
+    ("<!--\n\n[target]: Operations-Runbook\n-->\n[temporary directory][missing] notes", True),
+    ("<!--\n\n[target]: Operations-Runbook\n[temporary directory][target] notes", True),
+    ("<!--\n\n<!-- nested opener\n[target]: Operations-Runbook\n-->\n[temporary directory][target] notes", True),
+    ("<!--\n\n[target]: Operations-Runbook\n-->\n<!-- second\n\n[other]: Operations-Runbook\n-->\n[temporary directory][other] notes", True),
+    ("<!--\n\n--> [target]: Operations-Runbook\n[temporary directory][target] notes", True),
+    ("<!--\n\n[target]: Operations-Runbook\n--> [other]: Operations-Runbook\n[temporary directory][other] notes", True),
+    ("<!-- [target]: Operations-Runbook -->\n[temporary directory][target] notes", True),
+    ("<!-- -->\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("Intro paragraph.\n<!--\n\nignored\n-->\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("<!--\nignored\nclosing -->\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("<!--\nignored\n--> trailing raw content\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("\n[target]: Operations-Runbook\n<!--\n\n[target]: Missing-Page\n-->\n[temporary directory][target] notes", False),
+    ("<!-- -->\n[target]: Operations-Runbook invalid title\n[temporary directory][target] notes", True),
+    ("<!-- -->\nOrdinary paragraph.\n[target]: Operations-Runbook\n[temporary directory][target] notes", True),
+    ("<!-- -->\n```\n[target]: Operations-Runbook\n```\n[temporary directory][target] notes", True),
+    ("\\<!--\n\n[target]: Operations-Runbook\n-->\n[temporary directory][target] notes", False),
+    ("Intro <!-- inline opener -->\n\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("    <!--\n\n[target]: Operations-Runbook\n-->\n[temporary directory][target] mode 0700", True),
+    ("\t<!--\n\n[target]: Operations-Runbook\n-->\n[temporary directory][target] mode 0700", True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_COMMENT_REFERENCE_CASES)
+def test_directory_comment_reference_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 DIRECTORY_FENCE_BOUNDARY_CASES = [
     (f"Intro paragraph.\n{opening}\necho permissions\n{closing}\n"
      f"[{label}]: Operations-Runbook\n{noun} {qualifier}", False)

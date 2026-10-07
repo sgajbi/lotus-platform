@@ -158,7 +158,13 @@ def _directory_inline_link_end(line: str, start: int) -> int | None:
 def _directory_reference_labels(prose: str) -> set[str]:
     labels: set[str] = set()
     definition_block = True
+    in_comment_block = False
     for line in prose.splitlines():
+        if in_comment_block or re.match(r" {0,3}<!--", line):
+            # Comment blocks keep raw contents across blanks and end by line.
+            in_comment_block = "-->" not in line
+            definition_block = True
+            continue
         if not line.strip():
             definition_block = True
             continue
