@@ -966,20 +966,43 @@ def _page_heading_failures(page_name: str, text: str) -> list[str]:
     return failures
 
 
+def _decision_term_is_plain(prose: str, start: int) -> bool:
+    # WHATWG void elements have no body. A non-void tag's slash does not close it.
+    void_tags = {
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+        "meta", "source", "track", "wbr",
+    }
+    elements: list[str] = []
+    index = 0
+    while index < start:
+        end = _directory_literal_token_end(prose, index)
+        if end is None:
+            index += 1
+            continue
+        if index <= start < end:
+            return False
+        token = prose[index:end]
+        if DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token):
+            tag = re.match(r"<(/?)([A-Za-z][A-Za-z0-9-]*)", token)
+            if tag is not None:
+                closing, name = tag.groups()
+                name = name.lower()
+                if closing:
+                    if elements and elements[-1] == name:
+                        elements.pop()
+                elif name not in void_tags:
+                    elements.append(name)
+        index = end
+    return not elements
+
+
 def _decision_term_is_governed(prose: str, start: int) -> bool:
     """Recognize a bounded plain requirement statement, without approving its risk decision."""
     prefix = re.search(r"\bproposed[ \t\r\n]+$", prose[:start], re.IGNORECASE)
     if prefix is None:
         return False
-    index = 0
-    while index < start:
-        end = _directory_literal_token_end(prose, index)
-        if end is not None:
-            if index <= start < end:
-                return False
-            index = end
-        else:
-            index += 1
+    if not _decision_term_is_plain(prose, start):
+        return False
     before = prose[:prefix.start()].replace("\r\n", "\n").replace("\r", "\n")
     paragraph = re.split(r"\n[ \t]*\n", before)[-1]
     # Keep this new admission limited to plain prose; title punctuation cannot supply a boundary.

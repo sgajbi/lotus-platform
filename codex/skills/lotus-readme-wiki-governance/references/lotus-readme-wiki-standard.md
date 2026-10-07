@@ -159,6 +159,12 @@ the sentence, optionally preceded by `A`; scratch-note prefixes cannot lend it a
 Whole statements inside existing recognized HTML metadata/comments, code spans or escapes do not
 qualify. Earlier Markdown bracket syntax in the same paragraph makes this narrow admission
 unsupported, preventing link/reference title punctuation from creating a false sentence boundary.
+Recognized non-void HTML element bodies also exclude the statement, even across sentence or
+paragraph breaks. Opening/closing tags are tracked in lexical nesting order; unmatched or
+misnested elements remain conservative. A slash on a non-void opening tag does not close it.
+This uses the WHATWG void-element set, without DOM repair or CSS visibility inference.
+Properly closed markup followed by a new plain paragraph remains supported; literal code,
+comments and escaped tags do not open element context.
 Inline markup, hidden HTML,
 link destinations and fenced examples cannot supply those obligations. Unsupported phrasing
 remains conservatively rejected. `notes`/`workaround` in the decision statement remains rejected,
