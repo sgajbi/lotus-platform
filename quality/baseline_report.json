@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 421484
+    "total_source_lines": 421767
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -80,6 +80,14 @@
         "lines": 87,
         "name": "validate_ledger",
         "path": "automation/validate_composite_documentation_foundation.py"
+      },
+      {
+        "complexity": 36,
+        "end_line": 161,
+        "line": 103,
+        "lines": 59,
+        "name": "_directory_inline_link_end",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
         "complexity": 35,
@@ -163,8 +171,8 @@
       },
       {
         "complexity": 21,
-        "end_line": 396,
-        "line": 320,
+        "end_line": 561,
+        "line": 485,
         "lines": 77,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -184,14 +192,6 @@
         "lines": 58,
         "name": "_matrix_dispatch_is_verified",
         "path": "automation/validate_auto_merge_releasability.py"
-      },
-      {
-        "complexity": 20,
-        "end_line": 106,
-        "line": 38,
-        "lines": 69,
-        "name": "cash_evidence_from_overview",
-        "path": "automation/resolve_canonical_cash_evidence.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4146
+    "python_function_count": 4154
   },
-  "generated_at_utc": "2026-10-07T06:04:48Z",
+  "generated_at_utc": "2026-10-07T06:38:04Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 2622,
+    "collected_tests": 2706,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "2622 tests collected"
+    "summary": "2706 tests collected"
   }
 }

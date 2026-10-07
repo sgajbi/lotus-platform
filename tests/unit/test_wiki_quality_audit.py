@@ -78,6 +78,80 @@ DIRECTORY_HTML_BOUNDARY_CASES = [
     for newline in ("\r", "\n", "\r\n")
 ]
 
+DIRECTORY_LINK_CASES = [
+    (f"[temporary directory]{metadata} {qualifier}", False)
+    for metadata in (
+        "(Operations-Runbook)", "(<Operations-Runbook>)", "()", "(<>)",
+        '(Operations-Runbook "operator notes")', "(Operations-Runbook 'operator notes')",
+        "(Operations-Runbook (operator notes))", '( "operator notes" )',
+    )
+    for qualifier in ("notes", "**workaround**")
+] + [
+    (f"[temporary directory]{metadata} mode 0700 protects diagnostics.", True)
+    for metadata in ("(Operations-Runbook)", "[target]", "[]", "")
+] + [
+    (f"[temporary directory]{suffix} {qualifier}\n\n[{label}]: Operations-Runbook", False)
+    for suffix, label in (("[target]", "target"), ("[]", "temporary directory"), ("", "temporary directory"))
+    for qualifier in ("notes", "<em>workaround</em>")
+] + [
+    ("[temporary directory][TARGET  label] notes\n\n[target label]: Operations-Runbook", False),
+    ("[temporary directory][StraSSe] notes\n\n[straße]: Operations-Runbook", False),
+    ("[temporary directory][target] notes\n\n[target]: Operations-Runbook\n[target]: <Home>", False),
+    ("[temporary directory][missing] notes", True),
+    ("[temporary directory][] notes", False),
+    ("[temporary directory] notes", False),
+    ("[temporary directory][target] notes\n\n[target]: Operations-Runbook invalid title", True),
+    ("[temporary directory][target] notes\n```\n[target]: Operations-Runbook\n```", True),
+    ("[temporary directory](Operations-Runbook notes", True),
+    ("[temporary directory](Operations-Runbook \"unclosed) notes", True),
+    (r"\[temporary directory](Operations-Runbook) notes", True),
+    (r"\\[temporary directory](Operations-Runbook) notes", False),
+    (r"[temporary directory\](Operations-Runbook) notes", True),
+    ("`[temporary directory](Operations-Runbook) notes`", True),
+    ("![temporary directory](Operations-Runbook) notes", True),
+    ("[temporary directory with mode 0700](Operations-Runbook) notes explain permissions.", True),
+    ("[temporary directory **notes**](Operations-Runbook)", False),
+    ("[**temporary directory**](Operations-Runbook) ~~notes~~", False),
+    ("[OS [private] temporary directory](Operations-Runbook) notes", False),
+    ("[prefix [page](Home) temporary directory](Operations-Runbook) notes", True),
+    ("[outer [temporary directory](Operations-Runbook)](Home) notes", True),
+    ("[temporary directory](Operations-Runbook) using mode 0700; notes explain permissions.", True),
+    ("temporary [directory](Operations-Runbook) notes", False),
+    ("[temporary table](Operations-Runbook) notes", True),
+    ("[temporary relation](Operations-Runbook) mode 0700", True),
+    ("[temporary directory](Operations-Runbook(a(b(c)))) notes", False),
+    (r"[temporary directory](Operations-Runbook\(private\)) notes", False),
+    (r"[temporary directory](Operations-Runbook \"operator\") notes", True),
+    ('[temporary directory](Operations-Runbook "operator \\"notes\\"") workaround', False),
+    ("[temporary directory](<Operations-Runbook>) **mode 0700**", True),
+    ("[temporary directory][target] mode 0700\n\n[target]: Operations-Runbook 'permissions'", True),
+    ("[temporary directory][] mode 0700\n\n[temporary directory]: Operations-Runbook", True),
+    ("[temporary directory] mode 0700\n\n[temporary directory]: Operations-Runbook", True),
+    ("[temporary directory] [target] notes\n\n[target]: Operations-Runbook", True),
+    ("[temporary directory][target] notes\nparagraph\n[target]: Operations-Runbook", True),
+    ("[temporary directory](Operations-Runbook (invalid(nested))) notes", True),
+    ("[temporary directory](Operations-Runbook) <p>notes</p>", True),
+    ("[temporary directory](Operations-Runbook) &#110;otes", False),
+    ("[temporary directory](Operations-Runbook) `<em>notes</em>`", True),
+    ("[temporary directory](Operations-Runbook) notes_directory", True),
+] + [
+    (f"[temporary directory](Operations-Runbook){newline}notes", True)
+    for newline in ("\r", "\n", "\r\n")
+] + [
+    (f"[temporary directory]({newline}Operations-Runbook) notes", True)
+    for newline in ("\r", "\n", "\r\n")
+] + [
+    (f"[temporary directory][target] notes\n\n[target]: Operations-Runbook\\{separator}invalid", True)
+    for separator in (" ", "\t")
+] + [
+    (r"[temporary directory](Operations-Runbook\(private\)) **workaround**", False),
+    (r'[temporary directory](Operations-Runbook "operator\"notes") notes', False),
+    (r'[temporary directory](Operations-Runbook "operator\ notes") notes', False),
+    (r"[temporary directory\!](Operations-Runbook) notes", False),
+    (r"[temporary directory\a](Operations-Runbook) notes", True),
+    (r"[temporary directory\\](Operations-Runbook) notes", False),
+]
+
 
 def _load_audit_module():
     spec = importlib.util.spec_from_file_location("audit_wiki_quality", AUDIT_PATH)
@@ -127,6 +201,27 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
 def test_directory_html_boundary_policy_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool,
 ) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_LINK_CASES)
+def test_directory_link_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("separator", (" ", "\t", "\x01", "\x7f"))
+def test_invalid_directory_link_metadata_preserves_navigation_guard(
+    tmp_path: Path, separator: str,
+) -> None:
+    prose = f"[temporary directory](Operations-Runbook\\{separator}invalid) notes"
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, True, link_failure_expected=True)
+
+
+def _assert_directory_prose_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool, *, link_failure_expected: bool = False,
+) -> None:
     findings = _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose)
     assert (findings == []) is accepted
     repo_root = tmp_path / "repo"
@@ -146,8 +241,10 @@ def test_directory_html_boundary_policy_actual_and_cli(
          str(repo_root), "--changed-page", "Operations-Runbook.md"],
         capture_output=True, text=True, check=False,
     )
-    assert result.returncode == (0 if accepted else 1), result.stdout + result.stderr
+    assert result.returncode == (0 if accepted and not link_failure_expected else 1), result.stdout + result.stderr
     assert ("contains scratch-note terms" not in result.stdout) is accepted
+    if link_failure_expected:
+        assert "broken local or repo-relative link" in result.stdout
 
 
 @pytest.mark.parametrize("prose", [

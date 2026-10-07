@@ -131,6 +131,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      [the documentation standard](./references/lotus-readme-wiki-standard.md#publication-link-and-prose-classification),
      plus literal escaped markup or inline-code contents. Inline/hidden names are not boundary exemptions;
      CSS, visibility/open state, sanitizers and HTML5 tree repair are outside this lexical policy.
+     apply the standard's noun-local inline/resolved-reference link policy before qualifier detection;
+     retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries.
+     Keep original source for every other prose and navigation/link check; do not globally strip Markdown.
      classify each occurrence rather than waiving a page containing both technical terms and notes.
    - distinguish named GitHub evidence citations from repository file links; apply the route and
      local wiki-page rules in [the documentation standard](./references/lotus-readme-wiki-standard.md#publication-link-and-prose-classification).
