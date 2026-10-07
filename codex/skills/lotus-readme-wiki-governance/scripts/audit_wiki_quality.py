@@ -255,7 +255,7 @@ def _directory_emphasis_edges(line: str, start: int, end: int) -> tuple[bool, bo
 def _directory_emphasis_end(
     line: str, start: int, marker: str, references: set[str],
 ) -> int | None:
-    if marker[0] == "~" and len(marker) != 2:
+    if marker[0] == "~" and len(marker) not in (1, 2):
         return None
     opening, _ = _directory_emphasis_edges(line, start, start + len(marker))
     if not opening:

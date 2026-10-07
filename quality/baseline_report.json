@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 422800
+    "total_source_lines": 422845
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4186
+    "python_function_count": 4187
   },
-  "generated_at_utc": "2026-10-07T11:36:29Z",
+  "generated_at_utc": "2026-10-07T11:56:55Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -438,13 +438,13 @@
       "suffix": ".py"
     },
     {
-      "lines": 1735,
-      "path": "automation/heartbeat_sources.py",
+      "lines": 1742,
+      "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
     {
-      "lines": 1699,
-      "path": "tests/unit/test_wiki_quality_audit.py",
+      "lines": 1735,
+      "path": "automation/heartbeat_sources.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 3714,
+    "collected_tests": 3764,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "3714 tests collected"
+    "summary": "3764 tests collected"
   }
 }
