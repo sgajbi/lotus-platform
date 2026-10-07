@@ -153,7 +153,9 @@ The prose classifier also admits the plain requirement statement
 with optional plain `on ...` reassessment triggers. A supplied trigger uses ASCII letters,
 digits, spaces/tabs, CR/LF wrapping, commas, slashes and hyphens, with at least one ASCII
 letter or digit; punctuation-only or whitespace-only triggers are rejected. Omitted triggers
-remain supported. Unicode case-fold equivalents do not supply ASCII trigger content.
+remain supported. The fixed decision keywords use ASCII case folding as well; Unicode
+lookalikes in `decision`, `requires` or `reassessment` cannot supply the literal statement.
+Unicode case-fold equivalents do not supply ASCII trigger content.
 `DURATION` is an ASCII positive integer
 without leading zeros or one of `one` through `ten`; singular `day` is supported. This is
 lexical classification, not approval of the owner, the duration, the decision or expired risk
@@ -163,6 +165,20 @@ the sentence, optionally preceded by `A`; scratch-note prefixes cannot lend it a
 Whole statements inside existing recognized HTML metadata/comments, code spans or escapes do not
 qualify. Earlier Markdown bracket syntax in the same paragraph makes this narrow admission
 unsupported, preventing link/reference title punctuation from creating a false sentence boundary.
+Complete inline link destinations/titles and valid reference definition metadata do not open
+or close the decision's HTML element context. Labels still retain their literal/HTML context;
+tag-shaped text in a rendered label cannot close an actual enclosing element through its title.
+Decision-local reference facts are collected once at definition-block boundaries, including
+after ATX headings and thematic breaks. Escapes, balanced destination parentheses, wrapped
+labels, and quoted titles or metadata whitespace spanning nonblank lines are supported;
+definitions cannot interrupt ordinary paragraphs, and trailing title text is not metadata.
+Reference facts derive from supported block syntax before inline parsing, so definitions may
+precede or follow their uses. Complete forward metadata with tag/comment-shaped reference
+names remains opaque; inline statement-enclosure rules do not determine whether a declaration
+block exists. Only recognized block raw/comment contents are excluded from reference collection.
+Incomplete metadata remains subject to the
+ordinary conservative HTML traversal, without overlapping retries of its unfinished title.
+These bounded lexical rules do not replace the directory parser or constitute a full renderer.
 Recognized non-void HTML element bodies also exclude the statement, even across sentence or
 paragraph breaks. Opening/closing tags are tracked in lexical nesting order; unmatched or
 misnested elements remain conservative. An unmatched or misnested closing tag blocks later

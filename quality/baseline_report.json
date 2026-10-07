@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 423671
+    "total_source_lines": 424141
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -66,6 +66,14 @@
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
+        "complexity": 48,
+        "end_line": 1118,
+        "line": 1039,
+        "lines": 80,
+        "name": "_decision_link_target_end",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
         "complexity": 38,
         "end_line": 652,
         "line": 499,
@@ -83,8 +91,8 @@
       },
       {
         "complexity": 36,
-        "end_line": 188,
-        "line": 130,
+        "end_line": 204,
+        "line": 146,
         "lines": 59,
         "name": "_directory_inline_link_end",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -112,6 +120,14 @@
         "lines": 179,
         "name": "main",
         "path": "automation/audit_main_gate_coverage.py"
+      },
+      {
+        "complexity": 30,
+        "end_line": 1296,
+        "line": 1196,
+        "lines": 101,
+        "name": "_decision_plain_starts",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
         "complexity": 30,
@@ -171,27 +187,11 @@
       },
       {
         "complexity": 21,
-        "end_line": 799,
-        "line": 723,
+        "end_line": 816,
+        "line": 740,
         "lines": 77,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
-      },
-      {
-        "complexity": 21,
-        "end_line": 242,
-        "line": 168,
-        "lines": 75,
-        "name": "verify_credential",
-        "path": "automation/verify_principal_credential.py"
-      },
-      {
-        "complexity": 21,
-        "end_line": 552,
-        "line": 495,
-        "lines": 58,
-        "name": "_matrix_dispatch_is_verified",
-        "path": "automation/validate_auto_merge_releasability.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4210
+    "python_function_count": 4222
   },
-  "generated_at_utc": "2026-10-07T20:42:40Z",
+  "generated_at_utc": "2026-10-07T22:06:52Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,7 +413,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2306,
+      "lines": 2511,
       "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
@@ -458,8 +458,8 @@
       "suffix": ".md"
     },
     {
-      "lines": 1490,
-      "path": "tests/unit/test_repository_hygiene_scaffold_contract.py",
+      "lines": 1541,
+      "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
       "suffix": ".py"
     }
   ],
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 4263,
+    "collected_tests": 4375,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "4263 tests collected"
+    "summary": "4375 tests collected"
   }
 }

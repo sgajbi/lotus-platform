@@ -145,6 +145,17 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      line-start raw contexts include their closing line, while following plain paragraphs
      remain supported. This bounded exclusion does not broaden directory/database parsing
      or claim full Markdown rendering, DOM repair or visibility inference;
+     require ASCII case folding for the fixed decision keywords as well as raw-element and
+     trigger grammar; Unicode keyword lookalikes cannot supply a supported requirement.
+     Keep complete inline/reference destinations and titles opaque to decision HTML context,
+     while preserving actual rendered-label and enclosing-element exclusions. Cache valid
+     reference definitions at page-local block boundaries; support escaped and balanced
+     metadata and nonblank multiline wrapping, retaining malformed/trailing-text refusal.
+     Collect reference facts from supported block syntax before inline-context traversal;
+     definitions may precede or follow their uses, including tag/comment-shaped reference
+     names. Only recognized block raw/comment contents are excluded from definition facts;
+     do not apply statement-enclosure semantics to declaration visibility. Preserve the directory grammar and
+     avoid repeated overlapping scans of incomplete metadata; this remains a bounded lexer.
      qualify repeated statements using page-local sentence/paragraph indexes and one ordered
      context traversal, preserving each occurrence's exclusions without growing-prefix rescans;
    - preserve technical terms such as "indexed temporary relation", "temporary table", or an OS
