@@ -159,6 +159,21 @@ line boundaries. Technical punctuation such as `temporary directory, with mode 0
 valid. Database phrase grammar is unchanged. Underscore closing delimiters are recognized
 without treating an identifier such as `notes_directory` as that noun.
 Formatted technical descriptions such as `temporary directory: **mode 0700**` remain valid.
+Complete inline formatting is also recognized throughout the candidate qualifier: split
+`n**o**tes`, `**work**around`, and ``n`o`tes`` remain scratch qualifiers. Local paired
+equal star/underscore runs use whitespace/punctuation flanking; intraword underscores
+remain literal. Equal-run code spans expose literal contents without reparsing Markdown,
+entities or HTML; exactly one ASCII space is trimmed from each end only when both ends
+have a space and the contents are not all spaces. Additional/asymmetric spaces and tabs remain.
+Paired double-tilde strikethrough exposes its text. Complete non-image
+inline/resolved full, collapsed or shortcut links expose their label using the same metadata
+recognizer as noun links. Escaped/unmatched delimiters and unresolved/malformed links remain
+literal. Emphasis recognition skips complete code, HTML and link/image tokens, so destination,
+title or attribute delimiters cannot close an outside emphasis span. Visible link labels are
+classified recursively; metadata supplies no qualifier text. Other malformed syntax remains
+literal; punctuation inside a word is not deleted. Spaces, technical identifier continuations,
+image syntax and raw line/block boundaries do not join fragments into a prohibited qualifier.
+This is bounded local recognition, not general CommonMark delimiter resolution or rendering.
 Directory qualifier classification renders only the remainder of the noun's raw CR/LF-bounded
 line with the standard HTML parser: inline tags, attributes and comments do not supply prose,
 while named/numeric character references supply their decoded text. The explicit local boundary

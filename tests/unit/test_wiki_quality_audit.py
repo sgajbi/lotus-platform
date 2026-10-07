@@ -263,6 +263,78 @@ def test_invalid_directory_link_metadata_preserves_navigation_guard(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, True, link_failure_expected=True)
 
 
+DIRECTORY_SPLIT_QUALIFIER_CASES = [
+    (f"temporary directory: {word[:split]}{marker}{word[split:]}{marker}", False)
+    for word in ("notes", "workaround")
+    for split in range(1, len(word))
+    for marker in ("*", "**", "***", "****", "*****", "******", "`", "``", "~~")
+] + [
+    (f"temporary directory: n[o]{suffix}tes{definition}", False)
+    for suffix, definition in (
+        ("(Operations-Runbook)", ""),
+        ('(Operations-Runbook "mode 0700")', ""),
+        ("[target]", "\n\n[target]: Operations-Runbook"),
+        ("[]", "\n\n[o]: Operations-Runbook"),
+        ("", "\n\n[o]: Operations-Runbook"),
+    )
+] + [
+    ("temporary directory: **work**around", False),
+    ("temporary directory: n**o**t`e`s", False),
+    ("temporary directory: n` o `tes", False),
+    ("temporary directory: n`` o ``tes", False),
+    ("temporary directory: ` work `around", False),
+    ("temporary directory: n`  o  `tes", True),
+    ("temporary directory: n` o`tes", True),
+    ("temporary directory: n`o `tes", True),
+    ("temporary directory: n`   `otes", True),
+    ("temporary directory: n`\to\t`tes", True),
+    ("temporary directory: n***o***tes", False),
+    ("temporary directory: n**[o](Operations-Runbook)**tes", True),
+    ("temporary directory: n**o[te](Operations-Runbook)s**", False),
+    ('temporary directory: n**o[te](Operations-Runbook "**metadata**")s**', False),
+    ("temporary directory: n**o[te](https://example.com/**metadata**)s**", False),
+    ("temporary directory: n**o[te](Operations-Runbook '**metadata**')s**", False),
+    ("temporary directory: n**o[te](Operations-Runbook (operator **metadata**))s**", False),
+    ("temporary directory: n**o[te][target]s**\n\n[target]: Operations-Runbook '**metadata**'", False),
+    ("temporary directory: n[*o*](Operations-Runbook)tes", False),
+    ("temporary directory: __work__around", True),
+    ("temporary directory: _work_ around", True),
+    ("temporary directory: **work** around", True),
+    ("temporary directory: **work**-around", True),
+    ("temporary directory: **work**/around", True),
+    ("temporary directory: n_o_tes", True),
+    ("temporary directory: n**o**tes_directory", True),
+    ("temporary directory: n**o**teskeeper", True),
+    (r"temporary directory: n\*o\*tes", True),
+    (r"temporary directory: n\`o\`tes", True),
+    ("temporary directory: n*otes", True),
+    ("temporary directory: n**otes*", True),
+    ("temporary directory: n`otes", True),
+    ("temporary directory: n``o`tes", True),
+    ("temporary directory: n[o][missing]tes", True),
+    ("temporary directory: n[o](Operations-Runbook invalid title)tes", True),
+    (r"temporary directory: n\[o](Operations-Runbook)tes", True),
+    ("temporary directory: n![o](Operations-Runbook)tes", True),
+    ("temporary directory: n`*o*`tes", True),
+    ("temporary directory: n`[o](Operations-Runbook)`tes", True),
+    ("temporary directory: n`<em>o</em>`tes", True),
+    ("temporary directory: n`&#111;`tes", True),
+    ("temporary directory: n<span title='**technical**'>o</span>tes", False),
+    ("temporary directory: **mode 0700**", True),
+    ("temporary directory: n[o](Operations-Runbook)tes_directory", True),
+] + [
+    (f"temporary directory: n**o**{newline}tes", True)
+    for newline in ("\r", "\n", "\r\n")
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_SPLIT_QUALIFIER_CASES)
+def test_directory_split_qualifier_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 @pytest.mark.parametrize("prose, accepted", DIRECTORY_IMAGE_MARKER_CASES)
 def test_directory_image_marker_policy_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool,

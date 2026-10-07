@@ -133,7 +133,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      CSS, visibility/open state, sanitizers and HTML5 tree repair are outside this lexical policy.
      apply the standard's noun-local inline/resolved-reference link policy before qualifier detection,
      distinguishing active image markers from escaped bangs at both noun and nested labels;
-     retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries.
+     retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries;
+     normalize complete inline emphasis/code/link text throughout the candidate qualifier under
+     the standard's bounded flanking/literal rules, so split `n**o**tes` and `**work**around`
+     cannot evade refusal; preserve internal punctuation, technical identifiers and line boundaries.
      Keep original source for every other prose and navigation/link check; do not globally strip Markdown.
      classify each occurrence rather than waiving a page containing both technical terms and notes.
    - distinguish named GitHub evidence citations from repository file links; apply the route and
