@@ -54,6 +54,30 @@ HTML_DIRECTORY_SCRATCH_PROSE = [
     "temporary directory: <code>workaround</code>",
 ]
 
+# Independent policy inventory: default flow/list/text-bearing table boundaries,
+# not CommonMark HTML-block syntax names or a general browser layout model.
+DIRECTORY_HTML_BOUNDARY_TAGS = (
+    "address article aside blockquote body br caption center dd details dialog dir div "
+    "dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr "
+    "html legend li listing main menu nav ol p plaintext pre search section summary "
+    "table tbody td tfoot th thead tr ul xmp"
+).split()
+
+DIRECTORY_HTML_BOUNDARY_CASES = [
+    (f"temporary directory: <{tag} title='notes > workaround'><em>notes</em></{tag}>", True)
+    for tag in DIRECTORY_HTML_BOUNDARY_TAGS
+] + [
+    (f"<{tag.upper()} title='mode 0700'><span>technical</span> temporary directory: "
+     f"</{tag.upper()}><strong>workaround</strong>", True)
+    for tag in DIRECTORY_HTML_BOUNDARY_TAGS
+] + [
+    (f"temporary directory: <{tag} title='mode 0700'>notes</{tag}>", False)
+    for tag in ("em", "strong", "code", "span", "a", "wbr", "base", "link", "param", "title", "col", "colgroup")
+] + [
+    (f"temporary directory:{newline}<em>notes</em>", True)
+    for newline in ("\r", "\n", "\r\n")
+]
+
 
 def _load_audit_module():
     spec = importlib.util.spec_from_file_location("audit_wiki_quality", AUDIT_PATH)
@@ -97,6 +121,33 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
     assert "contains scratch-note terms" in " ".join(
         _load_audit_module()._page_prose_failures("Persistence-Service.md", prose)
     )
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_HTML_BOUNDARY_CASES)
+def test_directory_html_boundary_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    findings = _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose)
+    assert (findings == []) is accepted
+    repo_root = tmp_path / "repo"
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
+    wiki = repo_root / "wiki"
+    wiki.mkdir()
+    (wiki / "Home.md").write_text("# Home\n\n[Operations](Operations-Runbook)\n", encoding="utf-8")
+    (wiki / "_Sidebar.md").write_text(
+        "# Navigation\n\n[Home](Home)\n[Operations](Operations-Runbook)\n", encoding="utf-8"
+    )
+    (wiki / "Operations-Runbook.md").write_text(
+        "# Operations Runbook\n\nCurrent-state support requires owner-only OS directory permissions.\n"
+        f"{prose}\n", encoding="utf-8",
+    )
+    result = subprocess.run(
+        [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki), "--repo-root",
+         str(repo_root), "--changed-page", "Operations-Runbook.md"],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == (0 if accepted else 1), result.stdout + result.stderr
+    assert ("contains scratch-note terms" not in result.stdout) is accepted
 
 
 @pytest.mark.parametrize("prose", [
