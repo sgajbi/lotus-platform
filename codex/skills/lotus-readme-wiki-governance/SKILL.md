@@ -133,6 +133,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      CSS, visibility/open state, sanitizers and HTML5 tree repair are outside this lexical policy.
      apply the standard's noun-local inline/resolved-reference link policy before qualifier detection,
      distinguishing active image markers from escaped bangs at both noun and nested labels;
+     treat complete existing inline HTML tokens as opaque during noun-label bracket scanning,
+     so quoted attribute and comment brackets cannot alter label pairing;
      retain visible label continuation, literal/unresolved syntax, code/escapes and raw line boundaries;
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under
      the standard's bounded flanking/literal rules, so split `n**o**tes` and `**work**around`
