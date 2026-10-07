@@ -127,6 +127,7 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      not risk approval, acceptable decision duration or renewal of expired acceptances;
      reject statements inside recognized enclosing HTML element bodies across sentence or
      paragraph breaks; closed markup followed by a new plain paragraph remains supported;
+     unmatched or misnested closing tags block later admission despite subsequent closers;
    - preserve technical terms such as "indexed temporary relation", "temporary table", or an OS
      "temporary directory"; directory/table/relation phrases followed by "notes" or "workaround"
      remain scratch prose;
