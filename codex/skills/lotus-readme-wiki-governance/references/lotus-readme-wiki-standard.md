@@ -155,6 +155,10 @@ It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`, `temporary workaround`,
 For directory phrases, a same-line colon, semicolon, comma, period, dash, parentheses, or brackets
 before `notes` or `workaround` also remains scratch prose. Technical punctuation such as
 `temporary directory, with mode 0700` remains valid. Database phrase grammar is unchanged.
+Single/double asterisk or underscore emphasis and inline-code backticks around a directory
+scratch qualifier also remain rejected, including incomplete wrappers. Underscore closing
+delimiters are recognized without treating an identifier such as `notes_directory` as that noun.
+Formatted technical descriptions such as `temporary directory: **mode 0700**` remain valid.
 A legitimate technical term never exempts other scratch-note occurrences
 in the same sentence or page. Fenced executable examples remain outside prose checks.
 Base prose, navigation and link checks apply wiki-wide; changed-page scope selects only the

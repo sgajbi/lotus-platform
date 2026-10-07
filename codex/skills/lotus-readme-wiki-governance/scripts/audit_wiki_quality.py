@@ -24,7 +24,8 @@ DATABASE_TEMPORARY_PATTERN = re.compile(
 )
 DIRECTORY_TEMPORARY_PATTERN = re.compile(
     r"temporary[ \t]+director(?:y|ies)\b"
-    r"(?![ \t:;,.\u2013\u2014()\[\]-]*(?:workaround|notes)\b)", re.IGNORECASE
+    r"(?![ \t:;,.\u2013\u2014()\[\]*_`-]*(?:workaround|notes)(?=\b|_+(?!\w)))",
+    re.IGNORECASE,
 )
 
 # Evidence routes are syntax-checked citations, not checkout file paths.
