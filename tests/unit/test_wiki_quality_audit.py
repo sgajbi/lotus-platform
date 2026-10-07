@@ -263,6 +263,42 @@ def test_invalid_directory_link_metadata_preserves_navigation_guard(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, True, link_failure_expected=True)
 
 
+DIRECTORY_FENCE_BOUNDARY_CASES = [
+    (f"Intro paragraph.\n{opening}\necho permissions\n{closing}\n"
+     f"[{label}]: Operations-Runbook\n{noun} {qualifier}", False)
+    for opening, closing in (("```", "```"), ("```sh", "```"), ("````sh", "````"))
+    for noun, label in (
+        ("[temporary directory][target]", "target"),
+        ("[temporary directory][]", "temporary directory"),
+        ("[temporary directory]", "temporary directory"),
+    )
+    for qualifier in ("notes", "**workaround**")
+] + [
+    (newline.join(("Intro paragraph.", "```", "echo permissions", "```",
+                   "[target]: Operations-Runbook", "[temporary directory][target] notes")), False)
+    for newline in ("\r", "\n", "\r\n")
+] + [
+    ("Intro paragraph.\n```\n```\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("Intro paragraph.\n```\none\n```\n```\ntwo\n```\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("Intro paragraph.\n```\nTODO temporary directory notes\n```\n[target]: Operations-Runbook\n[temporary directory][target] mode 0700", True),
+    ("Intro paragraph.\n```\n[target]: Operations-Runbook\n```\n[temporary directory][target] notes", True),
+    ("Intro paragraph.\n```\necho permissions\n```\n[temporary directory][missing] notes", True),
+    ("Intro paragraph.\n```\necho permissions\n```\n[target]: Operations-Runbook invalid title\n[temporary directory][target] notes", True),
+    ("Intro paragraph.\n[target]: Operations-Runbook\n[temporary directory][target] notes", True),
+    ("Intro paragraph.\n\n[target]: Operations-Runbook\n[temporary directory][target] notes", False),
+    ("temporary\n```\necho permissions\n```\ndirectory notes", False),
+    ("temporary directory\n```\necho permissions\n```\nnotes", True),
+    ("Intro paragraph.\n```\n[target]: Operations-Runbook\n[temporary directory][target] notes", True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_FENCE_BOUNDARY_CASES)
+def test_directory_fence_boundary_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 DIRECTORY_SPLIT_QUALIFIER_CASES = [
     (f"temporary directory: {word[:split]}{marker}{word[split:]}{marker}", False)
     for word in ("notes", "workaround")
