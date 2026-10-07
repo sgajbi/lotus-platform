@@ -307,6 +307,61 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_REFERENCE_IDENTITY_SEPARATORS = ("\u00a0", "\u2003", "\v", "\f", "\x85", "\u2028", "\u2029", "\x1c")
+DIRECTORY_REFERENCE_NORMALIZATION_CASES = [
+    (label, label)
+    for separator in DIRECTORY_REFERENCE_IDENTITY_SEPARATORS
+    for label in (f"a{separator}b", f"{separator}a", f"a{separator}")
+] + [
+    (" \tA \t\r\n B\r ", "a b"), ("\rA\nB\t", "a b"),
+    (" \t\r\n", ""), ("Straße", "strasse"), ("Kelvin", "kelvin"),
+    ("A  B", "a b"),
+]
+
+
+@pytest.mark.parametrize("label, normalized", DIRECTORY_REFERENCE_NORMALIZATION_CASES)
+def test_directory_reference_whitespace_normalization(label: str, normalized: str) -> None:
+    assert _load_audit_module()._directory_reference_label(label) == normalized
+
+
+DIRECTORY_REFERENCE_IDENTITY_CASES = [
+    (use, definition, True)
+    for separator in DIRECTORY_REFERENCE_IDENTITY_SEPARATORS
+    for use, definition in (("a b", f"a{separator}b"), (f"a{separator}b", "a b"))
+] + [
+    (use, definition, True)
+    for separator in ("\u00a0", "\u2003", "\f")
+    for distinct in (f"{separator}ab", f"ab{separator}")
+    for use, definition in (("ab", distinct), (distinct, "ab"))
+] + [
+    (f"a{separator}b", f"a{separator}b", False)
+    for separator in DIRECTORY_REFERENCE_IDENTITY_SEPARATORS
+] + [
+    (" A\tb ", "a b", False), ("\ta b\t", " a\tb ", False),
+    ("a b", " A B ", False), ("STRASSE", "Straße", False),
+    ("KELVIN", "Kelvin", False), ("unknown", "known", True),
+]
+
+
+@pytest.mark.parametrize("use, definition, accepted", DIRECTORY_REFERENCE_IDENTITY_CASES)
+def test_directory_reference_whitespace_identity_actual_and_cli(
+    tmp_path: Path, use: str, definition: str, accepted: bool,
+) -> None:
+    prose = f"[temporary directory][{use}] notes\n\n[{definition}]: Operations-Runbook"
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("use, definition", [
+    ("a b", "a\u00a0b"), ("a\u00a0b", "a b"),
+    (" A\tb ", "a b"), ("a\u00a0b", "a\u00a0b"),
+])
+def test_directory_reference_whitespace_visible_scratch_actual_and_cli(
+    tmp_path: Path, use: str, definition: str,
+) -> None:
+    prose = f"temporary directory: [notes][{use}]\n\n[{definition}]: Operations-Runbook"
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, False)
+
+
 DIRECTORY_INLINE_TAG_GRAMMAR_CASES = [
     (f'<{name} title="temporary directory: notes">', True)
     for name in ("span", "SPAN", "s1", "custom-tag", "a--", "x2-y3")

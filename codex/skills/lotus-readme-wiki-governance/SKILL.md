@@ -132,6 +132,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      plus literal escaped markup or inline-code contents. Inline/hidden names are not boundary exemptions;
      CSS, visibility/open state, sanitizers and HTML5 tree repair are outside this lexical policy.
      apply the standard's noun-local inline/resolved-reference link policy before qualifier detection,
+     normalize directory-reference labels with Unicode case folding and only space/tab/CR/LF
+     trimming/collapse; preserve non-ASCII label identity at definition and use sites;
      distinguishing active image markers from escaped bangs at both noun and nested labels;
      treat complete existing inline HTML tokens as opaque during noun-label bracket scanning,
      so quoted attribute and comment brackets cannot alter label pairing;
