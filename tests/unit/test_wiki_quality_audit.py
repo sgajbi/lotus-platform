@@ -439,6 +439,102 @@ def test_security_decision_raw_context_actual_and_cli(tmp_path: Path, prose: str
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+SECURITY_DECISION_TRIGGER_CONTEXT_CASES = [
+    (SECURITY_DECISION_STATEMENT.partition(" on ")[0] + suffix, accepted)
+    for suffix, accepted in (
+        (" on ,.", False), (" on /-.", False), (" on ,/-\t.", False),
+        (" on ,\r\n/-. ", False), (" on   .", False), (" on\t\n.", False),
+        (" on stable fixes.", True), (" on a.", True), (" on 0.", True),
+        (" on 3/7.", True), (" on , a /-.", True), (" on ,0/-.", True),
+        (".", True), (" on fixesé.", False), (" on K.", False),
+        (" on Kx.", False), (" on İ.", False), (" on ı.", False), (" on ſ.", False),
+    )
+] + [
+    (separator.join([SECURITY_DECISION_STATEMENT] * 3), True)
+    for separator in (" ", "\n\n", "\r\r", "\r\n\r\n")
+] + [
+    (SECURITY_DECISION_STATEMENT + "\n\n" + suffix, accepted)
+    for suffix, accepted in (
+        ("A temporary decision remains pending.", False),
+        ("temporary temporary temporary", False),
+        ("</span>", True),
+        ("</span>\n\n" + SECURITY_DECISION_STATEMENT, False),
+        ("<span>Context. " + SECURITY_DECISION_STATEMENT + "</span>", False),
+        ("<!-- Context.\n\n" + SECURITY_DECISION_STATEMENT + " -->", False),
+        ("<?instruction Context.\n\n" + SECURITY_DECISION_STATEMENT + "?>", False),
+        ("<![CDATA[Context.\n\n" + SECURITY_DECISION_STATEMENT + "]]>", False),
+        ("<script\nContext.\n\n" + SECURITY_DECISION_STATEMENT, False),
+        ("<div>Earlier context.</div>\n\n" + SECURITY_DECISION_STATEMENT, True),
+        ("<?instruction Earlier context.?>\n\n" + SECURITY_DECISION_STATEMENT, True),
+        ("<![CDATA[Earlier context.]]>\n\n" + SECURITY_DECISION_STATEMENT, True),
+        ("`<? <![CDATA[ <!-- <script`\n\n" + SECURITY_DECISION_STATEMENT, True),
+        ("[Operations](Home) Context. " + SECURITY_DECISION_STATEMENT, False),
+        ("[Operations](Home) Context.\n\n" + SECURITY_DECISION_STATEMENT, True),
+    )
+] + [
+    (SECURITY_DECISION_STATEMENT.replace(". ", ".") + "\nContext.\n" + SECURITY_DECISION_STATEMENT, True),
+    (SECURITY_DECISION_STATEMENT + "\n\n"
+     + SECURITY_DECISION_STATEMENT.partition(" on ")[0] + " on /-.", False),
+    ("A proposed\n\ntemporary decision requires an accountable reviewed owner and at most seven days "
+     "from approval, with earlier reassessment.", False),
+    (SECURITY_DECISION_STATEMENT[:-1] + "\n\n" + SECURITY_DECISION_STATEMENT, False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_TRIGGER_CONTEXT_CASES)
+def test_security_decision_trigger_and_multiple_contexts_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("repetitions", [16, 32, 64])
+@pytest.mark.parametrize("kind", ["valid", "unfinished", "incomplete_prefix"])
+def test_security_decision_context_work_is_page_local(
+    monkeypatch: pytest.MonkeyPatch, repetitions: int, kind: str,
+) -> None:
+    audit = _load_audit_module()
+    statements = {
+        "valid": SECURITY_DECISION_STATEMENT,
+        "unfinished": "A temporary decision remains pending.",
+        "incomplete_prefix": "A proposed temporary decision remains pending.",
+    }
+    prose = "\n\n".join([statements[kind]] * repetitions)
+    original_context = audit._decision_plain_starts
+    original_token = audit._directory_literal_token_end
+    traversals: list[int] = []
+    positions: list[int] = []
+    scanning_context = False
+
+    def token(text: str, start: int) -> int | None:
+        if scanning_context:
+            positions.append(start)
+        return original_token(text, start)
+
+    def context(text: str, candidates: list[int]) -> set[int]:
+        nonlocal scanning_context
+        traversals.append(len(candidates))
+        scanning_context = True
+        try:
+            return original_context(text, candidates)
+        finally:
+            scanning_context = False
+
+    monkeypatch.setattr(audit, "_directory_literal_token_end", token)
+    monkeypatch.setattr(audit, "_decision_plain_starts", context)
+    failures = audit._page_prose_failures("Operations-Runbook.md", prose)
+    assert bool(failures) == (kind != "valid")
+    assert traversals == ([repetitions] if kind == "valid" else [])
+    assert positions == sorted(set(positions))
+    assert len(positions) <= len(prose)
+    # A separate page must start its own traversal; no context leaks between calls.
+    positions.clear()
+    traversals.clear()
+    assert audit._page_prose_failures("Operations-Runbook.md", SECURITY_DECISION_STATEMENT) == []
+    assert traversals == [1]
+    assert positions and positions[0] == 0
+
+
 def test_security_decision_preserves_navigation_and_all_page_scope(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     _set_github_origin(repo_root, "https://github.com/example/repo.git")

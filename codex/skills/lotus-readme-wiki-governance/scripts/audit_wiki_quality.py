@@ -5,6 +5,7 @@ import re
 import subprocess
 import sys
 import unicodedata
+from bisect import bisect_left, bisect_right
 from html import escape
 from html.entities import html5
 from html.parser import HTMLParser
@@ -30,7 +31,8 @@ GOVERNED_DECISION_PATTERN = re.compile(
         "owner", "and", "at", "most",
         r"(?:[1-9][0-9]*|one|two|three|four|five|six|seven|eight|nine|ten)",
         r"days?", "from", r"approval,[ \t\r\n]+with", "earlier", "reassessment",
-    )) + r"(?:[ \t\r\n]+on[ \t\r\n]+[A-Za-z0-9 ,/\-\t\r\n]+)?",
+    )) + r"(?:[ \t\r\n]+on[ \t\r\n]+(?a:[A-Za-z0-9 ,/\-\t\r\n]*"
+    r"[A-Za-z0-9][A-Za-z0-9 ,/\-\t\r\n]*))?",
     re.IGNORECASE,
 )
 DATABASE_TEMPORARY_PATTERN = re.compile(
@@ -998,62 +1000,48 @@ def _decision_raw_context_end(prose: str, start: int, literal_end: int | None) -
     return end
 
 
-def _decision_term_is_plain(prose: str, start: int) -> bool:
+def _decision_plain_starts(prose: str, candidates: list[int]) -> set[int]:
+    """Traverse page-local literal/element context once for ordered candidate offsets."""
     # WHATWG void elements have no body. A non-void tag's slash does not close it.
     void_tags = {
         "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
         "meta", "source", "track", "wbr",
     }
     elements: list[str] = []
+    plain: set[int] = set()
     index = 0
-    while index < start:
-        end = _directory_literal_token_end(prose, index)
-        token = prose[index:end] if end is not None else ""
-        is_tag = DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token) is not None
-        raw_end = _decision_raw_context_end(prose, index, end) if end is None or is_tag else None
-        if raw_end is not None:
-            if index <= start < raw_end:
-                return False
-            index = raw_end
-            continue
-        if end is None:
-            index += 1
-            continue
-        if index <= start < end:
-            return False
-        if is_tag:
-            tag = re.match(r"<(/?)([A-Za-z][A-Za-z0-9-]*)", token)
-            if tag is not None:
-                closing, name = tag.groups()
-                name = name.lower()
-                if closing:
-                    if not elements or elements[-1] != name:
-                        return False
-                    elements.pop()
-                elif name not in void_tags:
-                    elements.append(name)
-        index = end
-    return not elements
+    for start in candidates:
+        while index < start:
+            end = _directory_literal_token_end(prose, index)
+            token = prose[index:end] if end is not None else ""
+            is_tag = DIRECTORY_INLINE_TAG_PATTERN.fullmatch(token) is not None
+            raw_end = _decision_raw_context_end(prose, index, end) if end is None or is_tag else None
+            if raw_end is not None:
+                index = raw_end
+                continue
+            if end is None:
+                index += 1
+                continue
+            if is_tag:
+                tag = re.match(r"<(/?)([A-Za-z][A-Za-z0-9-]*)", token)
+                if tag is not None:
+                    closing, name = tag.groups()
+                    name = name.lower()
+                    if closing:
+                        if not elements or elements[-1] != name:
+                            return plain
+                        elements.pop()
+                    elif name not in void_tags:
+                        elements.append(name)
+            index = end
+        if index == start and not elements:
+            plain.add(start)
+    return plain
 
 
-def _decision_term_is_governed(prose: str, start: int) -> bool:
+def _decision_term_is_governed(prose: str, start: int, end: int) -> bool:
     """Recognize a bounded plain requirement statement, without approving its risk decision."""
-    prefix = re.search(r"\bproposed[ \t\r\n]+$", prose[:start], re.IGNORECASE)
-    if prefix is None:
-        return False
-    if not _decision_term_is_plain(prose, start):
-        return False
-    before = prose[:prefix.start()].replace("\r\n", "\n").replace("\r", "\n")
-    paragraph = re.split(r"\n[ \t]*\n", before)[-1]
-    # Keep this new admission limited to plain prose; title punctuation cannot supply a boundary.
-    if "[" in paragraph or "]" in paragraph:
-        return False
-    sentence_prefix = re.split(r"[.!?]", paragraph)[-1].strip(" \t\r\n")
-    if sentence_prefix.lower() not in {"", "a"}:
-        return False
-    ending = re.search(r"[.!?]|$", prose[start:])
-    assert ending is not None
-    statement = prose[prefix.start():start + ending.start()].strip(" \t\r\n")
+    statement = prose[start:end].strip(" \t\r\n")
     normalized = statement.replace("\r\n", "\n").replace("\r", "\n")
     if re.search(r"\n[ \t]*\n", normalized):
         return False
@@ -1062,11 +1050,47 @@ def _decision_term_is_governed(prose: str, start: int) -> bool:
     return GOVERNED_DECISION_PATTERN.fullmatch(statement) is not None
 
 
+def _governed_decision_starts(prose: str) -> set[int]:
+    """Index raw prose boundaries locally; qualify candidates before one context traversal."""
+    prefixes = list(re.finditer(r"\bproposed[ \t\r\n]+(?=temporary\b)", prose, re.IGNORECASE))
+    if not prefixes:
+        return set()
+    # Treat CRLF as one ending, never as two blank-line delimiters through backtracking.
+    newline = r"(?:\r\n|\r(?!\n)|(?<!\r)\n)"
+    breaks = list(re.finditer(newline + r"[ \t]*" + newline, prose))
+    paragraph_starts = [0] + [match.end() for match in breaks]
+    break_starts = [match.start() for match in breaks]
+    terminators = [match.start() for match in re.finditer(r"[.!?]", prose)]
+    brackets = [match.start() for match in re.finditer(r"[\[\]]", prose)]
+    content = [match.start() for match in re.finditer(r"[^ \t\r\n]", prose)]
+    candidates: list[int] = []
+    for prefix in prefixes:
+        start, temporary = prefix.start(), prefix.end()
+        ending = bisect_left(terminators, temporary)
+        end = terminators[ending] if ending < len(terminators) else len(prose)
+        blank = bisect_left(break_starts, start)
+        if blank < len(break_starts) and break_starts[blank] < end:
+            continue
+        paragraph = paragraph_starts[bisect_right(paragraph_starts, start) - 1]
+        bracket = bisect_left(brackets, paragraph)
+        if bracket < len(brackets) and brackets[bracket] < start:
+            continue
+        previous = bisect_left(terminators, start) - 1
+        sentence = max(paragraph, terminators[previous] + 1 if previous >= 0 else 0)
+        first, stop = bisect_left(content, sentence), bisect_left(content, start)
+        if stop != first and not (stop == first + 1 and prose[content[first]] in "Aa"):
+            continue
+        if _decision_term_is_governed(prose, start, end):
+            candidates.append(temporary)
+    return _decision_plain_starts(prose, candidates) if candidates else set()
+
+
 def _page_prose_failures(page_name: str, text: str) -> list[str]:
     failures: list[str] = []
     prose = _prose_without_fenced_code(text)
     directory_references = _directory_reference_labels(prose)
     hidden_directory_nouns = _directory_hidden_noun_starts(prose)
+    governed_decisions = _governed_decision_starts(prose)
     if BARE_URL_PATTERN.findall(prose):
         failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
 
@@ -1079,7 +1103,7 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
                     match.start() in hidden_directory_nouns
                     or DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
                     or _directory_term_is_technical(prose, match.start(), directory_references)
-                    or _decision_term_is_governed(prose, match.start())
+                    or match.start() in governed_decisions
                 )
             )
         }

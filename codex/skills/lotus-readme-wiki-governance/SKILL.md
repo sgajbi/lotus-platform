@@ -122,7 +122,9 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      section.
    - admit plain proposed temporary decision requirement statements only when the same sentence
      requires an accountable reviewed owner, a finite days bound from approval and earlier
-     reassessment; notes/workaround qualifiers and mixed unfinished markers remain rejected;
+     reassessment; optional `on ...` triggers require at least one supported ASCII letter or
+     digit, so whitespace or punctuation alone cannot supply a trigger; notes/workaround
+     qualifiers and mixed unfinished markers remain rejected;
      see the reference standard for the conservative supported grammar. This classifies prose,
      not risk approval, acceptable decision duration or renewal of expired acceptances;
      reject statements inside recognized enclosing HTML element bodies across sentence or
@@ -136,6 +138,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      line-start raw contexts include their closing line, while following plain paragraphs
      remain supported. This bounded exclusion does not broaden directory/database parsing
      or claim full Markdown rendering, DOM repair or visibility inference;
+     qualify repeated statements using page-local sentence/paragraph indexes and one ordered
+     context traversal, preserving each occurrence's exclusions without growing-prefix rescans;
    - preserve technical terms such as "indexed temporary relation", "temporary table", or an OS
      "temporary directory"; directory/table/relation phrases followed by "notes" or "workaround"
      remain scratch prose;
