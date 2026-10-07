@@ -152,6 +152,9 @@ The prose classifier admits individual technical noun phrases `temporary relatio
 `temporary table(s)`, and OS `temporary directory`/`temporary directories` on one line.
 It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`, `temporary workaround`,
 `maybe implement later`, and these noun phrases immediately followed by `notes` or `workaround`.
+For directory phrases, a same-line colon, semicolon, comma, period, dash, parentheses, or brackets
+before `notes` or `workaround` also remains scratch prose. Technical punctuation such as
+`temporary directory, with mode 0700` remains valid. Database phrase grammar is unchanged.
 A legitimate technical term never exempts other scratch-note occurrences
 in the same sentence or page. Fenced executable examples remain outside prose checks.
 Base prose, navigation and link checks apply wiki-wide; changed-page scope selects only the
