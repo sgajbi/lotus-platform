@@ -111,7 +111,7 @@ def test_shipped_boundary_isolates_concurrent_caller_scopes(cash_source):
 def test_shipped_boundary_retains_only_bounded_refusal(cash_source, tenant, reason, request_count):
     url, requests = cash_source
     result = invoke_cash_boundary(url, tenant)
-    assert result.returncode == 1
+    assert result.returncode == 1, result.stdout + result.stderr
     assert f"CANONICAL_CASH_{reason}" in result.stdout
     assert "before any persistent seed write" in result.stdout
     assert "PRIVATE SOURCE DETAIL" not in result.stdout + result.stderr
@@ -135,7 +135,7 @@ def test_cheap_caller_validation_rejects_invalid_scope_before_native_io(cash_sou
         validate_only=True,
         resolver_path=ROOT / "automation/resolver-must-not-run.py",
     )
-    assert result.returncode == 1
+    assert result.returncode == 1, result.stdout + result.stderr
     assert "CANONICAL_CASH_CALLER_TENANT_INVALID" in result.stdout
     assert "before any persistent seed write" in result.stdout
     assert requests == []

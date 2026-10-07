@@ -153,6 +153,50 @@ DIRECTORY_LINK_CASES = [
 ]
 
 
+DIRECTORY_IMAGE_MARKER_CASES = [
+    (
+        "\\" * count + f"![temporary directory]{suffix} {qualifier}{definition}",
+        count % 2 == 0 and suffix in {"(Operations-Runbook)", "[target]"},
+    )
+    for count in range(5)
+    for suffix, definition in (
+        ("(Operations-Runbook)", ""),
+        ("[target]", "\n\n[target]: Operations-Runbook"),
+        ("[]", "\n\n[temporary directory]: Operations-Runbook"),
+        ("", "\n\n[temporary directory]: Operations-Runbook"),
+    )
+    for qualifier in ("notes", "**workaround**")
+] + [
+    ("\\" * count + f"![{label}]{suffix} {continuation}{definition}", True)
+    for count in range(5)
+    for suffix, definition in (
+        ("(Operations-Runbook)", ""),
+        ("[target]", "\n\n[target]: Operations-Runbook"),
+    )
+    for label, continuation in (
+        ("temporary directory with mode 0700", "notes explain permissions."),
+        ("temporary directory", "mode 0700 protects diagnostics."),
+    )
+] + [
+    ("[prefix " + "\\" * count + "![page](Home) temporary directory](Operations-Runbook) notes", bool(count % 2))
+    for count in range(5)
+] + [
+    ("\\" * count + "![prefix [temporary directory](Operations-Runbook)](Home) notes", True)
+    for count in range(5)
+] + [
+    (r"\!\[temporary directory](Operations-Runbook) notes", True),
+    (r"\![temporary directory\](Operations-Runbook) notes", True),
+    (r"`\![temporary directory](Operations-Runbook) notes`", True),
+    (r"\![temporary directory][missing] notes", True),
+    (r"\![temporary directory](Operations-Runbook notes", True),
+    (r"\![temporary directory **notes**](Operations-Runbook)", False),
+    (r"![temporary directory **notes**](Operations-Runbook)", False),
+] + [
+    (f"\\![temporary directory](Operations-Runbook){newline}notes", True)
+    for newline in ("\r", "\n", "\r\n")
+]
+
+
 def _load_audit_module():
     spec = importlib.util.spec_from_file_location("audit_wiki_quality", AUDIT_PATH)
     assert spec is not None
@@ -217,6 +261,13 @@ def test_invalid_directory_link_metadata_preserves_navigation_guard(
 ) -> None:
     prose = f"[temporary directory](Operations-Runbook\\{separator}invalid) notes"
     _assert_directory_prose_actual_and_cli(tmp_path, prose, True, link_failure_expected=True)
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_IMAGE_MARKER_CASES)
+def test_directory_image_marker_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
 def _assert_directory_prose_actual_and_cli(

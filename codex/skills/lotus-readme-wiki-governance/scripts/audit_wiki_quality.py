@@ -199,6 +199,15 @@ def _directory_link_metadata_end(
     return suffix if normalized in references else None
 
 
+def _directory_label_is_image(line: str, opening: int) -> bool:
+    if opening == 0 or line[opening - 1] != "!":
+        return False
+    index = opening - 2
+    while index >= 0 and line[index] == "\\":
+        index -= 1
+    return (opening - 2 - index) % 2 == 0
+
+
 def _directory_noun_link_tail(
     line: str, noun_start: int, noun_end: int, references: set[str],
 ) -> str:
@@ -222,7 +231,7 @@ def _directory_noun_link_tail(
             pairs.append((stack.pop(), index))
         index += 1
     for opening, closing in pairs:
-        if not opening < noun_start < noun_end <= closing or line[opening - 1:opening] == "!":
+        if not opening < noun_start < noun_end <= closing or _directory_label_is_image(line, opening):
             continue
         label = line[opening + 1:closing]
         metadata_end = _directory_link_metadata_end(line, closing, label, references)
@@ -230,7 +239,7 @@ def _directory_noun_link_tail(
             continue
         nested_link = any(
             opening < nested_open < nested_close < closing
-            and line[nested_open - 1:nested_open] != "!"
+            and not _directory_label_is_image(line, nested_open)
             and _directory_link_metadata_end(
                 line, nested_close, line[nested_open + 1:nested_close], references
             ) is not None
