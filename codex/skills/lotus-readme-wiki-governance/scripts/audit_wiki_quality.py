@@ -165,7 +165,7 @@ def _directory_reference_labels(prose: str) -> set[str]:
     labels: set[str] = set()
     definition_block = True
     in_comment_block = False
-    for line in prose.splitlines():
+    for line in prose.split("\n"):
         if in_comment_block or re.match(r" {0,3}<!--", line):
             # Comment blocks keep raw contents across blanks and end by line.
             in_comment_block = "-->" not in line
@@ -421,6 +421,21 @@ def _directory_noun_link_tail(
         if not nested_link:
             return line[noun_end:closing] + line[metadata_end:]
     return line[noun_end:]
+
+
+def _directory_hidden_noun_starts(prose: str) -> set[int]:
+    """Find only directory nouns inside complete active HTML metadata tokens."""
+    hidden: set[int] = set()
+    index = 0
+    while index < len(prose):
+        end = _directory_literal_token_end(prose, index)
+        if end is None:
+            index += 1
+            continue
+        if prose[index] == "<" and not DIRECTORY_AUTOLINK_PATTERN.match(prose, index):
+            hidden.update(index + noun.start() for noun in DIRECTORY_TEMPORARY_PATTERN.finditer(prose[index:end]))
+        index = end
+    return hidden
 
 
 def _directory_term_is_technical(prose: str, start: int, references: set[str]) -> bool:
@@ -760,7 +775,7 @@ def _first_nonblank_line(text: str) -> str:
 def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     in_fence = False
-    for line in text.splitlines():
+    for line in re.split(r"\r\n|\r|\n", text):
         if line.strip().startswith("```"):
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
@@ -916,6 +931,7 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
     failures: list[str] = []
     prose = _prose_without_fenced_code(text)
     directory_references = _directory_reference_labels(prose)
+    hidden_directory_nouns = _directory_hidden_noun_starts(prose)
     if BARE_URL_PATTERN.findall(prose):
         failures.append(f"{page_name}: contains bare URL; use a named Markdown link")
 
@@ -925,7 +941,8 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
             if not (
                 match.group(0).lower() == "temporary"
                 and (
-                    DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
+                    match.start() in hidden_directory_nouns
+                    or DATABASE_TEMPORARY_PATTERN.match(prose, match.start())
                     or _directory_term_is_technical(prose, match.start(), directory_references)
                 )
             )

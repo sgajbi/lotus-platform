@@ -307,6 +307,90 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_RAW_SEPARATOR_CASES = [
+    (f"temporary directory:{separator}{qualifier}", False)
+    for separator in ("\v", "\f", "\x1c", "\x1d", "\x1e", "\x85", "\u2028", "\u2029")
+    for qualifier in ("notes", "**workaround**")
+] + [
+    (f"temporary directory:{newline}{qualifier}", True)
+    for newline in ("\r", "\n", "\r\n")
+    for qualifier in ("notes", "**workaround**")
+] + [
+    (f"Intro.\n```\necho permissions\n```\ntemporary directory:{separator}notes", False)
+    for separator in ("\v", "\f", "\x85", "\u2028")
+] + [
+    (f"Intro.{separator}[target]: Operations-Runbook\n[temporary directory][target] notes", True)
+    for separator in ("\v", "\f", "\x85", "\u2028")
+] + [
+    (f"Intro.{separator}```\ntemporary directory: notes\n```", False)
+    for separator in ("\v", "\f", "\x85", "\u2028")
+] + [
+    (f"Intro.\n<!-- hidden{separator}-->\n[target]: Operations-Runbook\n[temporary directory][target] notes", False)
+    for separator in ("\v", "\f", "\x85", "\u2028")
+] + [
+    ("temporary directory:\vnotes_directory", True),
+    ("temporary directory:\u2028mode 0700", True),
+    ("temporary directory:\vnotes\n```\nTODO\n```", False),
+]
+
+
+DIRECTORY_HIDDEN_NOUN_CASES = [
+    (token, True)
+    for noun in ("temporary directory", "TEMPORARY DIRECTORIES")
+    for qualifier in ("notes", "workaround")
+    for token in (
+        f'<span title="{noun}: {qualifier}">mode 0700</span>',
+        f"<span title='{noun}: {qualifier}'>mode 0700</span>",
+        f'<span data-label="{noun}: {qualifier}" title="[nested] > <em>">mode 0700</span>',
+        f'<!-- {noun}: {qualifier} -->mode 0700',
+    )
+] + [
+    ('<span title="temporary directory:\nnotes">mode 0700</span>', True),
+    ('<span\ntitle="temporary directory: notes">mode 0700</span>', True),
+    ('<span title="temporary directory: notes\n">mode 0700</span>', True),
+    ('<span title="temporary directory: notes">temporary directory: notes</span>', False),
+    ('<!-- temporary directory: notes -->temporary directory: workaround', False),
+    ('temporary directory: <!-- temporary directory: workaround -->notes', False),
+    ('temporary directory: <span title="temporary directory: notes">mode 0700</span>', True),
+    ('temporary directory: <span title="temporary directory: notes">notes</span>', False),
+    ('`<span title="temporary directory: notes">mode 0700</span>`', False),
+    (r'\<span title="temporary directory: notes">mode 0700</span>', False),
+    ('`<!-- temporary directory: notes -->`', False),
+    (r'\<!-- temporary directory: notes -->', False),
+    ('<span title="temporary directory: notes>mode 0700', False),
+    ('<!-- temporary directory: notes', False),
+    ('<span title="temporary directory: notes"><!-- temporary directory: workaround -->mode 0700</span>', True),
+    ('<span title="temporary directory: notes">TODO finish</span>', False),
+    ('<!-- temporary directory: notes; TODO finish -->mode 0700', False),
+    ('<span title="temporary directory: notes">temporary workaround</span>', False),
+    ('[<span title="temporary directory: notes">temporary directory</span>](Operations-Runbook) notes', False),
+    ('[<span title="temporary directory: notes">mode 0700</span>](Operations-Runbook)', True),
+    ('temporary directory: <ops@example.com> notes', True),
+    ('temporary directory: &lt;span title="temporary directory: notes"&gt;mode 0700', False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_RAW_SEPARATOR_CASES)
+def test_directory_raw_separator_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_HIDDEN_NOUN_CASES)
+def test_directory_hidden_noun_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+def test_directory_hidden_noun_preserves_named_link_guard(tmp_path: Path) -> None:
+    _assert_directory_prose_actual_and_cli(
+        tmp_path, '<span title="temporary directory: notes">https://example.com</span>',
+        True, bare_url_failure_expected=True,
+    )
+
+
 DIRECTORY_NESTED_AUTOLINK_CASES = [
     (f"[{label}](Operations-Runbook) notes", True)
     for autolink in ("<ops@example.com>", "<irc://example.com/[x]>")
