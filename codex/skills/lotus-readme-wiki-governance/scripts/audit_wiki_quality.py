@@ -974,11 +974,11 @@ def _decision_raw_context_end(prose: str, start: int, literal_end: int | None) -
         return None
     line_start = max(prose.rfind("\n", 0, start), prose.rfind("\r", 0, start)) + 1
     block = start - line_start <= 3 and not prose[line_start:start].strip(" ")
-    raw_text = re.compile(r"<(?:pre|script|style|textarea)(?=[ \t\r\n>]|$)", re.IGNORECASE).match(prose, start)
+    raw_text = re.compile(r"<(pre|script|style|textarea)(?=[ \t\r\n>]|$)", re.IGNORECASE).match(prose, start)
     if block and raw_text is not None:
         # Complete attributes remain opaque; an incomplete EOL opener still opens raw context.
         search_start = literal_end if literal_end is not None else raw_text.end()
-        closing = re.compile(r"</(?:pre|script|style|textarea)>", re.IGNORECASE).search(prose, search_start)
+        closing = re.compile(r"</" + raw_text.group(1) + r">", re.IGNORECASE).search(prose, search_start)
         end = closing.end() if closing is not None else len(prose)
     else:
         delimiter = next((ending for opening, ending in (
