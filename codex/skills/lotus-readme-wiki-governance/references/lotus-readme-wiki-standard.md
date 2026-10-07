@@ -207,6 +207,12 @@ definition blocks beginning at document start or after a blank line, outside fen
 Excluding a recognized backtick-fenced block retains its blank paragraph boundary. Valid
 definitions after that block can begin a reference-definition block without an authored blank
 line; definitions/content inside the fence remain excluded. Fence recognition itself is unchanged.
+For directory-reference collection, a line beginning with `<!--` after zero to three spaces
+starts a raw comment block. Its contents cannot define references, even across blank lines,
+through the first line containing `-->` or end of input. The whole closing line remains raw;
+valid definitions on the following line may begin a new definition block. Nested openers do
+not restart the state. Escaped, inline and more deeply indented openers do not start this
+bounded line-start rule; other raw HTML block families are not implemented by it.
 Malformed or unresolved metadata, escaped openers/closers, complete code spans, images and
 outer labels containing links retain their literal suffix. For example, an undefined
 `[temporary directory][target] notes` contains visible identifier text; a resolved reference
