@@ -988,8 +988,9 @@ def _decision_term_is_plain(prose: str, start: int) -> bool:
                 closing, name = tag.groups()
                 name = name.lower()
                 if closing:
-                    if elements and elements[-1] == name:
-                        elements.pop()
+                    if not elements or elements[-1] != name:
+                        return False
+                    elements.pop()
                 elif name not in void_tags:
                     elements.append(name)
         index = end

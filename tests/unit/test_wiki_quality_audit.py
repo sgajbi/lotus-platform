@@ -355,6 +355,33 @@ def test_security_decision_html_context_actual_and_cli(tmp_path: Path, prose: st
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+SECURITY_DECISION_MALFORMED_HTML_CASES = [
+    ("</span>", False),
+    ("Context.</span>", False),
+    ("Context.\n\n</span>\n\n", False),
+    ("</SPAN>", False),
+    ("</br>", False),
+    ("<div><span>Context.</div></span></div>", False),
+    ("<span>Context.</div></span>", False),
+    ("<span>Context.</span></span>", False),
+    ("<div><span>Context.</span></div>", True),
+    ("<span>Context.</span><div>More context.</div>", True),
+    ("`</span>`", True),
+    ("<!-- </span> -->", True),
+    ('<span title="</div>">Context.</span>', True),
+    (r"\</span>", True),
+]
+
+
+@pytest.mark.parametrize("prefix, accepted", SECURITY_DECISION_MALFORMED_HTML_CASES)
+def test_security_decision_malformed_html_context_actual_and_cli(
+    tmp_path: Path, prefix: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(
+        tmp_path, prefix + "\n\n" + SECURITY_DECISION_STATEMENT, accepted,
+    )
+
+
 def test_security_decision_preserves_navigation_and_all_page_scope(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     _set_github_origin(repo_root, "https://github.com/example/repo.git")

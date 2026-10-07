@@ -161,7 +161,9 @@ qualify. Earlier Markdown bracket syntax in the same paragraph makes this narrow
 unsupported, preventing link/reference title punctuation from creating a false sentence boundary.
 Recognized non-void HTML element bodies also exclude the statement, even across sentence or
 paragraph breaks. Opening/closing tags are tracked in lexical nesting order; unmatched or
-misnested elements remain conservative. A slash on a non-void opening tag does not close it.
+misnested elements remain conservative. An unmatched or misnested closing tag blocks later
+decision admission even if subsequent closing tags would empty the element stack.
+A slash on a non-void opening tag does not close it.
 This uses the WHATWG void-element set, without DOM repair or CSS visibility inference.
 Properly closed markup followed by a new plain paragraph remains supported; literal code,
 comments and escaped tags do not open element context.
