@@ -33,11 +33,14 @@ DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
 )
 INLINE_CODE_SPAN_PATTERN = re.compile(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)")
 HTML_LINE_BREAK_TAGS = frozenset({
-    "address", "article", "aside", "blockquote", "br", "dd", "details", "dialog",
-    "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form",
-    "h1", "h2", "h3", "h4", "h5", "h6", "header", "hr", "li", "main", "nav",
-    "ol", "p", "pre", "section", "summary", "table", "tbody", "td", "th",
-    "thead", "tr", "ul",
+    # WHATWG default flow/list/text-bearing table layout plus br. This local
+    # lexical set excludes CSS, sanitization, visibility and HTML5 tree repair.
+    "address", "article", "aside", "blockquote", "body", "br", "caption",
+    "center", "dd", "details", "dialog", "dir", "div", "dl", "dt", "fieldset",
+    "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5",
+    "h6", "header", "hgroup", "hr", "html", "legend", "li", "listing", "main",
+    "menu", "nav", "ol", "p", "plaintext", "pre", "search", "section", "summary",
+    "table", "tbody", "td", "tfoot", "th", "thead", "tr", "ul", "xmp",
 })
 
 

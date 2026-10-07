@@ -127,7 +127,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      remain scratch prose, including emphasis, inline code, strikethrough, quotes and escaped formatting;
      technical descriptions such as "directory, with mode 0700" and formatted permissions remain valid.
      classify the local directory qualifier's rendered inline HTML text, not tag names, attributes or comments;
-     preserve raw/rendered line breaks and literal escaped markup or inline-code contents.
+     preserve raw CR/LF and both tag boundaries from the explicit default-layout set in
+     [the documentation standard](./references/lotus-readme-wiki-standard.md#publication-link-and-prose-classification),
+     plus literal escaped markup or inline-code contents. Inline/hidden names are not boundary exemptions;
+     CSS, visibility/open state, sanitizers and HTML5 tree repair are outside this lexical policy.
      classify each occurrence rather than waiving a page containing both technical terms and notes.
    - distinguish named GitHub evidence citations from repository file links; apply the route and
      local wiki-page rules in [the documentation standard](./references/lotus-readme-wiki-standard.md#publication-link-and-prose-classification).
