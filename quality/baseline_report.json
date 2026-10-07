@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 14
     },
-    "total_source_lines": 422998
+    "total_source_lines": 423161
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 36,
-        "end_line": 176,
-        "line": 118,
+        "end_line": 186,
+        "line": 128,
         "lines": 59,
         "name": "_directory_inline_link_end",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -171,8 +171,8 @@
       },
       {
         "complexity": 21,
-        "end_line": 787,
-        "line": 711,
+        "end_line": 797,
+        "line": 721,
         "lines": 77,
         "name": "_repository_github_link_failures",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4193
+    "python_function_count": 4196
   },
-  "generated_at_utc": "2026-10-07T12:51:06Z",
+  "generated_at_utc": "2026-10-07T16:51:05Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,6 +413,11 @@
       "suffix": ".py"
     },
     {
+      "lines": 1968,
+      "path": "tests/unit/test_wiki_quality_audit.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1915,
       "path": "tests/unit/test_auto_merge_releasability_validator.py",
       "suffix": ".py"
@@ -420,11 +425,6 @@
     {
       "lines": 1908,
       "path": "platform-contracts/domain-data-products/validate_domain_data_product_contracts.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1870,
-      "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 3961,
+    "collected_tests": 4005,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "3961 tests collected"
+    "summary": "4005 tests collected"
   }
 }

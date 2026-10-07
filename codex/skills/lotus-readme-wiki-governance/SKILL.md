@@ -120,6 +120,11 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - remove scratch-note language such as "TODO", "maybe", "rough", "temp", or unqualified
      "production-ready" claims unless they are intentionally documented in a roadmap or gap
      section.
+   - admit plain proposed temporary decision requirement statements only when the same sentence
+     requires an accountable reviewed owner, a finite days bound from approval and earlier
+     reassessment; notes/workaround qualifiers and mixed unfinished markers remain rejected;
+     see the reference standard for the conservative supported grammar. This classifies prose,
+     not risk approval, acceptable decision duration or renewal of expired acceptances;
    - preserve technical terms such as "indexed temporary relation", "temporary table", or an OS
      "temporary directory"; directory/table/relation phrases followed by "notes" or "workaround"
      remain scratch prose;

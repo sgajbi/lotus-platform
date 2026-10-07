@@ -241,6 +241,104 @@ def test_database_terms_do_not_waive_scratch_notes(prose: str) -> None:
     )
 
 
+SECURITY_DECISION_STATEMENT = (
+    "A proposed temporary decision requires an accountable reviewed owner and at most "
+    "seven days from approval, with earlier reassessment on published stable fixes, "
+    "image/package changes or weaker controls."
+)
+SECURITY_DECISION_PERFORMANCE_PARAGRAPH = (
+    "These controls reduce privilege exposure without fixing package advisories. Eight container\n"
+    "acceptances expired on 2026-10-05; #624 retains fresh scan evidence and the pending decision.\n"
+    "Do not extend dates or remove findings because a helper/module is currently unreachable. A\n"
+    "proposed temporary decision requires an accountable reviewed owner and at most seven days from\n"
+    "approval, with earlier reassessment on published stable fixes, image/package changes or weaker\n"
+    "controls. Source ownership is not institutional risk approval. Read the\n"
+    "[supply-chain report](https://github.com/sgajbi/lotus-performance/blob/main/quality/container_supply_chain_report.md)\n"
+    "for per-advisory applicability, native commands and refusal boundaries."
+)
+SECURITY_DECISION_CASES = [
+    (SECURITY_DECISION_PERFORMANCE_PARAGRAPH, True),
+    (SECURITY_DECISION_STATEMENT + " Source ownership is not institutional risk approval.", True),
+    (SECURITY_DECISION_STATEMENT.replace(" reviewed owner", " reviewed\nowner"), True),
+    (SECURITY_DECISION_STATEMENT.replace(" from approval", " from\r\napproval"), True),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "1 day"), True),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "14 days"), True),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "ten days"), True),
+    (SECURITY_DECISION_STATEMENT.upper(), True),
+    ("<!-- " + SECURITY_DECISION_STATEMENT + " -->", False),
+    ('<span title="' + SECURITY_DECISION_STATEMENT + '">Pending decision.</span>', False),
+    ("`" + SECURITY_DECISION_STATEMENT + "`", False),
+    ("Unfinished decision notes: " + SECURITY_DECISION_STATEMENT, False),
+    ("<!-- Explanation.\n\n" + SECURITY_DECISION_STATEMENT + " -->", False),
+    ('<span title="Explanation. ' + SECURITY_DECISION_STATEMENT + '">Pending.</span>', False),
+    ("`Explanation. " + SECURITY_DECISION_STATEMENT + "`", False),
+    ("Decision **notes**: " + SECURITY_DECISION_STATEMENT, False),
+    ('[Operations](Home "Context. ' + SECURITY_DECISION_STATEMENT + '")', False),
+    ('[ops]: Home "Context. ' + SECURITY_DECISION_STATEMENT + '"', False),
+    ("A proposed temporary decision remains pending.", False),
+    (SECURITY_DECISION_STATEMENT.replace("an accountable reviewed owner and ", ""), False),
+    (SECURITY_DECISION_STATEMENT.replace("at most seven days from approval", "a deadline"), False),
+    (SECURITY_DECISION_STATEMENT.replace(
+        ", with earlier reassessment on published stable fixes, image/package changes or weaker controls", ""
+    ), False),
+    (SECURITY_DECISION_STATEMENT.replace(" and at most", ". At most"), False),
+    (SECURITY_DECISION_STATEMENT.replace(" reviewed owner", " reviewed\n\nowner"), False),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "0 days"), False),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "-1 days"), False),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "07 days"), False),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "1.5 days"), False),
+    (SECURITY_DECISION_STATEMENT.replace("seven days", "eleven days"), False),
+    (SECURITY_DECISION_STATEMENT.replace("decision requires", "decision notes require"), False),
+    (SECURITY_DECISION_STATEMENT.replace("decision requires", "decision **notes** requires"), False),
+    (SECURITY_DECISION_STATEMENT.replace("decision requires", "decision `workaround` requires"), False),
+    (SECURITY_DECISION_STATEMENT.replace("weaker controls", "notes"), False),
+    (SECURITY_DECISION_STATEMENT.replace("weaker controls", "**workaround**"), False),
+    (SECURITY_DECISION_STATEMENT + " TODO finish the review.", False),
+    (SECURITY_DECISION_STATEMENT + " TBD obtain approval.", False),
+    (SECURITY_DECISION_STATEMENT + " FIXME record ownership.", False),
+    (SECURITY_DECISION_STATEMENT + " A temporary workaround remains.", False),
+    (SECURITY_DECISION_STATEMENT.replace(
+        "an accountable reviewed owner", "[an accountable reviewed owner](Home)"
+    ), False),
+    (SECURITY_DECISION_STATEMENT.replace(
+        "an accountable reviewed owner", "<span title='an accountable reviewed owner'>owner</span>"
+    ), False),
+    (SECURITY_DECISION_STATEMENT.replace(
+        "an accountable reviewed owner", "<!-- an accountable reviewed owner -->owner"
+    ), False),
+    (SECURITY_DECISION_STATEMENT.replace(
+        "an accountable reviewed owner", "`an accountable reviewed owner`"
+    ), False),
+    ("A proposed temporary decision requires ownership.\n```\n"
+     "an accountable reviewed owner and at most seven days from approval, with earlier reassessment\n```", False),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", SECURITY_DECISION_CASES)
+def test_security_decision_prose_actual_and_cli(tmp_path: Path, prose: str, accepted: bool) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+def test_security_decision_preserves_navigation_and_all_page_scope(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    _set_github_origin(repo_root, "https://github.com/example/repo.git")
+    wiki = repo_root / "wiki"
+    wiki.mkdir()
+    (wiki / "Home.md").write_text("# Home\n\n[Operations](Operations-Runbook)\n", encoding="utf-8")
+    (wiki / "_Sidebar.md").write_text("# Navigation\n\n[Home](Home)\n", encoding="utf-8")
+    (wiki / "Operations-Runbook.md").write_text(
+        "# Operations Runbook\n\n" + SECURITY_DECISION_STATEMENT + "\n"
+        "[Missing](Absent-Page)\nA temporary workaround remains TODO.\n", encoding="utf-8",
+    )
+    result = subprocess.run(
+        [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki), "--repo-root", str(repo_root),
+         "--changed-page", "Home.md"], capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "Operations-Runbook.md: contains scratch-note terms" in result.stdout
+    assert "broken local or repo-relative link" in result.stdout
+
+
 @pytest.mark.parametrize("prose, accepted", DIRECTORY_HTML_BOUNDARY_CASES)
 def test_directory_html_boundary_policy_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool,
