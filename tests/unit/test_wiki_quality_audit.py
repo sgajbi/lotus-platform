@@ -1054,6 +1054,48 @@ def test_directory_bare_angles_preserve_scratch_and_navigation(tmp_path: Path, p
     _assert_directory_prose_actual_and_cli(tmp_path, prose, False, link_failure_expected=True)
 
 
+DIRECTORY_REFERENCE_BLANK_CASES = [
+    (
+        ending.join(("Intro.", separator, f"[{label}]: Operations-Runbook", f"{use} notes")),
+        not defines if use == "[temporary directory][target]" else False,
+        {label} if defines else set(),
+    )
+    for ending in ("\n", "\r", "\r\n")
+    for separator, defines in (
+        ("\v", False), ("\f", False), ("\u0085", False), ("\u00a0", False),
+        ("\u2028", False), ("\u2029", False), ("\u2003", False),
+        ("", True), (" ", True), ("\t", True), (" \t ", True),
+    )
+    for label, use in (
+        ("target", "[temporary directory][target]"),
+        ("temporary directory", "[temporary directory][]"),
+        ("temporary directory", "[temporary directory]"),
+    )
+]
+DIRECTORY_REFERENCE_BLANK_CASES += [
+    ("Intro.\n[target]: Operations-Runbook\n[temporary directory][target] notes", True, set()),
+    ("\n[target]: Operations-Runbook\n[temporary directory][target] notes", False, {"target"}),
+    ("Intro.\n\u00a0\n\n[target]: Operations-Runbook\n[temporary directory][target] notes", False, {"target"}),
+    ("Intro.\n\v\n[other]: Operations-Runbook\n[temporary directory][target] notes", True, set()),
+    ("Intro.\n\v\n[target]: Operations-Runbook\n`temporary directory` notes", False, set()),
+    ("Intro.\n<!-- comment -->\n[target]: Operations-Runbook\n[temporary directory][target] notes", False, {"target"}),
+    ("Intro.\n```text\n\u00a0\n```\n[target]: Operations-Runbook\n[temporary directory][target] notes", False, {"target"}),
+]
+
+
+@pytest.mark.parametrize("prose, accepted, references", DIRECTORY_REFERENCE_BLANK_CASES)
+def test_directory_reference_blank_separators_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool, references: set[str],
+) -> None:
+    audit = _load_audit_module()
+    assert audit._directory_reference_labels(audit._prose_without_fenced_code(prose)) == references
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
+def test_directory_reference_document_start_collector() -> None:
+    assert _load_audit_module()._directory_reference_labels("[target]: Operations-Runbook") == {"target"}
+
+
 def _assert_directory_prose_actual_and_cli(
     tmp_path: Path, prose: str, accepted: bool, *, link_failure_expected: bool = False,
     bare_url_failure_expected: bool = False,

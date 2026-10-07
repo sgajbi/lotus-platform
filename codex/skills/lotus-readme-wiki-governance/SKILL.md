@@ -155,6 +155,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      normalize complete inline emphasis/code/link text throughout the candidate qualifier under
      the standard's bounded flanking/literal rules, so split `n**o**tes` and `**work**around`
      cannot evade refusal; preserve internal punctuation, technical identifiers and line boundaries.
+     Treat only empty or ASCII space/tab-only lines as blank reference-definition separators;
+     Unicode/control-only lines remain paragraph content and cannot reopen definition collection.
      Preserve a blank boundary when excluding recognized fenced code so following valid references
      remain resolvable; fence-contained definitions and scratch content remain excluded.
      Reference collection excludes line-start HTML comment blocks (zero to three spaces) through
