@@ -192,6 +192,9 @@ visibility/open state, sanitizer transformations, HTML5 tree repair/raw-text beh
 JavaScript and arbitrary Markdown rendering are outside its scope.
 For a directory noun inside a same-line Markdown link label, the local qualifier check
 retains the label's visible continuation and elides only recognized closing-label metadata.
+During noun-label bracket scanning, complete inline HTML tokens recognized by the existing
+local token policy are opaque: attribute and comment brackets cannot alter label pairing.
+Malformed tokens remain literal; code span, escape, image and nested-link rules are unchanged.
 Supported [CommonMark link families](https://spec.commonmark.org/0.31.2/#links) are complete
 inline links (empty, angle or balanced bare destinations, escaped punctuation and optional
 quoted/parenthesized titles), and resolved full, collapsed or shortcut reference links.

@@ -307,6 +307,31 @@ def test_directory_comment_reference_policy_actual_and_cli(
     _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
 
 
+DIRECTORY_NOUN_HTML_CASES = [
+    (f'[{tag}temporary directory</span>](Operations-Runbook) {qualifier}', accepted)
+    for tag in ('<span title="]">', "<span title='['>", '<span title="[nested]">')
+    for qualifier, accepted in (("notes", False), ("**workaround**", False), ("mode 0700", True))
+] + [
+    ('[temporary directory](Operations-Runbook) notes', False),
+    ('[<!-- ] -->temporary directory](Operations-Runbook) notes', False),
+    ('[<span title="]">temporary directory</span>][target] notes\n\n[target]: Operations-Runbook', False),
+    ('[<span title="]">temporary directory</span>][missing] notes', True),
+    ('`[<span title="]">temporary directory</span>](Operations-Runbook) notes`', True),
+    (r'\[<span title="]">temporary directory</span>](Operations-Runbook) notes', True),
+    ('![<span title="]">temporary directory</span>](Operations-Runbook) notes', True),
+    ('[<span title="]">OS [private] temporary directory</span>](Operations-Runbook) notes', False),
+    ('[<span title="]">temporary directory</span> [owner](Operations-Runbook)](Operations-Runbook) notes', True),
+    ('[<span title="]>temporary directory</span>](Operations-Runbook) notes', True),
+]
+
+
+@pytest.mark.parametrize("prose, accepted", DIRECTORY_NOUN_HTML_CASES)
+def test_directory_noun_html_policy_actual_and_cli(
+    tmp_path: Path, prose: str, accepted: bool,
+) -> None:
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted)
+
+
 DIRECTORY_FENCE_BOUNDARY_CASES = [
     (f"Intro paragraph.\n{opening}\necho permissions\n{closing}\n"
      f"[{label}]: Operations-Runbook\n{noun} {qualifier}", False)

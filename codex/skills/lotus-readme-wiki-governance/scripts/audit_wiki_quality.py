@@ -339,8 +339,9 @@ def _directory_noun_link_tail(
                 return line[noun_end:]
             index = code_spans[index]
             continue
-        if line[index] == "\\" and index + 1 < len(line) and line[index + 1] in punctuation:
-            index += 2
+        literal_end = _directory_literal_token_end(line, index)
+        if literal_end is not None:
+            index = literal_end
             continue
         if line[index] == "[":
             stack.append(index)
