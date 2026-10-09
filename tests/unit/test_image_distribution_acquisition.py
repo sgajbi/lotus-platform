@@ -29,7 +29,7 @@ def _arguments(mapping):
     ]
 
 
-@pytest.mark.parametrize("index", [0, 1, 2, 3, 4, 5])
+@pytest.mark.parametrize("index", range(8))
 def test_each_admitted_mapping_resolves(index):
     mapping = _policy()["container_image_evidence_policy"][
         "approved_distribution_mappings"
@@ -39,6 +39,95 @@ def test_each_admitted_mapping_resolves(index):
         _validator().resolve_distribution(_policy(), args[1], args[3], args[5])
         == mapping
     )
+
+
+@pytest.mark.parametrize("name", ["trivy", "syft"])
+@pytest.mark.parametrize(
+    "fault", [None, "digest", "platform", "repository", "child", "config"]
+)
+def test_gateway_admissions_verify_observed_metadata_and_refuse_drift(
+    monkeypatch, tmp_path, name, fault
+):
+    # Retained public bytes from the sealed observation, not synthesized digests.
+    # Root's admission independently checked original/distribution equality.
+    fixture = json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "fixtures/image-distribution/gateway-admitted-metadata.json"
+        ).read_text()
+    )[name]
+    raw = {kind: value.encode() for kind, value in fixture.items()}
+
+    def digest(kind):
+        return "sha256:" + hashlib.sha256(raw[kind]).hexdigest()
+
+    policy = _policy()
+    mapping = next(
+        item
+        for item in policy["container_image_evidence_policy"][
+            "approved_distribution_mappings"
+        ]
+        if item["image_digest"] == digest("root")
+    )
+    assert mapping["platform_manifest_digest"] == digest("child")
+    assert mapping["platform_config_digest"] == digest("config")
+    config = json.loads(raw["config"])
+    assert (config["os"], config["architecture"]) == ("linux", "amd64")
+    assert json.loads(raw["child"])["config"]["digest"] == digest("config")
+    args = _arguments(mapping)
+    if fault == "digest":
+        args[1] = mapping["original_repository"] + "@sha256:" + "0" * 64
+        args[3] = mapping["distribution_repository"] + "@sha256:" + "0" * 64
+    elif fault == "platform":
+        args[5] = "linux/arm64"
+    elif fault == "repository":
+        args[3] = "ghcr.io/attacker/" + name + "@" + mapping["image_digest"]
+    elif fault in ("child", "config"):
+        mapping[
+            "platform_manifest_digest" if fault == "child" else "platform_config_digest"
+        ] = "sha256:" + "0" * 64
+    policy_path = tmp_path / "policy.json"
+    policy_path.write_text(json.dumps(policy))
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    calls = []
+    repository = mapping["distribution_repository"].removeprefix("ghcr.io/")
+
+    def request(url, headers, *, timeout):
+        calls.append(url)
+        if "/token?" in url:
+            query = validator.urllib.parse.parse_qs(
+                validator.urllib.parse.urlsplit(url).query
+            )
+            assert query == {
+                "service": ["ghcr.io"],
+                "scope": [f"repository:{repository}:pull"],
+            }
+            return b'{"token":"ephemeral-test-token"}', {}
+        assert url.startswith(f"https://ghcr.io/v2/{repository}/manifests/")
+        return raw["root"] if url.endswith(digest("root")) else raw["child"], {}
+
+    monkeypatch.setattr(validator, "_registry_json", request)
+    output = tmp_path / "image-output"
+    result = validator.main(
+        args
+        + [
+            "--policy",
+            str(policy_path),
+            "--verify-distribution",
+            "--github-output",
+            str(output),
+        ]
+    )
+    if fault is None:
+        assert result == 0
+        assert output.read_text() == f"image={args[3]}\n"
+        assert len(calls) == 3
+    else:
+        assert result == 1
+        assert not output.exists()
+        if fault in ("digest", "platform", "repository"):
+            assert calls == []
 
 
 @pytest.mark.parametrize(

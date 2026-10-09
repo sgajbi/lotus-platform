@@ -26,6 +26,12 @@ there is no tag fallback. Manifest identity/availability does not replace hosted
 scan, SBOM, signature, support, provenance or smoke evidence, and does not promote the
 broader report-only technology-policy rollout.
 
+The current finite policy also includes the separately reviewed Gateway Trivy 0.72.0
+and Syft v1.42.3 audit tuples. Gateway Python uses the existing admitted single-platform
+manifest. Bind a qualified Platform revision containing these mappings; owning-repository
+hosted acquisition and audit checks remain required. See the
+[exact admission and evidence boundary](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601).
+
 `lotus-platform` uses:
 
 1. `Remote Feature Lane`
