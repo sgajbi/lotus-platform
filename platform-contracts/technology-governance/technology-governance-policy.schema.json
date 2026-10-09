@@ -235,8 +235,8 @@
       "additionalProperties": false,
       "required": ["original_repository", "distribution_repository", "image_digest", "manifest_kind", "platform", "platform_manifest_digest", "approval", "manifest_observation_sha256"],
       "properties": {
-        "original_repository": {"enum": ["docker.io/library/python", "docker.io/library/postgres", "docker.io/aquasec/trivy"]},
-        "distribution_repository": {"enum": ["public.ecr.aws/docker/library/python", "public.ecr.aws/docker/library/postgres", "ghcr.io/aquasecurity/trivy"]},
+        "original_repository": {"enum": ["docker.io/library/python", "docker.io/library/postgres", "docker.io/aquasec/trivy", "docker.io/anchore/syft"]},
+        "distribution_repository": {"enum": ["public.ecr.aws/docker/library/python", "public.ecr.aws/docker/library/postgres", "ghcr.io/aquasecurity/trivy", "ghcr.io/anchore/syft"]},
         "image_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
         "manifest_kind": {"enum": ["index", "manifest"]},
         "platform": {"enum": ["linux/amd64"]},

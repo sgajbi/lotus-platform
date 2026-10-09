@@ -1,7 +1,7 @@
 {
   "schema_version": "lotus-platform.technology-governance-policy.v1",
   "contract_id": "lotus-platform-technology-governance-policy",
-  "contract_version": "1.1.0",
+  "contract_version": "1.1.1",
   "lifecycle_status": "report_only",
   "governed_by_issue": "https://github.com/sgajbi/lotus-platform/issues/595",
   "effective_date": "2026-10-10",
@@ -141,6 +141,28 @@
         "platform_config_digest": "sha256:327daa8fae7178d61f93142f146b098467b345e10997b9eb79f63bd58e5c8f3c",
         "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089758654",
         "manifest_observation_sha256": "7dfb8d796c0b654f8604f4c485ab61c28912acec0b514b47fe439a22e17428bd"
+      },
+      {
+        "original_repository": "docker.io/aquasec/trivy",
+        "distribution_repository": "ghcr.io/aquasecurity/trivy",
+        "image_digest": "sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f",
+        "manifest_kind": "index",
+        "platform": "linux/amd64",
+        "platform_manifest_digest": "sha256:c6e969c5662a546ad5de4a73c2a6b7a7c627f86d916903e175aa623af5b97ada",
+        "platform_config_digest": "sha256:b81e075c68ad4b1a567e7b4d511e3b0493b0087ae708ff4dd607c497cde1daf6",
+        "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601",
+        "manifest_observation_sha256": "1eb8830984d5e849b9428139db7b95ba754b03ca99c2b642495d65e189abe6b0"
+      },
+      {
+        "original_repository": "docker.io/anchore/syft",
+        "distribution_repository": "ghcr.io/anchore/syft",
+        "image_digest": "sha256:5999d209a342e55e9edf70bf8930fb5b86d8f2a783fa401178372c50e21b1d36",
+        "manifest_kind": "index",
+        "platform": "linux/amd64",
+        "platform_manifest_digest": "sha256:76ccb84f37da4c8123370b2cdcb62a7a832458fff7eec97e3f7b79e605ec690c",
+        "platform_config_digest": "sha256:2e742b7cbe7ff9e815d8b71a0c2b82575ccf3cfe53d28ed5b7634cb201a4e9b4",
+        "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601",
+        "manifest_observation_sha256": "1eb8830984d5e849b9428139db7b95ba754b03ca99c2b642495d65e189abe6b0"
       },
       {
         "original_repository": "docker.io/aquasec/trivy",

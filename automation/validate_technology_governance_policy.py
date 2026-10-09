@@ -82,6 +82,7 @@ PUBLISHER_DISTRIBUTIONS = {
     "docker.io/library/python": "public.ecr.aws/docker/library/python",
     "docker.io/library/postgres": "public.ecr.aws/docker/library/postgres",
     "docker.io/aquasec/trivy": "ghcr.io/aquasecurity/trivy",
+    "docker.io/anchore/syft": "ghcr.io/anchore/syft",
 }
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",

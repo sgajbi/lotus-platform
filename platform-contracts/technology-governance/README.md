@@ -36,15 +36,16 @@ repository-native commands, and exact-SHA validation for each pilot repository.
 
 ## Exact CI distribution admission
 
-`container_image_evidence_policy.approved_distribution_mappings` admits only six exact
+`container_image_evidence_policy.approved_distribution_mappings` admits only eight exact
 source/content/platform tuples approved in [the initial Platform #945 decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089421841)
-and [the additional admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089758654).
+and [the additional admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089758654),
+with two Gateway audit tuples in [the exact Trivy/Syft admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601).
 Original publishers remain `docker.io/library/python`, `docker.io/library/postgres` and
-`docker.io/aquasec/trivy`. Acquisition aliases are Docker's `public.ecr.aws/docker/library/...`
-repositories and Trivy's official `ghcr.io/aquasecurity/trivy` repository. This is not approval
+`docker.io/aquasec/trivy` and `docker.io/anchore/syft`. Acquisition aliases are Docker's `public.ecr.aws/docker/library/...`
+repositories, Trivy's official `ghcr.io/aquasecurity/trivy` and Syft's official `ghcr.io/anchore/syft`. This is not approval
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
 registries are not admitted. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.0` requires this mapping section; consumers must bind the matching
+Policy version `1.1.1` retains the `1.1.0` mapping structure and adds the two audit tuples; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -67,6 +68,15 @@ immutable selection replacing a mutable reference; the historical successful run
 binary was not recoverable, so historical binary equivalence is unproven. PostgreSQL 16,
 16-alpine and 17 remain distinct mappings. Earlier R3 PG17 429 remains failed; R4 is a
 separate successful paced observation. Trivy lists [GHCR as an official destination](https://github.com/aquasecurity/trivy/blob/main/docs/getting-started/installation.md).
+
+Gateway's Trivy 0.72.0 index `cffe3f...` and Syft v1.42.3 index `5999d2...`
+have exact admitted Linux/amd64 child and config descriptors. The admission's independent
+raw recovery receipt `1eb8830984d5e849b9428139db7b95ba754b03ca99c2b642495d65e189abe6b0`
+verifies retained source/distribution metadata equality; committed regression fixtures preserve
+the observed root, child and config bytes for both. [Anchore publishes Syft at GHCR](https://github.com/anchore/syft/pkgs/container/syft).
+Gateway Python reuses the existing `e529...` single-platform tuple, not its unadmitted parent
+index. Neither audit admission identifies an earlier failed mutable-tag pull. Core's separately
+unresolved Confluent inputs are not admitted by this change.
 
 From the `lotus-platform` checkout, both PowerShell and Bash support this static admission
 check (replace the complete references with a reviewed tuple from the policy):
