@@ -12,6 +12,14 @@ guidance and does not certify a repository or product.
 
 ## Normal working loop
 
+Before PR creation, metadata edits or head pushes, run the shared candidate metadata check by its
+absolute Platform path. After mutation and immediately before merge, require complete current
+GitHub closing-reference evidence against the explicit intended closure set. See the
+[metadata runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/pr-metadata-enforcement.md)
+for PowerShell/Bash invocation and safe programme-parent wording. Platform's existing required PR
+contract job runs the live check on PR and metadata-edit events. Application CI adoption remains
+with each application owner; central availability does not establish fleet-wide enforcement.
+
 1. load the smallest correct context set
 2. use repo-native commands first
 3. run targeted local checks

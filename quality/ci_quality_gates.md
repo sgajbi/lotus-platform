@@ -6,6 +6,11 @@ failure mode.
 
 Initial gate posture:
 
+PR metadata is separately enforced by the current-live GraphQL command inside the required
+Platform PR contract job. Offline candidate policy and live closure evidence have distinct modes;
+see [the metadata runbook](../docs/operations/pr-metadata-enforcement.md). Application lane adoption
+remains application-owned. The native unit suite collects the good/bad controls for this gate.
+
 1. `automation/generate_enterprise_backend_quality_baseline.py --check` is wired into
    `automation/Invoke-PlatformRepoChecks.ps1` to keep the quality reporting surface present,
 2. `--check` compares stable material metrics in `quality/baseline_report.json` against the current

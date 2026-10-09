@@ -17,6 +17,10 @@ This guide is governed by:
 
 ## Purpose
 
+Before preparing a PR, follow [PR metadata enforcement](../operations/pr-metadata-enforcement.md):
+use the platform-owned absolute validator path, declare intended issue closures explicitly, and
+keep candidate-text evidence separate from live GitHub closing-reference evidence.
+
 A new chat should become useful quickly without relying on prior conversation memory.
 
 The agent should:

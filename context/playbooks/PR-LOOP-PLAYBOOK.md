@@ -92,6 +92,13 @@ practical, and record the disposition in the PR evidence.
 
 ## Local Proof Rule
 
+PR text and issue closure require the separate candidate/live checks in
+[PR metadata enforcement](../../docs/operations/pr-metadata-enforcement.md). Resolve the validator
+from the Platform checkout, including when working in an application with no local automation
+directory. Run candidate before PR creation/edit/head push and live after mutation and before
+merge. A finite programme slice declares `Intended closures: none`; GitHub's complete current
+closing-reference set must also be empty. Post-merge issue-state checks remain a recovery backstop.
+
 Before pushing:
 
 1. run targeted unit or contract tests for changed code,

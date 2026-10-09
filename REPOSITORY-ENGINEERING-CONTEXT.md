@@ -151,6 +151,12 @@ Do not create ad hoc substitutes for an existing repo-native entrypoint.
 
 ## Validation And CI Expectations
 
+The required PR Platform Repo Contracts job validates live PR metadata before the repository
+suite, on opening, head updates, reopening and metadata edits. It reads current GraphQL metadata,
+binds the expected head, and compares the complete closing-reference set with the explicit body
+declaration. Candidate policy, cross-repository invocation and application adoption boundaries are
+documented in [PR metadata enforcement](./docs/operations/pr-metadata-enforcement.md).
+
 ### Vulnerability example evaluation practice
 
 The native feature, PR and main lanes select the checked-in vulnerability-exception example

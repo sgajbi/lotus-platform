@@ -1,6 +1,6 @@
 {
   "classification_counts": {
-    "covered": 132,
+    "covered": 135,
     "review": 2,
     "undocumented": 25
   },
@@ -65,7 +65,7 @@
       "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/canonical_docker_ownership.py",
-      "reference_count": 6,
+      "reference_count": 9,
       "suffix": ".py",
       "test_reference_count": 3
     },
@@ -73,15 +73,15 @@
       "classification": "covered",
       "operator_doc_reference_count": 2,
       "path": "automation/canonical_orphan_retirement.py",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".py",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/canonical_runtime_inventory.py",
-      "reference_count": 2,
+      "reference_count": 4,
       "suffix": ".py",
       "test_reference_count": 1
     },
@@ -95,11 +95,11 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 3,
       "path": "automation/canonical_runtime_reservation.py",
-      "reference_count": 3,
+      "reference_count": 6,
       "suffix": ".py",
-      "test_reference_count": 1
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
@@ -487,11 +487,11 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 3,
+      "operator_doc_reference_count": 4,
       "path": "automation/Invoke-DpmCommandCenterSeed.ps1",
-      "reference_count": 11,
+      "reference_count": 16,
       "suffix": ".ps1",
-      "test_reference_count": 3
+      "test_reference_count": 7
     },
     {
       "classification": "covered",
@@ -511,11 +511,11 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 17,
+      "operator_doc_reference_count": 19,
       "path": "automation/Invoke-PlatformRepoChecks.ps1",
-      "reference_count": 31,
+      "reference_count": 35,
       "suffix": ".ps1",
-      "test_reference_count": 12
+      "test_reference_count": 14
     },
     {
       "classification": "covered",
@@ -524,6 +524,14 @@
       "reference_count": 9,
       "suffix": ".ps1",
       "test_reference_count": 3
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 2,
+      "path": "automation/Invoke-ResourceOnlyRecovery.ps1",
+      "reference_count": 4,
+      "suffix": ".ps1",
+      "test_reference_count": 1
     },
     {
       "classification": "undocumented",
@@ -649,9 +657,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/resolve_canonical_cash_evidence.py",
-      "reference_count": 4,
+      "reference_count": 5,
       "suffix": ".py",
-      "test_reference_count": 2
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
@@ -737,9 +745,9 @@
       "classification": "covered",
       "operator_doc_reference_count": 4,
       "path": "automation/Sync-Dev-Ingress-Hosts.ps1",
-      "reference_count": 11,
+      "reference_count": 12,
       "suffix": ".ps1",
-      "test_reference_count": 2
+      "test_reference_count": 3
     },
     {
       "classification": "covered",
@@ -759,9 +767,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 6,
+      "operator_doc_reference_count": 7,
       "path": "automation/Sync-RepoWikis.ps1",
-      "reference_count": 16,
+      "reference_count": 17,
       "suffix": ".ps1",
       "test_reference_count": 3
     },
@@ -1039,6 +1047,14 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 3,
+      "path": "automation/validate_composite_documentation_foundation.py",
+      "reference_count": 4,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/validate_container_build_baseline.py",
       "reference_count": 5,
@@ -1063,9 +1079,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 8,
+      "operator_doc_reference_count": 9,
       "path": "automation/validate_engineering_context_system.py",
-      "reference_count": 15,
+      "reference_count": 16,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -1151,6 +1167,14 @@
     },
     {
       "classification": "covered",
+      "operator_doc_reference_count": 1,
+      "path": "automation/validate_pr_metadata.py",
+      "reference_count": 3,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
       "operator_doc_reference_count": 0,
       "path": "automation/validate_principal_resolution_contracts.py",
       "reference_count": 3,
@@ -1215,11 +1239,11 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 0,
+      "operator_doc_reference_count": 2,
       "path": "automation/validate_technology_governance_policy.py",
-      "reference_count": 2,
+      "reference_count": 5,
       "suffix": ".py",
-      "test_reference_count": 1
+      "test_reference_count": 2
     },
     {
       "classification": "covered",
@@ -1278,6 +1302,6 @@
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-09-15T05:38:33Z",
-  "script_count": 159
+  "generated_at_utc": "2026-10-09T16:58:41Z",
+  "script_count": 162
 }
