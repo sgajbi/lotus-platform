@@ -172,6 +172,15 @@ Map the repo to one of these profiles before deciding what "required" means:
 
 ### 3) PR check policy
 
+Before creating/editing PR metadata or pushing a PR head, run the platform-owned
+`automation/validate_pr_metadata.py` candidate mode by its resolved absolute path; then run live
+mode after mutation and immediately before merge. Follow
+[`PR metadata enforcement`](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/pr-metadata-enforcement.md) for runnable
+PowerShell/Bash commands, explicit intended closures, repository capability routing, and evidence
+boundaries. Stop on nonzero exit. Candidate text is offline policy proof; only complete current
+GraphQL `closingIssuesReferences` is remote closure proof. Keep programme parents open with neutral
+`Related issue` / `Remaining acceptance` wording and `Intended closures: none`.
+
 1. Push only after local gates are green.
 2. Open/update PR with explicit evidence section listing commands and pass results.
 3. PR is mandatory in single-developer mode.
@@ -194,11 +203,9 @@ Map the repo to one of these profiles before deciding what "required" means:
      keyword, such as `Keep #<issue> open`.
      After correcting the PR title/body, create a fresh PR event by pushing the same source tree
      through a safe branch-head refresh, then verify the new run's `headSha` and check logs.
-   - Treat repo-local PR title/body gates as fail-closed preconditions. In PowerShell, check
-     `$LASTEXITCODE` after `python scripts/github_issue_pr_text_gate.py ...` or run the gate in a
-     script step that exits immediately before `gh pr create`, `gh pr edit`, or the source push
-     that refreshes PR checks. Do not group the gate and PR mutation commands loosely, because
-     PowerShell will otherwise continue to later external commands after a rejected PR-text gate.
+   - Treat metadata gates as fail-closed preconditions. Use the platform-absolute validator above;
+     run an additional repo-local metadata gate only when the repository declares that capability
+     and its executable exists. Never infer a repo-local script from generic guidance.
 8. If strict branch protection blocks an otherwise-green PR, rebase or merge the current base
    branch into the PR branch and rerun checks instead of bypassing branch protection.
 9. If `mergeStateStatus=BLOCKED` or `mergeable_state=blocked` while required checks are green,

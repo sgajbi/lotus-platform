@@ -3,6 +3,7 @@ name: Pull Request Merge Gate
 on:
   pull_request:
     branches: ["main"]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   workflow_dispatch:
 
 concurrency:
@@ -11,6 +12,8 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
+  issues: read
 
 env:
   GIT_CONFIG_COUNT: "1"
@@ -43,6 +46,13 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Validate current PR metadata and complete GitHub closing references
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: python automation/validate_pr_metadata.py --repo "$GITHUB_REPOSITORY" live --pr "$PR_NUMBER" --expected-head "$PR_HEAD"
       # Every sibling below is read at the revision pinned in
       # platform-contracts/ci-governance/sibling-source-manifest.v1.json, so
       # this lane's verdict is a function of the lotus-platform commit alone.

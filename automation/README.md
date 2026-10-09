@@ -2,6 +2,11 @@
 
 Canonical cross-cutting automation lives here.
 
+PR preparation uses `validate_pr_metadata.py`: offline candidate policy before metadata mutation
+and complete current GraphQL evidence before merge. See
+[PR metadata enforcement](../docs/operations/pr-metadata-enforcement.md) for the text contract,
+absolute-path invocation from applications and exact lane/adoption boundaries.
+
 ## Start Here
 
 Use these docs first:

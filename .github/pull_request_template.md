@@ -2,6 +2,12 @@
 
 - 
 
+Related issue: #<number>
+Intended closures: none
+
+For authorized issue completion, replace `none` with explicit references and add standalone
+affirmative closure lines as described in `docs/operations/pr-metadata-enforcement.md`.
+
 ## Validation
 
 - 
