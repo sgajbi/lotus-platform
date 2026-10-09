@@ -33,3 +33,84 @@ The current contract is `report_only`. It is canonical policy truth, but it is n
 every Lotus repository has completed rollout. Blocking promotion requires measured dependency and
 container-image baselines, exception-register migration, false-positive classification,
 repository-native commands, and exact-SHA validation for each pilot repository.
+
+## Exact CI distribution admission
+
+`container_image_evidence_policy.approved_distribution_mappings` admits only six exact
+source/content/platform tuples approved in [the initial Platform #945 decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089421841)
+and [the additional admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089758654).
+Original publishers remain `docker.io/library/python`, `docker.io/library/postgres` and
+`docker.io/aquasec/trivy`. Acquisition aliases are Docker's `public.ecr.aws/docker/library/...`
+repositories and Trivy's official `ghcr.io/aquasecurity/trivy` repository. This is not approval
+of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
+registries are not admitted. New tuples require reviewed policy and observation evidence.
+Policy version `1.1.0` requires this mapping section; consumers must bind the matching
+qualified schema and validator rather than mix it with an earlier policy checkout.
+
+The Performance `e529...` digest is an existing single-platform manifest, so its platform
+manifest digest equals its image digest. Report Python `a6e34...` and PostgreSQL `721873...`
+are indexes with separately admitted Linux/amd64 children. The retained observation SHA
+identifies manifest-byte equality evidence, not a signature or an image pull. R2 originally
+contained no independent e529 config-platform measurement. Additive R3 observation
+`2cffba060fea24c93b7e39273ba19f2ac5acaf91df76e092662192aa18e718f5` also verifies
+source/alias config `541096...` bytes and its Linux/amd64 fields; R2 remains unchanged.
+Mappings with `platform_config_digest` additionally bind the live manifest's config
+descriptor to that independently observed config. The preflight does not fetch config
+blobs or follow blob/CDN redirects. Actual Docker acquisition must still verify blobs.
+No image layers are downloaded. Do not generalize that evidence to other tuples.
+
+R3 additionally supplies the admitted PostgreSQL 16 index `ca0bd...`, child `75adc...`
+and config `275447...`. R4 receipt `7dfb8d796c0b654f8604f4c485ab61c28912acec0b514b47fe439a22e17428bd`
+supplies PostgreSQL 17 `2d2b...` and Trivy 0.71.2 `f5d0...`, including exact child/config
+identity and actual Linux/amd64 config fields. PostgreSQL 17 is an explicitly approved
+immutable selection replacing a mutable reference; the historical successful run's exact
+binary was not recoverable, so historical binary equivalence is unproven. PostgreSQL 16,
+16-alpine and 17 remain distinct mappings. Earlier R3 PG17 429 remains failed; R4 is a
+separate successful paced observation. Trivy lists [GHCR as an official destination](https://github.com/aquasecurity/trivy/blob/main/docs/getting-started/installation.md).
+
+From the `lotus-platform` checkout, both PowerShell and Bash support this static admission
+check (replace the complete references with a reviewed tuple from the policy):
+
+```text
+python automation/validate_technology_governance_policy.py --source-image docker.io/library/python@sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e --distribution-image public.ecr.aws/docker/library/python@sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e --platform linux/amd64
+```
+
+Add `--verify-distribution` for a live, bounded read of manifest bytes. This reads an
+anonymous public token and the admitted index/manifest and child; it downloads no layers
+and retains no token. An absent optional digest header is allowed; a contradictory header
+or body hash is refused. Missing, unavailable, rate-limited or mismatched inputs fail closed.
+Only HTTP 429 receives paced recovery: at most three attempts per request, nine requests
+across the acquisition, a 90-second deadline and at most 20 cumulative seconds waiting.
+`Retry-After` seconds or HTTP dates are honored if they fit the remaining budget; absent
+headers use two/four-second backoff. Other HTTP errors, impossible delays or exhausted
+budgets refuse output. There is no mutable fallback or Docker credential provisioning.
+Use `--acquisition-evidence <temporary-directory>` to preserve failed public response bytes
+and safe status/attempt/Retry-After metadata. Successful token responses and authorization
+headers are never retained. The template uploads failure evidence even when admission fails.
+
+For GitHub, compose the [backend prerequisite fragment](../../platform-standards/templates/workflows/image-acquisition.backend.template.yml)
+into the owning workflow and bind `LOTUS_PLATFORM_GOVERNANCE_SHA` to a qualified Platform
+commit. Set the reviewed full source and alias references as shown in the fragment.
+Run the live check in a job **without services**, then make each acquiring job depend on it.
+Use its `image` output for the actual service/base/audit acquisition and explicitly bind
+Linux/amd64. Preserve existing job dependencies, service health checks and audit controls.
+`--github-output` is available only with successful live verification; acquisition mode
+cannot suppress errors with `--report-only`. A login or validation step inside a service
+job is too late because service initialization precedes checkout and steps.
+
+Acquisition mode validates the policy without evaluating the historical example exception
+register as a current operational register. Pass `--exception-register` for a real consumer
+register; its availability and expiry are evaluated normally. This command grants no
+vulnerability exception. The default policy-only CLI retains its existing fixture behavior.
+
+The prerequisite proves current manifest availability/content only. The actual hosted
+service initialization, build, audit and smoke checks must still pass at the exact adopter
+head. Preserve earlier failed cohorts and report later descendants separately. A registry
+can become unavailable between preflight and pull; that acquisition must fail normally.
+
+Keep original publisher, distribution repository, immutable index/manifest and platform
+child identity distinct in provenance. Existing maturity, support, SBOM, signature,
+attestation, scan freshness and runtime-smoke requirements remain in force. This bounded
+admission does not promote the wider `report_only` #595 rollout or fill missing evidence.
+Amazon documents [public digest acquisition and separate anonymous/authenticated quotas](https://docs.aws.amazon.com/AmazonECR/latest/public/docker-pull-ecr-image.html);
+the mapping does not claim unlimited capacity.

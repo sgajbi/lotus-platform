@@ -1,0 +1,67 @@
+# Compose the image-acquisition job into the owning backend workflow.
+# Set LOTUS_PLATFORM_GOVERNANCE_SHA to the qualified 40-character Platform commit.
+# Keep source and distribution inputs as reviewed repository@sha256 references.
+name: Image Acquisition Prerequisite
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  image-acquisition:
+    name: Image Acquisition / Exact Distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      image: ${{ steps.admission.outputs.image }}
+    steps:
+      - name: Require immutable governance source
+        shell: bash
+        env:
+          GOVERNANCE_SHA: ${{ vars.LOTUS_PLATFORM_GOVERNANCE_SHA }}
+        run: '[[ "$GOVERNANCE_SHA" =~ ^[0-9a-f]{40}$ ]]'
+      - uses: actions/checkout@v7
+        with:
+          repository: sgajbi/lotus-platform
+          ref: ${{ vars.LOTUS_PLATFORM_GOVERNANCE_SHA }}
+          persist-credentials: false
+          path: .lotus-platform
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Verify admitted distribution before any service initializes
+        id: admission
+        shell: bash
+        env:
+          SOURCE_IMAGE: ${{ vars.LOTUS_CI_SOURCE_IMAGE }}
+          DISTRIBUTION_IMAGE: ${{ vars.LOTUS_CI_DISTRIBUTION_IMAGE }}
+        run: >-
+          python .lotus-platform/automation/validate_technology_governance_policy.py
+          --source-image "$SOURCE_IMAGE"
+          --distribution-image "$DISTRIBUTION_IMAGE"
+          --platform linux/amd64
+          --verify-distribution
+          --github-output "$GITHUB_OUTPUT"
+          --acquisition-evidence "$RUNNER_TEMP/image-acquisition-evidence"
+      - name: Preserve failed public manifest responses
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-acquisition-failures-${{ github.job }}
+          path: ${{ runner.temp }}/image-acquisition-evidence
+          if-no-files-found: ignore
+          retention-days: 14
+
+# Required wiring in the consuming job (preserve other existing needs):
+# needs: [image-acquisition]
+# runs-on: ubuntu-latest
+# services:
+#   postgres:
+#     image: ${{ needs.image-acquisition.outputs.image }}
+#     options: --platform linux/amd64
+# Preserve the owning service's existing health checks, ports and environment.
+# For base/audit images, use separate instances of this prerequisite for each
+# admitted tuple; bind the successful image output to the actual Dockerfile/build
+# argument and audit command. Never gate one tuple and acquire a different image.

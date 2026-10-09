@@ -15,6 +15,17 @@ deployment, client demo readiness, or supported feature promotion.
 
 ## Lane model
 
+For CI service, Docker base and audit images, use the existing
+[technology-governance distribution admission](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/technology-governance/README.md#exact-ci-distribution-admission).
+Only reviewed exact source/alias digest and Linux/amd64 tuples are admitted. Compose the
+[backend prerequisite job](https://github.com/sgajbi/lotus-platform/blob/main/platform-standards/templates/workflows/image-acquisition.backend.template.yml)
+from a qualified Platform commit before any acquiring job initializes services, then bind
+its successful `image` output to the actual acquisition. A validation/login step within a
+service job runs too late. Missing, mismatched or unavailable manifests refuse output;
+there is no tag fallback. Manifest identity/availability does not replace hosted build,
+scan, SBOM, signature, support, provenance or smoke evidence, and does not promote the
+broader report-only technology-policy rollout.
+
 `lotus-platform` uses:
 
 1. `Remote Feature Lane`
