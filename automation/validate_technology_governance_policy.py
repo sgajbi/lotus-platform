@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import date
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
@@ -72,6 +78,11 @@ REQUIRED_CONTAINER_ARTIFACTS = {
     "runtime_smoke_receipt",
 }
 REQUIRED_SEVERITY_CLASSES = {"known_exploited", "critical", "high", "medium", "low"}
+PUBLISHER_DISTRIBUTIONS = {
+    "docker.io/library/python": "public.ecr.aws/docker/library/python",
+    "docker.io/library/postgres": "public.ecr.aws/docker/library/postgres",
+    "docker.io/aquasec/trivy": "ghcr.io/aquasecurity/trivy",
+}
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",
     "lens/environment-supply-chain-provenance",
@@ -95,7 +106,7 @@ def validate_policy_path(
 ) -> list[str]:
     try:
         policy = load_policy(path)
-    except (json.JSONDecodeError, ValueError) as exc:
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
         return [f"{path}: {exc}"]
     return validate_policy(
         policy,
@@ -123,6 +134,7 @@ def validate_policy(
         _validate_technology_states(policy, errors)
         _validate_dependency_evidence(policy, errors)
         _validate_container_image_evidence(policy, errors)
+        _validate_distribution_mappings(policy, errors)
         _validate_vulnerability_policy(policy, errors)
         _validate_exception_policy(policy, errors)
         _validate_lens_routing(policy, errors)
@@ -199,19 +211,27 @@ def _validate_dependency_evidence(policy: dict[str, Any], errors: list[str]) -> 
             + ", ".join(sorted(missing))
         )
     if evidence["inventory_source"] != "locked_manifests":
-        errors.append("dependency_evidence_policy.inventory_source must be locked_manifests")
+        errors.append(
+            "dependency_evidence_policy.inventory_source must be locked_manifests"
+        )
 
 
-def _validate_container_image_evidence(policy: dict[str, Any], errors: list[str]) -> None:
+def _validate_container_image_evidence(
+    policy: dict[str, Any], errors: list[str]
+) -> None:
     evidence = policy["container_image_evidence_policy"]
     identity_fields = set(evidence["required_identity_fields"])
     artifacts = set(evidence["required_artifacts"])
     missing_identity = REQUIRED_CONTAINER_IDENTITY_FIELDS - identity_fields
     missing_artifacts = REQUIRED_CONTAINER_ARTIFACTS - artifacts
     if evidence["identity_source"] != "immutable_digest":
-        errors.append("container_image_evidence_policy.identity_source must be immutable_digest")
+        errors.append(
+            "container_image_evidence_policy.identity_source must be immutable_digest"
+        )
     if evidence["mutable_tag_posture"] != "non_certifying":
-        errors.append("container_image_evidence_policy.mutable_tag_posture must be non_certifying")
+        errors.append(
+            "container_image_evidence_policy.mutable_tag_posture must be non_certifying"
+        )
     if evidence["max_scan_age_days"] > 30:
         errors.append("container_image_evidence_policy.max_scan_age_days must be <= 30")
     if missing_identity:
@@ -227,7 +247,9 @@ def _validate_container_image_evidence(policy: dict[str, Any], errors: list[str]
 
 
 def _validate_vulnerability_policy(policy: dict[str, Any], errors: list[str]) -> None:
-    severities = {entry["class"]: entry for entry in policy["vulnerability_severity_policy"]}
+    severities = {
+        entry["class"]: entry for entry in policy["vulnerability_severity_policy"]
+    }
     missing = REQUIRED_SEVERITY_CLASSES - set(severities)
     if missing:
         errors.append(
@@ -245,9 +267,13 @@ def _validate_vulnerability_policy(policy: dict[str, Any], errors: list[str]) ->
         errors.append("known_exploited vulnerability policy must block release")
     for severity_name, entry in (("critical", critical), ("high", high)):
         if not entry["exception_allowed"]:
-            errors.append(f"{severity_name} vulnerability policy must allow approved exceptions")
+            errors.append(
+                f"{severity_name} vulnerability policy must allow approved exceptions"
+            )
         if "block_release" not in entry["release_behavior"]:
-            errors.append(f"{severity_name} vulnerability policy must block release without proof")
+            errors.append(
+                f"{severity_name} vulnerability policy must block release without proof"
+            )
 
 
 def _validate_exception_policy(policy: dict[str, Any], errors: list[str]) -> None:
@@ -298,6 +324,221 @@ def _validate_rollout(policy: dict[str, Any], errors: list[str]) -> None:
                 )
 
 
+def _validate_distribution_mappings(policy: dict[str, Any], errors: list[str]) -> None:
+    seen = set()
+    for mapping in policy["container_image_evidence_policy"][
+        "approved_distribution_mappings"
+    ]:
+        key = (
+            mapping["original_repository"],
+            mapping["image_digest"],
+            mapping["platform"],
+        )
+        if key in seen:
+            errors.append(
+                "distribution mappings must have unique source digest/platform identities"
+            )
+        seen.add(key)
+        if mapping["distribution_repository"] != PUBLISHER_DISTRIBUTIONS.get(
+            mapping["original_repository"]
+        ):
+            errors.append(
+                "distribution mapping must preserve the original publisher repository"
+            )
+        same = mapping["image_digest"] == mapping["platform_manifest_digest"]
+        if same != (mapping["manifest_kind"] == "manifest"):
+            errors.append(
+                "distribution mapping manifest/index and platform digest disagree"
+            )
+
+
+def resolve_distribution(
+    policy: dict[str, Any], source_image: str, distribution_image: str, platform: str
+) -> dict[str, Any]:
+    """Resolve an exact admitted tuple; tags, empty values and other platforms cannot match."""
+    matches = [
+        mapping
+        for mapping in policy["container_image_evidence_policy"][
+            "approved_distribution_mappings"
+        ]
+        if source_image
+        == mapping["original_repository"] + "@" + mapping["image_digest"]
+        and distribution_image
+        == mapping["distribution_repository"] + "@" + mapping["image_digest"]
+        and platform == mapping["platform"]
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            "image source/distribution/digest/platform tuple is not uniquely admitted"
+        )
+    return matches[0]
+
+
+def _registry_json(
+    url: str, headers: dict[str, str], *, timeout: float = 20
+) -> tuple[bytes, Any]:
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, response_headers, newurl):
+            raise ValueError("distribution registry redirects are not admitted")
+
+    opener = urllib.request.build_opener(NoRedirect())
+    with opener.open(
+        urllib.request.Request(url, headers=headers), timeout=timeout
+    ) as response:
+        if response.status != 200:
+            raise ValueError("distribution registry returned a non-success response")
+        body = response.read(2 * 1024 * 1024 + 1)
+        if len(body) > 2 * 1024 * 1024:
+            raise ValueError("distribution registry response exceeds manifest limit")
+        return body, response.headers
+
+
+class _AcquisitionBudget:
+    """One acquisition: at most 9 requests, 90 seconds and 20 seconds of paced waits."""
+
+    def __init__(self, evidence_dir: Path | None):
+        self.deadline = time.monotonic() + 90
+        self.requests = 0
+        self.waited = 0.0
+        self.evidence_dir = evidence_dir
+
+    def _record_failure(self, url: str, error: urllib.error.HTTPError) -> None:
+        if self.evidence_dir is None:
+            return
+        self.evidence_dir.mkdir(parents=True, exist_ok=True)
+        prefix = self.evidence_dir / f"request-{self.requests:02d}-http-{error.code}"
+        # Successful token responses and authorization headers are never retained.
+        is_token = urllib.parse.urlsplit(url).path.rstrip("/") == "/token"
+        body = error.read(2 * 1024 * 1024 + 1) if not is_token else b""
+        prefix.with_suffix(".raw").write_bytes(body)
+        prefix.with_suffix(".json").write_text(
+            json.dumps(
+                {
+                    "url": url,
+                    "status": error.code,
+                    "request": self.requests,
+                    "retry_after": error.headers.get("Retry-After"),
+                    "body_sha256": hashlib.sha256(body).hexdigest(),
+                    "body_truncated": len(body) > 2 * 1024 * 1024,
+                    "token_response_body_omitted": is_token,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+    def request(self, url: str, headers: dict[str, str]) -> tuple[bytes, Any]:
+        for attempt in range(3):
+            remaining = self.deadline - time.monotonic()
+            if self.requests >= 9 or remaining <= 0:
+                raise ValueError("image acquisition request/time budget exhausted")
+            self.requests += 1
+            try:
+                result = _registry_json(url, headers, timeout=min(20, remaining))
+                if time.monotonic() >= self.deadline:
+                    raise ValueError("image acquisition time budget exhausted")
+                return result
+            except urllib.error.HTTPError as error:
+                self._record_failure(url, error)
+                error.close()
+                if error.code != 429 or attempt == 2:
+                    raise
+                retry_after = error.headers.get("Retry-After")
+                if retry_after is None:
+                    delay = float(2 ** (attempt + 1))
+                elif retry_after.isdecimal():
+                    delay = float(retry_after)
+                else:
+                    delay = parsedate_to_datetime(retry_after).timestamp() - time.time()
+                delay = max(1.0, delay)
+                if (
+                    self.waited + delay > 20
+                    or delay >= self.deadline - time.monotonic()
+                ):
+                    raise ValueError(
+                        "image acquisition Retry-After exceeds wait/time budget"
+                    ) from error
+                self.waited += delay
+                time.sleep(delay)
+        raise ValueError("image acquisition retry budget exhausted")
+
+
+def verify_distribution(
+    mapping: dict[str, Any], *, evidence_dir: Path | None = None
+) -> None:
+    """Read manifest bytes only. Unavailable/rate-limited registries fail; never pull layers."""
+    distribution = mapping["distribution_repository"]
+    if distribution != PUBLISHER_DISTRIBUTIONS.get(mapping["original_repository"]):
+        raise ValueError("distribution publisher repository is not admitted")
+    host, repository = distribution.split("/", 1)
+    budget = _AcquisitionBudget(evidence_dir)
+    query = urllib.parse.urlencode(
+        {"service": host, "scope": f"repository:{repository}:pull"}
+    )
+    token_path = "/token/" if host == "public.ecr.aws" else "/token"
+    body, _ = budget.request(f"https://{host}{token_path}?{query}", {})
+    token_payload = json.loads(body)
+    if not isinstance(token_payload, dict):
+        raise ValueError("distribution registry token response must be an object")
+    token = token_payload.get("token") or token_payload.get("access_token")
+    if not isinstance(token, str) or not token:
+        raise ValueError(
+            "distribution registry did not provide an anonymous pull token"
+        )
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": ", ".join(
+            [
+                "application/vnd.oci.image.index.v1+json",
+                "application/vnd.docker.distribution.manifest.list.v2+json",
+                "application/vnd.oci.image.manifest.v1+json",
+                "application/vnd.docker.distribution.manifest.v2+json",
+            ]
+        ),
+    }
+
+    def manifest(digest: str) -> dict[str, Any]:
+        raw, response_headers = budget.request(
+            f"https://{host}/v2/{repository}/manifests/{digest}", headers
+        )
+        actual = "sha256:" + hashlib.sha256(raw).hexdigest()
+        declared = response_headers.get("Docker-Content-Digest")
+        if actual != digest or declared not in (None, actual):
+            raise ValueError(
+                "distribution manifest bytes or optional digest header mismatch"
+            )
+        payload = json.loads(raw)
+        if not isinstance(payload, dict) or payload.get("schemaVersion") != 2:
+            raise ValueError(
+                "distribution manifest is not a supported OCI/Docker v2 object"
+            )
+        return payload
+
+    payload = manifest(mapping["image_digest"])
+    if mapping["manifest_kind"] == "index":
+        children = [
+            item.get("digest")
+            for item in payload.get("manifests", [])
+            if item.get("platform") == {"os": "linux", "architecture": "amd64"}
+        ]
+        if children != [mapping["platform_manifest_digest"]]:
+            raise ValueError(
+                "distribution index does not select the admitted linux/amd64 child"
+            )
+        payload = manifest(mapping["platform_manifest_digest"])
+    if (
+        "manifests" in payload
+        or not isinstance(payload.get("config"), dict)
+        or not payload.get("layers")
+    ):
+        raise ValueError("distribution platform object must be an image manifest")
+    # Config-platform bytes were independently observed at admission. Bind that
+    # immutable descriptor here; blob redirects are left to actual Docker acquisition.
+    config_digest = mapping.get("platform_config_digest")
+    if config_digest is not None and payload["config"].get("digest") != config_digest:
+        raise ValueError("distribution platform config descriptor mismatch")
+
+
 def _parse_as_of_date(value: str) -> date:
     try:
         return date.fromisoformat(value)
@@ -320,7 +561,7 @@ def main(argv: list[str] | None = None) -> int:
         action="append",
         type=Path,
         dest="exception_registers",
-        help="Vulnerability exception register JSON file to validate with the policy. Defaults to checked-in examples.",
+        help="Vulnerability exception register JSON file to validate with the policy. Defaults to checked-in examples in policy mode, none in acquisition mode.",
     )
     parser.add_argument(
         "--as-of-date",
@@ -333,22 +574,97 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print findings but return success so repositories can measure before lane promotion.",
     )
+    parser.add_argument(
+        "--source-image", help="Original publisher repository@sha256 digest."
+    )
+    parser.add_argument(
+        "--distribution-image", help="Admitted distribution repository@sha256 digest."
+    )
+    parser.add_argument(
+        "--platform", help="Explicit acquisition platform, currently linux/amd64."
+    )
+    parser.add_argument(
+        "--verify-distribution",
+        action="store_true",
+        help="Verify live manifest availability and bytes without pulling layers.",
+    )
+    parser.add_argument(
+        "--github-output",
+        type=Path,
+        help="Append image output only after successful live verification.",
+    )
+    parser.add_argument(
+        "--acquisition-evidence",
+        type=Path,
+        help="Optional temporary directory for failed public manifest response bytes and safe HTTP metadata; tokens omitted.",
+    )
     args = parser.parse_args(argv)
+    acquisition = any(
+        (
+            args.source_image is not None,
+            args.distribution_image is not None,
+            args.platform is not None,
+            args.verify_distribution,
+            args.github_output is not None,
+            args.acquisition_evidence is not None,
+        )
+    )
+    if acquisition and (
+        args.report_only
+        or not all((args.source_image, args.distribution_image, args.platform))
+    ):
+        parser.error(
+            "acquisition requires source image, distribution image and platform; report-only is forbidden"
+        )
+    if args.github_output and not args.verify_distribution:
+        parser.error("GitHub image output requires live distribution verification")
+    if args.acquisition_evidence and not args.verify_distribution:
+        parser.error("Acquisition evidence requires live distribution verification")
 
     errors = validate_policy_path(
         args.policy,
-        exception_register_paths=args.exception_registers,
+        # Acquisition does not evaluate historical schema fixtures as today's
+        # operational exceptions. Explicit consumer registers still fail closed.
+        exception_register_paths=(args.exception_registers or [])
+        if acquisition
+        else args.exception_registers,
         as_of_date=args.as_of_date,
     )
     if errors:
         print("Technology governance policy findings:")
         for error in errors:
             print(f"- {error}")
-        if args.report_only:
+        if args.report_only and not acquisition:
             print("Result: report-only findings emitted; exit code suppressed.")
             return 0
         return 1
 
+    if acquisition:
+        try:
+            mapping = resolve_distribution(
+                load_policy(args.policy),
+                args.source_image,
+                args.distribution_image,
+                args.platform,
+            )
+            if args.verify_distribution:
+                if args.acquisition_evidence:
+                    verify_distribution(mapping, evidence_dir=args.acquisition_evidence)
+                else:
+                    verify_distribution(mapping)
+            if args.github_output:
+                with args.github_output.open("a", encoding="utf-8") as output:
+                    output.write(f"image={args.distribution_image}\n")
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            # Never print HTTP headers, anonymous tokens, or potentially sensitive response bodies.
+            print(
+                f"Image acquisition refused ({type(exc).__name__}); no image output emitted."
+            )
+            return 1
+        print(
+            "Exact distribution mapping accepted; live manifest check: "
+            + str(args.verify_distribution)
+        )
     print(f"Technology governance policy validation passed: {args.policy}")
     return 0
 

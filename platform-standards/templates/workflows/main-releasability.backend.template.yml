@@ -28,6 +28,8 @@ env:
   GIT_CONFIG_VALUE_0: "main"
 
 jobs:
+  # Before adding services or Docker acquisition, compose the prerequisite job in
+  # image-acquisition.backend.template.yml and wire its successful image output.
   exact-revision-assertion:
     name: Main Releasability / Exact Revision Assertion
     runs-on: ubuntu-latest

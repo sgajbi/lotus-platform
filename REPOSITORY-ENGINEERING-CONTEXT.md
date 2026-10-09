@@ -69,6 +69,14 @@ marketing truth, or engineering authority.
 
 ## Runtime And Integration Boundaries
 
+CI image distribution admission lives in the existing technology-governance policy and
+`automation/validate_technology_governance_policy.py`. The bounded backend prerequisite
+fragment is `platform-standards/templates/workflows/image-acquisition.backend.template.yml`.
+Use a qualified Platform commit, exact source/alias digest and platform, and a separate
+prerequisite job before service initialization. See the technology-governance contract
+README for commands, evidence limits and required service/base/audit wiring. Exact-content
+distribution admission does not promote the broader report-only technology rollout.
+
 1. Define platform-wide policy once in Platform and link to it from applications.
 2. Keep repository purpose, architecture, ownership, commands, and constraints in that
    repository's `REPOSITORY-ENGINEERING-CONTEXT.md`.
