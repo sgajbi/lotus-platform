@@ -225,7 +225,12 @@ malformed closing tag does not retroactively revoke an earlier plain statement. 
 is cached across pages. This bounds repeated prefix work without asserting a runtime SLO.
 
 The prose classifier admits individual technical noun phrases `temporary relation(s)`,
-`temporary table(s)`, and OS `temporary directory`/`temporary directories` on one line.
+`temporary table(s)`, and OS `temporary directory`/`temporary directories` or
+`temp directory`/`temp directories` on one line. OS-default paths beginning with the
+literal `<temp dir>/` followed by a nonempty ASCII filename/path are also technical
+references, including inline code and default-value table cells. Bare `temp dir` or
+`<temp dir>` without a path is not admitted. These short forms use the same per-occurrence
+directory qualifier checks; they never exempt unfinished prose elsewhere on the page.
 It still rejects `TODO`, `TBD`, `FIXME`, `temp notes`, `temporary workaround`,
 `maybe implement later`, and these noun phrases immediately followed by `notes` or `workaround`.
 For directory phrases, any same-line punctuation or Markdown delimiter run before `notes` or

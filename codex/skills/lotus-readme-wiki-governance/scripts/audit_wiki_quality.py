@@ -56,8 +56,11 @@ DATABASE_TEMPORARY_PATTERN = re.compile(
     r"(?![ \t]+(?:workaround|notes)\b)", re.IGNORECASE
 )
 DIRECTORY_TEMPORARY_PATTERN = re.compile(
-    r"temporary[ \t]+director(?:y|ies)\b",
+    r"(?:temporary|temp)[ \t]+director(?:y|ies)\b",
     re.IGNORECASE,
+)
+DIRECTORY_DEFAULT_PATH_PATTERN = re.compile(
+    r"temp dir>/[A-Za-z0-9_][A-Za-z0-9_./-]*", re.IGNORECASE | re.ASCII,
 )
 DIRECTORY_SCRATCH_QUALIFIER_PATTERN = re.compile(
     r"(?:[^\w\r\n]|_)*(?:workaround|notes)(?=\b|_+(?!\w))", re.IGNORECASE
@@ -497,6 +500,9 @@ def _directory_hidden_noun_starts(prose: str) -> set[int]:
 
 def _directory_term_is_technical(prose: str, start: int, references: set[str]) -> bool:
     noun = DIRECTORY_TEMPORARY_PATTERN.match(prose, start)
+    if noun is None and start > 0 and prose[start - 1] == "<":
+        # Admit the documented OS-default path placeholder, never bare `temp dir`.
+        noun = DIRECTORY_DEFAULT_PATH_PATTERN.match(prose, start)
     if noun is None:
         return False
     line_start = max(prose.rfind("\n", 0, start), prose.rfind("\r", 0, start)) + 1
@@ -1355,7 +1361,7 @@ def _page_prose_failures(page_name: str, text: str) -> list[str]:
         {
             match.group(0) for match in SCRATCH_PATTERN.finditer(prose)
             if not (
-                match.group(0).lower() == "temporary"
+                match.group(0).lower() in {"temporary", "temp"}
                 and (
                     match.start() in hidden_directory_nouns
                     or DATABASE_TEMPORARY_PATTERN.match(prose, match.start())

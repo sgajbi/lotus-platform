@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-10T00:13:38Z`
+Generated: `2026-10-10T01:28:19Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `1009`
-- Total source lines: `426224`
+- Total source lines: `426288`
 - Python files: `278`
 - PowerShell files: `70`
 - Markdown files: `427`
@@ -35,11 +35,11 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
 | platform-contracts/domain-data-products/lotus-core-products.v1.json | 3138 | .json |
 | tests/unit/test_engineering_context_system_contract.py | 2823 | .py |
-| tests/unit/test_rfc_0084_domain_data_product_contracts.py | 2525 | .py |
+| tests/unit/test_wiki_quality_audit.py | 2564 | .py |
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4299`
+- Python functions: `4301`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -49,10 +49,10 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_auto_merge_releasability.py | has_fatal_main_fetch | 754 | 55 | 152 |
 | automation/gate_liveness_audit.py | _make_invoked_targets | 208 | 55 | 142 |
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
-| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _decision_link_target_end | 1039 | 48 | 80 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _decision_link_target_end | 1045 | 48 | 80 |
 | automation/resource_recovery/policy.py | validate_discovery | 499 | 38 | 154 |
 | automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
-| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _directory_inline_link_end | 146 | 36 | 59 |
+| codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _directory_inline_link_end | 149 | 36 | 59 |
 | automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
 | automation/resource_recovery/policy.py | validate_approval | 203 | 34 | 144 |
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `4518`
+- Unit tests collected: `4520`
 - Collection command return code: `0`
-- Collection summary: `4518 tests collected`
+- Collection summary: `4520 tests collected`
 
 ## Security Baseline
 
