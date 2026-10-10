@@ -1,7 +1,7 @@
 {
   "schema_version": "lotus-platform.technology-governance-policy.v1",
   "contract_id": "lotus-platform-technology-governance-policy",
-  "contract_version": "1.1.1",
+  "contract_version": "1.1.2",
   "lifecycle_status": "report_only",
   "governed_by_issue": "https://github.com/sgajbi/lotus-platform/issues/595",
   "effective_date": "2026-10-10",
@@ -89,6 +89,39 @@
   },
   "container_image_evidence_policy": {
     "approved_distribution_mappings": [
+      {
+        "original_repository": "docker.io/library/python",
+        "distribution_repository": "public.ecr.aws/docker/library/python",
+        "image_digest": "sha256:97b0eafb29f5ebfba254be840115b2f3bc24ff6ff3de9b905e04b74ee7227ba6",
+        "manifest_kind": "index",
+        "platform": "linux/amd64",
+        "platform_manifest_digest": "sha256:8404ed8464ae7275b5c13a00c6edd2e027c6560a1f74bd4c7dee39f5d00f9352",
+        "platform_config_digest": "sha256:afcbc49bd73e29b90c28a62348f6962b5164f147eb3ae178979b390cc9f46ebf",
+        "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6091423369",
+        "manifest_observation_sha256": "2ce38a55832f50b126e74aa9e256c571df8397ce412fcb22d1d9165d50de1044"
+      },
+      {
+        "original_repository": "docker.io/aquasec/trivy",
+        "distribution_repository": "ghcr.io/aquasecurity/trivy",
+        "image_digest": "sha256:26245f364b6f5d223003dc344ec1eb5eb8439052bfecb31d79aeba0c74344b3a",
+        "manifest_kind": "index",
+        "platform": "linux/amd64",
+        "platform_manifest_digest": "sha256:9aebdee5e85129a1bdd9977676baa6cf0579195fc4809570cc9dd55f6e92863c",
+        "platform_config_digest": "sha256:726c2f07b9bbffc6bbb51feea187f7da84f80eb8ec4caebe4f0b13bb06f41703",
+        "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6091423369",
+        "manifest_observation_sha256": "2ce38a55832f50b126e74aa9e256c571df8397ce412fcb22d1d9165d50de1044"
+      },
+      {
+        "original_repository": "docker.io/prom/prometheus",
+        "distribution_repository": "quay.io/prometheus/prometheus",
+        "image_digest": "sha256:3002935850ea69a59816825d4cb718fafcdb9b124e4e6153ebc6894627525f7f",
+        "manifest_kind": "index",
+        "platform": "linux/amd64",
+        "platform_manifest_digest": "sha256:01226a3d35f024d806c206e8d10e0bdfb6225c2366e4f8313362b4ae828f72f9",
+        "platform_config_digest": "sha256:22010d1e55390ce1751f0aac7c650930ad8611cd38168a74864ab39f321ebe68",
+        "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6091423369",
+        "manifest_observation_sha256": "2ce38a55832f50b126e74aa9e256c571df8397ce412fcb22d1d9165d50de1044"
+      },
       {
         "original_repository": "docker.io/library/python",
         "distribution_repository": "public.ecr.aws/docker/library/python",

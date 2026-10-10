@@ -76,6 +76,9 @@ Use a qualified Platform commit, exact source/alias digest and platform, and a s
 prerequisite job before service initialization. See the technology-governance contract
 README for commands, evidence limits and required service/base/audit wiring. Exact-content
 distribution admission does not promote the broader report-only technology rollout.
+The same publisher admission supports direct anonymous manifest reads only for the
+exact admitted Prometheus Quay pair; it does not discover arbitrary registry hosts
+or repositories. ECR/GHCR token requests and acquisition budgets remain unchanged.
 
 1. Define platform-wide policy once in Platform and link to it from applications.
 2. Keep repository purpose, architecture, ownership, commands, and constraints in that

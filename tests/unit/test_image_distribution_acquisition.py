@@ -13,9 +13,14 @@ import yaml
 
 
 def _mapping():
-    return _policy()["container_image_evidence_policy"][
-        "approved_distribution_mappings"
-    ][1]
+    return next(
+        item
+        for item in _policy()["container_image_evidence_policy"][
+            "approved_distribution_mappings"
+        ]
+        if item["image_digest"]
+        == "sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1"
+    )
 
 
 def _arguments(mapping):
@@ -29,7 +34,7 @@ def _arguments(mapping):
     ]
 
 
-@pytest.mark.parametrize("index", range(8))
+@pytest.mark.parametrize("index", range(11))
 def test_each_admitted_mapping_resolves(index):
     mapping = _policy()["container_image_evidence_policy"][
         "approved_distribution_mappings"
@@ -41,19 +46,28 @@ def test_each_admitted_mapping_resolves(index):
     )
 
 
-@pytest.mark.parametrize("name", ["trivy", "syft"])
 @pytest.mark.parametrize(
-    "fault", [None, "digest", "platform", "repository", "child", "config"]
+    "fixture_name,name",
+    [
+        ("gateway", "trivy"),
+        ("gateway", "syft"),
+        ("core", "python"),
+        ("core", "trivy"),
+        ("core", "prometheus"),
+    ],
 )
-def test_gateway_admissions_verify_observed_metadata_and_refuse_drift(
-    monkeypatch, tmp_path, name, fault
+@pytest.mark.parametrize(
+    "fault", [None, "digest", "platform", "repository", "host", "child", "config"]
+)
+def test_admitted_metadata_verifies_observed_bytes_and_refuses_drift(
+    monkeypatch, tmp_path, fixture_name, name, fault
 ):
     # Retained public bytes from the sealed observation, not synthesized digests.
     # Root's admission independently checked original/distribution equality.
     fixture = json.loads(
         (
             Path(__file__).resolve().parents[1]
-            / "fixtures/image-distribution/gateway-admitted-metadata.json"
+            / f"fixtures/image-distribution/{fixture_name}-admitted-metadata.json"
         ).read_text()
     )[name]
     raw = {kind: value.encode() for kind, value in fixture.items()}
@@ -81,7 +95,10 @@ def test_gateway_admissions_verify_observed_metadata_and_refuse_drift(
     elif fault == "platform":
         args[5] = "linux/arm64"
     elif fault == "repository":
-        args[3] = "ghcr.io/attacker/" + name + "@" + mapping["image_digest"]
+        host = mapping["distribution_repository"].split("/", 1)[0]
+        args[3] = host + "/attacker/" + name + "@" + mapping["image_digest"]
+    elif fault == "host":
+        args[3] = "unrelated.example/" + name + "@" + mapping["image_digest"]
     elif fault in ("child", "config"):
         mapping[
             "platform_manifest_digest" if fault == "child" else "platform_config_digest"
@@ -91,20 +108,22 @@ def test_gateway_admissions_verify_observed_metadata_and_refuse_drift(
     validator = _validator()
     _mock_budget_clock(monkeypatch, validator)
     calls = []
-    repository = mapping["distribution_repository"].removeprefix("ghcr.io/")
+    host, repository = mapping["distribution_repository"].split("/", 1)
 
     def request(url, headers, *, timeout):
         calls.append(url)
-        if "/token?" in url:
+        if "/token" in url:
+            assert host != "quay.io"
             query = validator.urllib.parse.parse_qs(
                 validator.urllib.parse.urlsplit(url).query
             )
             assert query == {
-                "service": ["ghcr.io"],
+                "service": [host],
                 "scope": [f"repository:{repository}:pull"],
             }
             return b'{"token":"ephemeral-test-token"}', {}
-        assert url.startswith(f"https://ghcr.io/v2/{repository}/manifests/")
+        assert url.startswith(f"https://{host}/v2/{repository}/manifests/")
+        assert ("Authorization" in headers) == (host != "quay.io")
         return raw["root"] if url.endswith(digest("root")) else raw["child"], {}
 
     monkeypatch.setattr(validator, "_registry_json", request)
@@ -122,11 +141,11 @@ def test_gateway_admissions_verify_observed_metadata_and_refuse_drift(
     if fault is None:
         assert result == 0
         assert output.read_text() == f"image={args[3]}\n"
-        assert len(calls) == 3
+        assert len(calls) == (2 if host == "quay.io" else 3)
     else:
         assert result == 1
         assert not output.exists()
-        if fault in ("digest", "platform", "repository"):
+        if fault in ("digest", "platform", "repository", "host"):
             assert calls == []
 
 
@@ -584,10 +603,21 @@ def test_official_trivy_uses_ghcr_repository_scope_and_preserves_child_identity(
     assert len(calls) == 3
 
 
-def test_unadmitted_distribution_cannot_receive_a_network_request(monkeypatch):
+@pytest.mark.parametrize(
+    "original,distribution",
+    [
+        ("docker.io/library/python", "attacker.example/python"),
+        ("docker.io/prom/prometheus", "quay.io/other/prometheus"),
+        ("docker.io/prom/prometheus", "other.example/prometheus/prometheus"),
+        ("docker.io/other/prometheus", "quay.io/prometheus/prometheus"),
+    ],
+)
+def test_unadmitted_distribution_cannot_receive_a_network_request(
+    monkeypatch, original, distribution
+):
     validator = _validator()
     mapping = _mapping()
-    mapping["distribution_repository"] = "attacker.example/python"
+    mapping.update(original_repository=original, distribution_repository=distribution)
     calls = []
     monkeypatch.setattr(
         validator, "_registry_json", lambda *args, **kwargs: calls.append(args)

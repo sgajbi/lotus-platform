@@ -36,16 +36,17 @@ repository-native commands, and exact-SHA validation for each pilot repository.
 
 ## Exact CI distribution admission
 
-`container_image_evidence_policy.approved_distribution_mappings` admits only eight exact
+`container_image_evidence_policy.approved_distribution_mappings` admits only eleven exact
 source/content/platform tuples approved in [the initial Platform #945 decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089421841)
 and [the additional admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089758654),
-with two Gateway audit tuples in [the exact Trivy/Syft admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601).
+with two Gateway audit tuples in [the exact Trivy/Syft admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601)
+and three Core tuples in [the exact Python/Trivy/Prometheus admission](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6091423369).
 Original publishers remain `docker.io/library/python`, `docker.io/library/postgres` and
-`docker.io/aquasec/trivy` and `docker.io/anchore/syft`. Acquisition aliases are Docker's `public.ecr.aws/docker/library/...`
-repositories, Trivy's official `ghcr.io/aquasecurity/trivy` and Syft's official `ghcr.io/anchore/syft`. This is not approval
+`docker.io/aquasec/trivy`, `docker.io/anchore/syft` and `docker.io/prom/prometheus`. Acquisition aliases are Docker's `public.ecr.aws/docker/library/...`
+repositories, Trivy's official `ghcr.io/aquasecurity/trivy`, Syft's official `ghcr.io/anchore/syft` and Prometheus's `quay.io/prometheus/prometheus`. This is not approval
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
 registries are not admitted. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.1` retains the `1.1.0` mapping structure and adds the two audit tuples; consumers must bind the matching
+Policy version `1.1.2` retains the `1.1.0` mapping structure and adds the three Core tuples; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -78,6 +79,19 @@ Gateway Python reuses the existing `e529...` single-platform tuple, not its unad
 index. Neither audit admission identifies an earlier failed mutable-tag pull. Core's separately
 unresolved Confluent inputs are not admitted by this change.
 
+Core's pinned Bookworm Python index `97b0ea...`, Trivy 0.56.2 index `26245f...`
+and Prometheus v2.47.2 index `300293...` retain their exact Linux/amd64 children
+and configs. The independent recovery receipt
+`2ce38a55832f50b126e74aa9e256c571df8397ce412fcb22d1d9165d50de1044`
+binds their retained source/distribution bytes; committed fixtures rehash those bytes in
+the native acquisition controls. [Prometheus documents its Quay and DockerHub distributions](https://prometheus.io/docs/prometheus/latest/installation/).
+Only `docker.io/prom/prometheus` to `quay.io/prometheus/prometheus` is admitted;
+unrelated Quay repositories, hosts, digests and platforms refuse before output.
+This exact public repository serves manifests without a token request. ECR/GHCR
+anonymous-token behavior and all acquisition budgets remain unchanged. Core PostgreSQL
+reuses its existing admitted tuple. Confluent, Grafana and action-managed BuildKit
+remain separate unresolved acquisition/capacity inputs; no operator copy is authorized.
+
 From the `lotus-platform` checkout, both PowerShell and Bash support this static admission
 check (replace the complete references with a reviewed tuple from the policy):
 
@@ -86,7 +100,8 @@ python automation/validate_technology_governance_policy.py --source-image docker
 ```
 
 Add `--verify-distribution` for a live, bounded read of manifest bytes. This reads an
-anonymous public token and the admitted index/manifest and child; it downloads no layers
+anonymous public token for ECR/GHCR, or directly reads the exact public Prometheus Quay
+repository, then the admitted index/manifest and child; it downloads no layers
 and retains no token. An absent optional digest header is allowed; a contradictory header
 or body hash is refused. Missing, unavailable, rate-limited or mismatched inputs fail closed.
 Only HTTP 429 receives paced recovery: at most three attempts per request, nine requests
