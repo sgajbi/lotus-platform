@@ -83,6 +83,7 @@ PUBLISHER_DISTRIBUTIONS = {
     "docker.io/library/postgres": "public.ecr.aws/docker/library/postgres",
     "docker.io/aquasec/trivy": "ghcr.io/aquasecurity/trivy",
     "docker.io/anchore/syft": "ghcr.io/anchore/syft",
+    "docker.io/prom/prometheus": "quay.io/prometheus/prometheus",
 }
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",
@@ -473,21 +474,7 @@ def verify_distribution(
         raise ValueError("distribution publisher repository is not admitted")
     host, repository = distribution.split("/", 1)
     budget = _AcquisitionBudget(evidence_dir)
-    query = urllib.parse.urlencode(
-        {"service": host, "scope": f"repository:{repository}:pull"}
-    )
-    token_path = "/token/" if host == "public.ecr.aws" else "/token"
-    body, _ = budget.request(f"https://{host}{token_path}?{query}", {})
-    token_payload = json.loads(body)
-    if not isinstance(token_payload, dict):
-        raise ValueError("distribution registry token response must be an object")
-    token = token_payload.get("token") or token_payload.get("access_token")
-    if not isinstance(token, str) or not token:
-        raise ValueError(
-            "distribution registry did not provide an anonymous pull token"
-        )
     headers = {
-        "Authorization": "Bearer " + token,
         "Accept": ", ".join(
             [
                 "application/vnd.oci.image.index.v1+json",
@@ -497,6 +484,23 @@ def verify_distribution(
             ]
         ),
     }
+    # This exact public Quay repository serves manifests anonymously. Publisher
+    # admission above still precedes every request; no generic host discovery.
+    if host != "quay.io":
+        query = urllib.parse.urlencode(
+            {"service": host, "scope": f"repository:{repository}:pull"}
+        )
+        token_path = "/token/" if host == "public.ecr.aws" else "/token"
+        body, _ = budget.request(f"https://{host}{token_path}?{query}", {})
+        token_payload = json.loads(body)
+        if not isinstance(token_payload, dict):
+            raise ValueError("distribution registry token response must be an object")
+        token = token_payload.get("token") or token_payload.get("access_token")
+        if not isinstance(token, str) or not token:
+            raise ValueError(
+                "distribution registry did not provide an anonymous pull token"
+            )
+        headers["Authorization"] = "Bearer " + token
 
     def manifest(digest: str) -> dict[str, Any]:
         raw, response_headers = budget.request(

@@ -32,6 +32,12 @@ manifest. Bind a qualified Platform revision containing these mappings; owning-r
 hosted acquisition and audit checks remain required. See the
 [exact admission and evidence boundary](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6090967601).
 
+Core's separately admitted pinned Bookworm Python, Trivy 0.56.2 and Prometheus v2.47.2
+tuples are also in the finite policy. Prometheus uses only its exact publisher Quay
+repository with anonymous manifest reads; no host-wide approval or alternate engine
+is implied. Core's Confluent, Grafana and transitive tooling inputs remain separately
+accounted for. See the [Core admission boundary](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6091423369).
+
 `lotus-platform` uses:
 
 1. `Remote Feature Lane`
