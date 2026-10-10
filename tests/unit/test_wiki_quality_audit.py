@@ -1805,6 +1805,59 @@ def test_temporary_directory_terms_are_operator_prose(prose: str) -> None:
     assert _load_audit_module()._page_prose_failures("Operations-Runbook.md", prose) == []
 
 
+TEMP_DIRECTORY_PROSE = (
+    "Storage defaults to the OS temp directory.",
+    "The OS temp directories contain worker-owned files.",
+    "| storage_root | `<temp dir>/lotus-archive-objects` | filesystem storage location |",
+    "The ledger defaults to `<temp dir>/lotus-archive-ingestion-ledger.sqlite3`.",
+    "The default is <temp dir>/lotus-archive-objects.",
+)
+TEMP_DIRECTORY_SCRATCH = (
+    "temp notes remain TODO", "temp directory notes", "temp directory workaround",
+    "temp directoryname", "temp dir notes", "<temp dir> notes", "<temp dir>/ notes",
+    "<temp dir>/objects notes", "<temp dir>/objects workaround",
+    "Storage defaults to the OS temp directory; TODO finish.",
+    "Storage defaults to `<temp dir>/objects`; TBD.",
+    "Storage defaults to `<temp dir>/objects`; FIXME.",
+    *(text.replace("temporary", "temp") for text in FORMATTED_DIRECTORY_SCRATCH_PROSE),
+    *(text.replace("temporary", "temp") for text in HTML_DIRECTORY_SCRATCH_PROSE),
+)
+
+
+def test_temp_directory_defaults_preserve_occurrence_scoped_scratch_detection() -> None:
+    audit = _load_audit_module()
+    for prose in TEMP_DIRECTORY_PROSE:
+        assert audit._page_prose_failures("Configuration.md", prose) == [], prose
+    for prose in TEMP_DIRECTORY_SCRATCH:
+        # A valid earlier occurrence must never waive later unfinished prose.
+        failures = audit._page_prose_failures(
+            "Configuration.md", TEMP_DIRECTORY_PROSE[0] + "\n" + prose
+        )
+        assert "contains scratch-note terms" in " ".join(failures), prose
+
+
+def test_temp_directory_default_fixture_cli_accepts_valid_and_refuses_scratch(tmp_path: Path) -> None:
+    _set_github_origin(tmp_path, "https://github.com/example/repo.git")
+    wiki = tmp_path / "wiki"
+    wiki.mkdir()
+    (wiki / "Home.md").write_text("# Home\n\n[Configuration](Configuration)\n", encoding="utf-8")
+    (wiki / "_Sidebar.md").write_text("# Navigation\n\n[Configuration](Configuration)\n", encoding="utf-8")
+    for extra, expected in (("", 0), ("temp directory: **notes**", 1), ("TODO finish", 1)):
+        (wiki / "Configuration.md").write_text(
+            "# Configuration\n\nCurrent-state storage defaults and operator limits.\n\n"
+            + TEMP_DIRECTORY_PROSE[0] + "\n\n| Setting | Default | Meaning |\n"
+            "| --- | --- | --- |\n" + TEMP_DIRECTORY_PROSE[2] + "\n\n" + extra + "\n",
+            encoding="utf-8",
+        )
+        result = subprocess.run(
+            [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki), "--repo-root", str(tmp_path)],
+            capture_output=True, text=True, check=False,
+        )
+        assert result.returncode == expected, result.stdout + result.stderr
+        if expected:
+            assert "Configuration.md: contains scratch-note terms" in result.stdout
+
+
 @pytest.mark.parametrize("prose", [
     "temporary directory notes", "temporary directory workaround",
     "temporary directories notes", "temporary directories workaround",
