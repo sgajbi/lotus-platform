@@ -2393,7 +2393,7 @@ def test_heading_audit_keeps_shorter_nested_fences_literal(
 
 
 @pytest.mark.parametrize("invalid_close", [
-    "```sh", "```` trailing text", "    ```", "```\u00a0", "```\u000b", "```\u000c",
+    "```sh", "```` trailing text", "    ```", "```\u00a0", "```\u000b", "```\u000c", "```sh`bad",
 ])
 def test_heading_audit_does_not_close_fences_on_content(invalid_close: str) -> None:
     text = f"# Operations\n```sh\n{invalid_close}\n# Shell comment\n```\n"
@@ -2406,6 +2406,47 @@ def test_heading_audit_closes_fences_with_ascii_whitespace(closing: str) -> None
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
         "Operations.md: expected exactly one H1, found 2",
     ]
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("indent", ["", " ", "  ", "   "])
+@pytest.mark.parametrize("opening", ["```sh`bad", "``` `bad`", r"````sh\`bad"])
+def test_heading_audit_rejects_backticks_in_opening_info(
+    newline: str, indent: str, opening: str,
+) -> None:
+    text = newline.join(["# Operations", indent + opening, "# Real second title"])
+    audit = _load_audit_module()
+    assert audit._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+    assert audit._prose_without_fenced_code(text) == "\n".join(text.splitlines())
+
+
+@pytest.mark.parametrize("opening, closing", [
+    ("```", "```"), ("```sh", "```"), ("````markdown", "````"),
+    ("```sh&#96;info", "```"), ("```sh\\x60info", "```"), ("```café", "```"),
+])
+def test_heading_audit_keeps_valid_opening_info_literal(opening: str, closing: str) -> None:
+    text = f"# Operations\n{opening}\n# Shell comment\n{closing}\n"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("tail, accepted, bare_url, references", [
+    ("temporary notes", False, False, set()),
+    ("http://service.dev.lotus", True, True, set()),
+    (SECURITY_DECISION_STATEMENT, False, False, set()),
+    ("\n" + SECURITY_DECISION_STATEMENT, True, False, set()),
+    ("<span>" + SECURITY_DECISION_STATEMENT + "</span>", False, False, set()),
+    ("[target]: Operations-Runbook\n[temporary directory][target] notes", True, False, set()),
+    ("\n[target]: Operations-Runbook\n[temporary directory][target] notes", False, False, {"target"}),
+])
+def test_malformed_fence_info_retains_prose_and_reference_boundaries(
+    tmp_path: Path, tail: str, accepted: bool, bare_url: bool, references: set[str],
+) -> None:
+    prose = "```sh`bad\n" + tail
+    audit = _load_audit_module()
+    assert audit._directory_reference_labels(audit._prose_without_fenced_code(prose)) == references
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted, bare_url_failure_expected=bare_url)
 
 
 @pytest.mark.parametrize("tail, accepted, bare_url, references", [
@@ -2437,6 +2478,8 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("Introduction\n# Operations\n", 1),
     ("# Operations\n````markdown\n```sh\n# Shell comment\n```\n````\n", 0),
     ("# Operations\n````markdown\n```sh\n# Shell comment\n```\n````\n# Second title\n", 1),
+    ("# Operations\n```sh`bad\n# Second title\n", 1),
+    ("# Operations\n```sh&#96;info\n# Shell comment\n```\n", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
