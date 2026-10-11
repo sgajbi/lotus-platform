@@ -117,7 +117,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - require an H1 on the first nonblank source line and exactly one H1 outside supported
      backtick-fenced examples; shell comments inside those examples are not page titles,
      and shorter nested backtick runs stay literal until a closing run at least as long as
-     the opener with only ASCII spaces or tabs after it;
+     the opener with only ASCII spaces or tabs after it; opening info strings must not
+     contain literal backticks;
    - keep tables narrow enough to scan on GitHub by splitting oversized matrices into smaller
      audience, capability, operations, or evidence tables,
    - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs,

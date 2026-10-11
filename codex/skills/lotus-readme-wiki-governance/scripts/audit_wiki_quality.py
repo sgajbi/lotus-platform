@@ -842,8 +842,12 @@ def _prose_without_fenced_code(text: str) -> str:
     for line in re.split(r"\r\n|\r|\n", text):
         marker = re.match(r" {0,3}(`{3,})(.*)$", line)
         if marker and (
-            not fence_length
-            or (len(marker[1]) >= fence_length and not marker[2].strip(" \t"))
+            (not fence_length and "`" not in marker[2])
+            or (
+                fence_length
+                and len(marker[1]) >= fence_length
+                and not marker[2].strip(" \t")
+            )
         ):
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
