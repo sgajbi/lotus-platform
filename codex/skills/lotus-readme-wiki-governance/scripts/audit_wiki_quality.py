@@ -148,6 +148,8 @@ def _directory_link_title_end(line: str, start: int) -> int | None:
 
 def _directory_link_destination_end(line: str, start: int) -> int | None:
     """Read one angle or balanced bare destination; leave following metadata."""
+    if start >= len(line):
+        return None
     index = start
     angle = line[index] == "<"
     if angle:

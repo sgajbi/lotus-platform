@@ -2487,6 +2487,10 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\n<pre\v>\n```\n</pre>\n\n# Second title", 1),
     ("# Operations\n\n[ref]:\n/path\n<custom>\n```\n\n# Second title", 1),
     ('# Operations\n\n[ref]: /path\n"title"\n<custom>\n```\n\n# Second title', 1),
+    ("# Operations\n\n[ref]:\n\f", 0),
+    ("# Operations\n\n[ref]:\n\v", 0),
+    ("# Operations\n\n[ref]:\n \v", 0),
+    ("# Operations\n\n[ref]:\n\t\f", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2654,6 +2658,29 @@ def test_heading_audit_wrapped_reference_boundary_preserves_literal_prose(defini
 ])
 def test_heading_audit_invalid_wrapped_title_retains_paragraph_fence(definition: str) -> None:
     text = "# Operations\n\n" + definition + "\n<custom>\n```sh\n# Shell comment\n```"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("destination", ["\f", "\v", " \v", "\t\f"])
+@pytest.mark.parametrize("tail", ["", "\n<custom>\n```sh\n# Shell comment\n```"])
+def test_heading_audit_empty_wrapped_destination_is_literal(
+    destination: str, tail: str, newline: str,
+) -> None:
+    text = ("# Operations\n\n[ref]:\n" + destination + tail).replace("\n", newline)
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+def test_heading_audit_empty_angle_destination_keeps_html_boundary() -> None:
+    text = "# Operations\n\n[ref]: <>\n<custom>\n```\n\n# Second title"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+@pytest.mark.parametrize("blank", ["", " ", "\t"])
+def test_heading_audit_blank_wrapped_destination_keeps_real_fence(blank: str) -> None:
+    text = f"# Operations\n\n[ref]:\n{blank}\n```sh\n# Shell comment\n```"
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
 
 
