@@ -2370,11 +2370,73 @@ def test_heading_audit_preserves_real_titles_and_first_line_contract(
     ]
 
 
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("outer, inner, closing", [
+    ("````", "```", "````"),
+    ("`````", "````", "`````"),
+    ("````", "```", "`````"),
+])
+@pytest.mark.parametrize("indent", ["", " ", "  ", "   "])
+def test_heading_audit_keeps_shorter_nested_fences_literal(
+    newline: str, outer: str, inner: str, closing: str, indent: str,
+) -> None:
+    text = newline.join([
+        "# Operations", indent + outer + "markdown", inner + "sh",
+        "# Comment inside the nested example", inner,
+        "# Comment still inside the outer example", indent + closing,
+    ])
+    audit = _load_audit_module()
+    assert audit._page_heading_failures("Operations.md", text) == []
+    assert audit._page_heading_failures("Operations.md", text + newline + "# Real second title") == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+@pytest.mark.parametrize("invalid_close", [
+    "```sh", "```` trailing text", "    ```", "```\u00a0", "```\u000b", "```\u000c",
+])
+def test_heading_audit_does_not_close_fences_on_content(invalid_close: str) -> None:
+    text = f"# Operations\n```sh\n{invalid_close}\n# Shell comment\n```\n"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("closing", ["``` ", "```\t", "```` \t"])
+def test_heading_audit_closes_fences_with_ascii_whitespace(closing: str) -> None:
+    text = f"# Operations\n```sh\n# Shell comment\n{closing}\n# Real second title\n"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+@pytest.mark.parametrize("tail, accepted, bare_url, references", [
+    ("", True, False, set()),
+    ("http://service.dev.lotus", True, True, set()),
+    ("temporary notes", False, False, set()),
+    ("[temporary directory][target] notes", True, False, set()),
+    ("[target]: Operations-Runbook\n[temporary directory][target] notes", False, False, {"target"}),
+    (SECURITY_DECISION_STATEMENT, True, False, set()),
+    ("<span>" + SECURITY_DECISION_STATEMENT + "</span>", False, False, set()),
+])
+def test_nested_fence_preserves_prose_reference_and_admission_guards(
+    tmp_path: Path, tail: str, accepted: bool, bare_url: bool, references: set[str],
+) -> None:
+    prose = (
+        "````markdown\n```sh\n# Shell comment\nhttp://service.dev.lotus\n"
+        "temporary notes\n[target]: Operations-Runbook\n<span>\n```\n"
+        "```fake-close\n````\n" + tail
+    )
+    audit = _load_audit_module()
+    assert audit._directory_reference_labels(audit._prose_without_fenced_code(prose)) == references
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, accepted, bare_url_failure_expected=bare_url)
+
+
 @pytest.mark.parametrize("body, expected_exit", [
     ("# Operations\n\n```sh\n# Restore the database\necho restore\n```\n", 0),
     ("# Operations\n```sh\n# Comment\n```\n# Another title\n", 1),
     ("```sh\n# Comment\n```\n", 1),
     ("Introduction\n# Operations\n", 1),
+    ("# Operations\n````markdown\n```sh\n# Shell comment\n```\n````\n", 0),
+    ("# Operations\n````markdown\n```sh\n# Shell comment\n```\n````\n# Second title\n", 1),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
