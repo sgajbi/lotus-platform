@@ -29,10 +29,11 @@ Four neutral inputs are archived byte-for-byte as plain text or JSON. Their orig
 ### Planned delivery admission
 
 Optional `delivery_admissions` in the single ledger distinguish one owning issue from programme
-and dependency links. Four PLANNED admissions select seven requirements: CMP-RPT-001 for Report
+and dependency links. Five PLANNED admissions select eight requirements: CMP-RPT-001 for Report
 [#417](https://github.com/sgajbi/lotus-report/issues/417), CMP-SRC-006 for Performance #607,
 CMP-ELG-001 for Manage #778, and CMP-RPT-002/003/005/009 for Report
-[#446](https://github.com/sgajbi/lotus-report/issues/446). The other 314 requirements acquire no admission
+[#446](https://github.com/sgajbi/lotus-report/issues/446), plus CMP-LIN-006 for Platform
+[#954](https://github.com/sgajbi/lotus-platform/issues/954). The other 313 requirements acquire no admission
 fields; all 321 remain NOT_ASSESSED. Historical source cuts carry explicit scope and require current
 owner reinspection. Report #417 is independently closed for its focused first pinned review family;
 its historical admission and planned evaluation remain provenance, not requirement acceptance.
@@ -41,6 +42,20 @@ comparison is partial. CMP-LIN-001/003/006 retain Platform ownership with Report
 Wider report products, qualified source authority, institutional approval and full correction,
 explanation and distribution obligations remain unearned. These plans neither assess a requirement
 nor authorize an API or financial method.
+
+Platform #954 retains full any-two-generation contract and cross-service acceptance ownership;
+[Performance #656](https://github.com/sgajbi/lotus-performance/issues/656) is its financial delivery
+dependency, with Manage decision/input evidence and Report consumer collaboration. The child needs
+an accepted versioned contract/method artifact, not parent issue closure. An initial TWR-only or
+internal-pair increment is partial; complete difference inventories, comparable source-owned effects,
+non-additive interactions and separately qualified bridges remain required. Future product schemas
+are implementation exit proofs; this admission does not assert that they exist or approve a method.
+
+Report #446 also depends on [Archive #196](https://github.com/sgajbi/lotus-archive/issues/196)
+for additive v9 custody of an ordered retained v8 source pair. Its initial profile remains
+same-scope / PARTIAL / NOT_ATTESTED; it does not fulfill full RPT-08 or CMP-LIN-006.
+The Report r5 six-field source-anchor amendment and producer/receiver agreement remain pending;
+this dependency grants no Archive implementation or live receiver acceptance.
 
 An admission names known requirement IDs, matching owner/issue, canonical feature(s), dependencies,
 bounded scope, a committed-source observation, independent evaluation plan, internal/external
@@ -336,7 +351,7 @@ This projection contains no second authority. Exact source ranges, individual ba
 | [CMP-LIN-003](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-LIN-004](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-005](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-LIN-006](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
+| [CMP-LIN-006](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446), [lotus-platform#954](https://github.com/sgajbi/lotus-platform/issues/954), [lotus-performance#656](https://github.com/sgajbi/lotus-performance/issues/656) |
 | [CMP-LIN-007](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-008](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-009](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
