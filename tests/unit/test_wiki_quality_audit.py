@@ -2482,6 +2482,11 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n```sh&#96;info\n# Shell comment\n```\n", 0),
     ("# Operations\n<!--\n```\n-->\n# Second title\n", 1),
     ("# Operations\n<!--\n```\n-->\n```sh\n# Shell comment\n```\n", 0),
+    ("# Operations\n\n<custom>\f\n```\n\n# Second title", 1),
+    ("# Operations\n\n<div\v>\n```\n\n# Second title", 1),
+    ("# Operations\n\n<pre\v>\n```\n</pre>\n\n# Second title", 1),
+    ("# Operations\n\n[ref]:\n/path\n<custom>\n```\n\n# Second title", 1),
+    ('# Operations\n\n[ref]: /path\n"title"\n<custom>\n```\n\n# Second title', 1),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2602,6 +2607,53 @@ def test_heading_audit_raw_html_after_nonparagraph_blocks(prefix: str, newline: 
 ])
 def test_heading_audit_reference_and_indent_paragraphs_allow_real_fences(prefix: str) -> None:
     text = "# Operations\n\n" + prefix + "\n<custom>\n```sh\n# Shell comment\n```"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("prefix", [
+    "<custom>\f", "<div\v>", "<pre\v>\n```\n</pre>",
+    "<custom\v>", "<custom data-x\v=value>", "</custom\v>",
+    "[ref]:\n/path\n<custom>", '[ref]: /path\n"title"\n<custom>',
+])
+def test_heading_audit_root_boundary_duplicate_regressions(prefix: str, newline: str) -> None:
+    suffix = "\n\n# Second title" if prefix.startswith("<pre") else "\n```\n\n# Second title"
+    text = ("# Operations\n\n" + prefix + suffix).replace("\n", newline)
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+@pytest.mark.parametrize("prefix", [
+    '[ref]: /path invalid', '[ref]:\n/path invalid', '[ref]: /path\n"title" invalid',
+    '[ref]: /path "title" invalid', '[ref]: <path\ncontinued>',
+    '[ref]: /path\n\n"title"', '[ref]:\n\n/path',
+])
+def test_heading_audit_malformed_wrapped_reference_keeps_real_fence(prefix: str) -> None:
+    text = "# Operations\n\n" + prefix + "\n<custom>\n```sh\n# Shell comment\n```"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("definition", [
+    "[ref]:\n/path", '[ref]: /path\n"title"', "[ref]:\n<my url>\n 'title'",
+    '[ref]: /path "multi\nline"', "[ref\n label]: /path", "[ref]: /path\n'line\n continuation'",
+    '[ref]: /balanced(path)\n(title)', '[ref]: /path "escaped\\\" title"',
+])
+def test_heading_audit_wrapped_reference_boundary_preserves_literal_prose(definition: str) -> None:
+    text = "# Operations\n\n" + definition + "\n<custom>\n```\n\n# Second title"
+    audit = _load_audit_module()
+    assert audit._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+    assert audit._prose_without_fenced_code(text) == text
+
+
+@pytest.mark.parametrize("definition", [
+    '[ref]: /path "unclosed\n\nline"', '[ref]: /path\n"title" extra',
+    '[ref]: /path\n(unbalanced(title))', '[ref]: /path\n\n"title"',
+])
+def test_heading_audit_invalid_wrapped_title_retains_paragraph_fence(definition: str) -> None:
+    text = "# Operations\n\n" + definition + "\n<custom>\n```sh\n# Shell comment\n```"
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
 
 

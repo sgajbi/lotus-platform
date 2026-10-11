@@ -146,22 +146,9 @@ def _directory_link_title_end(line: str, start: int) -> int | None:
     return None
 
 
-def _directory_inline_link_end(line: str, start: int) -> int | None:
-    """Read complete same-line destination/title metadata, without rendering it."""
-    index = start + 1
-    while index < len(line) and line[index] in " \t":
-        index += 1
-    if index == len(line):
-        return None
-    if line[index] == ")":
-        return index + 1
-    title_end = _directory_link_title_end(line, index)
-    if title_end is not None:
-        tail = title_end
-        while tail < len(line) and line[tail] in " \t":
-            tail += 1
-        if tail < len(line) and line[tail] == ")":
-            return tail + 1
+def _directory_link_destination_end(line: str, start: int) -> int | None:
+    """Read one angle or balanced bare destination; leave following metadata."""
+    index = start
     angle = line[index] == "<"
     if angle:
         index += 1
@@ -185,12 +172,33 @@ def _directory_inline_link_end(line: str, start: int) -> int | None:
             depth += 1
         elif character == ")":
             if depth == 0:
-                return index + 1
+                break
             depth -= 1
         index += 1
     else:
+        if angle:
+            return None
+    return index if index > start and not depth else None
+
+
+def _directory_inline_link_end(line: str, start: int) -> int | None:
+    """Read complete same-line destination/title metadata, without rendering it."""
+    index = start + 1
+    while index < len(line) and line[index] in " \t":
+        index += 1
+    if index == len(line):
         return None
-    if depth:
+    if line[index] == ")":
+        return index + 1
+    title_end = _directory_link_title_end(line, index)
+    if title_end is not None:
+        tail = title_end
+        while tail < len(line) and line[tail] in " \t":
+            tail += 1
+        if tail < len(line) and line[tail] == ")":
+            return tail + 1
+    index = _directory_link_destination_end(line, index)
+    if index is None:
         return None
     separated = index < len(line) and line[index] in " \t"
     while index < len(line) and line[index] in " \t":
@@ -845,10 +853,66 @@ HTML_BLOCK_TAGS = (
 )
 HTML_BLOCK_COMPLETE_TAG = re.compile(
     r"(?:<[A-Za-z][A-Za-z0-9-]*"
-    r"(?:[ \t\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
-    r"(?:[ \t\f]*=[ \t\f]*(?:[^ \t\f\r\n\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)*"
-    r"[ \t\f]*/?>|</[A-Za-z][A-Za-z0-9-]*[ \t\f]*>)[ \t]*$"
+    r"(?:[ \t\v\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+    r"(?:[ \t\v\f]*=[ \t\v\f]*(?:[^ \t\v\f\r\n\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)*"
+    r"[ \t\v\f]*/?>|</[A-Za-z][A-Za-z0-9-]*[ \t\v\f]*>)[ \t\v\f]*$"
 )
+MARKDOWN_REFERENCE_BLOCK_START = re.compile(
+    r" {0,3}\[((?:\\[^\r\n]|[^\[\]\\]){1,999})\]:[ \t\v\f]*(.*)$", re.DOTALL
+)
+
+
+def _reference_title_block_end(lines: list[str], index: int, title: str) -> int | None:
+    """A reference title may wrap, but cannot contain a blank line or trailing prose."""
+    if not title.startswith(('"', "'", "(")):
+        return None
+    while True:
+        end = _directory_link_title_end(title, 0)
+        if end is not None:
+            return index + 1 if not title[end:].strip(" \t\v\f") else None
+        index += 1
+        if index == len(lines) or not lines[index].strip(" \t"):
+            return None
+        title += "\n" + lines[index]
+
+
+def _reference_definition_block_end(lines: list[str], start: int) -> int | None:
+    """Find a reference block boundary without admitting labels to prose-link guards."""
+    if not re.match(r" {0,3}\[", lines[start]):
+        return None
+    index = start
+    label_source = lines[index]
+    definition = MARKDOWN_REFERENCE_BLOCK_START.fullmatch(label_source)
+    while definition is None:
+        index += 1
+        if index == len(lines) or len(label_source) > 1003 or not lines[index].strip(" \t"):
+            return None
+        label_source += "\n" + lines[index]
+        definition = MARKDOWN_REFERENCE_BLOCK_START.fullmatch(label_source)
+    if not definition[1].strip(" \t\v\f\n"):
+        return None
+    target = definition[2]
+    if not target.strip(" \t\v\f"):
+        index += 1
+        if index == len(lines) or not lines[index].strip(" \t"):
+            return None
+        target = lines[index].lstrip(" \t\v\f")
+    # Only syntax whitespace is normalized; projected source stays byte-for-byte literal.
+    target = target.replace("\v", " ").replace("\f", " ")
+    end = _directory_link_destination_end(target, 0)
+    if end is None:
+        return None
+    tail = target[end:]
+    if tail.strip(" \t"):
+        if not tail.startswith((" ", "\t")):
+            return None
+        return _reference_title_block_end(lines, index, tail.lstrip(" \t"))
+    next_index = index + 1
+    if next_index < len(lines):
+        title = lines[next_index].lstrip(" \t\v\f")
+        if title.startswith(('"', "'", "(")):
+            return _reference_title_block_end(lines, next_index, title) or next_index
+    return next_index
 
 
 def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
@@ -857,14 +921,14 @@ def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
     if start is None:
         return None
     raw = start[1]
-    if re.match(r"<(?:script|pre|style)(?=[ \t\f>]|$)", raw, re.IGNORECASE):
+    if re.match(r"<(?:script|pre|style)(?=[ \t\v\f>]|$)", raw, re.IGNORECASE):
         return re.compile(r"</(?:script|pre|style)>", re.IGNORECASE)
     for opening, closing in (("<!--", "-->"), ("<?", "?>"), ("<![CDATA[", "]]>")):
         if raw.startswith(opening):
             return re.compile(re.escape(closing))
     if re.match(r"<![A-Z]", raw):
         return re.compile(">")
-    if re.match(r"</?(?:" + HTML_BLOCK_TAGS + r")(?=[ \t\f>]|/>|$)", raw, re.IGNORECASE):
+    if re.match(r"</?(?:" + HTML_BLOCK_TAGS + r")(?=[ \t\v\f>]|/>|$)", raw, re.IGNORECASE):
         return re.compile(r"^[ \t]*$")
     if not in_paragraph and HTML_BLOCK_COMPLETE_TAG.fullmatch(raw):
         return re.compile(r"^[ \t]*$")
@@ -876,7 +940,11 @@ def _prose_without_fenced_code(text: str) -> str:
     fence_length = 0
     html_end = None
     in_paragraph = False
-    for line in re.split(r"\r\n|\r|\n", text):
+    lines = re.split(r"\r\n|\r|\n", text)
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        index += 1
         if not fence_length:
             html_end = html_end or _html_block_end(line, in_paragraph)
             if html_end is not None:
@@ -901,11 +969,15 @@ def _prose_without_fenced_code(text: str) -> str:
             continue
         if not fence_length:
             prose_lines.append(line)
-            if not in_paragraph and (
-                re.match(r"(?: {4}| {0,3}\t)", line) or _directory_reference_labels(line)
-            ):
-                # Indented code and supported reference definitions are not paragraphs.
-                continue
+            if not in_paragraph:
+                reference_end = _reference_definition_block_end(lines, index - 1)
+                if reference_end is not None:
+                    prose_lines.extend(lines[index:reference_end])
+                    index = reference_end
+                    continue
+                if re.match(r"(?: {4}| {0,3}\t)", line):
+                    # Indented code does not start a paragraph.
+                    continue
             in_paragraph = bool(line.strip(" \t")) and not (
                 re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
                 or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))
