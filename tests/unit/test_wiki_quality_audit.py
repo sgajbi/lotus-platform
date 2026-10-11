@@ -2491,6 +2491,13 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\n[ref]:\n\v", 0),
     ("# Operations\n\n[ref]:\n \v", 0),
     ("# Operations\n\n[ref]:\n\t\f", 0),
+    ("# Operations\n\n<textarea>\n\n```\n</textarea>\n# Second title", 1),
+    ("# Operations\n\n- item\n<custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\n> item\n<custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\n1. item\n<custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\nparagraph\n<search>\n```\n\n# Shell comment", 0),
+    ("# Operations\n\nparagraph\n2. item\n<custom>\n```\n\n# Shell comment", 0),
+    ("# Operations\n\n- item\n  <custom>\n```\n\n# Shell comment", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2681,6 +2688,58 @@ def test_heading_audit_empty_angle_destination_keeps_html_boundary() -> None:
 @pytest.mark.parametrize("blank", ["", " ", "\t"])
 def test_heading_audit_blank_wrapped_destination_keeps_real_fence(blank: str) -> None:
     text = f"# Operations\n\n[ref]:\n{blank}\n```sh\n# Shell comment\n```"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("opening,closing", [
+    ("<textarea>", "</textarea>"), ("   <TEXTAREA>", "</TEXTAREA>"),
+    ("<textarea title='example'>", "</pre>"),
+])
+def test_heading_audit_gfm_review_textarea_spans_blank_lines(
+    opening: str, closing: str, newline: str,
+) -> None:
+    text = newline.join(["# Operations", "", opening, "", "```", closing, "# Second title"])
+    audit = _load_audit_module()
+    assert audit._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+    assert audit._prose_without_fenced_code(text) == text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("prefix,indent,count", [
+    ("- item", 0, 2), ("* item", 0, 2), ("+ item", 0, 2),
+    ("1. item", 0, 2), ("2. item", 0, 2), ("1) item", 0, 2),
+    ("> item", 0, 2), ("> > item", 0, 2),
+    ("- item\nlazy continuation", 0, 2), ("- item\n  indented continuation", 0, 2),
+    ("> item\nlazy continuation", 0, 2), ("> item\n> continuation", 0, 2),
+    ("paragraph\n- item", 0, 2), ("paragraph\n> item", 0, 2),
+    ("paragraph", 0, 1), ("paragraph\n2. item", 0, 1),
+    ("-item", 0, 1), ("1.item", 0, 1), ("1234567890. item", 0, 1),
+    ("\\- item", 0, 1), ("paragraph\n    - item", 0, 1),
+    ("- item\n\nordinary paragraph", 0, 1), ("> item\n\nordinary paragraph", 0, 1),
+    ("- item", 1, 2), ("- item", 2, 1), ("- item", 3, 1),
+    ("1. item", 2, 2), ("1. item", 3, 1), ("> item", 3, 2),
+    ("paragraph\n01. item", 0, 2), ("paragraph\n1) item", 0, 2),
+    ("paragraph\n- ", 0, 2), ("paragraph\n1. ", 0, 1),
+    ("-\titem", 3, 2), ("1. \titem", 3, 2),
+])
+def test_heading_audit_gfm_review_container_boundary(
+    prefix: str, indent: int, count: int, newline: str,
+) -> None:
+    # Expectations come from GitHub's mode=gfm renderer. Its container boundary
+    # differs from the standalone CommonMark renderer used by older controls.
+    text = ("# Operations\n\n" + prefix + "\n" + " " * indent
+            + "<custom>\n```\n\n# Second title").replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("prefix", ["paragraph", "paragraph\n2. item"])
+def test_heading_audit_gfm_review_search_retains_real_fence(prefix: str) -> None:
+    # CommonMark 0.31.2 added search; current GitHub GFM keeps this in a paragraph.
+    text = "# Operations\n\n" + prefix + "\n<search>\n```\n\n# Shell comment"
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
 
 

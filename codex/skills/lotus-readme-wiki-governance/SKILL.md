@@ -119,7 +119,11 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      and shorter nested backtick runs stay literal until a closing run at least as long as
      the opener with only ASCII spaces or tabs after it; raw HTML block contents cannot
      open backtick fences and remain subject to existing prose guards; opening info strings must not
-     contain literal backticks;
+     contain literal backticks. Follow hosted GitHub GFM boundaries: textarea blocks span
+     blank lines; complete unprefixed HTML tags can end list/quote paragraph containers,
+     respecting list content indentation and valid paragraph interruption. A search tag in
+     an ordinary paragraph retains its current GitHub GFM inline behavior; CommonMark
+     version changes alone do not expand this bounded projection;
    - keep tables narrow enough to scan on GitHub by splitting oversized matrices into smaller
      audience, capability, operations, or evidence tables,
    - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs,
