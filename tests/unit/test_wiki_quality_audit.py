@@ -2480,6 +2480,8 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n````markdown\n```sh\n# Shell comment\n```\n````\n# Second title\n", 1),
     ("# Operations\n```sh`bad\n# Second title\n", 1),
     ("# Operations\n```sh&#96;info\n# Shell comment\n```\n", 0),
+    ("# Operations\n<!--\n```\n-->\n# Second title\n", 1),
+    ("# Operations\n<!--\n```\n-->\n```sh\n# Shell comment\n```\n", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2497,6 +2499,110 @@ def test_heading_audit_full_cli_contract(
     assert result.returncode == expected_exit, result.stdout + result.stderr
     if expected_exit:
         assert "H1" in result.stdout
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("indent", ["", " ", "  ", "   "])
+@pytest.mark.parametrize("opening, closing", [
+    ("<!--", "-->"), ("<pre>", "</pre>"), ("<SCRIPT>", "</style>"),
+    ("<?process", "?>"), ("<!DOCTYPE", ">"), ("<![CDATA[", "]]>"),
+    ("<div>", "</div>\n"), ("<custom>", "</custom>\n"),
+    ('<custom data-x="value">', "</custom>\n"), ("</custom>", "\n"),
+])
+def test_heading_audit_raw_html_backticks_do_not_hide_following_title(
+    newline: str, indent: str, opening: str, closing: str,
+) -> None:
+    text = newline.join([
+        "# Operations", "", indent + opening, "```", *closing.split("\n"),
+        "# Real second title",
+    ])
+    audit = _load_audit_module()
+    assert audit._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+    assert audit._prose_without_fenced_code(text) == text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+@pytest.mark.parametrize("prose", [
+    "<!--\n```\n-->", "<pre>\n```\n</pre>", "<?pi\n```\n?>",
+    "<!DOCTYPE\n```\n>", "<![CDATA[\n```\n]]>",
+    "<div>\n```\n</div>\n", "<custom>\n```\n</custom>\n",
+])
+def test_raw_html_fence_preserves_prose_admission_guards(tmp_path: Path, prose: str) -> None:
+    # Raw HTML is retained for the existing guards; it is not a new prose exemption.
+    _assert_directory_prose_actual_and_cli(tmp_path, "\n" + prose + "\n\ntemporary notes", False)
+
+
+@pytest.mark.parametrize("prefix", [
+    "<!-- -->", "<?pi?>", "<!DOCTYPE html>", "<![CDATA[x]]>", "<pre></pre>",
+    "<div>\n", "<custom>\n", "paragraph\n<custom>", "paragraph\n<custom malformed",
+    "paragraph\n<custom/> trailing", "    <!--", "\\<!--", "&lt;!--",
+    "=\n<custom>", "<div/invalid>", "<custom broken=>",
+])
+def test_heading_audit_html_boundaries_allow_real_fences(prefix: str) -> None:
+    text = "# Operations\n\n" + prefix + "\n```sh\n# Shell comment\n```\n"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+def test_heading_audit_html_inside_fence_stays_literal() -> None:
+    text = "# Operations\n```html\n<!--\n<pre>\n```\n# Real second title\n"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+@pytest.mark.parametrize("prefix", ["# Section", "Heading\n===", "---", "***", "___", "```\n```"])
+def test_heading_audit_html_tag_after_closed_block_keeps_backticks_raw(prefix: str) -> None:
+    text = "# Operations\n\n" + prefix + "\n<custom>\n```\n\n# Real second title"
+    expected_count = 3 if prefix == "# Section" else 2
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        f"Operations.md: expected exactly one H1, found {expected_count}",
+    ]
+
+
+@pytest.mark.parametrize("blank", ["", " ", "\t", " \t"])
+@pytest.mark.parametrize("opening", ["<div>", "<custom>"])
+def test_heading_audit_html_blank_boundary_reopens_fences(opening: str, blank: str) -> None:
+    text = f"# Operations\n\n{opening}\n```\n{blank}\n```sh\n# Shell comment\n```"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("separator", ["\u00a0", "\v", "\f", "\u2028"])
+def test_heading_audit_html_nonblank_separator_does_not_reopen_fences(separator: str) -> None:
+    text = f"# Operations\n\n<div>\n{separator}\n```\n\n# Real second title"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+def test_raw_html_fence_retains_following_reference_boundary(tmp_path: Path) -> None:
+    prose = "<!--\n```\n-->\n[target]: Operations-Runbook\n[temporary directory][target] notes"
+    audit = _load_audit_module()
+    assert audit._directory_reference_labels(audit._prose_without_fenced_code(prose)) == {"target"}
+    _assert_directory_prose_actual_and_cli(tmp_path, prose, False)
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("prefix", [
+    "[target]: /path", '[target]: /path "Title"', "   [target]: <path>",
+    "[one]: /first\n[two]: /second", "    indented code", "\tindented code",
+    "    indented code\n     continuation", "[target]: /path\n    indented code",
+    " \tindented code", "  \tindented code", "   \tindented code", "[target]: <bad path>",
+])
+def test_heading_audit_raw_html_after_nonparagraph_blocks(prefix: str, newline: str) -> None:
+    text = ("# Operations\n\n" + prefix + "\n<custom>\n```\n\n# Real second title").replace("\n", newline)
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        "Operations.md: expected exactly one H1, found 2",
+    ]
+
+
+@pytest.mark.parametrize("prefix", [
+    "paragraph\n[target]: /path", "paragraph\n    indented continuation",
+    "[target]:", "[target]: <bad<path>", '[target]: /path "Unclosed',
+])
+def test_heading_audit_reference_and_indent_paragraphs_allow_real_fences(prefix: str) -> None:
+    text = "# Operations\n\n" + prefix + "\n<custom>\n```sh\n# Shell comment\n```"
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
 
 
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
