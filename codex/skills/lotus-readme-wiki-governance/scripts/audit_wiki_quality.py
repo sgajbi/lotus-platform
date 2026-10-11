@@ -923,14 +923,14 @@ def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
     if start is None:
         return None
     raw = start[1]
-    if re.match(r"<(?:script|pre|style|textarea)(?=[ \t\v\f>]|$)", raw, re.IGNORECASE):
-        return re.compile(r"</(?:script|pre|style|textarea)>", re.IGNORECASE)
+    if re.match(r"<(?:script|pre|style|textarea)(?=[ \t\v\f>]|$)", raw, re.IGNORECASE | re.ASCII):
+        return re.compile(r"</(?:script|pre|style|textarea)>", re.IGNORECASE | re.ASCII)
     for opening, closing in (("<!--", "-->"), ("<?", "?>"), ("<![CDATA[", "]]>")):
         if raw.startswith(opening):
             return re.compile(re.escape(closing))
     if re.match(r"<![A-Z]", raw):
         return re.compile(">")
-    if re.match(r"</?(?:" + HTML_BLOCK_TAGS + r")(?=[ \t\v\f>]|/>|$)", raw, re.IGNORECASE):
+    if re.match(r"</?(?:" + HTML_BLOCK_TAGS + r")(?=[ \t\v\f>]|/>|$)", raw, re.IGNORECASE | re.ASCII):
         return re.compile(r"^[ \t]*$")
     if not in_paragraph and HTML_BLOCK_COMPLETE_TAG.fullmatch(raw):
         return re.compile(r"^[ \t]*$")
