@@ -119,7 +119,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      and shorter nested backtick runs stay literal until a closing run at least as long as
      the opener with only ASCII spaces or tabs after it; raw HTML block contents cannot
      open backtick fences and remain subject to existing prose guards; opening info strings must not
-     contain literal backticks. Fixed HTML tag names use ASCII-only case folding.
+     contain literal backticks. Tilde blocks retain every source line for existing guards,
+     while their literal contents cannot open HTML, backtick, table or reference blocks;
+     valid closes and owning-container exits end paragraph context. Fixed HTML tag names
+     use ASCII-only case folding.
      Follow hosted GitHub GFM boundaries: textarea blocks span
      blank lines; matching GFM table headers/alignment rows and their body rows are blocks,
      so following complete HTML tags can start raw blocks without a blank line; malformed

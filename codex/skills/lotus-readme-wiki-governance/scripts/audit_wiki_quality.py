@@ -973,6 +973,18 @@ def _backtick_fence_boundary(line: str, fence_length: int) -> int | None:
     return None
 
 
+def _tilde_fence_boundary(line: str, fence_length: int) -> int | None:
+    """Track retained tilde blocks without excluding their source contents."""
+    marker = re.match(r" {0,3}(~{3,})(.*)$", line)
+    if marker is None:
+        return None
+    if not fence_length:
+        return len(marker[1])
+    if len(marker[1]) >= fence_length and not marker[2].strip(" \t"):
+        return 0
+    return None
+
+
 def _gfm_table_cells(line: str) -> list[str]:
     """Split table cells before inline parsing, including escaped code-span pipes."""
     cells: list[str] = []
@@ -1004,6 +1016,8 @@ def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     fence_length = 0
     fence_container_indent = None
+    tilde_length = 0
+    tilde_container_indent = None
     html_end = None
     html_container_indent = None
     in_paragraph = False
@@ -1020,6 +1034,7 @@ def _prose_without_fenced_code(text: str) -> str:
         nonblank = bool(line.strip(" \t"))
         if nonblank and (
             (fence_container_indent is not None and indentation < fence_container_indent)
+            or (tilde_container_indent is not None and indentation < tilde_container_indent)
             or (html_container_indent is not None and indentation < html_container_indent)
             or (table_container_indent is not None and indentation < table_container_indent)
         ):
@@ -1027,6 +1042,8 @@ def _prose_without_fenced_code(text: str) -> str:
             # Reconsider this line as a root/parent block rather than code or HTML.
             fence_length = 0
             fence_container_indent = None
+            tilde_length = 0
+            tilde_container_indent = None
             html_end = None
             html_container_indent = None
             in_table = False
@@ -1035,6 +1052,13 @@ def _prose_without_fenced_code(text: str) -> str:
             _unwind_container_indents(container_indents, indentation)
             in_paragraph = False
             prose_lines.append("")
+        if tilde_length:
+            # Retain code-like source, but do not parse its literal block markers.
+            prose_lines.append(line)
+            if _tilde_fence_boundary(line, tilde_length) == 0:
+                tilde_length = 0
+                tilde_container_indent = None
+            continue
         if not fence_length:
             outside_container = (
                 bool(container_indents) and indentation < container_indents[-1]
@@ -1054,6 +1078,17 @@ def _prose_without_fenced_code(text: str) -> str:
                     html_container_indent = None
                 in_paragraph = False
                 continue
+        next_tilde_length = _tilde_fence_boundary(line, 0) if not fence_length else None
+        if next_tilde_length is not None:
+            prose_lines.append(line)
+            _unwind_container_indents(container_indents, indentation)
+            tilde_length = next_tilde_length
+            tilde_container_indent = container_indents[-1] if container_indents else None
+            in_table = False
+            table_container_indent = None
+            table_header = None
+            in_paragraph = False
+            continue
         next_fence_length = _backtick_fence_boundary(line, fence_length)
         if next_fence_length is not None:
             in_table = False
