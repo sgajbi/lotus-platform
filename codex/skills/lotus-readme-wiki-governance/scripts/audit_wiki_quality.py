@@ -1005,8 +1005,14 @@ def _prose_without_fenced_code(text: str) -> str:
                 if re.match(r"(?: {4}| {0,3}\t)", line):
                     # Indented code does not start a paragraph.
                     continue
-            if container_indent is None:
-                container_indent = _paragraph_container_indent(line, in_paragraph)
+            next_container = _paragraph_container_indent(line, in_paragraph and container_indent is None)
+            if next_container is not None and (
+                container_indent is None
+                or len(line) - len(line.lstrip(" ")) < container_indent
+            ):
+                # Direct markers replace the outer container; nested markers retain
+                # its boundary. Ordered start-one applies to ordinary paragraphs.
+                container_indent = next_container
             in_paragraph = bool(line.strip(" \t")) and not (
                 re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
                 or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))

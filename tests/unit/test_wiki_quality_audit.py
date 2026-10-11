@@ -2498,6 +2498,10 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\nparagraph\n<search>\n```\n\n# Shell comment", 0),
     ("# Operations\n\nparagraph\n2. item\n<custom>\n```\n\n# Shell comment", 0),
     ("# Operations\n\n- item\n  <custom>\n```\n\n# Shell comment", 0),
+    ("# Operations\n\n- item\n1. item\n  <custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\n1. item\n- item\n  <custom>\n```\n\n# Shell comment", 0),
+    ("# Operations\n\n> item\n- item\n   <custom>\n```\n\n# Shell comment", 0),
+    ("# Operations\n\n- item\n> item\n   <custom>\n```\n\n# Second title", 1),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2741,6 +2745,30 @@ def test_heading_audit_gfm_review_search_retains_real_fence(prefix: str) -> None
     # CommonMark 0.31.2 added search; current GitHub GFM keeps this in a paragraph.
     text = "# Operations\n\n" + prefix + "\n<search>\n```\n\n# Shell comment"
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("first,second,indent,count", [
+    ("- item", "1. item", 2, 2), ("- item", "1. item", 3, 1),
+    ("1. item", "- item", 2, 1), ("1. item", "- item", 3, 1),
+    ("> item", "- item", 2, 1), ("> item", "- item", 3, 1),
+    ("- item", "> item", 2, 2), ("- item", "> item", 3, 2),
+    ("> item", "1. item", 2, 2), ("> item", "1. item", 3, 1),
+    ("1. item", "> item", 2, 2), ("1. item", "> item", 3, 2),
+    ("- item", "2. item", 2, 2), ("- item", "2. item", 3, 1),
+    ("> item", "2. item", 2, 2), ("> item", "2. item", 3, 1),
+    ("2. item", "- item", 2, 1), ("2. item", "- item", 3, 1),
+    ("1. item", "01. item", 2, 2), ("1. item", "01. item", 3, 2),
+    ("- item", "  1. nested", 2, 1), ("- item", "  1. nested", 3, 1),
+    ("1. item", "   - nested", 2, 2), ("1. item", "   - nested", 3, 1),
+])
+def test_heading_audit_gfm_transition_replaces_outer_container_boundary(
+    first: str, second: str, indent: int, count: int, newline: str,
+) -> None:
+    text = ("# Operations\n\n" + first + "\n" + second + "\n" + " " * indent
+            + "<custom>\n```\n\n# Second title").replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
 
 
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
