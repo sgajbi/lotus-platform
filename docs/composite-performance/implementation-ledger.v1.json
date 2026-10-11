@@ -3,6 +3,44 @@
   "schema_ref": "../../automation/validate_composite_documentation_foundation.py",
   "delivery_admissions": [
     {
+      "owner_repository": "lotus-platform",
+      "owning_issue": "https://github.com/sgajbi/lotus-platform/issues/954",
+      "features": [
+        "feature/composite-performance"
+      ],
+      "requirement_ids": [
+        "CMP-LIN-006"
+      ],
+      "state": "PLANNED",
+      "dependencies": [
+        "https://github.com/sgajbi/lotus-performance/issues/656"
+      ],
+      "source_observation": {
+        "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
+        "repository": "lotus-platform",
+        "commit": "48c0e1958fe0b3e3c48b5ae618d8cea368266056",
+        "path": "docs/composite-performance/requirements.md",
+        "scope": "At this committed cut CMP-LIN-006 requires side-by-side explanation of any two result generations, including complete member/input/rule/weight/currency/fee/method differences, return delta and applicable non-additive interaction. The canonical ledger records Platform ownership, NOT_ASSESSED, a logical requirement with current_api_ref null and no assessment/test evidence. This observes the documented requirement and recorded boundaries only; it does not establish supplier unsupportedness, an accepted contract/method schema or runtime/financial authority."
+      },
+      "scope": "Platform governs the complete shared any-two-generation explanation contract and cross-service acceptance; Performance owns source financial algorithms/methodology, Manage decision/input evidence, and Report consumer projection. Require exact ordered retained identities, complete differences, comparable source-owned financial delta/effects/interaction reconciliation, truthful component completeness and evidenced INCOMPARABLE/UNKNOWN/refusal outcomes. Preserve separately qualified common-basis bridge and other-method obligations; an initial TWR-only increment is partial. Reuse existing domain stores/engines/workers; no duplicate financial ledger, second Performance admission, Report arithmetic or invented materiality/approval/distribution authority.",
+      "evaluation_plan": {
+        "repository": "lotus-platform",
+        "state": "PLANNED",
+        "actual_test_ref": null,
+        "independent_cases": [
+          "Independently inspect contract conformance for any authorized ordered pair: full member union and input/rule/weight/currency/fee/method inventory, raw before/after values and evidence pointers, deterministic precision/units and component completeness. Refuse missing/extra/duplicate/swapped pins, tampering, cross-tenant references, fabricated rules/approval, unsupported effect conventions and incomplete inventories.",
+          "Subject to separately accepted versioned methodology, independently reconcile candidate numerical controls: .10 to .08 at weight1 gives delta -.02 (-2pp); two-factor .01 to .055 gives .045 (4.5pp), candidate effects .03+.0125+.0025; linked .0302 to .0506 gives .0204 (2.04pp), candidate effects .0102+.0101+.0001. Proposed conventions are not approved algorithms; distinguish economic interaction, precision residual and unexplained evidence.",
+          "Cover supported added/removed-member decisions, unchanged economics with changed rules/inputs or technical rerender, negative/loss boundaries and changed segmentation. Positively inspect authorized different currency/fee/horizon/method pairs as side-by-side INCOMPARABLE with null delta/effects unless a separately qualified common-basis bridge exists; missing evidence produces exact UNKNOWN/PARTIAL deficits, never zero or blanket evasion of required positive effects.",
+          "After exact contract/method acceptance and separate owner grants, independently join the actual registered Performance supplier API, durable store/restart/concurrent duplicate/replay, Manage evidence and Report/Render/Archive source-off full-field/full-cell consumer evidence. Verify retained original/corrected chains and complete required positive methods/bridges before full fulfillment; schemas, fixtures, first increments and unavailable states alone do not close CMP-LIN-006."
+        ]
+      },
+      "documentation_plan": {
+        "internal": "Shared identity/evidence/comparability/effect taxonomy, supplier/consumer ownership and artifact milestone sequence; link Performance numerical dictionary/formulas/precision/interaction/residual conventions and Manage decision truth; retention/replay/error/compatibility runbook. Contract/method artifacts and generated schemas are future reviewed delivery outputs.",
+        "external": "Any-two-generation request/response and side-by-side examples with source-native units, ratios versus percentage points, effects versus unexplained evidence, incomparable/unknown/refusal interpretation, bridge requirements, approval/materiality/distribution boundaries and non-certifying institutional limits."
+      },
+      "next_action": "Root reviews the versioned full any-two-generation identity, comparability, complete difference-inventory and source-owned delta/effect/interaction contract with Performance, Manage and Report; accountable owners must accept the exact contract/method artifact before a separately bounded implementation grant. Performance #656 is the financial delivery child, dependent on the accepted artifact milestone rather than Platform #954 closure. Preserve Report #446 and designated Render/Archive receiver scope. Any initial TWR-only or internal-pair delivery remains partial; product schemas are later implementation exit proofs and their existence or absence is not asserted by this admission. No source implementation, official authority, institutional approval or full CMP-LIN-006 fulfillment is authorized by this PLANNED admission."
+    },
+    {
       "owner_repository": "lotus-report",
       "owning_issue": "https://github.com/sgajbi/lotus-report/issues/446",
       "features": [
@@ -18,7 +56,8 @@
       "dependencies": [
         "https://github.com/sgajbi/lotus-manage/issues/714",
         "https://github.com/sgajbi/lotus-performance/issues/540",
-        "https://github.com/sgajbi/lotus-gateway/issues/820"
+        "https://github.com/sgajbi/lotus-gateway/issues/820",
+        "https://github.com/sgajbi/lotus-archive/issues/196"
       ],
       "source_observation": {
         "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
@@ -12627,7 +12666,11 @@
       "component": {
         "repository": "lotus-platform",
         "scope": "PLANNED_REQUIREMENT_OWNERSHIP",
-        "collaborators": ["lotus-report"]
+        "collaborators": [
+          "lotus-report",
+          "lotus-performance",
+          "lotus-manage"
+        ]
       },
       "contract_api": {
         "kind": "LOGICAL_REQUIREMENT",
@@ -12652,11 +12695,13 @@
       "documentation": "requirements.md#15-lineage-and-reproducibility",
       "risk": "No requirement-level support or institutional approval inferred from specification or registered API.",
       "owner": "lotus-platform",
-      "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
+      "next_action": "Root reviews the versioned full any-two-generation identity, comparability, complete difference-inventory and source-owned delta/effect/interaction contract with Performance, Manage and Report; accountable owners must accept the exact contract/method artifact before a separately bounded implementation grant. Performance #656 is the financial delivery child, dependent on the accepted artifact milestone rather than Platform #954 closure. Preserve Report #446 and designated Render/Archive receiver scope. Any initial TWR-only or internal-pair delivery remains partial; product schemas are later implementation exit proofs and their existence or absence is not asserted by this admission. No source implementation, official authority, institutional approval or full CMP-LIN-006 fulfillment is authorized by this PLANNED admission.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
         "https://github.com/sgajbi/lotus-platform/issues/923",
-        "https://github.com/sgajbi/lotus-report/issues/446"
+        "https://github.com/sgajbi/lotus-report/issues/446",
+        "https://github.com/sgajbi/lotus-platform/issues/954",
+        "https://github.com/sgajbi/lotus-performance/issues/656"
       ],
       "test_plan": {
         "state": "PLANNED",

@@ -31,11 +31,12 @@ GIPS applicability, live integration, capacity and recovery require separate own
 
 [Platform #925](https://github.com/sgajbi/lotus-platform/issues/925) governs requirement-to-owner
 intake. The [single ledger](https://github.com/sgajbi/lotus-platform/blob/main/docs/composite-performance/implementation-ledger.v1.json)
-contains four PLANNED admissions selecting seven requirements: Report
+contains five PLANNED admissions selecting eight requirements: Report
 [#417](https://github.com/sgajbi/lotus-report/issues/417) for CMP-RPT-001, Performance #607 for CMP-SRC-006,
 Manage #778 for CMP-ELG-001, and Report
-[#446](https://github.com/sgajbi/lotus-report/issues/446) for CMP-RPT-002/003/005/009.
-The other 314 requirements have no admission fields. Each admission separates its owning issue
+[#446](https://github.com/sgajbi/lotus-report/issues/446) for CMP-RPT-002/003/005/009, and Platform
+[#954](https://github.com/sgajbi/lotus-platform/issues/954) for CMP-LIN-006.
+The other 313 requirements have no admission fields. Each admission separates its owning issue
 from dependencies and names source-observation scope, independent tests and documentation plans.
 
 Report #417 is independently closed for the focused first pinned review family; its historical
@@ -44,6 +45,20 @@ distinct from CMP-RPT-008. An initial internal comparison is partial; source-bac
 materiality, approval, explanation and actual recipient/replacement/distribution obligations remain.
 CMP-LIN-001/003/006 retain Platform ownership with Report collaboration. Wider report products,
 qualified upstream authority and institutional acceptance remain unearned.
+
+Platform #954 retains full any-two-generation contract and cross-service acceptance ownership;
+[Performance #656](https://github.com/sgajbi/lotus-performance/issues/656) is its financial delivery
+dependency, with Manage decision/input evidence and Report consumer collaboration. The child needs
+an accepted versioned contract/method artifact, not parent issue closure. An initial TWR-only or
+internal-pair increment is partial; complete difference inventories, comparable source-owned effects,
+non-additive interactions and separately qualified bridges remain required. Future product schemas
+are implementation exit proofs; this admission does not assert that they exist or approve a method.
+
+Report #446 also depends on [Archive #196](https://github.com/sgajbi/lotus-archive/issues/196)
+for additive v9 custody of an ordered retained v8 source pair. Its initial profile remains
+same-scope / PARTIAL / NOT_ATTESTED; it does not fulfill full RPT-08 or CMP-LIN-006.
+The Report r5 six-field source-anchor amendment and producer/receiver agreement remain pending;
+this dependency grants no Archive implementation or live receiver acceptance.
 
 ### External monthly admission dependencies
 
