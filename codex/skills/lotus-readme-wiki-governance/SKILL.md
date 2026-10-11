@@ -119,7 +119,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      and shorter nested backtick runs stay literal until a closing run at least as long as
      the opener with only ASCII spaces or tabs after it; raw HTML block contents cannot
      open backtick fences and remain subject to existing prose guards; opening info strings must not
-     contain literal backticks. Follow hosted GitHub GFM boundaries: textarea blocks span
+     contain literal backticks. Fixed HTML tag names use ASCII-only case folding.
+     Follow hosted GitHub GFM boundaries: textarea blocks span
      blank lines; complete unprefixed HTML tags can end list/quote paragraph containers,
      respecting nested list content boundaries and valid paragraph interruption. Recognized
      HTML and fenced blocks end when their owning container ends; blank block lines and lazy

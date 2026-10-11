@@ -2506,6 +2506,10 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\n- outer\n  ```sh\n# Second title", 1),
     ("# Operations\n\n- outer\n  - inner\n  <custom>\n```sh\n# Shell comment\n```", 0),
     ("# Operations\n\n- outer\n  - inner\n  <textarea>\n  ```\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\n<style>\n</\u017ftyle>\n```\n</style>\n# Second title", 1),
+    ("# Operations\n\n<script>\n</scr\u0130pt>\n```\n</script>\n# Second title", 1),
+    ("# Operations\n\n<\u017fcript>\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\nparagraph\n</bloc\u212aquote>\n```sh\n# Shell comment\n```", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2807,6 +2811,49 @@ def test_heading_audit_nested_container_block_ownership(
 ) -> None:
     # Primary hosted GFM controls cover structural dedents, lazy continuation,
     # and contained block exits without changing the source-line H1 policy.
+    text = ("# Operations\n\n" + body).replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("body,count", [
+    ("<style>\n</\u017ftyle>\n```\n</style>\n# Second title", 2),
+    ("<script>\n</\u017fcript>\n```\n</script>\n# Second title", 2),
+    ("<script>\n</scr\u0130pt>\n```\n</script>\n# Second title", 2),
+    ("<script>\n</scr\u0131pt>\n```\n</script>\n# Second title", 2),
+    ("<STYLE>\n```\n</style>\n# Second title", 2),
+    ("<SCRIPT>\n```\n</script>\n# Second title", 2),
+    ("<TEXTAREA>\n```\n</textarea>\n# Second title", 2),
+    ("<PRE>\n```\n</pre>\n# Second title", 2),
+    ("<\u017ftyle>\n```sh\n# Shell comment\n```", 1),
+    ("<\u017fcript>\n```sh\n# Shell comment\n```", 1),
+    ("<scr\u0130pt>\n```sh\n# Shell comment\n```", 1),
+    ("<scr\u0131pt>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n<\u017fection>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n<l\u0130nk>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n<l\u0131nk>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n<bloc\u212aquote>\n```sh\n# Shell comment\n```", 1),
+    ("<STYLE>\n```\n</STYLE>\n```sh\n# Shell comment\n```", 1),
+    ("&lt;\u017ftyle>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n<custom>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n<SECTION>\n```\n\n# Second title", 2),
+    ("<StYlE>\n```\n</sTyLe>\n# Second title", 2),
+    ("<ScRiPt>\n```\n</sCrIpT>\n# Second title", 2),
+    ("<TeXtArEa>\n```\n</tExTaReA>\n# Second title", 2),
+    ("<PrE>\n```\n</pRe>\n# Second title", 2),
+    ("paragraph\n<SeCtIoN>\n```\n\n# Second title", 2),
+    ("paragraph\n<LiNk>\n```\n\n# Second title", 2),
+    ("paragraph\n<BlOcKqUoTe>\n```\n\n# Second title", 2),
+    ("paragraph\n</\u017fection>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n</l\u0130nk>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n</l\u0131nk>\n```sh\n# Shell comment\n```", 1),
+    ("paragraph\n</bloc\u212aquote>\n```sh\n# Shell comment\n```", 1),
+    ("<ScRiPt>\n</sTyLe>\n```sh\n# Shell comment\n```", 1),
+])
+def test_heading_audit_ascii_html_tag_casefold(body: str, count: int, newline: str) -> None:
+    # Hosted GFM folds fixed tag names in ASCII, while Python IGNORECASE alone
+    # admits four additional Unicode lookalikes. Ordinary Unicode prose stays literal.
     text = ("# Operations\n\n" + body).replace("\n", newline)
     expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
