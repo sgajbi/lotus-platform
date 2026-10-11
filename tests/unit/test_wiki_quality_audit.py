@@ -2502,6 +2502,10 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\n1. item\n- item\n  <custom>\n```\n\n# Shell comment", 0),
     ("# Operations\n\n> item\n- item\n   <custom>\n```\n\n# Shell comment", 0),
     ("# Operations\n\n- item\n> item\n   <custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\n- outer\n  - inner\n  <custom>\n  ```\n\n# Second title", 1),
+    ("# Operations\n\n- outer\n  ```sh\n# Second title", 1),
+    ("# Operations\n\n- outer\n  - inner\n  <custom>\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\n- outer\n  - inner\n  <textarea>\n  ```\n```sh\n# Shell comment\n```", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2767,6 +2771,43 @@ def test_heading_audit_gfm_transition_replaces_outer_container_boundary(
 ) -> None:
     text = ("# Operations\n\n" + first + "\n" + second + "\n" + " " * indent
             + "<custom>\n```\n\n# Second title").replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("body,count", [
+    ("- outer\n  - inner\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  - inner\n    <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  - inner\n  <custom>\n```sh\n# Shell comment\n```", 1),
+    ("- outer\n  - inner\n  <custom>\n  ```\n  literal\n\n```sh\n# Shell comment\n```", 1),
+    ("1. outer\n   - inner\n   <custom>\n   ```\n\n# Second title", 2),
+    ("- outer\n  1. inner\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  ```sh\n# Second title", 2),
+    ("- outer\n  ```sh\n  # Shell comment\n  ```\n\n# Second title", 2),
+    ("- outer\n\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n\n  ```sh\n# Second title", 2),
+    ("- outer\n  <custom>\n```sh\n# Shell comment\n```", 1),
+    ("- outer\n  - inner\n  <custom>\n  ```\n  # Raw source comment\n\n# Second title", 2),
+    ("- outer\n  - inner\n  <textarea>\n  ```\n```sh\n# Shell comment\n```", 1),
+    ("- outer\n  - inner\n  <textarea>\n  ```\n# Second title", 2),
+    ("1. outer\n   ```sh\n# Second title", 2),
+    ("- outer\n  - inner\n  <custom>\n  ```\n  data\n# Second title", 2),
+    ("paragraph\n- outer\n  - inner\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  2. inner\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  2. inner\n  <custom>\n```sh\n# Shell comment\n```", 1),
+    ("- outer\n  ```sh\n\n  # Shell comment\n  ```\n# Second title", 2),
+    ("- outer\n  - inner\n  lazy continuation\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  - inner\n  lazy continuation\n```sh\n# Shell comment\n```", 1),
+    ("- outer\n  - inner\n    lazy continuation\n  <custom>\n  ```\n\n# Second title", 2),
+    ("- outer\n  - inner\n  ordinary continuation\n  <custom>\n```sh\n# Shell comment\n```", 1),
+])
+def test_heading_audit_nested_container_block_ownership(
+    body: str, count: int, newline: str,
+) -> None:
+    # Primary hosted GFM controls cover structural dedents, lazy continuation,
+    # and contained block exits without changing the source-line H1 policy.
+    text = ("# Operations\n\n" + body).replace("\n", newline)
     expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
 

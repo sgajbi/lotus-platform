@@ -121,7 +121,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      open backtick fences and remain subject to existing prose guards; opening info strings must not
      contain literal backticks. Follow hosted GitHub GFM boundaries: textarea blocks span
      blank lines; complete unprefixed HTML tags can end list/quote paragraph containers,
-     respecting list content indentation and valid paragraph interruption. A search tag in
+     respecting nested list content boundaries and valid paragraph interruption. Recognized
+     HTML and fenced blocks end when their owning container ends; blank block lines and lazy
+     paragraph continuation retain their container. Fence recognition remains limited to
+     zero through three leading ASCII spaces. A search tag in
      an ordinary paragraph retains its current GitHub GFM inline behavior; CommonMark
      version changes alone do not expand this bounded projection;
    - keep tables narrow enough to scan on GitHub by splitting oversized matrices into smaller

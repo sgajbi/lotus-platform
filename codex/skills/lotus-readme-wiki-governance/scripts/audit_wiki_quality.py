@@ -938,7 +938,7 @@ def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
 
 
 def _paragraph_container_indent(line: str, in_paragraph: bool) -> int | None:
-    """Locate an outer paragraph container's content boundary for hosted GFM."""
+    """Locate a paragraph container's content boundary for hosted GFM."""
     if re.match(r" {0,3}>", line):
         # A direct, unprefixed tag at any supported indentation ends a quote.
         return 4
@@ -955,48 +955,85 @@ def _paragraph_container_indent(line: str, in_paragraph: bool) -> int | None:
     return marker_end + (padding if 1 <= padding <= 4 else 1)
 
 
+def _unwind_container_indents(container_indents: list[int], indentation: int) -> None:
+    """End containers at a structural boundary, never at a lazy prose dedent."""
+    while container_indents and indentation < container_indents[-1]:
+        container_indents.pop()
+
+
+def _backtick_fence_boundary(line: str, fence_length: int) -> int | None:
+    """Return the next fence length for a supported opener or closer."""
+    marker = re.match(r" {0,3}(`{3,})(.*)$", line)
+    if marker is None:
+        return None
+    if not fence_length:
+        return len(marker[1]) if "`" not in marker[2] else None
+    if len(marker[1]) >= fence_length and not marker[2].strip(" \t"):
+        return 0
+    return None
+
+
 def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     fence_length = 0
+    fence_container_indent = None
     html_end = None
+    html_container_indent = None
     in_paragraph = False
-    container_indent = None
+    container_indents: list[int] = []
     lines = re.split(r"\r\n|\r|\n", text)
     index = 0
     while index < len(lines):
         line = lines[index]
         index += 1
+        indentation = len(line) - len(line.lstrip(" "))
+        nonblank = bool(line.strip(" \t"))
+        if nonblank and (
+            (fence_container_indent is not None and indentation < fence_container_indent)
+            or (html_container_indent is not None and indentation < html_container_indent)
+        ):
+            # A contained block ends with its container, even without a closer.
+            # Reconsider this line as a root/parent block rather than code or HTML.
+            fence_length = 0
+            fence_container_indent = None
+            html_end = None
+            html_container_indent = None
+            _unwind_container_indents(container_indents, indentation)
+            in_paragraph = False
+            prose_lines.append("")
         if not fence_length:
             outside_container = (
-                container_indent is not None
-                and len(line) - len(line.lstrip(" ")) < container_indent
+                bool(container_indents) and indentation < container_indents[-1]
             )
-            html_end = html_end or _html_block_end(line, in_paragraph and not outside_container)
+            if html_end is None:
+                html_end = _html_block_end(line, in_paragraph and not outside_container)
+                if html_end is not None:
+                    _unwind_container_indents(container_indents, indentation)
+                    html_container_indent = container_indents[-1] if container_indents else None
             if html_end is not None:
                 prose_lines.append(line)
                 if html_end.search(line):
                     html_end = None
+                    html_container_indent = None
                 in_paragraph = False
-                container_indent = None
                 continue
-        marker = re.match(r" {0,3}(`{3,})(.*)$", line)
-        if marker and (
-            (not fence_length and "`" not in marker[2])
-            or (
-                fence_length
-                and len(marker[1]) >= fence_length
-                and not marker[2].strip(" \t")
-            )
-        ):
+        next_fence_length = _backtick_fence_boundary(line, fence_length)
+        if next_fence_length is not None:
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
-            fence_length = 0 if fence_length else len(marker[1])
+            if fence_length:
+                fence_container_indent = None
+            else:
+                _unwind_container_indents(container_indents, indentation)
+                fence_container_indent = container_indents[-1] if container_indents else None
+            fence_length = next_fence_length
             in_paragraph = False
-            container_indent = None
             continue
         if not fence_length:
             prose_lines.append(line)
             if not in_paragraph:
+                if nonblank:
+                    _unwind_container_indents(container_indents, indentation)
                 reference_end = _reference_definition_block_end(lines, index - 1)
                 if reference_end is not None:
                     prose_lines.extend(lines[index:reference_end])
@@ -1005,21 +1042,18 @@ def _prose_without_fenced_code(text: str) -> str:
                 if re.match(r"(?: {4}| {0,3}\t)", line):
                     # Indented code does not start a paragraph.
                     continue
-            next_container = _paragraph_container_indent(line, in_paragraph and container_indent is None)
-            if next_container is not None and (
-                container_indent is None
-                or len(line) - len(line.lstrip(" ")) < container_indent
-            ):
-                # Direct markers replace the outer container; nested markers retain
-                # its boundary. Ordered start-one applies to ordinary paragraphs.
-                container_indent = next_container
-            in_paragraph = bool(line.strip(" \t")) and not (
+            outside_container = bool(container_indents) and indentation < container_indents[-1]
+            next_container = _paragraph_container_indent(line, in_paragraph and not outside_container)
+            if next_container is not None:
+                # Direct markers replace frames; nested markers retain parents.
+                # Ordinary prose dedents remain lazy continuation until a block starts.
+                _unwind_container_indents(container_indents, indentation)
+                container_indents.append(next_container)
+            in_paragraph = nonblank and not (
                 re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
                 or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))
                 or re.fullmatch(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})", line)
             )
-            if not in_paragraph:
-                container_indent = None
     return "\n".join(prose_lines)
 
 

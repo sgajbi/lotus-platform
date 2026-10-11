@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 426905
+    "total_source_lines": 426983
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -67,8 +67,8 @@
       },
       {
         "complexity": 48,
-        "end_line": 1299,
-        "line": 1220,
+        "end_line": 1333,
+        "line": 1254,
         "lines": 80,
         "name": "_decision_link_target_end",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -115,8 +115,8 @@
       },
       {
         "complexity": 30,
-        "end_line": 1477,
-        "line": 1377,
+        "end_line": 1511,
+        "line": 1411,
         "lines": 101,
         "name": "_decision_plain_starts",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -130,20 +130,20 @@
         "path": "automation/resource_recovery/policy.py"
       },
       {
+        "complexity": 30,
+        "end_line": 1057,
+        "line": 976,
+        "lines": 82,
+        "name": "_prose_without_fenced_code",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
         "complexity": 28,
         "end_line": 1322,
         "line": 1001,
         "lines": 322,
         "name": "test_full_shipped_wrapper_holds_original_fence_and_preserves_native_failure",
         "path": "tests/unit/test_resource_only_recovery.py"
-      },
-      {
-        "complexity": 28,
-        "end_line": 1023,
-        "line": 958,
-        "lines": 66,
-        "name": "_prose_without_fenced_code",
-        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
         "complexity": 25,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4337
+    "python_function_count": 4340
   },
-  "generated_at_utc": "2026-10-11T16:02:15Z",
+  "generated_at_utc": "2026-10-11T16:57:44Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -403,7 +403,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 2996,
+      "lines": 3037,
       "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
@@ -438,6 +438,11 @@
       "suffix": ".md"
     },
     {
+      "lines": 1756,
+      "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1755,
       "path": "tests/unit/test_resource_only_recovery.py",
       "suffix": ".py"
@@ -445,11 +450,6 @@
     {
       "lines": 1735,
       "path": "automation/heartbeat_sources.py",
-      "suffix": ".py"
-    },
-    {
-      "lines": 1722,
-      "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
       "suffix": ".py"
     },
     {
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5146,
+    "collected_tests": 5222,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5146 tests collected"
+    "summary": "5222 tests collected"
   }
 }
