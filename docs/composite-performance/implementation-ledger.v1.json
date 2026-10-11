@@ -4,6 +4,48 @@
   "delivery_admissions": [
     {
       "owner_repository": "lotus-report",
+      "owning_issue": "https://github.com/sgajbi/lotus-report/issues/446",
+      "features": [
+        "feature/composite-performance"
+      ],
+      "requirement_ids": [
+        "CMP-RPT-002",
+        "CMP-RPT-003",
+        "CMP-RPT-005",
+        "CMP-RPT-009"
+      ],
+      "state": "PLANNED",
+      "dependencies": [
+        "https://github.com/sgajbi/lotus-manage/issues/714",
+        "https://github.com/sgajbi/lotus-performance/issues/540",
+        "https://github.com/sgajbi/lotus-gateway/issues/820"
+      ],
+      "source_observation": {
+        "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
+        "repository": "lotus-report",
+        "commit": "5fbdcba48e803a44087f96db8cbc392143823616",
+        "path": "src/app/composite_reporting/table_builder.py",
+        "scope": "Restatement approved comparison is explicitly SOURCE_PRODUCT_NOT_CAPTURED; single-generation retained semantic projection and qualified Archive lineage exist. Observation establishes a bounded product gap, not requirement acceptance."
+      },
+      "scope": "Full RPT-08 correction notice: before/after results, affected periods, source-backed reason/materiality/approval, report replacements and actual recipient/distribution status. Initial exact retained original/corrected comparison is PARTIAL only. CMP-LIN-006 remains platform-owned; supplier explanations/deltas require explicit owner coordination and positive evidence.",
+      "evaluation_plan": {
+        "repository": "lotus-report",
+        "state": "PLANNED",
+        "actual_test_ref": null,
+        "independent_cases": [
+          "Parse every actual workbook cell independently against each retained supplier response; verify units, periods, versions, hashes, original/corrected separation and source-off re-render.",
+          "Refuse cross-tenant, missing/mismatched/tampered pairs, conflicting replay and unqualified Archive acknowledgement; prove restart/retry and retained retrieval.",
+          "For full closure independently verify positive authoritative reason/materiality, content-bound approvals, source-owned full CMP-LIN-006 explanation/delta/non-additive interaction and real recipient/replacement/acknowledgement/failure/retry register records. Unavailable states do not earn fulfillment."
+        ]
+      },
+      "documentation_plan": {
+        "internal": "Pair capture and lineage dictionary; supplier/Render receiver contract; correction, approval and delivery lifecycle/retry/re-render runbook.",
+        "external": "Correction-notice API/tutorial and before/after example with units, unavailable legend, approval meaning and actual recipient delivery semantics."
+      },
+      "next_action": "Root reviews existing-source/Render receiver design and integrates this PLANNED admission into the canonical platform ledger after linking #446 in the selected Report requirement rows; link full RPT-08 and platform-owned CMP-LIN-006 without changing ownership or support states. No source implementation until canonical admission and design acceptance. Source qualification dependencies apply to official claims, not invented prerequisites for explicit-v1 internal software proof."
+    },
+    {
+      "owner_repository": "lotus-report",
       "owning_issue": "https://github.com/sgajbi/lotus-report/issues/417",
       "features": ["feature/composite-performance"],
       "requirement_ids": ["CMP-RPT-001"],
@@ -34,7 +76,7 @@
         "internal": "Dataset/cell-lineage lifecycle dictionary, compatibility and re-render runbook.",
         "external": "Registered API tutorial, worked +1%/+3.02% workbook and unavailable-state legend."
       },
-      "next_action": "Report owner reviews current source and qualified upstream contracts before any bounded implementation; #417 remains open."
+      "next_action": "Report #417 is independently verified CLOSED/COMPLETED for the focused first pinned composite-review family at main5fbdcba48e803a44087f96db8cbc392143823616; closure provenance https://github.com/sgajbi/lotus-report/issues/417#issuecomment-6113824812. Preserve this historical source observation and PLANNED evaluation record; closure does not promote requirement evidence. RPT-02 through RPT-12, qualified upstream source authority, institutional approval and broader programme acceptance remain unearned; Report #446 owns the separately PLANNED RPT-08 correction-notice slice."
     },
     {
       "owner_repository": "lotus-performance",
@@ -12338,7 +12380,7 @@
       "component": {
         "repository": "lotus-platform",
         "scope": "PLANNED_REQUIREMENT_OWNERSHIP",
-        "collaborators": []
+        "collaborators": ["lotus-report"]
       },
       "contract_api": {
         "kind": "LOGICAL_REQUIREMENT",
@@ -12366,7 +12408,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-platform/issues/923"
+        "https://github.com/sgajbi/lotus-platform/issues/923",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
@@ -12436,7 +12479,7 @@
       "component": {
         "repository": "lotus-platform",
         "scope": "PLANNED_REQUIREMENT_OWNERSHIP",
-        "collaborators": []
+        "collaborators": ["lotus-report"]
       },
       "contract_api": {
         "kind": "LOGICAL_REQUIREMENT",
@@ -12464,7 +12507,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-platform/issues/923"
+        "https://github.com/sgajbi/lotus-platform/issues/923",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
@@ -12583,7 +12627,7 @@
       "component": {
         "repository": "lotus-platform",
         "scope": "PLANNED_REQUIREMENT_OWNERSHIP",
-        "collaborators": []
+        "collaborators": ["lotus-report"]
       },
       "contract_api": {
         "kind": "LOGICAL_REQUIREMENT",
@@ -12611,7 +12655,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-platform/issues/923"
+        "https://github.com/sgajbi/lotus-platform/issues/923",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
@@ -12919,7 +12964,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-report/issues/417"
+        "https://github.com/sgajbi/lotus-report/issues/417",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
@@ -12973,7 +13019,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-report/issues/417"
+        "https://github.com/sgajbi/lotus-report/issues/417",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
@@ -13079,7 +13126,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-report/issues/417"
+        "https://github.com/sgajbi/lotus-report/issues/417",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
@@ -13292,7 +13340,8 @@
       "next_action": "Owner review exact committed source, scope an issue-backed delta and bind independent positive/negative tests and documentation.",
       "programme_issue": "https://github.com/sgajbi/lotus-platform/issues/923",
       "related_issues": [
-        "https://github.com/sgajbi/lotus-report/issues/417"
+        "https://github.com/sgajbi/lotus-report/issues/417",
+        "https://github.com/sgajbi/lotus-report/issues/446"
       ],
       "test_plan": {
         "state": "PLANNED",
