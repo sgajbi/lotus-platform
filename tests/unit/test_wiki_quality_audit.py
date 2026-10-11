@@ -2339,6 +2339,61 @@ def test_wiki_quality_audit_rejects_wrong_owner_and_escaping_github_paths(
     assert sum("escapes repository root" in failure for failure in failures) == 2
 
 
+@pytest.mark.parametrize("indent", range(4))
+@pytest.mark.parametrize("fence", ["```", "````"])
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_heading_audit_excludes_supported_fenced_shell_comments(
+    indent: int, fence: str, newline: str,
+) -> None:
+    text = newline.join([
+        "# Operations", "", " " * indent + fence + "sh",
+        *[f"# Run step {index}" for index in range(49)],
+        " " * indent + fence, "", "## Recovery", "Use the documented recovery command.",
+    ])
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == []
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("# Title\n```sh\n# Comment\n```\n# Second title\n", ["expected exactly one H1, found 2"]),
+    ("```sh\n# Comment\n```\n", ["first nonblank line should be an H1 page title", "expected exactly one H1, found 0"]),
+    ("## Section\nBody\n", ["first nonblank line should be an H1 page title", "expected exactly one H1, found 0"]),
+    ("Introduction\n# Title\n", ["first nonblank line should be an H1 page title"]),
+    ("```sh\n# Comment\n```\n# Title\n", ["first nonblank line should be an H1 page title"]),
+    ("# Title\n```sh\n# Comment\n", []),
+    ("\n\n# Title\n", []),
+])
+def test_heading_audit_preserves_real_titles_and_first_line_contract(
+    text: str, expected: list[str],
+) -> None:
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == [
+        f"Operations.md: {message}" for message in expected
+    ]
+
+
+@pytest.mark.parametrize("body, expected_exit", [
+    ("# Operations\n\n```sh\n# Restore the database\necho restore\n```\n", 0),
+    ("# Operations\n```sh\n# Comment\n```\n# Another title\n", 1),
+    ("```sh\n# Comment\n```\n", 1),
+    ("Introduction\n# Operations\n", 1),
+])
+def test_heading_audit_full_cli_contract(
+    tmp_path: Path, body: str, expected_exit: int,
+) -> None:
+    wiki_dir = tmp_path / "wiki"
+    wiki_dir.mkdir()
+    (wiki_dir / "Home.md").write_text("# Home\n\n[Operations](Operations.md)\n", encoding="utf-8")
+    (wiki_dir / "_Sidebar.md").write_text("# Navigation\n\n[Operations](Operations.md)\n", encoding="utf-8")
+    (wiki_dir / "Operations.md").write_text(body, encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(AUDIT_PATH), "--wiki-dir", str(wiki_dir),
+         "--repo-root", str(tmp_path), "--changed-page", "Operations.md"],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == expected_exit, result.stdout + result.stderr
+    if expected_exit:
+        assert "H1" in result.stdout
+
+
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
     tmp_path: Path,
 ) -> None:

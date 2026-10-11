@@ -114,6 +114,8 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
    - group command inventories by purpose and link to the authoritative Makefile, runbook, or
      script instead of publishing large raw command dumps,
    - keep page titles, heading case, and section order consistent across the wiki,
+   - require an H1 on the first nonblank source line and exactly one H1 outside supported
+     backtick-fenced examples; shell comments inside those examples are not page titles,
    - keep tables narrow enough to scan on GitHub by splitting oversized matrices into smaller
      audience, capability, operations, or evidence tables,
    - avoid burying demo limitations, operator caveats, or ownership boundaries in long paragraphs,
