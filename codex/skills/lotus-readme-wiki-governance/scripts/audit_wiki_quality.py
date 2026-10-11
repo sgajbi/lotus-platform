@@ -838,14 +838,18 @@ def _first_nonblank_line(text: str) -> str:
 
 def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
-    in_fence = False
+    fence_length = 0
     for line in re.split(r"\r\n|\r|\n", text):
-        if re.match(r" {0,3}```", line):
+        marker = re.match(r" {0,3}(`{3,})(.*)$", line)
+        if marker and (
+            not fence_length
+            or (len(marker[1]) >= fence_length and not marker[2].strip(" \t"))
+        ):
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
-            in_fence = not in_fence
+            fence_length = 0 if fence_length else len(marker[1])
             continue
-        if not in_fence:
+        if not fence_length:
             prose_lines.append(line)
     return "\n".join(prose_lines)
 
