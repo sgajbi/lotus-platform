@@ -2514,6 +2514,10 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\na | b\n--- | ---\n<custom>\n```\n\n```sh\n# Shell comment\n```", 0),
     ("# Operations\n\na | b | c\n--- | ---\n<custom>\n```sh\n# Shell comment\n```", 0),
     ("# Operations\n\na | b\n--- | ---\nbody without pipes\n<custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\nparagraph\n~~~\nliteral tilde body\n~~~\n<custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\nparagraph\n~~~\n```sh\n# Raw tilde comment\n```\n~~~", 1),
+    ("# Operations\n\nparagraph\n~~~\nliteral tilde body\n~~~\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\nparagraph\n~~\nliteral tilde body\n~~\n<custom>\n```sh\n# Shell comment\n```", 0),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2936,6 +2940,47 @@ def test_gfm_table_keeps_raw_guard_inputs(newline: str) -> None:
     raw = "a | b\n--- | ---\nhttp://service.dev.lotus | ./output/temp\n<custom>\n```\n./output/notes\n"
     projected = audit._prose_without_fenced_code(raw.replace("\n", newline))
     assert projected == raw
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("body,count", [
+    pytest.param("paragraph about tilde context\n~~~\nliteral tilde body\n~~~\n<custom>\n```\n\n# Second title", 2, id="paragraph-closed-tilde-html"),
+    pytest.param("paragraph about tilde context\n~~~~lang\nliteral tilde body\n~~~~~\n<custom>\n```\n\n# Second title", 2, id="longer-closer"),
+    pytest.param("paragraph about tilde context\n~~~~\nliteral tilde body\n~~~\n<custom>\n```\n# Raw tilde comment", 2, id="shorter-closer-unclosed"),
+    pytest.param("paragraph about tilde context\n~~\nliteral tilde body\n~~\n<custom>\n```sh\n# Tilde control comment\n```", 1, id="two-tilde-opposite"),
+    pytest.param("paragraph about tilde context\n~~~lang`info\nliteral tilde body\n~~~\n<custom>\n```\n\n# Second title", 2, id="backtick-info-allowed"),
+    pytest.param("paragraph about tilde context\n~~~\nliteral tilde body\n~~~ \t\n<custom>\n```\n\n# Second title", 2, id="closer-space-tab"),
+    pytest.param("paragraph about tilde context\n~~~\nliteral tilde body\n~~~junk\n<custom>\n```\n# Raw tilde comment", 2, id="closer-junk-unclosed"),
+    pytest.param("paragraph about tilde context\n~~~\n```sh\n# Raw tilde comment\n```\n~~~", 2, id="inside-tilde-backticks-literal"),
+    pytest.param("paragraph about tilde context\n~~~\n<custom>\n```\n# Raw tilde comment", 2, id="unclosed-tilde"),
+    pytest.param("paragraph about tilde context\n~~~\nliteral tilde body\n\n```\n# Raw tilde comment\n~~~", 2, id="blank-inside-tilde"),
+    pytest.param("paragraph about tilde context\n~~~\nliteral tilde body\n~~~\n```sh\n# Tilde control comment\n```", 1, id="true-fence-after-tilde"),
+    pytest.param("paragraph about tilde context\n\\~~~\nliteral tilde body\n\\~~~\n<custom>\n```sh\n# Tilde control comment\n```", 1, id="escaped-tilde-opposite"),
+    pytest.param("paragraph about tilde context\n    ~~~\nliteral tilde body\n    ~~~\n<custom>\n```sh\n# Tilde control comment\n```", 1, id="four-space-opposite"),
+    pytest.param("paragraph about tilde context\n   ~~~\nliteral tilde body\n   ~~~\n<custom>\n```\n\n# Second title", 2, id="three-space-tilde"),
+    pytest.param("tilde | context\n--- | ---\n~~~\nliteral tilde body\n~~~\n<custom>\n```\n\n# Second title", 2, id="table-before-tilde"),
+    pytest.param("<custom>\n~~~\nliteral tilde body\n~~~\n```\n\n# Second title", 2, id="html-owns-tilde"),
+    pytest.param("```sh\n~~~\n# Tilde control comment\n~~~\n```", 1, id="backtick-owns-tilde"),
+    pytest.param("- tilde item\n  ~~~\n  literal tilde body\n<custom>\n```\n\n# Second title", 2, id="contained-tilde-root-html"),
+    pytest.param("- tilde item\n  ~~~\n  literal tilde body\n```sh\n# Tilde control comment\n```", 1, id="contained-tilde-root-fence"),
+    pytest.param("paragraph about tilde context\n~~~\nliteral tilde body\n~~~\n<custom>\n```\n\n```sh\n# Tilde control comment\n```", 1, id="tilde-html-end-real-fence"),
+])
+def test_heading_audit_retained_tilde_context(body: str, count: int, newline: str) -> None:
+    # Tilde fences affect block context, but only backtick examples are excluded.
+    # Raw tilde H1s therefore count even when GitHub renders their source as code.
+    text = ("# Operations\n\n" + body).replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_retained_tilde_keeps_literal_guard_inputs(newline: str) -> None:
+    raw = (
+        "~~~lang`info\n<custom>\n```sh\nhttp://service.dev.lotus\n./output/temp\n"
+        "[ref]: /path\n[temporary directory][ref] notes\n"
+        "a | b\n--- | ---\n./output/notes\n```\n~~~ \t\n"
+    )
+    assert _load_audit_module()._prose_without_fenced_code(raw.replace("\n", newline)) == raw
 
 
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(

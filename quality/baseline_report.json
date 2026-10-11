@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 427175
+    "total_source_lines": 427258
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -66,19 +66,19 @@
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
-        "complexity": 48,
-        "end_line": 1395,
-        "line": 1316,
-        "lines": 80,
-        "name": "_decision_link_target_end",
+        "complexity": 51,
+        "end_line": 1154,
+        "line": 1015,
+        "lines": 140,
+        "name": "_prose_without_fenced_code",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
-        "complexity": 44,
-        "end_line": 1119,
-        "line": 1003,
-        "lines": 117,
-        "name": "_prose_without_fenced_code",
+        "complexity": 48,
+        "end_line": 1430,
+        "line": 1351,
+        "lines": 80,
+        "name": "_decision_link_target_end",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
@@ -123,8 +123,8 @@
       },
       {
         "complexity": 30,
-        "end_line": 1573,
-        "line": 1473,
+        "end_line": 1608,
+        "line": 1508,
         "lines": 101,
         "name": "_decision_plain_starts",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4346
+    "python_function_count": 4349
   },
-  "generated_at_utc": "2026-10-11T18:59:23Z",
+  "generated_at_utc": "2026-10-11T20:05:36Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,7 +398,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 3163,
+      "lines": 3208,
       "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
     },
@@ -428,14 +428,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1853,
+      "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 1848,
       "path": "automation/README.md",
       "suffix": ".md"
-    },
-    {
-      "lines": 1818,
-      "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
-      "suffix": ".py"
     },
     {
       "lines": 1818,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5467,
+    "collected_tests": 5534,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5467 tests collected"
+    "summary": "5534 tests collected"
   }
 }
