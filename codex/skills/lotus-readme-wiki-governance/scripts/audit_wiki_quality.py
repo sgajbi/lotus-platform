@@ -923,8 +923,8 @@ def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
     if start is None:
         return None
     raw = start[1]
-    if re.match(r"<(?:script|pre|style)(?=[ \t\v\f>]|$)", raw, re.IGNORECASE):
-        return re.compile(r"</(?:script|pre|style)>", re.IGNORECASE)
+    if re.match(r"<(?:script|pre|style|textarea)(?=[ \t\v\f>]|$)", raw, re.IGNORECASE):
+        return re.compile(r"</(?:script|pre|style|textarea)>", re.IGNORECASE)
     for opening, closing in (("<!--", "-->"), ("<?", "?>"), ("<![CDATA[", "]]>")):
         if raw.startswith(opening):
             return re.compile(re.escape(closing))
@@ -937,23 +937,47 @@ def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
     return None
 
 
+def _paragraph_container_indent(line: str, in_paragraph: bool) -> int | None:
+    """Locate an outer paragraph container's content boundary for hosted GFM."""
+    if re.match(r" {0,3}>", line):
+        # A direct, unprefixed tag at any supported indentation ends a quote.
+        return 4
+    marker = re.match(r"( {0,3})([*+-]|[0-9]{1,9}[.)])([ \t]+|$)(.*)$", line)
+    if marker is None:
+        return None
+    if in_paragraph and (
+        not marker[4].strip(" \t")
+        or (marker[2][0].isdigit() and int(marker[2][:-1]) != 1)
+    ):
+        return None
+    marker_end = len(marker[1]) + len(marker[2])
+    padding = len((marker[1] + marker[2] + marker[3]).expandtabs(4)) - marker_end
+    return marker_end + (padding if 1 <= padding <= 4 else 1)
+
+
 def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     fence_length = 0
     html_end = None
     in_paragraph = False
+    container_indent = None
     lines = re.split(r"\r\n|\r|\n", text)
     index = 0
     while index < len(lines):
         line = lines[index]
         index += 1
         if not fence_length:
-            html_end = html_end or _html_block_end(line, in_paragraph)
+            outside_container = (
+                container_indent is not None
+                and len(line) - len(line.lstrip(" ")) < container_indent
+            )
+            html_end = html_end or _html_block_end(line, in_paragraph and not outside_container)
             if html_end is not None:
                 prose_lines.append(line)
                 if html_end.search(line):
                     html_end = None
                 in_paragraph = False
+                container_indent = None
                 continue
         marker = re.match(r" {0,3}(`{3,})(.*)$", line)
         if marker and (
@@ -968,6 +992,7 @@ def _prose_without_fenced_code(text: str) -> str:
             prose_lines.append("")
             fence_length = 0 if fence_length else len(marker[1])
             in_paragraph = False
+            container_indent = None
             continue
         if not fence_length:
             prose_lines.append(line)
@@ -980,11 +1005,15 @@ def _prose_without_fenced_code(text: str) -> str:
                 if re.match(r"(?: {4}| {0,3}\t)", line):
                     # Indented code does not start a paragraph.
                     continue
+            if container_indent is None:
+                container_indent = _paragraph_container_indent(line, in_paragraph)
             in_paragraph = bool(line.strip(" \t")) and not (
                 re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
                 or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))
                 or re.fullmatch(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})", line)
             )
+            if not in_paragraph:
+                container_indent = None
     return "\n".join(prose_lines)
 
 
