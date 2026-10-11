@@ -836,10 +836,55 @@ def _first_nonblank_line(text: str) -> str:
     return ""
 
 
+HTML_BLOCK_TAGS = (
+    "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|"
+    "dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|"
+    "frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|"
+    "nav|noframes|ol|optgroup|option|p|param|section|source|summary|table|tbody|td|"
+    "tfoot|th|thead|title|tr|track|ul"
+)
+HTML_BLOCK_COMPLETE_TAG = re.compile(
+    r"(?:<[A-Za-z][A-Za-z0-9-]*"
+    r"(?:[ \t\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+    r"(?:[ \t\f]*=[ \t\f]*(?:[^ \t\f\r\n\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)*"
+    r"[ \t\f]*/?>|</[A-Za-z][A-Za-z0-9-]*[ \t\f]*>)[ \t]*$"
+)
+
+
+def _html_block_end(line: str, in_paragraph: bool) -> re.Pattern[str] | None:
+    """Read GFM raw-block precedence without removing HTML from prose guards."""
+    start = re.match(r" {0,3}(<.*)$", line)
+    if start is None:
+        return None
+    raw = start[1]
+    if re.match(r"<(?:script|pre|style)(?=[ \t\f>]|$)", raw, re.IGNORECASE):
+        return re.compile(r"</(?:script|pre|style)>", re.IGNORECASE)
+    for opening, closing in (("<!--", "-->"), ("<?", "?>"), ("<![CDATA[", "]]>")):
+        if raw.startswith(opening):
+            return re.compile(re.escape(closing))
+    if re.match(r"<![A-Z]", raw):
+        return re.compile(">")
+    if re.match(r"</?(?:" + HTML_BLOCK_TAGS + r")(?=[ \t\f>]|/>|$)", raw, re.IGNORECASE):
+        return re.compile(r"^[ \t]*$")
+    if not in_paragraph and HTML_BLOCK_COMPLETE_TAG.fullmatch(raw):
+        return re.compile(r"^[ \t]*$")
+    return None
+
+
 def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     fence_length = 0
+    html_end = None
+    in_paragraph = False
     for line in re.split(r"\r\n|\r|\n", text):
+        if not fence_length:
+            html_end = html_end or _html_block_end(line, in_paragraph)
+            if html_end is not None:
+                prose_lines.append(line)
+                if html_end.search(line):
+                    html_end = None
+                in_paragraph = False
+                continue
         marker = re.match(r" {0,3}(`{3,})(.*)$", line)
         if marker and (
             (not fence_length and "`" not in marker[2])
@@ -852,9 +897,20 @@ def _prose_without_fenced_code(text: str) -> str:
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
             fence_length = 0 if fence_length else len(marker[1])
+            in_paragraph = False
             continue
         if not fence_length:
             prose_lines.append(line)
+            if not in_paragraph and (
+                re.match(r"(?: {4}| {0,3}\t)", line) or _directory_reference_labels(line)
+            ):
+                # Indented code and supported reference definitions are not paragraphs.
+                continue
+            in_paragraph = bool(line.strip(" \t")) and not (
+                re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
+                or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))
+                or re.fullmatch(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})", line)
+            )
     return "\n".join(prose_lines)
 
 
