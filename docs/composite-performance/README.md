@@ -29,10 +29,18 @@ Four neutral inputs are archived byte-for-byte as plain text or JSON. Their orig
 ### Planned delivery admission
 
 Optional `delivery_admissions` in the single ledger distinguish one owning issue from programme
-and dependency links. The three planned examples bind CMP-RPT-001 to Report #417, CMP-SRC-006
-to Performance #607 and CMP-ELG-001 to Manage #778. The other 318 requirements acquire no admission
+and dependency links. Four PLANNED admissions select seven requirements: CMP-RPT-001 for Report
+[#417](https://github.com/sgajbi/lotus-report/issues/417), CMP-SRC-006 for Performance #607,
+CMP-ELG-001 for Manage #778, and CMP-RPT-002/003/005/009 for Report
+[#446](https://github.com/sgajbi/lotus-report/issues/446). The other 314 requirements acquire no admission
 fields; all 321 remain NOT_ASSESSED. Historical source cuts carry explicit scope and require current
-owner reinspection. These plans neither assess a requirement nor authorize an API or financial method.
+owner reinspection. Report #417 is independently closed for its focused first pinned review family;
+its historical admission and planned evaluation remain provenance, not requirement acceptance.
+Report #446 plans the full RPT-08 correction notice, distinct from CMP-RPT-008; an initial internal
+comparison is partial. CMP-LIN-001/003/006 retain Platform ownership with Report collaboration.
+Wider report products, qualified source authority, institutional approval and full correction,
+explanation and distribution obligations remain unearned. These plans neither assess a requirement
+nor authorize an API or financial method.
 
 An admission names known requirement IDs, matching owner/issue, canonical feature(s), dependencies,
 bounded scope, a committed-source observation, independent evaluation plan, internal/external
@@ -323,25 +331,25 @@ This projection contains no second authority. Exact source ranges, individual ba
 | [CMP-CAR-003](requirements.md#14-contribution-attribution-and-carve-outs) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-CAR-004](requirements.md#14-contribution-attribution-and-carve-outs) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-CAR-005](requirements.md#14-contribution-attribution-and-carve-outs) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-LIN-001](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-LIN-001](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-LIN-002](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-LIN-003](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-LIN-003](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-LIN-004](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-005](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-LIN-006](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-LIN-006](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-LIN-007](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-008](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-009](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-LIN-010](requirements.md#15-lineage-and-reproducibility) | lotus-platform | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-RPT-001](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
-| [CMP-RPT-002](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
-| [CMP-RPT-003](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
+| [CMP-RPT-002](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
+| [CMP-RPT-003](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-RPT-004](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
-| [CMP-RPT-005](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
+| [CMP-RPT-005](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-RPT-006](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
 | [CMP-RPT-007](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
 | [CMP-RPT-008](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
-| [CMP-RPT-009](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
+| [CMP-RPT-009](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417), [lotus-report#446](https://github.com/sgajbi/lotus-report/issues/446) |
 | [CMP-RPT-010](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
 | [CMP-RPT-011](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |
 | [CMP-RPT-012](requirements.md#16-reports-and-distribution) | lotus-report | NOT_ASSESSED | [lotus-report#417](https://github.com/sgajbi/lotus-report/issues/417) |

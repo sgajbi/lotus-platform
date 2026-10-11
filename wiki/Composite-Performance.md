@@ -4,6 +4,8 @@ Lotus composite performance groups portfolios under approved strategy and member
 calculates using declared financial methods, and retains the versions needed to explain reports.
 The complete product target spans source authority, eligibility, analytics, corrections and delivery.
 
+Current evidence posture: owner admissions are PLANNED; all 321 requirements remain NOT_ASSESSED.
+
 ## Reader map
 
 | Need | Authoritative destination |
@@ -29,9 +31,19 @@ GIPS applicability, live integration, capacity and recovery require separate own
 
 [Platform #925](https://github.com/sgajbi/lotus-platform/issues/925) governs requirement-to-owner
 intake. The [single ledger](https://github.com/sgajbi/lotus-platform/blob/main/docs/composite-performance/implementation-ledger.v1.json)
-contains three PLANNED examples: Report #417 for CMP-RPT-001, Performance #607 for CMP-SRC-006,
-and Manage #778 for CMP-ELG-001. Each separates its owning issue from dependencies and names
-source-observation scope, independent tests and internal/external documentation plans.
+contains four PLANNED admissions selecting seven requirements: Report
+[#417](https://github.com/sgajbi/lotus-report/issues/417) for CMP-RPT-001, Performance #607 for CMP-SRC-006,
+Manage #778 for CMP-ELG-001, and Report
+[#446](https://github.com/sgajbi/lotus-report/issues/446) for CMP-RPT-002/003/005/009.
+The other 314 requirements have no admission fields. Each admission separates its owning issue
+from dependencies and names source-observation scope, independent tests and documentation plans.
+
+Report #417 is independently closed for the focused first pinned review family; its historical
+admission remains provenance and does not assess requirement support. Report #446 plans full RPT-08,
+distinct from CMP-RPT-008. An initial internal comparison is partial; source-backed reason,
+materiality, approval, explanation and actual recipient/replacement/distribution obligations remain.
+CMP-LIN-001/003/006 retain Platform ownership with Report collaboration. Wider report products,
+qualified upstream authority and institutional acceptance remain unearned.
 
 ### External monthly admission dependencies
 
