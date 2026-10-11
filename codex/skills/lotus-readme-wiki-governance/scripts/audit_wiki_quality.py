@@ -985,7 +985,9 @@ def _page_heading_failures(page_name: str, text: str) -> list[str]:
     if not first_line.startswith("# "):
         failures.append(f"{page_name}: first nonblank line should be an H1 page title")
 
-    h1_count = sum(1 for line in text.splitlines() if line.startswith("# "))
+    h1_count = sum(
+        1 for line in _prose_without_fenced_code(text).splitlines() if line.startswith("# ")
+    )
     if h1_count != 1:
         failures.append(f"{page_name}: expected exactly one H1, found {h1_count}")
     return failures
