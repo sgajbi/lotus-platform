@@ -973,6 +973,33 @@ def _backtick_fence_boundary(line: str, fence_length: int) -> int | None:
     return None
 
 
+def _gfm_table_cells(line: str) -> list[str]:
+    """Split table cells before inline parsing, including escaped code-span pipes."""
+    cells: list[str] = []
+    start = 0
+    for index, character in enumerate(line):
+        # GFM table pipes use the immediately preceding backslash, not parity.
+        if character == "|" and (index == 0 or line[index - 1] != "\\"):
+            cells.append(line[start:index].strip(" \t"))
+            start = index + 1
+    cells.append(line[start:].strip(" \t"))
+    if len(cells) > 1 and not cells[0]:
+        cells.pop(0)
+    if len(cells) > 1 and not cells[-1]:
+        cells.pop()
+    return cells
+
+
+def _gfm_table_delimiter(header: str, line: str) -> bool:
+    """Recognize a matching header/alignment pair at eligible block indentation."""
+    if re.match(r"(?: {4}| {0,3}\t)", line) or "|" not in line:
+        return False
+    cells = _gfm_table_cells(line)
+    return bool(cells) and len(cells) == len(_gfm_table_cells(header)) and all(
+        re.fullmatch(r":?-+:?", cell) for cell in cells
+    )
+
+
 def _prose_without_fenced_code(text: str) -> str:
     prose_lines: list[str] = []
     fence_length = 0
@@ -980,6 +1007,9 @@ def _prose_without_fenced_code(text: str) -> str:
     html_end = None
     html_container_indent = None
     in_paragraph = False
+    table_header = None
+    in_table = False
+    table_container_indent = None
     container_indents: list[int] = []
     lines = re.split(r"\r\n|\r|\n", text)
     index = 0
@@ -991,6 +1021,7 @@ def _prose_without_fenced_code(text: str) -> str:
         if nonblank and (
             (fence_container_indent is not None and indentation < fence_container_indent)
             or (html_container_indent is not None and indentation < html_container_indent)
+            or (table_container_indent is not None and indentation < table_container_indent)
         ):
             # A contained block ends with its container, even without a closer.
             # Reconsider this line as a root/parent block rather than code or HTML.
@@ -998,6 +1029,9 @@ def _prose_without_fenced_code(text: str) -> str:
             fence_container_indent = None
             html_end = None
             html_container_indent = None
+            in_table = False
+            table_container_indent = None
+            table_header = None
             _unwind_container_indents(container_indents, indentation)
             in_paragraph = False
             prose_lines.append("")
@@ -1011,6 +1045,9 @@ def _prose_without_fenced_code(text: str) -> str:
                     _unwind_container_indents(container_indents, indentation)
                     html_container_indent = container_indents[-1] if container_indents else None
             if html_end is not None:
+                in_table = False
+                table_container_indent = None
+                table_header = None
                 prose_lines.append(line)
                 if html_end.search(line):
                     html_end = None
@@ -1019,6 +1056,9 @@ def _prose_without_fenced_code(text: str) -> str:
                 continue
         next_fence_length = _backtick_fence_boundary(line, fence_length)
         if next_fence_length is not None:
+            in_table = False
+            table_container_indent = None
+            table_header = None
             # Excluded blocks still separate paragraphs and reference definitions.
             prose_lines.append("")
             if fence_length:
@@ -1031,29 +1071,51 @@ def _prose_without_fenced_code(text: str) -> str:
             continue
         if not fence_length:
             prose_lines.append(line)
-            if not in_paragraph:
+            if not in_paragraph and not in_table:
                 if nonblank:
                     _unwind_container_indents(container_indents, indentation)
                 reference_end = _reference_definition_block_end(lines, index - 1)
                 if reference_end is not None:
+                    in_table = False
+                    table_container_indent = None
+                    table_header = None
                     prose_lines.extend(lines[index:reference_end])
                     index = reference_end
                     continue
                 if re.match(r"(?: {4}| {0,3}\t)", line):
                     # Indented code does not start a paragraph.
+                    table_header = None
                     continue
             outside_container = bool(container_indents) and indentation < container_indents[-1]
             next_container = _paragraph_container_indent(line, in_paragraph and not outside_container)
+            paragraph_line = nonblank and not (
+                re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
+                or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))
+                or re.fullmatch(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})", line)
+            )
+            if in_table and paragraph_line and next_container is None:
+                # Ordinary rows, even without pipes, remain table body rather than prose.
+                continue
+            in_table = False
+            table_container_indent = None
+            table_indent = container_indents[-1] if container_indents and not outside_container else 0
+            if (
+                table_header is not None and next_container is None
+                and _gfm_table_delimiter(table_header, line[table_indent:])
+            ):
+                in_table = True
+                table_container_indent = table_indent or None
+                table_header = None
+                in_paragraph = False
+                continue
             if next_container is not None:
                 # Direct markers replace frames; nested markers retain parents.
                 # Ordinary prose dedents remain lazy continuation until a block starts.
                 _unwind_container_indents(container_indents, indentation)
                 container_indents.append(next_container)
-            in_paragraph = nonblank and not (
-                re.match(r" {0,3}#{1,6}(?:[ \t]|$)", line)
-                or (in_paragraph and re.fullmatch(r" {0,3}(?:=+|-+)[ \t]*", line))
-                or re.fullmatch(r" {0,3}(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})", line)
-            )
+            in_paragraph = paragraph_line
+            header_indent = next_container or table_indent
+            table_header = line[header_indent:] if in_paragraph else None
     return "\n".join(prose_lines)
 
 

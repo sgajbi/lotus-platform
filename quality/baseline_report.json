@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 427031
+    "total_source_lines": 427175
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -67,10 +67,18 @@
       },
       {
         "complexity": 48,
-        "end_line": 1333,
-        "line": 1254,
+        "end_line": 1395,
+        "line": 1316,
         "lines": 80,
         "name": "_decision_link_target_end",
+        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
+        "complexity": 44,
+        "end_line": 1119,
+        "line": 1003,
+        "lines": 117,
+        "name": "_prose_without_fenced_code",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
@@ -115,8 +123,8 @@
       },
       {
         "complexity": 30,
-        "end_line": 1511,
-        "line": 1411,
+        "end_line": 1573,
+        "line": 1473,
         "lines": 101,
         "name": "_decision_plain_starts",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
@@ -128,14 +136,6 @@
         "lines": 93,
         "name": "validate_live",
         "path": "automation/resource_recovery/policy.py"
-      },
-      {
-        "complexity": 30,
-        "end_line": 1057,
-        "line": 976,
-        "lines": 82,
-        "name": "_prose_without_fenced_code",
-        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
         "complexity": 28,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4341
+    "python_function_count": 4346
   },
-  "generated_at_utc": "2026-10-11T17:51:25Z",
+  "generated_at_utc": "2026-10-11T18:59:23Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -398,14 +398,14 @@
       "suffix": ".json"
     },
     {
+      "lines": 3163,
+      "path": "tests/unit/test_wiki_quality_audit.py",
+      "suffix": ".py"
+    },
+    {
       "lines": 3138,
       "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
       "suffix": ".json"
-    },
-    {
-      "lines": 3084,
-      "path": "tests/unit/test_wiki_quality_audit.py",
-      "suffix": ".py"
     },
     {
       "lines": 2823,
@@ -434,13 +434,13 @@
     },
     {
       "lines": 1818,
-      "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
-      "suffix": ".md"
-    },
-    {
-      "lines": 1756,
       "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
       "suffix": ".py"
+    },
+    {
+      "lines": 1818,
+      "path": "rfcs/RFC-0081-lotus-workbench-ui-uplift-and-advisory-lifecycle-integration.md",
+      "suffix": ".md"
     },
     {
       "lines": 1755,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5322,
+    "collected_tests": 5467,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5322 tests collected"
+    "summary": "5467 tests collected"
   }
 }

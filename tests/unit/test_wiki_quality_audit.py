@@ -2510,6 +2510,10 @@ def test_nested_fence_preserves_prose_reference_and_admission_guards(
     ("# Operations\n\n<script>\n</scr\u0130pt>\n```\n</script>\n# Second title", 1),
     ("# Operations\n\n<\u017fcript>\n```sh\n# Shell comment\n```", 0),
     ("# Operations\n\nparagraph\n</bloc\u212aquote>\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\na | b\n--- | ---\n<custom>\n```\n\n# Second title", 1),
+    ("# Operations\n\na | b\n--- | ---\n<custom>\n```\n\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\na | b | c\n--- | ---\n<custom>\n```sh\n# Shell comment\n```", 0),
+    ("# Operations\n\na | b\n--- | ---\nbody without pipes\n<custom>\n```\n\n# Second title", 1),
 ])
 def test_heading_audit_full_cli_contract(
     tmp_path: Path, body: str, expected_exit: int,
@@ -2857,6 +2861,81 @@ def test_heading_audit_ascii_html_tag_casefold(body: str, count: int, newline: s
     text = ("# Operations\n\n" + body).replace("\n", newline)
     expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
     assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("prefix,count", [
+    pytest.param("a | b\n--- | ---", 2, id="minimal-table"),
+    pytest.param("| a | b |\n| --- | --- |", 2, id="outer-pipes"),
+    pytest.param("a | b\n:--- | ---:", 2, id="alignment"),
+    pytest.param("a | b\n--- | ---\nc | d", 2, id="body-row"),
+    pytest.param("a | b\n--- | ---\nplain body", 2, id="body-without-pipes"),
+    pytest.param("| a |\n| --- |", 2, id="one-column"),
+    pytest.param("a\n| --- |", 2, id="header-without-pipe"),
+    pytest.param("a\n--- |", 2, id="one-trailing-delimiter-pipe"),
+    pytest.param("a \\| b | c\n--- | ---", 2, id="escaped-header-pipe"),
+    pytest.param("a | b | c\n--- | ---", 1, id="mismatched-columns"),
+    pytest.param("a | b\n--- | nope", 1, id="invalid-alignment-cell"),
+    pytest.param("a \\| b\n--- | ---", 1, id="escaped-only-header-pipe"),
+    pytest.param("a | b\nordinary paragraph", 1, id="paragraph-opposite"),
+    pytest.param("paragraph\na | b\n--- | ---", 2, id="paragraph-before-header"),
+    pytest.param("   a | b\n   --- | ---", 2, id="three-space-table"),
+    pytest.param("a | b\n    --- | ---", 1, id="indented-code-delimiter-opposite"),
+    pytest.param("a | b\n\t--- | ---", 1, id="tab-indented-delimiter-opposite"),
+    pytest.param("a | b\n--|--", 2, id="two-hyphen-cells"),
+    pytest.param("| a | b |\n| - | - |", 2, id="one-hyphen-cells"),
+    pytest.param("a | b\n:- | -:", 2, id="one-hyphen-alignment"),
+    pytest.param("a | b\n- | -", 2, id="list-interruption-before-alignment"),
+    pytest.param("a | b\n---\t|\t---", 2, id="tab-cell-padding"),
+    pytest.param("a | b\n: | ---", 1, id="colon-only-cell-opposite"),
+    pytest.param("a | b | c\n--- || ---", 1, id="empty-alignment-cell-opposite"),
+    pytest.param("| |\n| --- |", 2, id="empty-header-cell"),
+    pytest.param("`a | b` | c\n--- | ---", 1, id="code-span-pipe-counts"),
+    pytest.param("`a \\| b` | c\n--- | ---", 2, id="escaped-code-span-pipe"),
+    pytest.param("a \\\\| b | c\n--- | ---", 2, id="even-backslashes-still-escape-pipe"),
+    pytest.param("- a | b\n  --- | ---", 2, id="list-table-root-exit"),
+    pytest.param("- item\n\n  a | b\n  --- | ---\n  body | row", 2, id="contained-table-root-exit"),
+    pytest.param("> a | b\n> --- | ---", 2, id="quote-table-root-exit"),
+])
+def test_heading_audit_gfm_table_html_boundary(prefix: str, count: int, newline: str) -> None:
+    # Primary hosted GFM witnesses distinguish actual tables from paragraph/list/code
+    # opposites. A table ends before type7 HTML; its literal backticks are not fences.
+    text = ("# Operations\n\n" + prefix + "\n<custom>\n```\n\n# Second title").replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+@pytest.mark.parametrize("body,count", [
+    ("a | b\n--- | ---\n<custom>\n```\n\n```sh\n# Shell comment\n```", 1),
+    ("a | b\n--- | ---\n&lt;custom&gt;\n```sh\n# Shell comment\n```", 1),
+    ("a | b\n--- | ---\n&amp;lt;custom&amp;gt;\n```sh\n# Shell comment\n```", 1),
+    ("a | b\n--- | ---\n```sh\n# Shell comment\n```", 1),
+    ("a | b\n--- | ---\n# Second title", 2),
+    ("a | b\n--- | ---\n\nparagraph\n<custom>\n```sh\n# Shell comment\n```", 1),
+    ("<custom>\na | b\n--- | ---\n```\n\n# Second title", 2),
+    ("```\na | b\n--- | ---\n<custom>\n# Shell comment\n```", 1),
+    ("a | b\n--- | ---\n<custom>\n```sh\n# Raw source comment\n```", 2),
+    ("a | b\n--- | ---\n[ref]: /path\nbody | row\n<custom>\n```\n\n# Second title", 2),
+    ('a | b\n--- | ---\n[ref]: /path\n"title"\nbody | row\n<custom>\n```\n\n# Second title', 2),
+    ("a | b\n--- | ---\n\n[ref]: /path\nbody | row\n<custom>\n```\n\n# Second title", 1),
+    ("a | b\n--- | ---\n---\nbody | row\n<custom>\n```\n\n# Second title", 1),
+    ("a | b\n--- | ---\n- item\nbody | row\n<custom>\n```\n\n# Second title", 2),
+    ("a | b\n--- | ---\n> item\nbody | row\n<custom>\n```\n\n# Second title", 2),
+])
+def test_heading_audit_gfm_table_block_transitions(body: str, count: int, newline: str) -> None:
+    # Raw HTML remains visible to source guards, even when GitHub renders no H1.
+    text = ("# Operations\n\n" + body).replace("\n", newline)
+    expected = [] if count == 1 else ["Operations.md: expected exactly one H1, found 2"]
+    assert _load_audit_module()._page_heading_failures("Operations.md", text) == expected
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_gfm_table_keeps_raw_guard_inputs(newline: str) -> None:
+    audit = _load_audit_module()
+    raw = "a | b\n--- | ---\nhttp://service.dev.lotus | ./output/temp\n<custom>\n```\n./output/notes\n"
+    projected = audit._prose_without_fenced_code(raw.replace("\n", newline))
+    assert projected == raw
 
 
 def test_wiki_quality_audit_allows_urls_and_scratch_tokens_in_executable_examples(
