@@ -121,7 +121,10 @@ evidence, not create future-state confidence ahead of code, tests, and validatio
      open backtick fences and remain subject to existing prose guards; opening info strings must not
      contain literal backticks. Fixed HTML tag names use ASCII-only case folding.
      Follow hosted GitHub GFM boundaries: textarea blocks span
-     blank lines; complete unprefixed HTML tags can end list/quote paragraph containers,
+     blank lines; matching GFM table headers/alignment rows and their body rows are blocks,
+     so following complete HTML tags can start raw blocks without a blank line; malformed
+     table syntax stays prose and table/raw HTML bytes remain visible to existing guards.
+     Complete unprefixed HTML tags can end list/quote paragraph containers,
      respecting nested list content boundaries and valid paragraph interruption. Recognized
      HTML and fenced blocks end when their owning container ends; blank block lines and lazy
      paragraph continuation retain their container. Fence recognition remains limited to
