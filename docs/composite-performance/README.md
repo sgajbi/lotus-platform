@@ -55,8 +55,16 @@ are implementation exit proofs; this admission does not assert that they exist o
 Report #446 also depends on [Archive #196](https://github.com/sgajbi/lotus-archive/issues/196)
 for additive v9 custody of an ordered retained v8 source pair. Its initial profile remains
 same-scope / PARTIAL / NOT_ATTESTED; it does not fulfill full RPT-08 or CMP-LIN-006.
-The Report r5 six-field source-anchor amendment and producer/receiver agreement remain pending;
-this dependency grants no Archive implementation or live receiver acceptance.
+The accepted r5 six-field O/C custody and financial pair remain intact. Distinct source-read
+dependency [Archive #197](https://github.com/sgajbi/lotus-archive/issues/197) plans a privileged exact
+historical read of the eight immutable stored lifecycle relationship fields; Archive #196 retains
+its no-new-endpoint custody scope. Report's explicit r6 amendment must bind the native relationship-record
+evidence kind/preimage/schema, never invented original POST bytes or historical current-at-capture.
+Exact Archive DTO/permission/path agreement precedes consumer freeze; existing source-event reason/actor
+redaction remains. Producer-stage schemas/KATs/full package and honest preflight may be handed off before
+Render's actual writer/fit proof; full receiver fit and actual Docker source/consumer acceptance remain
+mandatory. This dependency adds no receipt store, financial ledger or new admission and preserves the
+ordered O/O_rr/C/C_rr path and partial, nonofficial profile.
 
 ### Risk Composite-series admission
 
