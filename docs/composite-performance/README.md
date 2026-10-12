@@ -29,11 +29,12 @@ Four neutral inputs are archived byte-for-byte as plain text or JSON. Their orig
 ### Planned delivery admission
 
 Optional `delivery_admissions` in the single ledger distinguish one owning issue from programme
-and dependency links. Five PLANNED admissions select eight requirements: CMP-RPT-001 for Report
+and dependency links. Six PLANNED admissions select seventeen requirements: CMP-RPT-001 for Report
 [#417](https://github.com/sgajbi/lotus-report/issues/417), CMP-SRC-006 for Performance #607,
 CMP-ELG-001 for Manage #778, and CMP-RPT-002/003/005/009 for Report
 [#446](https://github.com/sgajbi/lotus-report/issues/446), plus CMP-LIN-006 for Platform
-[#954](https://github.com/sgajbi/lotus-platform/issues/954). The other 313 requirements acquire no admission
+[#954](https://github.com/sgajbi/lotus-platform/issues/954), and Risk
+[#386](https://github.com/sgajbi/lotus-risk/issues/386) for the nine D1 analytics rows. The other 304 requirements acquire no admission
 fields; all 321 remain NOT_ASSESSED. Historical source cuts carry explicit scope and require current
 owner reinspection. Report #417 is independently closed for its focused first pinned review family;
 its historical admission and planned evaluation remain provenance, not requirement acceptance.
@@ -56,6 +57,33 @@ for additive v9 custody of an ordered retained v8 source pair. Its initial profi
 same-scope / PARTIAL / NOT_ATTESTED; it does not fulfill full RPT-08 or CMP-LIN-006.
 The Report r5 six-field source-anchor amendment and producer/receiver agreement remain pending;
 this dependency grants no Archive implementation or live receiver acceptance.
+
+### Risk Composite-series admission
+
+[Risk #386](https://github.com/sgajbi/lotus-risk/issues/386) plans one read-only CompositeSeries
+consumer/source/result boundary for CMP-AN-006/008/009/010/011/013/014/019/022 around existing
+Risk methods. All 17 Risk requirements remain NOT_ASSESSED; an initial limited delivery is partial.
+Risk source `e5000f5f9ea8e4970bcf8b234fa1133862873a07` has stateless/portfolio inputs and reusable
+methods, with no Composite identity boundary. Performance producer
+`6aa3f430090f53e2882920126a90b3aad8748293` supplies privileged calculated TWR and retained
+selection manifests; it supplies no benchmark/risk-free series, official approval or freeze authority.
+The admission binds exact committed paths and plans independent unit, sample and drawdown controls,
+continuity/view/currency/identity refusals, tenant/capability/Composite authority and producer lineage.
+
+Performance [#540](https://github.com/sgajbi/lotus-performance/issues/540) provides the existing
+materialization/calculated-source contract; Manage [#714](https://github.com/sgajbi/lotus-manage/issues/714)
+provides definition/effective membership and the still-unqualified actual universe.
+Accepted contract milestones permit design/authoring without closing either whole issue.
+Risk [#384](https://github.com/sgajbi/lotus-risk/issues/384) supplies the existing verified-principal
+foundation for three other routes; it grants no Composite capability. Separately reviewed Composite
+authorization, privileged downstream admission and actual producer integration remain delivery gates.
+
+Mandatory actual Docker consumer+producer API proof, independent OR-10 sample `ddof=1` and OR-12
+opening-wealth controls, source/result lineage, negative authority cases and internal lifecycle/runbook
+plus external OpenAPI/tutorial documentation precede acceptance. Anonymous/in-process probes and
+synthetic fakes cannot certify the nine rows. No duplicate engine, invented benchmark/risk-free inputs,
+Composite-as-portfolio mapping or additional financial ledger is admitted. D2/D3 and full programme
+obligations remain in scope; this PLANNED intake grants no Risk source implementation.
 
 An admission names known requirement IDs, matching owner/issue, canonical feature(s), dependencies,
 bounded scope, a committed-source observation, independent evaluation plan, internal/external
@@ -290,23 +318,23 @@ This projection contains no second authority. Exact source ranges, individual ba
 | [CMP-AN-003](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-004](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-performance#608](https://github.com/sgajbi/lotus-performance/issues/608) |
 | [CMP-AN-005](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-006](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-AN-006](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
 | [CMP-AN-007](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-008](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-009](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-010](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-011](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-AN-008](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
+| [CMP-AN-009](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
+| [CMP-AN-010](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
+| [CMP-AN-011](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
 | [CMP-AN-012](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-013](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-014](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-AN-013](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
+| [CMP-AN-014](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
 | [CMP-AN-015](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-016](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-017](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-018](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-019](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-AN-019](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
 | [CMP-AN-020](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-021](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
-| [CMP-AN-022](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
+| [CMP-AN-022](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-risk | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923), [lotus-risk#386](https://github.com/sgajbi/lotus-risk/issues/386), [lotus-performance#540](https://github.com/sgajbi/lotus-performance/issues/540), [lotus-manage#714](https://github.com/sgajbi/lotus-manage/issues/714), [lotus-risk#384](https://github.com/sgajbi/lotus-risk/issues/384) |
 | [CMP-AN-023](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-024](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
 | [CMP-AN-025](requirements.md#13-composite-analytics-catalogue-and-formulas) | lotus-performance | NOT_ASSESSED | [lotus-platform#923](https://github.com/sgajbi/lotus-platform/issues/923) |
