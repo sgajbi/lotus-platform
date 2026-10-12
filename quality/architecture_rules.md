@@ -11,3 +11,7 @@ Rules for this refactor:
 3. generated artifacts must not become hand-edited source truth,
 4. repo-check entrypoints must stay aligned with GitHub workflow lanes,
 5. broad framework or runtime dependencies require a documented enterprise-readiness reason.
+
+Production source under `packages/` is measured alongside automation. Package `build/`,
+`dist/` and `*.egg-info/` trees are generated artifacts and are excluded. The principal
+verifier and CLI must remain in the measured population after moving out of automation.

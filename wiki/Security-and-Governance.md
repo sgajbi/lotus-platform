@@ -14,6 +14,21 @@ must satisfy their owning lane's promotion criteria.
 
 ## Key governance surfaces
 
+The reusable principal verifier is now the `lotus-principal-authority==0.1.0` source
+package. Existing Platform repo-check lanes build its pure wheel, refuse bad distribution
+inputs and prove all thirteen denials in a fresh external install. The compatibility
+wrapper uses the same implementation. Explicit fresh revocation and current authority
+inputs are required; admissions expire at the earliest verified/provider deadline or
+300 seconds and must be checked again before queued effects.
+
+This source qualification does not provision issuer keys, IAM, recovery assignment
+providers, hosting or consumer enforcement. Platform #775 remains open for those live
+dependencies; all 321 controls remain `NOT_ASSESSED` and the six programme slices remain
+`PLANNED`. See the
+[principal credential contract](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/principal-credential/README.md)
+for installation/proof commands and security changes. Wiki publication follows merge;
+this candidate does not publish a wiki or release.
+
 - CI and validation lane governance
 - workflow security and runtime baselines
 - repository hygiene and standards conformance

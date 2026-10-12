@@ -2,6 +2,14 @@
 
 Canonical cross-cutting automation lives here.
 
+The single principal verifier is the installable `lotus-principal-authority==0.1.0`
+package. `verify_principal_credential.py` is a compatibility wrapper;
+`verify_principal_runtime_distribution.py` builds and checks its wheel, proves integrity
+guard failures and executes `principal_runtime_capability_proof.py` in a fresh external
+noneditable install. Existing repo-check lanes run that blocking proof before unit tests.
+Commands, explicit trust/revocation inputs, dependency pins and source-only limits are in
+[the principal credential contract](../platform-contracts/principal-credential/README.md#installable-runtime-and-compatibility).
+
 PR preparation uses `validate_pr_metadata.py`: offline candidate policy before metadata mutation
 and complete current GraphQL evidence before merge. See
 [PR metadata enforcement](../docs/operations/pr-metadata-enforcement.md) for the text contract,

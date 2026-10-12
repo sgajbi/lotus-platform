@@ -18,6 +18,7 @@ QUALITY_DIR = ROOT / "quality"
 
 SOURCE_ROOTS = (
     "automation",
+    "packages",
     "codex",
     "context",
     "docs",
@@ -71,6 +72,10 @@ Rules for this refactor:
 3. generated artifacts must not become hand-edited source truth,
 4. repo-check entrypoints must stay aligned with GitHub workflow lanes,
 5. broad framework or runtime dependencies require a documented enterprise-readiness reason.
+
+Production source under `packages/` is measured alongside automation. Package `build/`,
+`dist/` and `*.egg-info/` trees are generated artifacts and are excluded. The principal
+verifier and CLI must remain in the measured population after moving out of automation.
 """,
     "api_governance_rules.md": """# API Governance Rules
 
@@ -98,6 +103,11 @@ Initial gate posture:
 2. baseline metrics remain report-only while the refactor identifies stable thresholds,
 3. future blocking gates should prefer architecture-boundary drift, first-party security findings,
    OpenAPI/vocabulary drift, duplicate implementation hotspots, and unsafe production patterns.
+
+The principal wheel build/install and signed capability proof run in the existing repo-check
+lanes. They prove executable wiring and refusal behavior; quantitative coverage remains
+unmeasured. Package source is included in baseline population without changing freshness
+policy, classifiers, thresholds or the existing two-test tolerance.
 """,
     "security_findings.md": """# Security Findings
 
@@ -191,6 +201,12 @@ class ComplexityVisitor(ast.NodeVisitor):
 
 def _is_source_file(path: Path) -> bool:
     if any(part in EXCLUDED_PARTS for part in path.parts):
+        return False
+    relative = path.relative_to(ROOT).parts
+    if relative and relative[0] == "packages" and any(
+        part in {"build", "dist"} or part.endswith(".egg-info")
+        for part in relative[1:-1]
+    ):
         return False
     return path.is_file() and path.suffix.lower() in TEXT_SUFFIXES
 

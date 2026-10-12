@@ -1,6 +1,6 @@
 {
   "classification_counts": {
-    "covered": 135,
+    "covered": 137,
     "review": 2,
     "undocumented": 25
   },
@@ -595,6 +595,14 @@
       "path": "automation/Preflight-PR.ps1",
       "reference_count": 4,
       "suffix": ".ps1",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 0,
+      "path": "automation/principal_runtime_capability_proof.py",
+      "reference_count": 3,
+      "suffix": ".py",
       "test_reference_count": 1
     },
     {
@@ -1239,9 +1247,9 @@
     },
     {
       "classification": "covered",
-      "operator_doc_reference_count": 2,
+      "operator_doc_reference_count": 3,
       "path": "automation/validate_technology_governance_policy.py",
-      "reference_count": 5,
+      "reference_count": 6,
       "suffix": ".py",
       "test_reference_count": 2
     },
@@ -1297,11 +1305,19 @@
       "classification": "covered",
       "operator_doc_reference_count": 1,
       "path": "automation/verify_principal_credential.py",
-      "reference_count": 2,
+      "reference_count": 3,
+      "suffix": ".py",
+      "test_reference_count": 1
+    },
+    {
+      "classification": "covered",
+      "operator_doc_reference_count": 1,
+      "path": "automation/verify_principal_runtime_distribution.py",
+      "reference_count": 4,
       "suffix": ".py",
       "test_reference_count": 1
     }
   ],
-  "generated_at_utc": "2026-10-09T16:58:41Z",
-  "script_count": 162
+  "generated_at_utc": "2026-10-12T06:04:15Z",
+  "script_count": 164
 }

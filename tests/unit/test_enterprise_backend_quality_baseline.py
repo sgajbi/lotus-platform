@@ -20,6 +20,25 @@ from automation.generate_enterprise_backend_quality_baseline import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def test_production_principal_verifier_and_cli_are_in_quality_population() -> None:
+    population = set(baseline_generator._iter_source_files())
+    package = ROOT / "packages/principal-authority"
+    assert package / "src/lotus_principal_authority/verifier.py" in population
+    assert package / "src/lotus_principal_authority/cli.py" in population
+    assert package / "pyproject.toml" in population
+
+
+def test_package_build_distribution_and_metadata_are_excluded(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(baseline_generator, "ROOT", tmp_path)
+    production = tmp_path / "packages/example/src/example/verifier.py"
+    generated = [tmp_path / f"packages/example/{directory}/duplicate.py"
+                 for directory in ("build/lib/example", "dist", "src/example.egg-info")]
+    for path in (production, *generated):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("def measured(): return True\n", encoding="utf-8")
+    assert set(baseline_generator._iter_source_files()) == {production}
+
+
 def test_quality_baseline_collects_required_enterprise_signals() -> None:
     baseline = build_baseline()
 

@@ -17,13 +17,19 @@ UPDATE_SCRIPT = SKILL_ROOT / "scripts" / "update-issue-loop.ps1"
 AUDIT_SCRIPT = SKILL_ROOT / "scripts" / "audit-issue-loop.ps1"
 DEFAULT_CONTRACT = SKILL_ROOT / "references" / "issue-status-label-contract.json"
 POWERSHELL = shutil.which("pwsh") or shutil.which("powershell")
-POWERSHELL_EXECUTABLES = list(
-    dict.fromkeys(
-        executable
-        for executable in (shutil.which("pwsh"), shutil.which("powershell"))
-        if executable is not None
-    )
-)
+
+
+@pytest.fixture()
+def audit_shell(request) -> str:
+    shell = request.param
+    executable = shutil.which(shell)
+    if executable is None:
+        pytest.skip(f"{shell} is unavailable")
+    if shell == "powershell":
+        primary = shutil.which("pwsh")
+        if primary is not None and os.path.samefile(executable, primary):
+            pytest.skip("powershell aliases pwsh; the distinct executable runs in the pwsh slot")
+    return executable
 
 CANONICAL_LABELS = [
     "status/in-progress",
@@ -536,11 +542,11 @@ def test_audit_detects_lifecycle_and_vocabulary_drift(fake_github) -> None:
 
 
 @pytest.mark.parametrize(
-    "powershell",
-    POWERSHELL_EXECUTABLES or [None],
-    ids=lambda executable: Path(executable).name if executable else "unavailable",
+    "audit_shell",
+    ("pwsh", "powershell"),
+    indirect=True,
 )
-def test_audit_accepts_clean_closed_and_open_issue_states(fake_github, powershell) -> None:
+def test_audit_accepts_clean_closed_and_open_issue_states(fake_github, audit_shell) -> None:
     state_path, _, env = fake_github
     state = _state()
     state["issues"] = {
@@ -554,7 +560,7 @@ def test_audit_accepts_clean_closed_and_open_issue_states(fake_github, powershel
         AUDIT_SCRIPT,
         ["-Repo", "owner/repo"],
         env,
-        powershell=powershell,
+        powershell=audit_shell,
     )
 
     assert result.returncode == 0, result.stderr + result.stdout

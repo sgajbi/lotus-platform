@@ -165,6 +165,8 @@ try {
     # once with a full revision, or a lane checkout would fall back to a default
     # branch and the verdict would stop being a function of this commit.
     Invoke-CheckedCommand $toolingPython automation/validate_sibling_source_manifest.py
+    Invoke-CheckedCommand $toolingPython automation/verify_principal_runtime_distribution.py
+    Invoke-CheckedCommand $toolingPython -m pip install --force-reinstall --no-index --find-links output/principal-runtime/dependencies output/principal-runtime/lotus_principal_authority-0.1.0-py3-none-any.whl
     Invoke-CheckedCommand $toolingPython -m pytest tests/unit -q
     Invoke-CheckedCommand $toolingPython automation/validate_engineering_context_system.py
     Invoke-CheckedCommand $toolingPython automation/validate_agent_engineering_contracts.py

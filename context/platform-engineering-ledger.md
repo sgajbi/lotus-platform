@@ -15,6 +15,33 @@ Keep entries concise and operational.
 
 ## Current Ledger Entries
 
+### 2026-10-12 | Platform #775 principal distribution qualification
+
+The sole principal verifier lives in `packages/principal-authority`, with a compatibility
+automation wrapper. Qualify the wheel through `automation/verify_principal_runtime_distribution.py`:
+build with locked tools, compare source bytes and metadata, reject bad wheels, install
+noneditable outside repository paths, and execute real signed admissions/all thirteen
+denials. Record clean commit/tree, wheel/dependency hashes and native exits rather than
+infer installation from a checkout import. Existing repo-check lanes own blocking wiring.
+
+Current revocation/authority deadlines are trusted provider inputs; missing/stale data
+denies. `PrincipalAdmission` carries verified expiry and a maximum 300-second exclusive
+bound and must be checked at the protected effect after any queue wait. This is a source
+candidate for #775, not institutional authority or a consumer rollout. Grant-store,
+issuer/key/revocation/membership provisioning, recovery assignment and hosting remain
+unimplemented; all321 `NOT_ASSESSED` and six `PLANNED` posture is unchanged. Report #446
+and Render #352 retain their own source scopes and recovery persistence responsibilities.
+
+Quality population includes production `packages/` and excludes package build/dist/egg-info
+outputs. The #775 declared Python 3.12 proof collected exact base 5526 and candidate 5533
+with seven added identities and zero removed. The previous scalar 5534, authored at
+e37fea0e706eb945e59195ed2d8b7cb8041df8d7 with Python 3.13, could not be reproduced from that
+revision or the exact base (both collected 5526 under the recorded executable). Its eight
+extra identities were not retained historically and remain unexplained; do not attribute
+them to operating system/runtime differences or present scalar counts as coverage. The
+replacement baseline uses successful fresh declared-runtime measurement, not an invented
+historical inventory. Freshness comparison and the two-test tolerance remain unchanged.
+
 ### 2026-07-22 | Canonical actor identities must be contract-owned by business purpose
 
 Core #513 downstream proof found three nearby but non-interchangeable identities: the Advisor

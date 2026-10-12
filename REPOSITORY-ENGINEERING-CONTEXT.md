@@ -31,6 +31,14 @@ source of business or financial truth.
 
 ## Current-State Summary
 
+- `packages/principal-authority` owns the sole signed-principal verifier, packaged as
+  `lotus-principal-authority==0.1.0` for Python >=3.12. Automation retains a thin compatible
+  wrapper. Existing repo-check lanes qualify a pure wheel and fresh isolated noneditable
+  install before collecting unit tests. Explicit fresh revocation and authority inputs
+  are required; bounded admission is source proof, with issuer/provider/hosting and live
+  grant-store authority still unimplemented. See the principal credential contract for
+  runnable checkout-relative commands and the intended caller migration.
+
 - The multi-lane CI model, workflow governance, context system, agent onboarding, platform
   validation, and repository scaffolding are active platform capabilities.
 - `platform-stack/` is the shared infrastructure and local integration baseline. The governed,
@@ -229,6 +237,15 @@ The quality baseline must record a successful pytest collection (`returncode: 0`
 count from a non-zero collection is partial evidence and must never overwrite the accepted
 baseline. Small environment-driven count variance may be tolerated only by the existing gate; do
 not weaken it to make a run green.
+
+### Stable test population practice
+
+Optional sibling or executable absence must skip execution rather than remove collected test
+identities. Reporting observability retains its eight nodes without Render metrics. The audit
+shell test always collects named `pwsh` and `powershell` slots, executing each distinct installed
+shell and explicitly skipping missing or aliased slots. Required CI sibling-pin verification
+remains blocking. Regenerate the baseline only after healthy collection; local collection does
+not establish the next native Linux CI result.
 
 For queued or stalled evidence, use:
 

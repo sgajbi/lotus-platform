@@ -14,11 +14,8 @@ ARCHIVE_REPO = ROOT.parent / "lotus-archive"
 DASHBOARD_PATH = (
     ROOT / "platform-stack" / "grafana" / "dashboards" / "reporting-observability-overview.json"
 )
-# Resolved at import time, so an absent sibling checkout must skip rather than
-# raise: a bare next() over an empty generator raises StopIteration during
-# collection, and pytest treats a collection error as fatal for the whole run.
-# One optional sibling missing then hides all of tests/unit, which is what a
-# fresh clone looks like before any sibling is checked out.
+# Absence is handled during execution so the same eight identities are always
+# collected. Required CI checkout verification remains a separate blocking gate.
 RENDER_METRICS_PATH = next(
     (
         path
@@ -31,12 +28,13 @@ RENDER_METRICS_PATH = next(
     None,
 )
 
-if RENDER_METRICS_PATH is None:
-    pytest.skip(
-        "lotus-render is not checked out beside lotus-platform; this cross-repo "
-        "metric contract is verified where both checkouts are present.",
-        allow_module_level=True,
-    )
+@pytest.fixture(autouse=True)
+def require_render_metrics() -> None:
+    if RENDER_METRICS_PATH is None:
+        pytest.skip(
+            "lotus-render is not checked out beside lotus-platform; this cross-repo "
+            "metric contract is verified where both checkouts are present."
+        )
 
 
 def _load_json(relative_path: str) -> dict:
