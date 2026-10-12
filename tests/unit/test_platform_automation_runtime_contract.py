@@ -3,7 +3,9 @@ from __future__ import annotations
 import ast
 import copy
 import sys
+import subprocess
 import tomllib
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -131,3 +133,110 @@ def test_principal_distribution_dependency_guard_accepts_governed_and_refuses_dr
     altered["project"]["dependencies"] = []
     with pytest.raises(ValueError):
         validate_dependency_config(altered, lock, installed)
+
+
+@pytest.fixture
+def tracked_package(tmp_path, monkeypatch):
+    from automation import verify_principal_runtime_distribution as distribution
+
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=tmp_path, capture_output=True, check=True).stdout
+
+    package = tmp_path / "packages/principal-authority"
+    package.mkdir(parents=True)
+    (tmp_path / ".gitignore").write_text("__pycache__/\n*.egg-info/\n", encoding="utf-8")
+    files = {"pyproject.toml": b"# tracked config\n", "src/lotus_principal_authority/__init__.py": b"# tracked module\n",
+             "build inputs/notes.txt": b"# tracked input with spaces\n"}
+    for relative, data in files.items():
+        path = package / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+    hooks = tmp_path / "empty-hooks"
+    hooks.mkdir()
+    git("init", "--object-format=sha1", "--template", str(hooks))
+    git("config", "core.hooksPath", str(hooks))
+    git("config", "core.autocrlf", "false")
+    git("add", ".")
+    git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false",
+        "commit", "-m", "Tracked package inputs")
+    monkeypatch.setattr(distribution, "ROOT", tmp_path)
+    monkeypatch.setattr(distribution, "PACKAGE", package)
+    return distribution, package, files, git
+
+
+def test_package_inputs_ignore_generated_files_and_bind_every_tracked_blob(tracked_package, tmp_path):
+    distribution, package, files, git = tracked_package
+    for relative in ["src/lotus_principal_authority/__pycache__/generated.pyc", "src/generated.egg-info/PKG-INFO"]:
+        path = package / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"generated")
+    assert git("status", "--porcelain") == b""
+    receipt = {"commands": [], "working_tree_status": ""}
+    inputs = distribution.record_package_inputs(receipt)
+    expected = {"packages/principal-authority/" + relative for relative in files}
+    assert set(inputs) == set(receipt["source_files"]) == set(receipt["build_source_blobs"]) == expected
+    for relative in expected:
+        assert receipt["build_source_blobs"][relative] == git("rev-parse", "HEAD:" + relative).decode().strip()
+    destination = tmp_path / "staged"
+    # Staging uses the recorded bytes, even if the checkout changes afterwards.
+    (package / "pyproject.toml").write_bytes(b"later edit")
+    distribution.stage_package_inputs(inputs, destination)
+    assert {p.relative_to(destination).as_posix(): p.read_bytes() for p in destination.rglob("*") if p.is_file()} == files
+
+
+def test_package_inputs_refuse_missing_tracked_file(tracked_package):
+    distribution, package, _, git = tracked_package
+    (package / "pyproject.toml").unlink()
+    with pytest.raises(FileNotFoundError):
+        distribution.record_package_inputs({"commands": [], "working_tree_status": git("status", "--porcelain").decode()})
+
+
+def test_package_inputs_refuse_clean_status_blob_mismatch(tracked_package):
+    distribution, package, _, git = tracked_package
+    git("update-index", "--assume-unchanged", "packages/principal-authority/pyproject.toml")
+    (package / "pyproject.toml").write_bytes(b"changed behind clean status\n")
+    assert git("status", "--porcelain") == b""
+    with pytest.raises(ValueError, match="differs from selected committed blob"):
+        distribution.record_package_inputs({"commands": [], "working_tree_status": ""})
+
+
+def test_package_inputs_preserve_dirty_checkout_and_lf_staging(tracked_package, tmp_path):
+    distribution, package, _, git = tracked_package
+    (package / "pyproject.toml").write_bytes(b"changed checkout\r\n")
+    status = git("status", "--porcelain").decode()
+    assert status
+    inputs = distribution.record_package_inputs({"commands": [], "working_tree_status": status})
+    distribution.stage_package_inputs(inputs, tmp_path / "staged")
+    assert (tmp_path / "staged/pyproject.toml").read_bytes() == b"changed checkout\n"
+
+
+@pytest.mark.parametrize("case,expected_exit", [("valid", 0), ("missing", 1), ("altered", 1),
+                                                ("malformed", 1), ("wrong-metadata", 1), ("changed-source", 1)])
+def test_principal_wheel_guard_retains_native_exit_contract(tmp_path, case, expected_exit):
+    from automation import verify_principal_runtime_distribution as distribution
+
+    wheel = tmp_path / "runtime.whl"
+    metadata = ("Name: lotus-principal-authority\nVersion: 0.1.0\nRequires-Python: >=3.12\n"
+                "Requires-Dist: cryptography==49.0.0\n")
+    if case == "wrong-metadata":
+        metadata = metadata.replace("Version: 0.1.0", "Version: 9.9.9")
+    with zipfile.ZipFile(wheel, "w") as archive:
+        prefix = "lotus_principal_authority-0.1.0.dist-info/"
+        archive.writestr(prefix + "METADATA", metadata)
+        archive.writestr(prefix + "WHEEL", "Root-Is-Purelib: true\nTag: py3-none-any\n")
+        for name in ["__init__", "verifier", "cli"]:
+            path = "lotus_principal_authority/" + name + ".py"
+            data = (distribution.PACKAGE / "src" / path).read_bytes().replace(b"\r\n", b"\n")
+            if case == "changed-source" and name == "verifier":
+                data += b"# altered module\n"
+            archive.writestr(path, data)
+    if case == "malformed":
+        wheel.write_bytes(b"not a wheel")
+    expected_sha = distribution.digest(wheel)
+    if case == "altered":
+        wheel.write_bytes(wheel.read_bytes() + b"altered")
+    if case == "missing":
+        wheel.unlink()
+    result = subprocess.run([sys.executable, str(AUTOMATION / "verify_principal_runtime_distribution.py"),
+                             "--wheel", str(wheel), "--sha256", expected_sha], cwd=tmp_path, capture_output=True)
+    assert result.returncode == expected_exit, result.stderr.decode()

@@ -85,6 +85,34 @@ def checked(argv: list[str], cwd: Path, commands: list[dict], *, source_epoch: s
     return result.stdout.strip()
 
 
+def record_package_inputs(receipt: dict) -> dict[str, bytes]:
+    """Bind the tracked package inputs once for receipts and build staging."""
+    commands = receipt["commands"]
+    tracked = checked(["git", "ls-files", "-z", "--", PACKAGE.relative_to(ROOT).as_posix()], ROOT, commands)
+    inputs = {relative: (ROOT / relative).read_bytes() for relative in tracked.split("\0") if relative}
+    if not inputs:
+        raise ValueError("package has no tracked build inputs")
+    receipt["source_files"] = {relative: hashlib.sha256(data).hexdigest() for relative, data in inputs.items()}
+    receipt["build_source_blobs"] = {}
+    for relative, data in inputs.items():
+        normalized = data.replace(b"\r\n", b"\n")
+        blob = hashlib.sha1(b"blob " + str(len(normalized)).encode() + b"\0" + normalized).hexdigest()
+        receipt["build_source_blobs"][relative] = blob
+        if not receipt["working_tree_status"]:
+            committed = checked(["git", "rev-parse", f"HEAD:{relative}"], ROOT, commands)
+            if committed != blob:
+                raise ValueError("build input differs from selected committed blob")
+    return inputs
+
+
+def stage_package_inputs(inputs: dict[str, bytes], destination: Path) -> None:
+    for relative, data in inputs.items():
+        target = destination / (ROOT / relative).relative_to(PACKAGE)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        # Git's source blobs use LF; build the same pure wheel on Windows/Linux.
+        target.write_bytes(data.replace(b"\r\n", b"\n"))
+
+
 def qualify(output: Path) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     receipt = dict(status="RUNNING", commands=[])
@@ -97,33 +125,13 @@ def qualify(output: Path) -> dict:
         receipt["source_tree"] = checked(["git", "rev-parse", "HEAD^{tree}"], ROOT, commands)
         receipt["source_date_epoch"] = checked(["git", "show", "-s", "--format=%ct", "HEAD"], ROOT, commands)
         receipt["working_tree_status"] = checked(["git", "status", "--porcelain"], ROOT, commands)
-        receipt["source_files"] = {
-            str(path.relative_to(ROOT)).replace("\\", "/"): digest(path)
-            for path in sorted(PACKAGE.rglob("*")) if path.is_file()
-        }
-        receipt["build_source_blobs"] = {}
-        for path in sorted(PACKAGE.rglob("*")):
-            if not path.is_file():
-                continue
-            relative = path.relative_to(ROOT).as_posix()
-            normalized = path.read_bytes().replace(b"\r\n", b"\n")
-            blob = hashlib.sha1(b"blob " + str(len(normalized)).encode() + b"\0" + normalized).hexdigest()
-            receipt["build_source_blobs"][relative] = blob
-            if not receipt["working_tree_status"]:
-                committed = checked(["git", "rev-parse", f"HEAD:{relative}"], ROOT, commands)
-                if committed != blob:
-                    raise ValueError("build input differs from selected committed blob")
+        inputs = record_package_inputs(receipt)
         receipt["dependency_lock_sha256"] = digest(ROOT / "automation/requirements.platform-automation.lock.txt")
         receipt["runtime_requirements"] = list(RUNTIME_REQUIREMENTS)
         with tempfile.TemporaryDirectory(prefix="lotus-principal-proof-") as scratch:
             outside = Path(scratch).resolve()
             build_source = outside / "package"
-            shutil.copytree(PACKAGE, build_source)
-            # Git's source blobs use LF on this repository. Normalize checkout
-            # line endings so Windows and Linux build the same pure wheel bytes.
-            for path in build_source.rglob("*"):
-                if path.is_file():
-                    path.write_bytes(path.read_bytes().replace(b"\r\n", b"\n"))
+            stage_package_inputs(inputs, build_source)
             wheels = outside / "wheels"
             checked([sys.executable, "-m", "build", "--wheel", "--no-isolation", "--outdir", str(wheels), str(build_source)], outside, commands,
                     source_epoch=receipt["source_date_epoch"])

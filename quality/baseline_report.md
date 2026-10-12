@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4392`
+- Python functions: `4401`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `5549`
+- Unit tests collected: `5559`
 - Collection command return code: `0`
-- Collection summary: `5549 tests collected`
+- Collection summary: `5559 tests collected`
 
 ## Security Baseline
 
