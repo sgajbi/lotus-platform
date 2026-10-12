@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools==83.0.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lotus-principal-authority"
+version = "0.1.0"
+description = "Lotus signed principal verification and bounded admission"
+requires-python = ">=3.12"
+dependencies = ["cryptography==49.0.0"]
+
+[project.scripts]
+lotus-verify-principal = "lotus_principal_authority.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import base64
+import ast
 import json
-from datetime import datetime, timezone
+import subprocess
+import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
@@ -43,6 +47,8 @@ def _inputs_for(vector: dict, **overrides) -> VerificationInputs:
         revoked_subjects=frozenset(supplied["revoked_subjects"]),
     )
     defaults.update(overrides)
+    defaults.setdefault("revocation_valid_until", defaults["now"] + timedelta(seconds=120))
+    defaults.setdefault("authority_valid_until", defaults["now"] + timedelta(seconds=120))
     return VerificationInputs(**defaults)
 
 
@@ -427,3 +433,83 @@ def test_a_delegated_credential_still_requires_the_application_resolver() -> Non
 
     assert isinstance(result, Denial)
     assert result.denial_class == "grant_store_unavailable"
+
+
+def test_wrapper_exports_the_same_implementation_and_cli(tmp_path) -> None:
+    from automation import verify_principal_credential as wrapper
+    from lotus_principal_authority import verifier, cli
+
+    for name in ("Denial", "GrantSet", "GrantStoreUnavailable", "ResolvedPrincipal",
+                 "VerificationInputs", "PrincipalAdmission", "verify_credential",
+                 "resolve_principal", "resolve_admission"):
+        assert getattr(wrapper, name) is getattr(verifier, name)
+    assert wrapper.main is cli.main
+    sources = [ROOT / "automation/verify_principal_credential.py", *
+               (ROOT / "packages/principal-authority/src/lotus_principal_authority").glob("*.py")]
+    definitions = [node.name for path in sources
+                   for node in ast.walk(ast.parse(path.read_text(encoding="utf-8")))
+                   if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    assert definitions.count("verify_credential") == 1
+    assert definitions.count("resolve_principal") == 1
+    vector = _vector("valid.user.json")
+    inputs = _inputs_for(vector)
+    revocations = tmp_path / "revocations.json"
+    revocations.write_text(json.dumps(dict(credential_ids=[], subjects=[],
+        valid_until=inputs.revocation_valid_until.isoformat())), encoding="utf-8")
+    arguments = ["--credential", vector["credential"], "--jwks", str(EXAMPLES / "jwks.json"),
+                 "--issuer", inputs.expected_issuer, "--audience", inputs.expected_audience,
+                 "--now", inputs.now.isoformat(), "--revocations", str(revocations)]
+    commands = [[sys.executable, str(ROOT / "automation/verify_principal_credential.py")],
+                [sys.executable, "-m", "lotus_principal_authority.cli"]]
+    for command in commands:
+        result = subprocess.run(command + arguments, capture_output=True, text=True, cwd=tmp_path)
+        assert (result.returncode, result.stdout.strip()) == (0, "verified")
+        assert vector["credential"] not in result.stdout + result.stderr
+        absent_trust = subprocess.run(command + ["--issuer", inputs.expected_issuer, "--audience", inputs.expected_audience],
+                                      capture_output=True, text=True, cwd=tmp_path)
+        assert absent_trust.returncode == 2
+
+
+def test_packaged_capability_proof_executes_real_runtime() -> None:
+    result = subprocess.run([sys.executable, "-I", str(ROOT / "automation/principal_runtime_capability_proof.py")],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Ran 9 tests" in result.stderr
+
+
+def test_credential_schema_accepts_verified_kinds_and_rejects_invalid_identity_shapes() -> None:
+    schema = json.loads((EXAMPLES.parent / "principal-credential.schema.json").read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema)
+    for kind in ("user", "service", "delegated"):
+        vector = _vector(f"valid.{kind}.json")
+        claims = verify_credential(vector["credential"], _inputs_for(vector))
+        assert not list(validator.iter_errors(claims))
+    valid = generator._claims()
+    key = Ed25519PrivateKey.from_private_bytes(generator.TRUSTED_SEED)
+    header = {"alg": "EdDSA", "kid": generator.TRUSTED_KEY_ID}
+    inputs = _inputs_for(_vector("valid.user.json"))
+    for field in ("sub", "tenant", "jti", "act"):
+        claims = dict(valid)
+        if field == "act":
+            claims["principal_kind"] = "delegated"
+        controls = [f"a{chr(code)}b" for code in (*range(32), *range(127, 160))]
+        for value in ["", " ", " leading", "trailing ", "x" * 201, True, "x\n", *controls]:
+            invalid = dict(claims, **{field: value})
+            assert list(validator.iter_errors(invalid)), (field, repr(value))
+            result = verify_credential(generator._sign(key, header, invalid), inputs)
+            assert isinstance(result, Denial)
+            assert result.denial_class == "malformed_credential"
+        for value in ("客戶-é", "顧問😀", "a\u0301", "a b", "x" * 200, "😀" * 200):
+            printable = dict(claims, **{field: value})
+            assert validator.is_valid(printable), (field, repr(value))
+            assert isinstance(verify_credential(generator._sign(key, header, printable), inputs), dict)
+        # Portable structural predicates do not encode Python's full Unicode
+        # category table. Keep this documented semantic boundary explicit.
+        for value in ("a\u200bb", "a\u00a0b"):
+            semantic = dict(claims, **{field: value})
+            assert validator.is_valid(semantic)
+            result = verify_credential(generator._sign(key, header, semantic), inputs)
+            assert isinstance(result, Denial)
+            assert result.denial_class == "malformed_credential"
+    assert list(validator.iter_errors(dict(valid, act="application")))
+    assert list(validator.iter_errors(dict(valid, principal_kind="delegated")))

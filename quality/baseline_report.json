@@ -6,18 +6,19 @@
   "code_size": {
     "markdown_file_count": 427,
     "powershell_file_count": 70,
-    "python_file_count": 278,
-    "source_file_count": 1009,
+    "python_file_count": 284,
+    "source_file_count": 1016,
     "suffix_counts": {
       ".json": 181,
       ".md": 427,
       ".ps1": 70,
-      ".py": 278,
+      ".py": 284,
+      ".toml": 1,
       ".txt": 10,
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 427258
+    "total_source_lines": 428592
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -80,6 +81,14 @@
         "lines": 80,
         "name": "_decision_link_target_end",
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
+      },
+      {
+        "complexity": 41,
+        "end_line": 285,
+        "line": 176,
+        "lines": 110,
+        "name": "verify_credential",
+        "path": "packages/principal-authority/src/lotus_principal_authority/verifier.py"
       },
       {
         "complexity": 38,
@@ -146,6 +155,14 @@
         "path": "tests/unit/test_resource_only_recovery.py"
       },
       {
+        "complexity": 26,
+        "end_line": 390,
+        "line": 288,
+        "lines": 103,
+        "name": "_resolve_verified",
+        "path": "packages/principal-authority/src/lotus_principal_authority/verifier.py"
+      },
+      {
         "complexity": 25,
         "end_line": 265,
         "line": 117,
@@ -163,14 +180,6 @@
       },
       {
         "complexity": 22,
-        "end_line": 350,
-        "line": 245,
-        "lines": 106,
-        "name": "resolve_principal",
-        "path": "automation/verify_principal_credential.py"
-      },
-      {
-        "complexity": 22,
         "end_line": 560,
         "line": 492,
         "lines": 69,
@@ -184,14 +193,6 @@
         "lines": 69,
         "name": "fetch_all",
         "path": "codex/skills/gh-address-comments/scripts/fetch_comments.py"
-      },
-      {
-        "complexity": 22,
-        "end_line": 217,
-        "line": 186,
-        "lines": 32,
-        "name": "_directory_inline_link_end",
-        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       }
     ],
     "largest_functions": [
@@ -205,8 +206,8 @@
       },
       {
         "complexity": 1,
-        "end_line": 1144,
-        "line": 671,
+        "end_line": 1160,
+        "line": 687,
         "lines": 474,
         "name": "render_health_report",
         "path": "automation/generate_enterprise_backend_quality_baseline.py"
@@ -358,9 +359,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4349
+    "python_function_count": 4392
   },
-  "generated_at_utc": "2026-10-11T20:05:36Z",
+  "generated_at_utc": "2026-10-12T08:22:02Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -378,7 +379,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 18644,
+      "lines": 18825,
       "path": "docs/composite-performance/implementation-ledger.v1.json",
       "suffix": ".json"
     },
@@ -428,14 +429,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1856,
+      "path": "automation/README.md",
+      "suffix": ".md"
+    },
+    {
       "lines": 1853,
       "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1848,
-      "path": "automation/README.md",
-      "suffix": ".md"
     },
     {
       "lines": 1818,
@@ -520,6 +521,7 @@
     ],
     "included_roots": [
       "automation",
+      "packages",
       "codex",
       "context",
       "docs",
@@ -790,9 +792,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5534,
+    "collected_tests": 5549,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\Documents\\Codex\\2026-10-11\\lotus-platform-950-nested-fence\\work\\principal-runtime-775-candidate-20261012\\python312\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +802,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5534 tests collected"
+    "summary": "5549 tests collected"
   }
 }

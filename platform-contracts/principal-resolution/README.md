@@ -133,6 +133,20 @@ python -m pytest tests/unit/test_principal_resolution_contracts.py -q
 
 ## Posture
 
+The shared [principal runtime](../principal-credential/README.md#installable-runtime-and-compatibility)
+now provides the single verifier and bounded `PrincipalAdmission` API as an installable
+source distribution. This does not change the resolved-principal wire shape or native
+thirteen denial classes. Provider freshness is mandatory, and admission must be rechecked
+after a queue wait; an expiry bound is not durable authorization.
+
+Recovery authority V3 remains an agreed design for Platform #775, Report #446 and Render
+#352, not a deployed provider: issuer, keys, membership/grant/revocation sources, recovery
+assignment provider and hosting remain undesignated. No Render recovery capability is
+granted by this package. Report assignment persistence and Render's target permission,
+uniform disclosure denials and atomic remediation/audit belong to their owning slices.
+Performance invocation authority has a different audience and cannot supply Render grants;
+Report submission fingerprints cannot substitute for final Archive offer hashes.
+
 `grantStoreImplemented`, `productionIdentityCertified` and `supportedFeaturePromoted` are all false
 and stay false until live evidence exists. Fixture success is not live enforcement. This contract can
 clear only the contract-and-fixture availability gap for `lotus-platform#775`; it cannot clear

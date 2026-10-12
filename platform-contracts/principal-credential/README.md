@@ -18,6 +18,86 @@ in [`automation/verify_principal_credential.py`](../../automation/verify_princip
 refuses it. Trusting the foreign key makes the *same bytes* verify, which proves the refusal is
 about the key rather than about malformed or expired content.
 
+## Installable runtime and compatibility
+
+`packages/principal-authority` builds `lotus-principal-authority==0.1.0`, a pure Python
+wheel for Python 3.12 or newer. The sole verifier moved from
+`automation/verify_principal_credential.py` to
+`lotus_principal_authority.verifier`; the old entry point imports that implementation.
+The runtime imports no fixture, automation directory, repository root or sibling checkout.
+Its dependency is explicit: `cryptography==49.0.0`; Platform's automation lock also pins
+the runtime dependency closure and build tools. A consumer must install a qualified wheel
+and its dependencies, rather than copy the verifier or use an editable checkout.
+
+From the `lotus-platform` checkout, qualify a wheel and its noneditable install:
+
+```powershell
+$python = & ./automation/Resolve-PlatformAutomationPython.ps1
+& $python automation/verify_principal_runtime_distribution.py
+if ($LASTEXITCODE -ne 0) { throw "Principal distribution proof failed" }
+```
+
+```bash
+python3 -m venv .venv-platform-automation
+.venv-platform-automation/bin/python -m pip install -r automation/requirements.platform-automation.lock.txt
+.venv-platform-automation/bin/python automation/verify_principal_runtime_distribution.py
+```
+
+The proof builds outside the checkout with the selected commit's `SOURCE_DATE_EPOCH`,
+normalizes checkout line endings to Git's LF blobs, checks wheel metadata and source bytes,
+records SHA-256 and source/dependency provenance,
+then installs into a fresh external virtual environment without `PYTHONPATH`. It executes
+positive human/service/delegated cases and all thirteen real signed synthetic denials.
+Missing, altered, malformed, changed-source and wrong-version wheels must fail the guard.
+`output/principal-runtime/qualification.json` records native command exits; source status
+must be clean before associating the wheel with a committed candidate. This is a source
+distribution qualification, not a publication, bank trust decision or consumer adoption.
+
+The existing feature, PR-merge and main-releasability invocations of
+`Invoke-PlatformRepoChecks.ps1` run this proof before installing the wheel and collecting
+unit tests. Lane names, workflows, thresholds and sibling pins are unchanged.
+
+### Intended security changes for existing callers
+
+Public principal/denial classes and `verify_credential` / `resolve_principal` imports remain
+available through the wrapper. The CLI retains its flags, `verified` / `denied: <class>`
+output and exit convention, but now requires explicit `--jwks` and `--revocations` files;
+it never supplies fixture keys or silently assumes an empty revocation list. The revocation
+file contains `credential_ids`, `subjects` (arrays) and an aware ISO-8601 `valid_until`.
+The CLI verifies a credential only; it does not resolve membership or grants.
+
+Runtime callers must explicitly supply both revocation sets and a current aware
+`revocation_valid_until`; an empty known set is valid, missing or stale data is
+`grant_store_unavailable`. Resolution additionally requires current
+`authority_valid_until`, membership and grants callbacks. These deadlines are assertions
+from the trusted deployment's authoritative providers, never token/body/header fields.
+Providers own freshness and must not extend an old snapshot's deadline on a cache read.
+The repository's existing vector test helper is migrated; no consumer is migrated here.
+
+`exp` and present `nbf` must be integers, excluding booleans. At `now >= exp + leeway`
+verification refuses. Identity (`sub`, `jti`, `tenant`, delegated `act`, and key id) must be
+printable, nonblank, trimmed and at most 200 characters; nondelegated credentials may not
+carry `act`. Duplicate JSON members, duplicate matching key ids, unsupported `crit` / `b64`
+headers, and unsupported algorithms cannot select an alternate interpretation. Signature
+verification still precedes trust in issuer, audience, time or identity claims.
+
+The claim schema rejects C0/C1 controls (including terminal newline, interior tab and
+DEL) in all four identity fields, and preserves printable Unicode identities. Its
+portable JSON Schema predicates express structural bounds, trimming and those control
+exclusions. They do not reproduce Python's entire Unicode `isprintable()` category
+table: for example, an interior zero-width format character or non-ASCII separator may
+still pass structural validation and be refused by the verifier. Runtime printable
+validation remains authoritative; schema success proves neither signature validity nor
+current identity, membership, capability or resource authority.
+
+`resolve_admission` exposes the verified expiry and a principal without consumer reparsing.
+Its exclusive `valid_until` is the minimum of verified credential expiry, revocation
+freshness, authority freshness and evaluation time plus 300 seconds. Admission never extends
+past credential expiry, including when signature verification permits clock leeway. A queued
+operation must call `admission.is_current(current_aware_time)` immediately before its effect
+and obtain fresh admission if false. An admission is an in-process result, not a reusable
+serialized grant; it does not authorize a recovery target or bypass a current authority check.
+
 ## The two credential kinds a consumer needs
 
 Answering lotus-workbench#436's first two questions.

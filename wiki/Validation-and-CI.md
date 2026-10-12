@@ -155,6 +155,13 @@ works.
 
 ## What the gates protect
 
+Optional sibling and shell availability must not change collected test identities. Reporting
+observability keeps eight nodes and skips execution when Render metrics are absent; audit shell
+coverage uses fixed `pwsh` and `powershell` slots with explicit missing/alias skips. Distinct
+installed shells still execute. Required CI sibling checkout verification and the existing
+collection-freshness tolerance remain unchanged. Baselines require successful native collection;
+Windows collection alone does not certify the next Linux CI run.
+
 - central context and documentation contract integrity
 - workflow and standards drift detection
 - automation and validator correctness

@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import ast
+import copy
 import sys
+import tomllib
 from pathlib import Path
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,7 +19,8 @@ DISTRIBUTION_FOR_MODULE = {"yaml": "PyYAML"}
 
 def _local_module_names() -> set[str]:
     """Modules that live in automation/ and are imported by bare name."""
-    return {path.stem for path in AUTOMATION.rglob("*.py")} | {"automation", "tests"}
+    packaged = {path.parent.name for path in (ROOT / "packages").glob("*/src/*/__init__.py")}
+    return {path.stem for path in AUTOMATION.rglob("*.py")} | {"automation", "tests"} | packaged
 
 
 def _third_party_imports() -> set[str]:
@@ -99,3 +104,30 @@ def test_platform_automation_python_runtime_is_locked_and_reused() -> None:
     assert "python -m pip install requests" not in validation_lane
 
     assert ".venv-platform-automation/" in gitignore
+
+
+def test_local_principal_package_is_built_and_installed_before_unit_collection() -> None:
+    checks = (AUTOMATION / "Invoke-PlatformRepoChecks.ps1").read_text(encoding="utf-8")
+    build = checks.index("Invoke-CheckedCommand $toolingPython automation/verify_principal_runtime_distribution.py")
+    install = checks.index("Invoke-CheckedCommand $toolingPython -m pip install --force-reinstall --no-index")
+    tests = checks.index("Invoke-CheckedCommand $toolingPython -m pytest tests/unit -q")
+    assert build < install < tests
+    assert "lotus_principal_authority" in _local_module_names()
+
+
+def test_principal_distribution_dependency_guard_accepts_governed_and_refuses_drift() -> None:
+    from automation.verify_principal_runtime_distribution import validate_dependency_config, BUILD_REQUIREMENTS
+    config = tomllib.loads((ROOT / "packages/principal-authority/pyproject.toml").read_text(encoding="utf-8"))
+    lock = (AUTOMATION / "requirements.platform-automation.lock.txt").read_text(encoding="utf-8")
+    pins = dict(line.split("==") for line in lock.splitlines() if "==" in line)
+    installed = {name: pins[name] for name in BUILD_REQUIREMENTS}
+    validate_dependency_config(config, lock, installed)
+    for bad_lock in (lock.replace("cffi==2.0.0", ""), lock.replace("setuptools==83.0.0", "")):
+        with pytest.raises(ValueError):
+            validate_dependency_config(config, bad_lock, installed)
+    with pytest.raises(ValueError):
+        validate_dependency_config(config, lock, dict(installed, wheel="0.0.0"))
+    altered = copy.deepcopy(config)
+    altered["project"]["dependencies"] = []
+    with pytest.raises(ValueError):
+        validate_dependency_config(altered, lock, installed)

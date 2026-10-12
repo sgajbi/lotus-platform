@@ -22,3 +22,8 @@ remains application-owned. The native unit suite collects the good/bad controls 
    sequencing; use it as context rather than a blocking freshness signal,
 5. future blocking gates should prefer architecture-boundary drift, first-party security findings,
    OpenAPI/vocabulary drift, duplicate implementation hotspots, and unsafe production patterns.
+
+The principal wheel build/install and signed capability proof run in the existing repo-check
+lanes. They prove executable wiring and refusal behavior; quantitative coverage remains
+unmeasured. Package source is included in baseline population without changing freshness
+policy, classifiers, thresholds or the existing two-test tolerance.
