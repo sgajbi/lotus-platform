@@ -107,7 +107,8 @@
         "https://github.com/sgajbi/lotus-manage/issues/714",
         "https://github.com/sgajbi/lotus-performance/issues/540",
         "https://github.com/sgajbi/lotus-gateway/issues/820",
-        "https://github.com/sgajbi/lotus-archive/issues/196"
+        "https://github.com/sgajbi/lotus-archive/issues/196",
+        "https://github.com/sgajbi/lotus-archive/issues/197"
       ],
       "source_observation": {
         "evidence_class": "COMMITTED_SOURCE_OBSERVATION",
@@ -131,7 +132,7 @@
         "internal": "Pair capture and lineage dictionary; supplier/Render receiver contract; correction, approval and delivery lifecycle/retry/re-render runbook.",
         "external": "Correction-notice API/tutorial and before/after example with units, unavailable legend, approval meaning and actual recipient delivery semantics."
       },
-      "next_action": "Root reviews the concrete Report/Render receiver contract for two exact retained generations and the qualified ordered Archive path, preserving technical rerender versus economic correction edges and explicit before/after identities. Report owner may implement only after independent design acceptance and a bounded source grant. Source qualification dependencies apply to official claims, not invented prerequisites for explicit-v1 internal software proof. Full reason/materiality/approval, source-owned explanation/delta and actual recipient/replacement/distribution obligations remain required for RPT-08 fulfillment; an initial internal comparison is partial."
+      "next_action": "Root reviews the concrete Report/Render receiver contract for two exact retained generations and the qualified ordered Archive path, preserving technical rerender versus economic correction edges and explicit before/after identities. Report owner may implement only after independent design acceptance and a bounded source grant. Source qualification dependencies apply to official claims, not invented prerequisites for explicit-v1 internal software proof. Full reason/materiality/approval, source-owned explanation/delta and actual recipient/replacement/distribution obligations remain required for RPT-08 fulfillment; an initial internal comparison is partial. Archive #197 separately owns a narrowly privileged exact historical read of the eight immutable LifecycleRelationshipRecord fields already persisted by Archive; preserve support-safe source-event redaction and never replay lifecycle POSTs for discovery or fabricate original POST bytes/current-at-capture. The required milestone is exact native Archive read DTO/permission/path agreement and Report r6 relationship-record economic-edge evidence kind/preimage/schema amendment before consumer freeze, followed by native producer/receiver and mandatory actual Docker source/consumer proof. Preserve the accepted six-field O/C custody identities, ordered O/O_rr/C/C_rr path, financial pair and PARTIAL/NOT_ATTESTED profile. Archive #196 remains additive v9 custody with no new endpoint; no new receipt store, financial ledger or authority is implied. Producer-stage native schema/KAT/package/preflight handoff may precede Render actual writer/fit proof, which remains a receiver/final acceptance obligation rather than a circular producer-stage prerequisite."
     },
     {
       "owner_repository": "lotus-report",
