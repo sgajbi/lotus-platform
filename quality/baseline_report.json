@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 428908
+    "total_source_lines": 428978
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -82,6 +82,14 @@
         "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       },
       {
+        "complexity": 41,
+        "end_line": 228,
+        "line": 23,
+        "lines": 206,
+        "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
+        "path": "tests/unit/test_reserved_service_refresh.py"
+      },
+      {
         "complexity": 38,
         "end_line": 652,
         "line": 499,
@@ -112,14 +120,6 @@
         "lines": 75,
         "name": "validate_policy_document",
         "path": "automation/check_branch_protection_policy.py"
-      },
-      {
-        "complexity": 34,
-        "end_line": 212,
-        "line": 23,
-        "lines": 190,
-        "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
-        "path": "tests/unit/test_reserved_service_refresh.py"
       },
       {
         "complexity": 34,
@@ -308,6 +308,14 @@
         "path": "automation/core_seeded_analytics_maturity_validation.py"
       },
       {
+        "complexity": 41,
+        "end_line": 228,
+        "line": 23,
+        "lines": 206,
+        "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
+        "path": "tests/unit/test_reserved_service_refresh.py"
+      },
+      {
         "complexity": 1,
         "end_line": 339,
         "line": 143,
@@ -322,14 +330,6 @@
         "lines": 195,
         "name": "test_shipped_cli_renews_retirement_without_rewriting_archive_provenance",
         "path": "tests/unit/test_resource_only_recovery.py"
-      },
-      {
-        "complexity": 34,
-        "end_line": 212,
-        "line": 23,
-        "lines": 190,
-        "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
-        "path": "tests/unit/test_reserved_service_refresh.py"
       },
       {
         "complexity": 31,
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4385
+    "python_function_count": 4386
   },
-  "generated_at_utc": "2026-10-13T00:58:15Z",
+  "generated_at_utc": "2026-10-13T05:19:54Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5606,
+    "collected_tests": 5609,
     "command": [
       "C:\\Users\\Sandeep\\Documents\\Codex\\2026-10-11\\lotus-platform-950-nested-fence\\work\\principal-runtime-775-candidate-20261012\\python312\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5606 tests collected"
+    "summary": "5609 tests collected"
   }
 }

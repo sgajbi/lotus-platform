@@ -337,10 +337,12 @@ function Assert-ReservedComposeInputs {
     foreach ($path in @($context, [IO.Path]::GetFullPath($dockerfile))) {
       Assert-ReviewedRepositoryPath -Path $path -RepoPath $RepoPath -AllowRoot
     }
-    $actualPorts = @($service.ports | ForEach-Object {
-      if ([string]$_.published -notmatch '^[0-9]+$') { throw 'Reserved refresh requires bounded published ports.' }
-      [int]$_.published
-    } | Sort-Object -Unique)
+    # foreach skips an absent collection but still validates every supplied entry, including null.
+    $actualPorts = @(foreach ($port in $service.ports) {
+      if ([string]$port.published -notmatch '^[0-9]+$') { throw 'Reserved refresh requires bounded published ports.' }
+      [int]$port.published
+    })
+    $actualPorts = @($actualPorts | Sort-Object -Unique)
     $resourceIds = @($Operation.OriginalResources | Where-Object { $_.project -eq $planned.project -and $_.service -eq $planned.service } | ForEach-Object { $_.id })
     $originalPorts = @($Operation.Bindings | Where-Object { $_.id -in $resourceIds } | ForEach-Object { $_.ports } | Sort-Object -Unique)
     if (($actualPorts -join ',') -ne ($originalPorts -join ',')) { throw 'Reserved Compose service publications differ from original bindings.' }

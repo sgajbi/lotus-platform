@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-11T20:05:36Z`
+Generated: `2026-10-13T05:19:54Z`
 
 Repository: `lotus-platform`
 
@@ -16,9 +16,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Code Size
 
-- Source files: `1009`
-- Total source lines: `427258`
-- Python files: `278`
+- Source files: `1014`
+- Total source lines: `428978`
+- Python files: `283`
 - PowerShell files: `70`
 - Markdown files: `427`
 
@@ -29,7 +29,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 79939 | .json |
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
-| docs/composite-performance/implementation-ledger.v1.json | 18644 | .json |
+| docs/composite-performance/implementation-ledger.v1.json | 18825 | .json |
 | platform-contracts/api-vocabulary/lotus-performance-api-vocabulary.v1.json | 16326 | .json |
 | automation/New-Lotus-Service.ps1 | 6046 | .ps1 |
 | platform-contracts/api-vocabulary/lotus-risk-api-vocabulary.v1.json | 5120 | .json |
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4349`
+- Python functions: `4386`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -51,10 +51,10 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _prose_without_fenced_code | 1015 | 51 | 140 |
 | codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _decision_link_target_end | 1351 | 48 | 80 |
+| tests/unit/test_reserved_service_refresh.py | test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation | 23 | 41 | 206 |
 | automation/resource_recovery/policy.py | validate_discovery | 499 | 38 | 154 |
 | automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
-| automation/check_branch_protection_policy.py | validate_policy_document | 82 | 35 | 75 |
-| automation/resource_recovery/policy.py | validate_approval | 203 | 34 | 144 |
+| automation/canonical_runtime_reservation.py | execute | 86 | 35 | 82 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `5534`
+- Unit tests collected: `5609`
 - Collection command return code: `0`
-- Collection summary: `5534 tests collected`
+- Collection summary: `5609 tests collected`
 
 ## Security Baseline
 

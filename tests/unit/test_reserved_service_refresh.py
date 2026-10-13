@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
                                 'external-compose', 'untracked-compose', 'dirty-compose', 'env-compose', 'preview', 'preview-digest', 'preview-context',
                                 'tracked-compose', 'ignored-compose', 'reparse-compose', 'mismatched-project', 'preview-mismatched-project',
                                 'ancestor-context', 'ancestor-dockerfile', 'preview-ancestor-context',
-                                'ignored-context', 'preview-ignored-context', 'shell-config', 'env-config', 'preview-env-config'])
+                                'ignored-context', 'preview-ignored-context', 'shell-config', 'env-config', 'preview-env-config', 'preview-workers'])
 def test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation(tmp_path, case):
     project = tmp_path / 'other/lotus-gateway' if case in {'mismatched-project', 'preview-mismatched-project'} else tmp_path / 'lotus-gateway'
     project.mkdir(parents=True)
@@ -74,6 +74,12 @@ def test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation(tmp_path, case
         'build': {'context': str(project), 'dockerfile': 'Dockerfile', 'args': {'APP_GIT_COMMIT_SHA': revision, 'APP_GIT_BRANCH': 'main'}},
         'command': ['echo', '$$RUNTIME_VALUE'], 'environment': {'REVIEWED': 'approved'},
         'ports': [{'published': 8111}]}}}
+    if case == 'preview-workers':
+        # Evaluated Compose omits ports on workers; retain a second explicit-empty control.
+        for worker in ('compute-worker', 'lineage-worker'):
+            plan['services'].append({'repository': 'lotus-gateway', 'project': 'gateway', 'service': worker})
+            evaluated['services'][worker] = {'build': dict(evaluated['services']['lotus-gateway']['build'])}
+        evaluated['services']['lineage-worker']['ports'] = []
     plan['composeConfigDigest'] = digest(evaluated)
     evaluated_path = tmp_path / 'evaluated.json'
     evaluated_path.write_text(json.dumps(evaluated), encoding='utf-8')
@@ -99,7 +105,15 @@ function global:python {{
   if ($action -in @('begin-refresh','preview-refresh')) {{
     if ($global:case -in @('foreign','digest','preview-digest')) {{ $global:LASTEXITCODE=1; return 'CONTROLLED_ADMISSION_REFUSAL' }}
     $plan=Get-Content -LiteralPath '{plan_path}' -Raw | ConvertFrom-Json
-    return (@{{operation=@{{token='reviewed-token'; refresh=@{{plan=$plan;originalResources=@(@{{id='old';project='gateway';service='lotus-gateway'}})}}}}; bindings=@(@{{id='old';ports=@(8111)}}); scope=@{{}}}} | ConvertTo-Json -Depth 12 -Compress)
+    $resources=@(@{{id='old';project='gateway';service='lotus-gateway'}})
+    $bindings=@(@{{id='old';ports=@(8111)}})
+    if ($global:case -eq 'preview-workers') {{
+      foreach ($worker in @('compute-worker','lineage-worker')) {{
+        $resources+=@{{id=$worker;project='gateway';service=$worker}}
+        $bindings+=@{{id=$worker;ports=@()}}
+      }}
+    }}
+    return (@{{operation=@{{token='reviewed-token'; refresh=@{{plan=$plan;originalResources=$resources}}}}; bindings=$bindings; scope=@{{}}}} | ConvertTo-Json -Depth 12 -Compress)
   }}
   if ($action -eq 'prepare-refresh') {{
     if ($global:case -eq 'image-source') {{ $global:LASTEXITCODE=1; return 'CONTROLLED_SOURCE_IMAGE_REFUSAL' }}
@@ -163,24 +177,26 @@ function global:ReservedFakeDocker {{
 }}
 {"$env:COMPOSE_FILE='" + str(extra) + "'" if case == 'env-compose' else ''}
 & '{ROOT / 'automation/Service-Refresh.ps1'}' -ProjectPath '{project}' -ProjectsRoot '{tmp_path}' `
-  -Services lotus-gateway -DockerCommand ReservedFakeDocker -HealthTimeoutSeconds 0 `
+  -Services {"@('lotus-gateway','compute-worker','lineage-worker')" if case == 'preview-workers' else 'lotus-gateway'} -DockerCommand ReservedFakeDocker -HealthTimeoutSeconds 0 `
   {'' if case == 'missing' else f"-RuntimeHolder owner -RefreshPlan '{plan_path}' -RefreshPlanDigest sha256:reviewed"} `
   {f"-ComposeFiles '{extra}'" if case in {'external-compose', 'untracked-compose', 'tracked-compose', 'ignored-compose', 'reparse-compose'} else ''} {'-DryRun' if case.startswith('preview') else ''}
 """
-    shell = shutil.which('pwsh') or shutil.which('powershell')
+    shell = (shutil.which('powershell') if os.name == 'nt' and case == 'preview-workers' else None) or shutil.which('pwsh') or shutil.which('powershell')
     assert shell
     result = subprocess.run([shell, '-NoProfile', '-Command', command], text=True, capture_output=True, timeout=30)
     calls = log.read_text(encoding='utf-8-sig').splitlines() if log.exists() else []
     assert 'IO_OUTSIDE_OPERATION_FENCE' not in result.stderr
     docker = [row for row in calls if row.startswith('docker:') and ' config ' not in row]
     if case.startswith('preview'):
-        assert result.returncode == (0 if case in {'preview', 'preview-ignored-context'} else 1), result.stdout + result.stderr
+        assert result.returncode == (0 if case in {'preview', 'preview-ignored-context', 'preview-workers'} else 1), result.stdout + result.stderr
         assert docker == []
         assert 'lease:begin-refresh' not in calls and 'lease:finish-refresh' not in calls
         assert book.read_text(encoding='utf-8') == '{}'
         if case == 'preview':
             assert 'up -d --no-deps --no-build --pull never' in result.stdout
             assert 'up -d --build' not in result.stdout
+        if case == 'preview-workers':
+            assert 'up -d --no-deps --no-build --pull never compute-worker lineage-worker lotus-gateway' in result.stdout
     elif case in {'missing', 'foreign', 'digest'}:
         assert result.returncode == 1, result.stdout + result.stderr
         assert docker == []
@@ -210,3 +226,55 @@ function global:ReservedFakeDocker {{
                                 f"$f=[IO.File]::Open('{lock}','OpenOrCreate','ReadWrite','None'); $f.Dispose()"],
                                capture_output=True, text=True, timeout=15)
         assert probe.returncode == 0, probe.stderr
+
+
+@pytest.mark.parametrize('shell_name', ['powershell', 'pwsh'])
+def test_reserved_compose_port_shapes_on_native_shells(tmp_path, shell_name):
+    shell = shutil.which(shell_name)
+    if shell is None:
+        pytest.skip(f'{shell_name} is not available on this platform')
+    (tmp_path / 'Dockerfile').write_text('FROM scratch', encoding='utf-8')
+    command = f"""
+$ErrorActionPreference='Stop'
+$tokens=$null; $errors=$null
+$ast=[Management.Automation.Language.Parser]::ParseFile('{ROOT / 'automation/Service-Refresh.ps1'}',[ref]$tokens,[ref]$errors)
+if ($errors.Count) {{ throw 'Shipped adapter failed to parse' }}
+foreach ($name in @('Assert-ReviewedRepositoryPath','Assert-ReservedComposeInputs')) {{
+  $node=$ast.Find({{param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name}},$true)
+  Invoke-Expression $node.Extent.Text
+}}
+function ControlledConfig {{ $global:LASTEXITCODE=0; return $global:model | ConvertTo-Json -Depth 10 -Compress }}
+$planned=@(@{{project='performance';service='api'}},@{{project='performance';service='worker'}})
+$cases=@('omitted','empty','range','malformed','missing-publication','null-entry','api-binding-drift','worker-binding-drift')
+foreach ($case in $cases) {{
+  $global:model=@{{name='performance';services=@{{
+    api=@{{build=@{{context='{tmp_path}';dockerfile='Dockerfile'}};ports=@(@{{published='8002'}})}}
+    worker=@{{build=@{{context='{tmp_path}';dockerfile='Dockerfile'}}}}
+  }}}}
+  $bindings=@(@{{id='api-id';ports=@(8002)}},@{{id='worker-id';ports=@()}})
+  switch ($case) {{
+    'empty' {{ $global:model.services.worker.ports=@() }}
+    'range' {{ $global:model.services.worker.ports=@(@{{published='8002-8004'}}) }}
+    'malformed' {{ $global:model.services.worker.ports=@(@{{published='invalid'}}) }}
+    'missing-publication' {{ $global:model.services.worker.ports=@(@{{target=8000}}) }}
+    'null-entry' {{ $global:model.services.worker.ports=@($null) }}
+    'api-binding-drift' {{ $bindings[0].ports=@(8003) }}
+    'worker-binding-drift' {{ $bindings[1].ports=@(8004) }}
+  }}
+  $operation=@{{OriginalResources=@(@{{id='api-id';project='performance';service='api'}},@{{id='worker-id';project='performance';service='worker'}});Bindings=$bindings}}
+  $failure=$null
+  try {{ $actual=Assert-ReservedComposeInputs -Command ControlledConfig -Prefix @('compose') -Operation $operation -PlannedServices $planned -RepoPath '{tmp_path}' }}
+  catch {{ $failure=$_.Exception.Message }}
+  if ($case -in @('omitted','empty')) {{
+    if ($failure) {{ throw "$case unexpectedly refused: $failure" }}
+    if (($actual | ConvertFrom-Json).services.api.ports[0].published -ne '8002') {{ throw 'Evaluated model changed' }}
+  }} else {{
+    $expected=if ($case -like '*binding-drift') {{ 'publications differ from original bindings' }} else {{ 'requires bounded published ports' }}
+    if (-not $failure -or $failure -notlike "*$expected*") {{ throw "$case did not refuse as expected: $failure" }}
+  }}
+  Write-Output "CONTROL_PASS:$case"
+}}
+"""
+    result = subprocess.run([shell, '-NoProfile', '-Command', command], text=True, capture_output=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.count('CONTROL_PASS:') == 8
