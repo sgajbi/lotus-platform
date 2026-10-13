@@ -291,6 +291,13 @@ Use the RFC index for deeper or historical decisions.
   its shipped startup/teardown; supplier availability alone is not consumer acceptance. Carry the
   selected Workbench checkout through admission/publication; never approve a sibling while an
   overridden worktree performs I/O.
+  Incremental source/image transitions use a digest-reviewed refresh plan under that same
+  exclusive operation fence. Service-Refresh builds only selected services, verifies immutable
+  image/source metadata before replacement, and preserves untouched bindings and original expiry.
+  Source-only transitions keep actual runtime image revisions distinct from host-tool HEADs. Reserved dry-run validates admission and committed repository-owned Compose inputs under the fence without changing the book; execution re-admits independently. ProjectPath must equal the admitted project's checkout before Compose I/O, even with an independent ProjectsRoot.
+  Service plans additionally bind the full evaluated Compose model with `composeConfigDigest`; execution freezes it, retains original project-directory provenance and builds only from exact committed Git-blob snapshots. Ignored/untracked working files are excluded; symlink/submodule entries and unresolved environment/build arguments refuse. Review actual build metadata and interpolated values before digesting the plan; do not publish secret-bearing configuration.
+  Failed refreshes remain pending; ordinary finish/recovery cannot clear them. Use the runbook's
+  explicit complete/abort refresh recovery, then strict proof and teardown evidence.
   Provider-owned DPM seed execution likewise admits an operation across pre-reads and persistent
   writes. Nested startup runs in-process with its live canonical parent FileStream and explicit
   holder/workspace/selected-checkout/token unchanged. Only Enter's original stream registered to

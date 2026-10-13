@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import tempfile
@@ -14,10 +15,14 @@ from typing import Callable
 
 try:
     from automation import canonical_runtime_lease as lease
+    from automation import canonical_runtime_refresh as refresh
     from automation.canonical_runtime_inventory import observe, scope_for, paths_match_exactly
+    from automation.canonical_runtime_inventory import observe_refresh_resources, observe_prepared_images, command
 except ModuleNotFoundError:
     import canonical_runtime_lease as lease
+    import canonical_runtime_refresh as refresh
     from canonical_runtime_inventory import observe, scope_for, paths_match_exactly
+    from canonical_runtime_inventory import observe_refresh_resources, observe_prepared_images, command
 
 
 @contextmanager
@@ -88,7 +93,8 @@ def execute(args: argparse.Namespace, book: dict) -> dict:
         admitted = lease.current(book)
         lease.require(admitted is not None, "No acquired canonical reservation; unreserved resources are not yours.")
         lease.owner(admitted, args.holder, datetime.now(timezone.utc),
-                    teardown=args.action in {"preflight-teardown", "begin-teardown", "finish"})
+                    teardown=args.action in {"preflight-teardown", "begin-teardown", "finish"}
+                    or (args.action == "finish-refresh" and args.outcome == "failure"))
     admitted = lease.current(book)
     # Recovery rebinds reviewed live resources to the original reservation; it must not
     # manufacture a new source grant from checkouts that may have advanced meanwhile.
@@ -110,6 +116,39 @@ def execute(args: argparse.Namespace, book: dict) -> dict:
     now = datetime.now(timezone.utc)
     common = {"holder": args.holder, "scope": scope, "bindings": inventory, "now": now}
     receipt = json.loads(Path(args.handover_receipt).read_text(encoding="utf-8-sig")) if args.handover_receipt else None
+    if args.action in {"preview-refresh", "begin-refresh", "preflight-refresh", "prepare-refresh", "finish-refresh", "recover-refresh"}:
+        plan_path = getattr(args, "refresh_plan", None)
+        if args.action in {"preview-refresh", "begin-refresh"}:
+            lease.require(plan_path and getattr(args, "refresh_plan_digest", ""), "Reviewed refresh plan and digest required.")
+            plan = json.loads(Path(plan_path).read_text(encoding="utf-8-sig"))
+            refresh.validate_plan(admitted, plan, args.refresh_plan_digest)
+        else:
+            lease.require(admitted["operation"] is not None and "refresh" in admitted["operation"], "No pending refresh operation.")
+            plan = admitted["operation"]["refresh"]["plan"]
+        for repository in set(plan["repositoryChanges"]) | {item["repository"] for item in plan["services"]}:
+            checkout = workbench if repository == "lotus-workbench" else root / repository
+            lease.require(not command(["git", "status", "--porcelain"], checkout).strip(), "Refresh sources must be clean committed inputs.")
+        for service in plan["services"]:
+            checkout = workbench if service["repository"] == "lotus-workbench" else root / service["repository"]
+            lease.require(paths_match_exactly(plan["targetScope"]["projects"][service["project"]], str(checkout)),
+                          "Planned service repository does not own its project checkout.")
+        resources = observe_refresh_resources(scope, inventory)
+        common["resources"] = resources
+        if args.action in {"preview-refresh", "begin-refresh"}:
+            # Exercise identical admission against a copy; preview grants no durable token.
+            target = copy.deepcopy(book) if args.action == "preview-refresh" else book
+            return refresh.begin(target, **common, plan=plan, plan_digest=args.refresh_plan_digest, token=str(uuid.uuid4()))
+        common["token"] = args.operation_token
+        if args.action == "preflight-refresh":
+            return refresh.preflight(book, **common)
+        if args.action == "prepare-refresh":
+            lease.require(getattr(args, "prepared_images", None), "Prepared image references required.")
+            references = json.loads(Path(args.prepared_images).read_text(encoding="utf-8-sig"))
+            return refresh.prepare(book, **common, images=observe_prepared_images(references))
+        if args.action == "finish-refresh":
+            return refresh.finish(book, **common, outcome=args.outcome)
+        common.pop("token")
+        return refresh.recover(book, **common, receipt=receipt)
     if args.action == "status":
         return {"current": lease.current(book), "scope": scope, "scopeDigest": lease.digest(scope),
                 "bindings": inventory, "bindingsDigest": lease.digest(inventory)}
@@ -131,7 +170,8 @@ def execute(args: argparse.Namespace, book: dict) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["status", "acquire", "reclaim", "preflight", "preflight-teardown", "preflight-operation", "begin-change",
-                                         "begin-teardown", "finish", "recover"])
+                                         "begin-teardown", "finish", "recover", "begin-refresh", "preflight-refresh",
+                                         "prepare-refresh", "finish-refresh", "recover-refresh", "preview-refresh"])
     parser.add_argument("--projects-root", required=True)
     parser.add_argument("--workbench-repo-path", default="")
     parser.add_argument("--runtime-mode", choices=["full", "core-manage"], default="full")
@@ -140,13 +180,16 @@ def main() -> int:
     parser.add_argument("--expiry-utc", default="")
     parser.add_argument("--handover-receipt")
     parser.add_argument("--operation-token", default="")
+    parser.add_argument("--refresh-plan")
+    parser.add_argument("--refresh-plan-digest", default="")
+    parser.add_argument("--prepared-images")
     parser.add_argument("--outcome", choices=["success", "failure"], default="failure")
     args = parser.parse_args()
     path = Path(args.projects_root).resolve() / "lotus-platform/output/canonical-runtime/reservations.v1.json"
     try:
         result = guarded_transact(path, lambda book: execute(args, book),
-                                  write=args.action not in {"status", "preflight", "preflight-teardown", "preflight-operation"},
-                                  recovery=args.action in {"recover", "reclaim"})
+                                  write=args.action not in {"status", "preflight", "preflight-teardown", "preflight-operation", "preflight-refresh", "preview-refresh"},
+                                  recovery=args.action in {"recover", "reclaim", "recover-refresh"})
         print(json.dumps(result, indent=2, sort_keys=True))
         if args.action == "finish" and args.outcome == "success" and result["state"] == "active":
             if result["events"][-1]["operationAction"] == "teardown":

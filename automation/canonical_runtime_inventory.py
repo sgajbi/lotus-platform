@@ -249,3 +249,46 @@ ConvertTo-Json -InputObject $rows -Compress
     bindings.sort(key=lambda item: (item["kind"], item["id"]))
     validate_bindings(bindings, scope)
     return bindings
+
+
+def image_source(item: dict) -> dict:
+    """Record immutable image ID and explicit source labels; blank is unqualified."""
+    labels = item.get("Config", {}).get("Labels") or {}
+    return {"imageId": item["Id"], "sourceRevision": labels.get("org.opencontainers.image.revision", ""),
+            "repository": labels.get("org.opencontainers.image.source", ""),
+            "checkout": normalize_docker_path(labels.get("com.lotus.repository.checkout", ""))}
+
+
+def observe_refresh_resources(scope: dict, bindings: list) -> list:
+    ids = [item["id"] for item in bindings if item["kind"] == "container"]
+    containers = json.loads(command(["docker", "inspect", *ids])) if ids else []
+    selected = select_containers(containers, scope)
+    if selected != [item for item in bindings if item["kind"] == "container"]:
+        raise ReservationRefusal("Container inventory changed during refresh observation.")
+    result = []
+    for container in containers:
+        images = json.loads(command(["docker", "image", "inspect", container["Image"]]))
+        if len(images) != 1 or images[0]["Id"] != container["Image"]:
+            raise ReservationRefusal("Immutable runtime image observation changed.")
+        labels = container.get("Config", {}).get("Labels") or {}
+        binding = next(item for item in bindings if item["id"] == container["Id"])
+        result.append({"id": container["Id"], "project": binding["project"],
+                       "service": labels.get("com.docker.compose.service", ""),
+                       **image_source(images[0]), "checkout": binding["checkout"]})
+    return sorted(result, key=lambda item: item["id"])
+
+
+def observe_prepared_images(references: list) -> list:
+    if not isinstance(references, list):
+        raise ReservationRefusal("Explicit prepared image references required.")
+    result = []
+    for reference in references:
+        if not isinstance(reference, dict) or set(reference) != {"project", "service", "reference"}:
+            raise ReservationRefusal("Malformed prepared image reference.")
+        if not all(isinstance(value, str) and value.strip() for value in reference.values()):
+            raise ReservationRefusal("Nonblank prepared image reference required.")
+        images = json.loads(command(["docker", "image", "inspect", reference["reference"]]))
+        if len(images) != 1:
+            raise ReservationRefusal("One immutable prepared image required per service.")
+        result.append({"project": reference["project"], "service": reference["service"], **image_source(images[0])})
+    return result

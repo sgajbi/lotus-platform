@@ -410,7 +410,7 @@ def test_authoritative_contract_matches_executable_fields_and_boundaries():
     assert contract["implementationOwner"] == "lotus-platform"
     assert contract["consumerOwner"] == "lotus-workbench"
     assert "zero canonical" in contract["release"]
-    assert contract["version"] == "1.1.0"
+    assert contract["version"] == "1.3.0"
     assert contract["scope"]["modes"] == ["full", "core-manage"]
     assert "registered by Enter" in contract["nestedConsumer"]
 
