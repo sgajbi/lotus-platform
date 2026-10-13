@@ -12,13 +12,19 @@ function Invoke-CanonicalReservation {
     [string]$Holder,
     [ValidateSet('full', 'core-manage')][string]$RuntimeMode = 'full',
     [string]$OperationToken,
-    [ValidateSet('success', 'failure')][string]$Outcome = 'failure'
+    [ValidateSet('success', 'failure')][string]$Outcome = 'failure',
+    [string]$RefreshPlan,
+    [string]$RefreshPlanDigest,
+    [string]$PreparedImages
   )
   $arguments = @($reservationScript, $Action, '--projects-root', $ProjectsRoot)
   $arguments += @('--runtime-mode', $RuntimeMode)
   if ($WorkbenchRepoPath) { $arguments += @('--workbench-repo-path', $WorkbenchRepoPath) }
   if (-not [string]::IsNullOrWhiteSpace($Holder)) { $arguments += @('--holder', $Holder) }
   if ($OperationToken) { $arguments += @('--operation-token', $OperationToken) }
+  if ($RefreshPlan) { $arguments += @('--refresh-plan', $RefreshPlan) }
+  if ($RefreshPlanDigest) { $arguments += @('--refresh-plan-digest', $RefreshPlanDigest) }
+  if ($PreparedImages) { $arguments += @('--prepared-images', $PreparedImages) }
   $arguments += @('--outcome', $Outcome)
   $global:LASTEXITCODE = 0
   $json = & python @arguments
@@ -34,7 +40,10 @@ function Enter-CanonicalRuntimeOperation {
     [string]$WorkbenchRepoPath,
     [string]$Holder,
     [ValidateSet('full', 'core-manage')][string]$RuntimeMode = 'full',
-    [ValidateSet('change', 'teardown')][string]$Action = 'change'
+    [ValidateSet('change', 'teardown', 'refresh')][string]$Action = 'change',
+    [switch]$Preview,
+    [string]$RefreshPlan,
+    [string]$RefreshPlanDigest
   )
   if ([string]::IsNullOrWhiteSpace($Holder)) {
     throw 'Explicit RuntimeHolder is required; acquire a reservation before changing resources.'
@@ -44,11 +53,16 @@ function Enter-CanonicalRuntimeOperation {
   $path = Join-Path $directory 'operation.lock'
   $stream = [System.IO.File]::Open($path, 'OpenOrCreate', 'ReadWrite', 'None')
   try {
-    $record = Invoke-CanonicalReservation -Action "begin-$Action" -ProjectsRoot $ProjectsRoot -Holder $Holder -WorkbenchRepoPath $WorkbenchRepoPath -RuntimeMode $RuntimeMode
+    if ($Preview -and $Action -ne 'refresh') { throw 'Only refresh supports read-only preview.' }
+    $admissionAction = if ($Preview) { 'preview-refresh' } else { "begin-$Action" }
+    $record = Invoke-CanonicalReservation -Action $admissionAction -ProjectsRoot $ProjectsRoot -Holder $Holder -WorkbenchRepoPath $WorkbenchRepoPath -RuntimeMode $RuntimeMode -RefreshPlan $RefreshPlan -RefreshPlanDigest $RefreshPlanDigest
     $operationFences[$record.operation.token] = $stream
     return [pscustomobject]@{
       ProjectsRoot = $ProjectsRoot; WorkbenchRepoPath = $WorkbenchRepoPath; Holder = $Holder; Token = $record.operation.token
-      Bindings = @($record.bindings); Lock = $stream; RuntimeMode = $RuntimeMode; Scope = $record.scope
+      Preview = [bool]$Preview
+      Bindings = @($record.bindings); Lock = $stream; RuntimeMode = $RuntimeMode; Scope = $record.scope; Action = $Action
+      RefreshPlan = if ($Action -eq 'refresh') { $record.operation.refresh.plan } else { $null }
+      OriginalResources = if ($Action -eq 'refresh') { @($record.operation.refresh.originalResources) } else { @() }
     }
   } catch {
     $stream.Dispose()
@@ -76,7 +90,12 @@ function Exit-CanonicalRuntimeOperation {
   $incomingNativeStatus = $LASTEXITCODE
   $mode = if ($Operation.RuntimeMode) { $Operation.RuntimeMode } else { 'full' }
   try {
-    Invoke-CanonicalReservation -Action finish -ProjectsRoot $Operation.ProjectsRoot `
+    if ($Operation.Preview) { return }
+    if ($Operation.Action -eq 'refresh') {
+      Assert-CanonicalRuntimeOperationFence -ProjectsRoot $Operation.ProjectsRoot -OperationToken $Operation.Token -Fence $Operation.Lock
+    }
+    $finishAction = if ($Operation.Action -eq 'refresh') { 'finish-refresh' } else { 'finish' }
+    Invoke-CanonicalReservation -Action $finishAction -ProjectsRoot $Operation.ProjectsRoot `
       -Holder $Operation.Holder -OperationToken $Operation.Token -Outcome $Outcome `
       -WorkbenchRepoPath $Operation.WorkbenchRepoPath -RuntimeMode $mode | Out-Host
   } finally {
@@ -90,4 +109,27 @@ function Exit-CanonicalRuntimeOperation {
   }
 }
 
-Export-ModuleMember -Function Invoke-CanonicalReservation, Enter-CanonicalRuntimeOperation, Assert-CanonicalRuntimeOperationFence, Exit-CanonicalRuntimeOperation
+function Enter-CanonicalRuntimeRefresh {
+  param(
+    [Parameter(Mandatory)][string]$ProjectsRoot,
+    [Parameter(Mandatory)][string]$Holder,
+    [Parameter(Mandatory)][string]$RefreshPlan,
+    [Parameter(Mandatory)][string]$RefreshPlanDigest,
+    [switch]$Preview,
+    [string]$WorkbenchRepoPath,
+    [ValidateSet('full', 'core-manage')][string]$RuntimeMode = 'full'
+  )
+  Enter-CanonicalRuntimeOperation @PSBoundParameters -Action refresh
+}
+
+function Assert-CanonicalRuntimeRefresh {
+  param([Parameter(Mandatory)]$Operation, [string]$PreparedImages)
+  Assert-CanonicalRuntimeOperationFence -ProjectsRoot $Operation.ProjectsRoot -OperationToken $Operation.Token -Fence $Operation.Lock
+  if ($Operation.Action -ne 'refresh') { throw 'A refresh operation is required.' }
+  $action = if ($PreparedImages) { 'prepare-refresh' } else { 'preflight-refresh' }
+  Invoke-CanonicalReservation -Action $action -ProjectsRoot $Operation.ProjectsRoot -Holder $Operation.Holder `
+    -OperationToken $Operation.Token -WorkbenchRepoPath $Operation.WorkbenchRepoPath `
+    -RuntimeMode $Operation.RuntimeMode -PreparedImages $PreparedImages
+}
+
+Export-ModuleMember -Function Invoke-CanonicalReservation, Enter-CanonicalRuntimeOperation, Assert-CanonicalRuntimeOperationFence, Exit-CanonicalRuntimeOperation, Enter-CanonicalRuntimeRefresh, Assert-CanonicalRuntimeRefresh

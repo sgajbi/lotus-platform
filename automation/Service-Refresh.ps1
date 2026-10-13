@@ -6,6 +6,13 @@ param(
   [string]$BaseRef = "origin/main",
   [string]$MapPath = "automation/service-map.json",
   [string]$DockerCommand = "docker",
+  [string]$ProjectsRoot,
+  [string]$WorkbenchRepoPath,
+  [string]$RuntimeHolder,
+  [ValidateSet('full', 'core-manage')][string]$RuntimeMode = 'full',
+  [string]$RefreshPlan,
+  [string]$RefreshPlanDigest,
+  [string[]]$ComposeFiles,
   [switch]$IncludeUncommitted = $true,
   [ValidateRange(0, 600)][int]$HealthTimeoutSeconds = 60,
   [ValidateRange(1, 30)][int]$HealthPollIntervalSeconds = 2,
@@ -160,10 +167,11 @@ function Get-ServiceVerification {
 function Get-ComposeServiceStates {
   param(
     [Parameter(Mandatory = $true)][string]$Command,
-    [Parameter(Mandatory = $true)][string[]]$ServiceNames
+    [Parameter(Mandatory = $true)][string[]]$ServiceNames,
+    [string[]]$ComposePrefix = @('compose')
   )
 
-  $arguments = @('compose', 'ps', '--format', 'json') + $ServiceNames
+  $arguments = $ComposePrefix + @('ps', '--format', 'json') + $ServiceNames
   $stdoutPath = [IO.Path]::GetTempFileName()
   $stderrPath = [IO.Path]::GetTempFileName()
   try {
@@ -255,12 +263,13 @@ function Wait-ComposeServiceReadiness {
     [Parameter(Mandatory = $true)][string[]]$ServiceNames,
     [Parameter(Mandatory = $true)][object]$RepositoryConfig,
     [int]$TimeoutSeconds,
-    [int]$PollIntervalSeconds
+    [int]$PollIntervalSeconds,
+    [string[]]$ComposePrefix = @('compose')
   )
 
   $deadline = [DateTimeOffset]::UtcNow.AddSeconds($TimeoutSeconds)
   do {
-    $states = Get-ComposeServiceStates -Command $Command -ServiceNames $ServiceNames
+    $states = Get-ComposeServiceStates -Command $Command -ServiceNames $ServiceNames -ComposePrefix $ComposePrefix
     $failures = @(Get-ServiceReadinessFailures -States $states -ServiceNames $ServiceNames -RepositoryConfig $RepositoryConfig)
     if ($failures.Count -eq 0) {
       Write-Host "Verified service readiness: $($ServiceNames -join ', ')"
@@ -288,6 +297,68 @@ function Invoke-CheckedNativeCommand {
   if ($exitCode -ne 0) {
     throw "$FailureMessage (exit code $exitCode): $Command $($Arguments -join ' ')"
   }
+}
+
+function Assert-ReviewedRepositoryPath {
+  param([string]$Path, [string]$RepoPath, [switch]$AllowRoot)
+  $root = [IO.Path]::GetFullPath($RepoPath).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+  $fullPath = [IO.Path]::GetFullPath($Path)
+  $comparison = if ([Environment]::OSVersion.Platform -eq 'Win32NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+  if (-not ($AllowRoot -and $fullPath.Equals($root, $comparison)) -and
+      -not $fullPath.StartsWith($root + [IO.Path]::DirectorySeparatorChar, $comparison)) {
+    throw 'Reserved input is outside its reviewed repository.'
+  }
+  $item = Get-Item -LiteralPath $fullPath -Force
+  while ($item) {
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Reserved input cannot redirect through a reparse point or ancestor.' }
+    if ($item.FullName.Equals($root, $comparison)) { break }
+    $item = if ($item -is [IO.DirectoryInfo]) { $item.Parent } else { $item.Directory }
+  }
+}
+
+function Assert-ReservedComposeInputs {
+  param([string]$Command, [string[]]$Prefix, $Operation, [object[]]$PlannedServices, [string]$RepoPath)
+  # Evaluated Compose may include secrets; inspect in memory and suppress its error payload.
+  $diagnostics = [IO.Path]::GetTempFileName()
+  try {
+    $configText = & $Command @Prefix config --format json 2> $diagnostics
+    if ($LASTEXITCODE -ne 0) { throw 'Reserved Compose configuration inspection failed.' }
+    $config = ($configText -join "`n") | ConvertFrom-Json
+  } finally { Remove-Item -LiteralPath $diagnostics -Force -ErrorAction SilentlyContinue }
+  if ($config.name -ne $PlannedServices[0].project) { throw 'Compose project differs from reviewed project.' }
+  foreach ($planned in $PlannedServices) {
+    $service = $config.services.($planned.service)
+    if (-not $service -or -not $service.build -or $service.build.additional_contexts -or $service.build.dockerfile_inline) {
+      throw 'Reserved build requires a local owned context and Dockerfile without additional contexts.'
+    }
+    $context = [IO.Path]::GetFullPath([string]$service.build.context)
+    $dockerfile = if ($service.build.dockerfile) { [string]$service.build.dockerfile } else { 'Dockerfile' }
+    if (-not [IO.Path]::IsPathRooted($dockerfile)) { $dockerfile = Join-Path $context $dockerfile }
+    foreach ($path in @($context, [IO.Path]::GetFullPath($dockerfile))) {
+      Assert-ReviewedRepositoryPath -Path $path -RepoPath $RepoPath -AllowRoot
+    }
+    $actualPorts = @($service.ports | ForEach-Object {
+      if ([string]$_.published -notmatch '^[0-9]+$') { throw 'Reserved refresh requires bounded published ports.' }
+      [int]$_.published
+    } | Sort-Object -Unique)
+    $resourceIds = @($Operation.OriginalResources | Where-Object { $_.project -eq $planned.project -and $_.service -eq $planned.service } | ForEach-Object { $_.id })
+    $originalPorts = @($Operation.Bindings | Where-Object { $_.id -in $resourceIds } | ForEach-Object { $_.ports } | Sort-Object -Unique)
+    if (($actualPorts -join ',') -ne ($originalPorts -join ',')) { throw 'Reserved Compose service publications differ from original bindings.' }
+  }
+  return $configText -join "`n"
+}
+
+function Resolve-ReviewedComposeFile {
+  param([string]$File, [string]$RepoPath)
+  $root = [IO.Path]::GetFullPath($RepoPath).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+  $path = (Resolve-Path -LiteralPath $File).Path
+  Assert-ReviewedRepositoryPath -Path $path -RepoPath $RepoPath
+  $relative = $path.Substring($root.Length + 1).Replace('\', '/')
+  & git -C $root ls-files --error-unmatch -- $relative *> $null
+  if ($LASTEXITCODE -ne 0) { throw 'Reserved Compose files must be tracked reviewed inputs.' }
+  & git -C $root diff --quiet HEAD -- $relative
+  if ($LASTEXITCODE -ne 0) { throw 'Reserved Compose files must match the reviewed commit.' }
+  return $path
 }
 
 if (-not (Test-Path $ProjectPath)) {
@@ -323,6 +394,25 @@ if ($Services -and $Services.Count -gt 0) {
 }
 
 $resolvedServices = $resolvedServices | Sort-Object -Unique
+$ProjectPath = (Resolve-Path -LiteralPath $ProjectPath).Path
+if (-not $ProjectsRoot) { $ProjectsRoot = Split-Path -Parent $ProjectPath }
+$bookPath = Join-Path $ProjectsRoot 'lotus-platform/output/canonical-runtime/reservations.v1.json'
+$reservedRefresh = (Test-Path -LiteralPath $bookPath) -or $RefreshPlan -or $RuntimeHolder -or $RefreshPlanDigest
+if ($reservedRefresh) {
+  if (-not $RuntimeHolder -or -not $RefreshPlan -or -not $RefreshPlanDigest) {
+    throw 'Canonical reservation requires RuntimeHolder, RefreshPlan and reviewed RefreshPlanDigest before service mutation.'
+  }
+  $RefreshPlan = (Resolve-Path -LiteralPath $RefreshPlan).Path
+  $reviewedPlan = Get-Content -LiteralPath $RefreshPlan -Raw | ConvertFrom-Json
+  $plannedServices = @($reviewedPlan.services)
+  $repoName = [string]$repositoryConfig.name
+  if ($plannedServices.Count -ne @($resolvedServices).Count -or
+      @($plannedServices | Where-Object { $_.repository -ne $repoName -or $_.service -notin $resolvedServices }).Count -gt 0 -or
+      @($plannedServices.project | Sort-Object -Unique).Count -ne 1) {
+    throw 'This refresh must match exactly one reviewed repository/project and its complete service allowlist.'
+  }
+  if (-not $Build) { throw 'Reserved service refresh requires a fenced build before image replacement.' }
+}
 Write-Host "Refreshing services: $($resolvedServices -join ', ')"
 if ($composeEnvironment.Count -gt 0) {
   Write-Host "Governed Compose environment:"
@@ -337,7 +427,7 @@ if ($Build) {
 }
 $composeArgs += $resolvedServices
 
-if ($DryRun) {
+if ($DryRun -and -not $reservedRefresh) {
   Write-Host "Dry run: $DockerCommand $($composeArgs -join ' ')"
   foreach ($service in $resolvedServices) {
     $verification = Get-ServiceVerification -RepositoryConfig $repositoryConfig -Service $service
@@ -360,7 +450,97 @@ foreach ($name in $composeEnvironment.Keys) {
 }
 
 Push-Location $ProjectPath
+$operation = $null
+$refreshOutcome = 'failure'
+$temporaryFiles = @()
+$snapshotRoot = $null
+$composePrefix = @('compose')
 try {
+  if ($reservedRefresh) {
+    Import-Module (Join-Path $PSScriptRoot 'CanonicalRuntimeReservation.psm1') -Force
+    $operation = Enter-CanonicalRuntimeRefresh -ProjectsRoot $ProjectsRoot -Holder $RuntimeHolder `
+      -WorkbenchRepoPath $WorkbenchRepoPath -RuntimeMode $RuntimeMode -RefreshPlan $RefreshPlan -RefreshPlanDigest $RefreshPlanDigest -Preview:$DryRun
+    $reviewedPlan = $operation.RefreshPlan
+    $plannedServices = @($reviewedPlan.services)
+    if (@($plannedServices.service | Sort-Object -Unique).Count -ne @($resolvedServices).Count -or
+        @($plannedServices | Where-Object { $_.repository -ne $repoName -or $_.service -notin $resolvedServices }).Count -gt 0 -or
+        @($plannedServices.project | Sort-Object -Unique).Count -ne 1) {
+      throw 'Admitted plan differs from the selected repository/project/services.'
+    }
+    # Compose receives only the reviewed project and explicit files. Unique image tags prevent
+    # a build from moving the image tag of an untouched service in this project.
+    $project = [string]$plannedServices[0].project
+    $admittedCheckout = [IO.Path]::GetFullPath([string]$reviewedPlan.targetScope.projects.($project)).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+    $selectedCheckout = [IO.Path]::GetFullPath($ProjectPath).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+    $pathComparison = if ([Environment]::OSVersion.Platform -eq 'Win32NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    if (-not $selectedCheckout.Equals($admittedCheckout, $pathComparison)) {
+      throw 'ProjectPath differs from the checkout admitted for the reviewed Compose project.'
+    }
+    $composePrefix += @('-p', $project)
+    if (-not $ComposeFiles) {
+      if ($env:COMPOSE_FILE) {
+        $separator = if ($env:COMPOSE_PATH_SEPARATOR) { $env:COMPOSE_PATH_SEPARATOR } else { [IO.Path]::PathSeparator }
+        $ComposeFiles = $env:COMPOSE_FILE -split [regex]::Escape([string]$separator)
+      } else {
+        $baseFile = @('compose.yaml', 'compose.yml', 'docker-compose.yml', 'docker-compose.yaml') |
+          Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+        if (-not $baseFile) { throw 'No Compose file found; pass ComposeFiles explicitly.' }
+        $ComposeFiles = @($baseFile)
+        $overrideNames = if ($baseFile.StartsWith('docker-compose')) { @('docker-compose.override.yml', 'docker-compose.override.yaml') } else { @('compose.override.yaml', 'compose.override.yml') }
+        $defaultOverride = $overrideNames | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+        if ($defaultOverride) { $ComposeFiles += $defaultOverride }
+      }
+    }
+    foreach ($file in $ComposeFiles) { $composePrefix += @('-f', (Resolve-ReviewedComposeFile -File $file -RepoPath $ProjectPath)) }
+    if (-not $DryRun) { Assert-CanonicalRuntimeRefresh -Operation $operation | Out-Null }
+    $configText = Assert-ReservedComposeInputs -Command $DockerCommand -Prefix $composePrefix -Operation $operation -PlannedServices $plannedServices -RepoPath $ProjectPath
+    $snapshotRoot = Join-Path ([IO.Path]::GetTempPath()) ('lotus-refresh-' + [guid]::NewGuid().ToString('N'))
+    [void][IO.Directory]::CreateDirectory($snapshotRoot)
+    $configPath = Join-Path $snapshotRoot 'evaluated.json'
+    $emptyEnvironment = Join-Path $snapshotRoot 'empty.env'
+    [IO.File]::WriteAllText($configPath, $configText)
+    [IO.File]::WriteAllText($emptyEnvironment, '')
+    & python (Join-Path $PSScriptRoot 'canonical_refresh_inputs.py') freeze --config $configPath --repo $ProjectPath `
+      --revision $reviewedPlan.targetScope.sources.($repoName) --digest $reviewedPlan.composeConfigDigest `
+      --output $snapshotRoot --services $resolvedServices 2> $null
+    if ($LASTEXITCODE -ne 0) { throw 'Reviewed Compose digest or committed build snapshot validation failed.' }
+    $composePrefix = @('compose', '--project-directory', $ProjectPath, '--env-file', $emptyEnvironment, '-p', $project, '-f', (Join-Path $snapshotRoot 'compose.json'))
+    $overridePath = [IO.Path]::GetTempFileName()
+    $referencesPath = [IO.Path]::GetTempFileName()
+    $temporaryFiles += @($overridePath, $referencesPath)
+    $overrideServices = [ordered]@{}
+    $references = @()
+    foreach ($service in $plannedServices) {
+      if ($service.service -notmatch '^[a-zA-Z0-9][a-zA-Z0-9_.-]*$') { throw 'Invalid reviewed Compose service name.' }
+      $tag = "lotus-reserved-refresh:$($operation.Token)-$($service.service)".ToLowerInvariant()
+      $labels = [ordered]@{
+        'org.opencontainers.image.revision' = $reviewedPlan.targetScope.sources.($service.repository)
+        'org.opencontainers.image.source' = $service.repository
+        'com.lotus.repository.checkout' = $reviewedPlan.targetScope.projects.($service.project)
+      }
+      $overrideServices[$service.service] = @{ image = $tag; build = @{ labels = $labels } }
+      $references += @{ project = $project; service = $service.service; reference = $tag }
+    }
+    [IO.File]::WriteAllText($overridePath, (@{ services = $overrideServices } | ConvertTo-Json -Depth 12))
+    [IO.File]::WriteAllText($referencesPath, (ConvertTo-Json -InputObject @($references) -Depth 5))
+    $composePrefix += @('-f', $overridePath)
+    if ($DryRun) {
+      Write-Host "Dry run validated reviewed plan $RefreshPlanDigest; reservation unchanged."
+      Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') build $($resolvedServices -join ' ')"
+      Write-Host 'After build: verify source labels and pin each selected image to its observed immutable ID.'
+      Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') up -d --no-deps --no-build --pull never $($resolvedServices -join ' ')"
+      return
+    }
+    Invoke-CheckedNativeCommand -Command $DockerCommand -Arguments ($composePrefix + @('build') + $resolvedServices) `
+      -FailureMessage 'Reserved build failed before service replacement'
+    $prepared = Assert-CanonicalRuntimeRefresh -Operation $operation -PreparedImages $referencesPath
+    foreach ($image in $prepared.operation.refresh.preparedImages) {
+      $overrideServices[$image.service].image = $image.imageId
+    }
+    [IO.File]::WriteAllText($overridePath, (@{ services = $overrideServices } | ConvertTo-Json -Depth 12))
+    Assert-CanonicalRuntimeRefresh -Operation $operation | Out-Null
+    $composeArgs = $composePrefix + @('up', '-d', '--no-deps', '--no-build', '--pull', 'never') + $resolvedServices
+  }
   Invoke-CheckedNativeCommand `
     -Command $DockerCommand `
     -Arguments $composeArgs `
@@ -370,11 +550,24 @@ try {
     -ServiceNames $resolvedServices `
     -RepositoryConfig $repositoryConfig `
     -TimeoutSeconds $HealthTimeoutSeconds `
-    -PollIntervalSeconds $HealthPollIntervalSeconds
+    -PollIntervalSeconds $HealthPollIntervalSeconds `
+    -ComposePrefix $composePrefix
+  $refreshOutcome = 'success'
 } finally {
-  Pop-Location
-  foreach ($name in $composeEnvironment.Keys) {
-    [Environment]::SetEnvironmentVariable($name, $originalEnvironment[$name], 'Process')
+  try {
+    if ($operation) { Exit-CanonicalRuntimeOperation -Operation $operation -Outcome $refreshOutcome }
+  } finally {
+    foreach ($file in $temporaryFiles) { Remove-Item -LiteralPath $file -Force -ErrorAction SilentlyContinue }
+    if ($snapshotRoot) {
+      $resolvedSnapshot = [IO.Path]::GetFullPath($snapshotRoot)
+      $tempPrefix = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar + 'lotus-refresh-'
+      if (-not $resolvedSnapshot.StartsWith($tempPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected refresh snapshot cleanup path.' }
+      Remove-Item -LiteralPath $resolvedSnapshot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Pop-Location
+    foreach ($name in $composeEnvironment.Keys) {
+      [Environment]::SetEnvironmentVariable($name, $originalEnvironment[$name], 'Process')
+    }
   }
 }
 

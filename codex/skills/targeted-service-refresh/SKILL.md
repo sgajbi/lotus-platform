@@ -28,6 +28,29 @@ powershell -ExecutionPolicy Bypass -File automation\Service-Refresh.ps1 -Project
 
 ## Failure Semantics
 
+For a shared canonical workspace, first inspect the original reservation and follow
+`lotus-platform/docs/operations/canonical-runtime-reservation.md#reviewed-incremental-refresh`.
+Pass explicit `-ProjectsRoot`, `-RuntimeHolder`, `-RefreshPlan` and `-RefreshPlanDigest` to
+Service-Refresh (plus the acquired Workbench path/runtime mode when overridden). Review the
+exact old/new source vector and repository/project/service allowlist; never auto-acquire or
+substitute a new lease. The command holds the existing operation fence through selective build,
+immutable image/source verification, pinned replacement and health/port checks. It disables
+dependency replacement and preserves untouched resource identities. Changed/rebuilt sources
+must be clean committed inputs. The plan's full service list must fit one repository/project.
+Service plans require `composeConfigDigest` for the full evaluated Compose model before generated
+overrides. Review actual interpolation/build metadata, publish only the digest, and follow the
+runbook capture command. Execution freezes that model with original project-directory provenance
+and uses committed Git-blob build snapshots, excluding ignored/untracked bytes. Symlink/submodule
+entries and unresolved environment/build arguments refuse; do not bypass these checks with labels.
+Use the adapter's source-only transition for host-tool changes; retain actual runtime image
+revisions rather than claiming the older images were rebuilt.
+
+An interrupted or failed reserved refresh stays pending under the original reservation.
+Ordinary finish/proof/recovery cannot clear it. Use an explicit reviewed refresh recovery
+receipt to complete the exact prepared transition or abort after exact original restoration.
+Do not blindly rerun, regrant, or claim live acceptance from hermetic tests. The coordinating
+owner must capture bounded live refresh, strict proof and teardown evidence.
+
 `Service-Refresh.ps1` fails closed when Docker rejects `compose up` or when `docker compose ps`
 cannot prove the selected services are running with their governed health and published-port
 posture. Treat any non-zero exit as failed runtime evidence: inspect the Docker error, correct the
@@ -40,6 +63,8 @@ Manage, the output must show host port `8001`, its canonical DPM/Core source set
 publication `8001:8000`; do not recreate Manage from an ad hoc shell that omits this posture.
 
 ## Rules
+
+- Reserved `-DryRun` validates the reviewed plan and Compose inputs under the operation fence without changing the book. Require ProjectPath to equal the admitted project checkout, and all explicit, environment-selected and default Compose files to be committed inputs there; another same-named checkout, external or mutable overrides refuse. Compose/build context/Dockerfile paths reject reparse points on every ancestor within the checkout. Preview grants no durable admission.
 
 - Prefer `-ChangedOnly` first.
 - Do not restart full stack unless explicitly requested.

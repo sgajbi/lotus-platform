@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 427,
     "powershell_file_count": 70,
-    "python_file_count": 278,
-    "source_file_count": 1009,
+    "python_file_count": 283,
+    "source_file_count": 1014,
     "suffix_counts": {
       ".json": 181,
       ".md": 427,
       ".ps1": 70,
-      ".py": 278,
+      ".py": 283,
       ".txt": 10,
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 427258
+    "total_source_lines": 428908
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -99,11 +99,27 @@
       },
       {
         "complexity": 35,
+        "end_line": 167,
+        "line": 86,
+        "lines": 82,
+        "name": "execute",
+        "path": "automation/canonical_runtime_reservation.py"
+      },
+      {
+        "complexity": 35,
         "end_line": 156,
         "line": 82,
         "lines": 75,
         "name": "validate_policy_document",
         "path": "automation/check_branch_protection_policy.py"
+      },
+      {
+        "complexity": 34,
+        "end_line": 212,
+        "line": 23,
+        "lines": 190,
+        "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
+        "path": "tests/unit/test_reserved_service_refresh.py"
       },
       {
         "complexity": 34,
@@ -154,6 +170,14 @@
         "path": "automation/resource_recovery/archive_verification.py"
       },
       {
+        "complexity": 25,
+        "end_line": 61,
+        "line": 15,
+        "lines": 47,
+        "name": "validate_plan",
+        "path": "automation/canonical_runtime_refresh.py"
+      },
+      {
         "complexity": 24,
         "end_line": 321,
         "line": 250,
@@ -168,30 +192,6 @@
         "lines": 106,
         "name": "resolve_principal",
         "path": "automation/verify_principal_credential.py"
-      },
-      {
-        "complexity": 22,
-        "end_line": 560,
-        "line": 492,
-        "lines": 69,
-        "name": "blocking_workflow_invocations",
-        "path": "automation/gate_liveness_audit.py"
-      },
-      {
-        "complexity": 22,
-        "end_line": 272,
-        "line": 204,
-        "lines": 69,
-        "name": "fetch_all",
-        "path": "codex/skills/gh-address-comments/scripts/fetch_comments.py"
-      },
-      {
-        "complexity": 22,
-        "end_line": 217,
-        "line": 186,
-        "lines": 32,
-        "name": "_directory_inline_link_end",
-        "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py"
       }
     ],
     "largest_functions": [
@@ -324,6 +324,14 @@
         "path": "tests/unit/test_resource_only_recovery.py"
       },
       {
+        "complexity": 34,
+        "end_line": 212,
+        "line": 23,
+        "lines": 190,
+        "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
+        "path": "tests/unit/test_reserved_service_refresh.py"
+      },
+      {
         "complexity": 31,
         "end_line": 437,
         "line": 259,
@@ -346,21 +354,13 @@
         "lines": 167,
         "name": "test_platform_standards_and_runbook_point_to_rfc_0072_sources",
         "path": "tests/unit/test_ci_governance_documentation_contract.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 180,
-        "line": 14,
-        "lines": 167,
-        "name": "test_validate_service_addressing_accepts_canonical_hostnames",
-        "path": "tests/unit/test_service_addressing_validator.py"
       }
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4349
+    "python_function_count": 4385
   },
-  "generated_at_utc": "2026-10-11T20:05:36Z",
+  "generated_at_utc": "2026-10-13T00:58:15Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -378,7 +378,7 @@
       "suffix": ".json"
     },
     {
-      "lines": 18644,
+      "lines": 18825,
       "path": "docs/composite-performance/implementation-ledger.v1.json",
       "suffix": ".json"
     },
@@ -567,32 +567,27 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 201,
+        "line": 208,
         "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 202,
+        "line": 209,
         "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 205,
+        "line": 212,
         "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 211,
+        "line": 218,
         "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 215,
-        "path": "automation/canonical_runtime_lease.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 216,
+        "line": 222,
         "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
@@ -602,27 +597,102 @@
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 228,
+        "line": 231,
         "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 122,
-        "path": "automation/canonical_runtime_reservation.py",
+        "line": 237,
+        "path": "automation/canonical_runtime_lease.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 125,
-        "path": "automation/canonical_runtime_reservation.py",
+        "line": 110,
+        "path": "automation/canonical_runtime_refresh.py",
         "signal": "sensitive-keyword-review"
       },
       {
-        "line": 127,
-        "path": "automation/canonical_runtime_reservation.py",
+        "line": 115,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 120,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 124,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 133,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 141,
+        "path": "automation/canonical_runtime_refresh.py",
         "signal": "sensitive-keyword-review"
       },
       {
         "line": 142,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 160,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 165,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 237,
+        "path": "automation/canonical_runtime_refresh.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 138,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 140,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 141,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 150,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 161,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 164,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 166,
+        "path": "automation/canonical_runtime_reservation.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 182,
         "path": "automation/canonical_runtime_reservation.py",
         "signal": "sensitive-keyword-review"
       },
@@ -715,84 +785,14 @@
         "line": 289,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 290,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 293,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 295,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 301,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 304,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 305,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 306,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 308,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 318,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 319,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 321,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 322,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 326,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 327,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 5534,
+    "collected_tests": 5606,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\Documents\\Codex\\2026-10-11\\lotus-platform-950-nested-fence\\work\\principal-runtime-775-candidate-20261012\\python312\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5534 tests collected"
+    "summary": "5606 tests collected"
   }
 }

@@ -1,6 +1,6 @@
 {
   "contractId": "lotus.canonical-runtime.reservations.v1",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "implementationOwner": "lotus-platform",
   "consumerOwner": "lotus-workbench",
   "hostingBoundary": "one operator-owned Windows Docker Desktop canonical workspace",
@@ -16,6 +16,8 @@
   "resourceIdentity": "actual full container ID or host PID plus UTC process birth, exact checkout and published ports",
   "acquisition": "explicit holder, issue/PR purpose, UTC expiry within eight hours; live unreserved inventory needs operator handover bound to scope and inventory digests",
   "mutation": "whole-operation fence then locked durable admission before I/O; explicit operation token; reobserve and atomically publish actual inventory plus success/failure without masking native exit status",
+  "refresh": "same unexpired holder/reservation/expiry and unchanged projects/ports/runtime mode; digest-reviewed lotus.canonical-runtime.refresh.v1 plan binds original scope/bindings and exact target sources/repository/service allowlists; pending change operation retains original grant; selected build occurs under existing fence; immutable prepared image IDs and repository/checkout/source labels verified before replacement; pinned up disables dependency changes/build/pull; finish verifies exact untouched bindings/images and replacement cardinality/port shapes; source-only keeps identical bindings and separately records actual runtime images; failures remain pending; explicit refresh recovery completes prepared target or aborts exact restored original; no automatic regrant or live certification",
+  "refreshInputs": "service plans require composeConfigDigest binding the full evaluated Compose model before generated overrides; subsequent commands reuse that frozen model with the original project-directory and explicit empty interpolation env file; already escaped literal dollars and reviewed build metadata stay unchanged; selected build context/Dockerfile come from exact committed Git blobs, excluding ignored/untracked bytes and archive attributes; symlink/submodule entries and unresolved environment/build arguments refuse; source-only needs no Compose digest; local custody does not certify external base images/network downloads/runtime bind-mount contents",
   "nestedConsumer": "execute in-process with the exact original canonical exclusive FileStream registered by Enter to its admitted token in that module instance and holder/workspace/selected Workbench unchanged; reject absent/disposed/foreign/shared/replacement/new-process fences before preflight-operation and I/O; a persisted token alone is not admission; child neither reacquires nor finishes the caller's operation",
   "expiry": "refuse new changes; original holder may teardown; explicit named reclaim always requires handover and preserves prior history",
   "interruption": "retain unfinished operation; recovery/reclaim first prove whole-operation fence free, then require explicit holder/operator receipt bound to actual inventory",

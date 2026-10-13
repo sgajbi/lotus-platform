@@ -11,6 +11,7 @@ environment, or bank operation.
 | Classify ingress or local routing | `Validate-Dev-Ingress-Smoke.ps1` and `Explain-Dev-Ingress-Status.ps1` |
 | Prove the canonical front-office flow | `Invoke-Canonical-FrontOffice-QA.ps1` after reading the cleanup plan |
 | Reserve a shared canonical runtime window | [canonical runtime reservation control](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/canonical-runtime-reservation.md), then Workbench `npm run live:stack:preflight` |
+| Refresh selected services within an existing window | [reviewed incremental refresh](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/canonical-runtime-reservation.md#reviewed-incremental-refresh): original holder/expiry, reviewed source/service plan, fenced build, verified immutable images and untouched identities. Failures stay pending for explicit recovery; source-only transitions retain actual runtime image revisions. Hermetic proof is separate from live acceptance |
 | Review residual labelled images or volumes | [resource-only recovery runbook](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/resource-only-recovery.md); PowerShell 7.5+ preserves timestamp-shaped JSON strings. v2 separates immutable discovery from START-timed live authority. OCI manifest/config/content/DiffID checks and classic config-ID checks precede isolated restore; only archive-derived restore identities qualify. Unsupported graphs/encodings and decompression overflow refuse. Retained helpers and bounded refusal codes remain explicit. Renewal preserves original evidence. Fixture proof is not production readiness |
 | Diagnose a DPM cash pre-read refusal | Read the bounded `CANONICAL_CASH_*` reason in the seed receipt and follow the [cash pre-read boundary](https://github.com/sgajbi/lotus-platform/blob/main/docs/operations/canonical-runtime-reservation.md#dpm-cash-pre-read); never substitute Manage's tenant or weaken cash readiness |
 | Validate BFF principal-session contract posture | `validate_bff_principal_session_contracts.py` and the BFF principal-session runbook |
@@ -86,7 +87,7 @@ python automation\validate_analytics_ui_entitlement_certification.py
    container ID and refuses projects, volumes, images, networks, active/registered paths, stale
    plans, and changed identities. Its execution receipt is persisted before mutation and finalized
    with a newly generated view of remaining ownership conflicts.
-9. use `Service-Refresh.ps1 -DryRun` before refreshing a service in a shared stack. The governed
+9. use `Service-Refresh.ps1 -DryRun` before refreshing a service in a shared stack. Reserved preview validates admission, exact ProjectPath-to-admitted-checkout identity, committed Compose files and the plan's full evaluated `composeConfigDigest` under the operation fence. Execution freezes that model and builds from exact committed Git blobs, excluding ignored/untracked working files; secret-bearing model contents stay operator-local. Preview changes neither the reservation nor running services. The governed
    service map must preserve non-secret coexistence environment and published ports; Manage must
    retain host port 8001 and its canonical Core source/workflow settings while Advise remains on
    host port 8000. A refresh is incomplete until running, health, and port verification passes.

@@ -102,13 +102,20 @@ def validate_book(book: dict) -> None:
         require(record["state"] in LIVE | {"released", "reclaimed"}, "Unknown lifecycle state.")
         validate_bindings(record["bindings"], record["scope"])
         operation = record["operation"]
-        require(operation is None or (isinstance(operation, dict) and set(operation) == {
+        require(operation is None or (isinstance(operation, dict) and set(operation) in ({
             "token", "action", "atUtc",
-        } and nonblank(operation["token"]) and operation["action"] in {"change", "teardown"}),
+        }, {"token", "action", "atUtc", "refresh"}) and nonblank(operation["token"]) and operation["action"] in {"change", "teardown"}),
                 "Malformed admitted operation.")
         if operation:
             utc(operation["atUtc"])
             require(record["state"] in LIVE, "A terminal record cannot retain an operation.")
+            if "refresh" in operation:
+                require(operation["action"] == "change", "Refresh uses the existing change fence.")
+                try:
+                    from automation.canonical_runtime_refresh import validate_pending
+                except ModuleNotFoundError:
+                    from canonical_runtime_refresh import validate_pending
+                validate_pending(record)
         require(isinstance(record["events"], list), "Event history required.")
         for entry in record["events"]:
             require(isinstance(entry, dict) and all(nonblank(entry.get(key))
@@ -214,6 +221,7 @@ def operation_preflight(book: dict, *, holder: str, scope: dict, bindings: list,
     owner(record, holder, now)
     require(record["operation"] is not None and nonblank(token)
             and record["operation"]["token"] == token, "Matching admitted operation token required.")
+    require("refresh" not in record["operation"], "Pending refresh requires its dedicated source/image proof.")
     require(record["scope"] == scope, "Scope/source changed during operation.")
     validate_bindings(bindings, scope)
     return record  # Read proof inside admitted startup, not arbitrary resource publication.
@@ -225,6 +233,7 @@ def finish(book: dict, *, holder: str, scope: dict, bindings: list, now: datetim
     require(record is not None, "No admitted operation exists.")
     owner(record, holder, now, teardown=True)  # Record failure/teardown after expiry, never start.
     operation = record["operation"]
+    require(operation is None or "refresh" not in operation, "Pending refresh must use finish-refresh or reviewed recovery.")
     require(operation is not None and nonblank(token) and operation["token"] == token,
             "Matching admitted operation required; arbitrary bind refused.")
     require(record["scope"] == scope, "Scope/source changed during operation; reconcile explicitly.")
@@ -243,6 +252,8 @@ def recover(book: dict, *, holder: str, scope: dict, bindings: list,
     record = current(book)
     require(record is not None, "No reservation exists to recover.")
     owner(record, holder, now)
+    require(record["operation"] is None or "refresh" not in record["operation"],
+            "Pending refresh requires reviewed refresh recovery.")
     require(record["scope"] == scope, "Recovery preserves exact source/scope.")
     validate_bindings(bindings, scope)
     handover(receipt, holder, scope, bindings)
