@@ -288,7 +288,9 @@ def test_failed_live_check_emits_no_service_output(monkeypatch, tmp_path):
 
 def test_successful_live_check_exports_only_admitted_image(monkeypatch, tmp_path):
     validator = _validator()
-    monkeypatch.setattr(validator, "verify_distribution", lambda mapping: None)
+    monkeypatch.setattr(validator, "verify_distribution", lambda mapping: (
+        mapping["distribution_repository"] + "@" + mapping["image_digest"]
+    ))
     output = tmp_path / "output"
     args = _arguments(_mapping())
     assert (
@@ -659,3 +661,211 @@ def test_failed_token_responses_are_never_retained_as_raw_evidence(
         b"sensitive-token-response" not in path.read_bytes()
         for path in tmp_path.iterdir()
     )
+
+
+def _fallback_fixture(monkeypatch, validator):
+    mapping, _, child = _manifest_fixture()
+    mapping.update(
+        manifest_kind="manifest",
+        image_digest="sha256:" + hashlib.sha256(child).hexdigest(),
+        platform_manifest_digest="sha256:" + hashlib.sha256(child).hexdigest(),
+        platform_config_digest="sha256:" + "1" * 64,
+        original_source_fallback_approval="https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398",
+    )
+    # Synthetic bytes exercise identity checks; real policy identity is tested separately.
+    monkeypatch.setattr(validator, "ORIGINAL_SOURCE_FALLBACK_IDENTITY", tuple(
+        mapping[key] for key in (
+            "original_repository", "image_digest", "platform", "platform_config_digest"
+        )
+    ))
+    return mapping, child
+
+
+def _fallback_responder(monkeypatch, validator, mapping, raw, *, fault=None, status=429):
+    calls = []
+    challenge = ('Bearer realm="https://auth.docker.io/token",'
+                 'service="registry.docker.io",scope="repository:library/python:pull"')
+
+    def request(url, headers, *, timeout):
+        calls.append(url)
+        assert timeout <= 20
+        if url.startswith("https://public.ecr.aws/token/"):
+            return b'{"token":"ecr-secret"}', {}
+        if url.startswith("https://public.ecr.aws/"):
+            if fault == "preferred-body":
+                return raw + b" ", {}
+            if fault == "preferred-valid":
+                return raw, {}
+            if fault == "preferred-tls":
+                raise validator.urllib.error.URLError("TLS verification failed")
+            raise HTTPError(url, status, "unavailable", {}, io.BytesIO(b"quota"))
+        if url.startswith("https://auth.docker.io/token?"):
+            assert headers == {}
+            query = validator.urllib.parse.parse_qs(validator.urllib.parse.urlsplit(url).query)
+            assert query == {"service": ["registry.docker.io"],
+                             "scope": ["repository:library/python:pull"]}
+            if fault == "token-failure":
+                raise HTTPError(url, 503, "unavailable", {}, io.BytesIO(b"source-secret"))
+            return b'{"token":"source-secret"}', {}
+        assert url == ("https://registry-1.docker.io/v2/library/python/manifests/"
+                       + mapping["image_digest"])
+        if "Authorization" not in headers:
+            value = challenge
+            if fault in ("realm", "service", "scope"):
+                value = value.replace({"realm": "auth.docker.io", "service": "registry.docker.io",
+                                       "scope": "library/python"}[fault], "attacker.example")
+            if fault == "missing-challenge":
+                value = ""
+            if fault == "redirect":
+                raise ValueError("distribution registry redirects are not admitted")
+            raise HTTPError(url, 401, "challenge", {"WWW-Authenticate": value}, io.BytesIO(b"challenge"))
+        assert headers["Authorization"] == "Bearer source-secret"
+        if fault == "source-quota":
+            raise HTTPError(url, 429, "limited", {}, io.BytesIO(b"reflected source-secret"))
+        if fault == "source-body":
+            return raw + b" ", {}
+        if fault == "source-header":
+            return raw, {"Docker-Content-Digest": "sha256:" + "0" * 64}
+        return raw, {}
+
+    monkeypatch.setattr(validator, "_registry_json", request)
+    return calls
+
+
+@pytest.mark.parametrize("status", [429, 502, 503, 504])
+def test_exact_original_source_recovers_only_availability_with_shared_budget(
+    monkeypatch, tmp_path, status
+):
+    validator = _validator()
+    _, waits = _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    calls = _fallback_responder(monkeypatch, validator, mapping, raw, status=status)
+    assert validator.verify_distribution(mapping, evidence_dir=tmp_path,
+                                         allow_original_source=True) == (
+        mapping["original_repository"] + "@" + mapping["image_digest"]
+    )
+    assert len(calls) == (7 if status == 429 else 5)
+    assert waits == ([2.0, 4.0] if status == 429 else [])
+    assert len(list(tmp_path.glob("*-http-429.raw"))) == (3 if status == 429 else 0)
+    assert all(b"secret" not in path.read_bytes() for path in tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("fault", ["preferred-valid", "preferred-body", "preferred-tls"])
+def test_original_source_never_hides_preferred_success_identity_or_trust_failure(monkeypatch, fault):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    calls = _fallback_responder(monkeypatch, validator, mapping, raw, fault=fault)
+    if fault == "preferred-valid":
+        assert validator.verify_distribution(mapping, allow_original_source=True).startswith("public.ecr.aws/")
+    else:
+        with pytest.raises((ValueError, OSError)):
+            validator.verify_distribution(mapping, allow_original_source=True)
+    assert all("docker.io" not in url for url in calls)
+
+
+@pytest.mark.parametrize("status", [401, 403, 404, 500])
+def test_non_availability_http_failure_never_falls_back(monkeypatch, status):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    calls = _fallback_responder(monkeypatch, validator, mapping, raw, status=status)
+    with pytest.raises(HTTPError):
+        validator.verify_distribution(mapping, allow_original_source=True)
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize("fault", ["realm", "service", "scope", "missing-challenge", "redirect",
+                                   "token-failure", "source-quota", "source-body", "source-header"])
+def test_original_source_refuses_unsafe_or_unavailable_inputs_without_secrets(monkeypatch, tmp_path, fault):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    calls = _fallback_responder(monkeypatch, validator, mapping, raw, fault=fault)
+    with pytest.raises((ValueError, OSError)):
+        validator.verify_distribution(mapping, evidence_dir=tmp_path, allow_original_source=True)
+    assert len(calls) <= 9
+    assert all("attacker" not in url for url in calls)
+    assert all(b"secret" not in path.read_bytes() for path in tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("fault", ["unapproved", "config", "digest", "platform", "publisher"])
+def test_fallback_admission_refuses_drift_before_network(monkeypatch, fault):
+    validator = _validator()
+    mapping = next(item for item in _policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
+                   if item.get("original_source_fallback_approval"))
+    if fault == "unapproved":
+        del mapping["original_source_fallback_approval"]
+    else:
+        key = {"config": "platform_config_digest", "digest": "image_digest",
+               "platform": "platform", "publisher": "original_repository"}[fault]
+        mapping[key] = "unapproved"
+    calls = []
+    monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: calls.append(args))
+    with pytest.raises(ValueError):
+        validator.verify_distribution(mapping, allow_original_source=True)
+    assert calls == []
+
+
+def test_fallback_requires_live_verification_and_explicit_policy_admission(tmp_path):
+    validator = _validator()
+    with pytest.raises(SystemExit) as error:
+        validator.main(_arguments(_mapping()) + ["--allow-original-source-fallback"])
+    assert error.value.code == 2
+    policy = _policy()
+    mapping = policy["container_image_evidence_policy"]["approved_distribution_mappings"][0]
+    mapping["original_source_fallback_approval"] = "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398"
+    assert any("exact admitted identity" in error for error in validator.validate_policy(policy))
+
+
+@pytest.mark.parametrize("fault", [None, "source-body", "source-quota", "scope"])
+def test_cli_exports_only_verified_original_source_or_no_image(monkeypatch, tmp_path, fault):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    policy = _policy()
+    policy["container_image_evidence_policy"]["approved_distribution_mappings"] = [mapping]
+    policy_path = tmp_path / "policy.json"
+    policy_path.write_text(json.dumps(policy))
+    _fallback_responder(monkeypatch, validator, mapping, raw, fault=fault)
+    output = tmp_path / "image-output"
+    result = validator.main(_arguments(mapping) + ["--policy", str(policy_path),
+                            "--verify-distribution", "--allow-original-source-fallback",
+                            "--github-output", str(output)])
+    if fault is None:
+        assert result == 0
+        assert output.read_text() == f"image={mapping['original_repository']}@{mapping['image_digest']}\n"
+    else:
+        assert result == 1
+        assert not output.exists()
+
+
+def test_source_fallback_reuses_deadline_and_refuses_after_budget_exhaustion(monkeypatch):
+    validator = _validator()
+    elapsed, _ = _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    native = _fallback_responder(monkeypatch, validator, mapping, raw)
+    request = validator._registry_json
+
+    def late_request(url, headers, *, timeout):
+        if "registry-1.docker.io" in url:
+            elapsed[0] = 91
+        return request(url, headers, timeout=timeout)
+
+    monkeypatch.setattr(validator, "_registry_json", late_request)
+    with pytest.raises(ValueError, match="budget exhausted"):
+        validator.verify_distribution(mapping, allow_original_source=True)
+    assert len(native) == 5
+
+
+def test_source_fallback_refuses_wrong_config_descriptor(monkeypatch):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, raw = _fallback_fixture(monkeypatch, validator)
+    mapping["platform_config_digest"] = "sha256:" + "0" * 64
+    monkeypatch.setattr(validator, "ORIGINAL_SOURCE_FALLBACK_IDENTITY", tuple(
+        mapping[key] for key in ("original_repository", "image_digest", "platform", "platform_config_digest")
+    ))
+    _fallback_responder(monkeypatch, validator, mapping, raw)
+    with pytest.raises(ValueError, match="config descriptor mismatch"):
+        validator.verify_distribution(mapping, allow_original_source=True)

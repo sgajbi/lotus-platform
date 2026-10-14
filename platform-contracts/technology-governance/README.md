@@ -45,8 +45,9 @@ Original publishers remain `docker.io/library/python`, `docker.io/library/postgr
 `docker.io/aquasec/trivy`, `docker.io/anchore/syft` and `docker.io/prom/prometheus`. Acquisition aliases are Docker's `public.ecr.aws/docker/library/...`
 repositories, Trivy's official `ghcr.io/aquasecurity/trivy`, Syft's official `ghcr.io/anchore/syft` and Prometheus's `quay.io/prometheus/prometheus`. This is not approval
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
-registries are not admitted. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.2` retains the `1.1.0` mapping structure and adds the three Core tuples; consumers must bind the matching
+registries are not admitted by those mappings. The explicit exact-source recovery below is a
+separate policy admission. New tuples require reviewed policy and observation evidence.
+Policy version `1.1.3` retains the eleven `1.1.2` mappings and adds an optional exact-source recovery admission; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -139,3 +140,37 @@ attestation, scan freshness and runtime-smoke requirements remain in force. This
 admission does not promote the wider `report_only` #595 rollout or fill missing evidence.
 Amazon documents [public digest acquisition and separate anonymous/authenticated quotas](https://docs.aws.amazon.com/AmazonECR/latest/public/docker-pull-ecr-image.html);
 the mapping does not claim unlimited capacity.
+
+## Exact original-source recovery
+
+The [bounded #945 decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398)
+admits optional recovery only for the existing Python `e529028...` Linux/amd64 single manifest
+and immutable config descriptor `541096...`. ECR remains preferred. From the Platform checkout,
+append `--allow-original-source-fallback` to the complete live command above; this same command
+works in PowerShell and Bash. Static checks cannot enable recovery. No other tuple is admitted.
+
+After the existing bounded ECR attempts return HTTP 429, 502, 503 or 504, the verifier may read
+that exact original `docker.io/library/python@sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e`.
+Both paths share nine requests, a 90-second deadline and 20 cumulative wait seconds; recovery
+does not reset budgets. HTTP authentication/not-found errors, TLS or transport errors, redirects,
+malformed responses, policy/content/config/platform mismatches and unsupported challenges refuse.
+The source's initial 401 must identify exactly `https://auth.docker.io/token`, service
+`registry.docker.io`, and pull scope `repository:library/python:pull`. The fixed public token
+request uses no supplied credential. No arbitrary realm, redirect or registry discovery occurs.
+
+Fresh source manifest bytes must hash to the admitted digest, any supplied digest header must
+agree, and its config descriptor must match the independently observed immutable config.
+This preserves the existing descriptor-only preflight boundary: config-platform observation is
+reused from admission; no config blob, layer, CDN redirect or Docker pull occurs. Actual acquisition
+must still verify blobs and runtime behavior. Existing failed ECR responses remain evidence;
+token-response bodies are omitted and known ephemeral tokens are redacted if reflected in failures.
+If both paths fail, no image output is emitted. A successful source check emits the exact original
+source reference; a successful preferred check continues to emit ECR.
+
+Adopters must separately qualify the central merged main SHA and opt into this flag, then prove
+their existing image binding accepts the selected exact output and uses it in every actual
+acquisition job. Performance's current binding accepts the ECR distribution only, so central
+verification alone does not qualify its original-source recovery. Do not change downstream
+workflows, bindings, variables, digest, runtime version, security or coverage implicitly. Public
+source capacity can also fail. This is independent of the held #945 image custody/archive proposal,
+which supplies no implemented cache or service-initialization recovery.

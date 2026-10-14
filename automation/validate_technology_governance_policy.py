@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import time
 import urllib.error
@@ -85,6 +86,12 @@ PUBLISHER_DISTRIBUTIONS = {
     "docker.io/anchore/syft": "ghcr.io/anchore/syft",
     "docker.io/prom/prometheus": "quay.io/prometheus/prometheus",
 }
+ORIGINAL_SOURCE_FALLBACK_IDENTITY = (
+    "docker.io/library/python",
+    "sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e",
+    "linux/amd64",
+    "sha256:541096ae9b05d3b850341b78790e2ed31e94d5aa0ea086933c6ff0c09ffa2e63",
+)
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",
     "lens/environment-supply-chain-provenance",
@@ -341,6 +348,10 @@ def _validate_distribution_mappings(policy: dict[str, Any], errors: list[str]) -
                 "distribution mappings must have unique source digest/platform identities"
             )
         seen.add(key)
+        if "original_source_fallback_approval" in mapping and (
+            *key, mapping.get("platform_config_digest")
+        ) != ORIGINAL_SOURCE_FALLBACK_IDENTITY:
+            errors.append("original-source fallback requires its exact admitted identity")
         if mapping["distribution_repository"] != PUBLISHER_DISTRIBUTIONS.get(
             mapping["original_repository"]
         ):
@@ -403,6 +414,7 @@ class _AcquisitionBudget:
         self.requests = 0
         self.waited = 0.0
         self.evidence_dir = evidence_dir
+        self.tokens: list[bytes] = []
 
     def _record_failure(self, url: str, error: urllib.error.HTTPError) -> None:
         if self.evidence_dir is None:
@@ -412,6 +424,12 @@ class _AcquisitionBudget:
         # Successful token responses and authorization headers are never retained.
         is_token = urllib.parse.urlsplit(url).path.rstrip("/") == "/token"
         body = error.read(2 * 1024 * 1024 + 1) if not is_token else b""
+        for token in self.tokens:
+            body = body.replace(token, b"[REDACTED]")
+        retry_after = error.headers.get("Retry-After")
+        if retry_after is not None:
+            for token in self.tokens:
+                retry_after = retry_after.replace(token.decode(), "[REDACTED]")
         prefix.with_suffix(".raw").write_bytes(body)
         prefix.with_suffix(".json").write_text(
             json.dumps(
@@ -419,7 +437,7 @@ class _AcquisitionBudget:
                     "url": url,
                     "status": error.code,
                     "request": self.requests,
-                    "retry_after": error.headers.get("Retry-After"),
+                    "retry_after": retry_after,
                     "body_sha256": hashlib.sha256(body).hexdigest(),
                     "body_truncated": len(body) > 2 * 1024 * 1024,
                     "token_response_body_omitted": is_token,
@@ -466,24 +484,83 @@ class _AcquisitionBudget:
 
 
 def verify_distribution(
-    mapping: dict[str, Any], *, evidence_dir: Path | None = None
-) -> None:
-    """Read manifest bytes only. Unavailable/rate-limited registries fail; never pull layers."""
+    mapping: dict[str, Any], *, evidence_dir: Path | None = None,
+    allow_original_source: bool = False,
+) -> str:
+    """Return only the freshly verified image; both paths share one finite budget."""
     distribution = mapping["distribution_repository"]
     if distribution != PUBLISHER_DISTRIBUTIONS.get(mapping["original_repository"]):
         raise ValueError("distribution publisher repository is not admitted")
-    host, repository = distribution.split("/", 1)
     budget = _AcquisitionBudget(evidence_dir)
-    headers = {
-        "Accept": ", ".join(
-            [
-                "application/vnd.oci.image.index.v1+json",
-                "application/vnd.docker.distribution.manifest.list.v2+json",
-                "application/vnd.oci.image.manifest.v1+json",
-                "application/vnd.docker.distribution.manifest.v2+json",
-            ]
-        ),
+    if allow_original_source:
+        identity = tuple(mapping.get(key) for key in (
+            "original_repository", "image_digest", "platform", "platform_config_digest"
+        ))
+        if (identity != ORIGINAL_SOURCE_FALLBACK_IDENTITY
+                or not mapping.get("original_source_fallback_approval")):
+            raise ValueError("original-source fallback is not admitted for this tuple")
+    try:
+        _verify_publisher_distribution(mapping, budget)
+        return distribution + "@" + mapping["image_digest"]
+    except urllib.error.HTTPError as error:
+        # Never recover policy, identity, JSON, authentication, TLS or redirect failures.
+        if not allow_original_source or error.code not in (429, 502, 503, 504):
+            raise
+    _verify_original_source(mapping, budget)
+    return mapping["original_repository"] + "@" + mapping["image_digest"]
+
+
+def _manifest_headers() -> dict[str, str]:
+    return {
+        "Accept": ", ".join([
+            "application/vnd.oci.image.index.v1+json",
+            "application/vnd.docker.distribution.manifest.list.v2+json",
+            "application/vnd.oci.image.manifest.v1+json",
+            "application/vnd.docker.distribution.manifest.v2+json",
+        ])
     }
+
+
+def _verify_original_source(mapping: dict[str, Any], budget: _AcquisitionBudget) -> None:
+    """One fixed public Docker Official Images challenge, no arbitrary auth discovery."""
+    host, repository = "registry-1.docker.io", "library/python"
+    headers = _manifest_headers()
+    url = f"https://{host}/v2/{repository}/manifests/{mapping['image_digest']}"
+    try:
+        budget.request(url, headers)
+    except urllib.error.HTTPError as error:
+        challenge = error.headers.get("WWW-Authenticate", "")
+        expected = (
+            r'Bearer realm="https://auth\.docker\.io/token",\s*'
+            r'service="registry\.docker\.io",\s*scope="repository:library/python:pull"'
+        )
+        if error.code != 401 or re.fullmatch(expected, challenge) is None:
+            raise ValueError("original-source authentication challenge is not admitted") from error
+    else:
+        raise ValueError("original-source authentication challenge was absent")
+    query = urllib.parse.urlencode({
+        "service": "registry.docker.io", "scope": "repository:library/python:pull"
+    })
+    body, _ = budget.request(f"https://auth.docker.io/token?{query}", {})
+    token = _anonymous_token(body)
+    budget.tokens.append(token.encode())
+    headers["Authorization"] = "Bearer " + token
+    _verify_manifest_identity(mapping, budget, host, repository, headers)
+
+
+def _anonymous_token(body: bytes) -> str:
+    payload = json.loads(body)
+    if not isinstance(payload, dict):
+        raise ValueError("distribution registry token response must be an object")
+    token = payload.get("token") or payload.get("access_token")
+    if not isinstance(token, str) or not token or any(c.isspace() for c in token):
+        raise ValueError("distribution registry did not provide an anonymous pull token")
+    return token
+
+
+def _verify_publisher_distribution(mapping: dict[str, Any], budget: _AcquisitionBudget) -> None:
+    host, repository = mapping["distribution_repository"].split("/", 1)
+    headers = _manifest_headers()
     # This exact public Quay repository serves manifests anonymously. Publisher
     # admission above still precedes every request; no generic host discovery.
     if host != "quay.io":
@@ -492,15 +569,16 @@ def verify_distribution(
         )
         token_path = "/token/" if host == "public.ecr.aws" else "/token"
         body, _ = budget.request(f"https://{host}{token_path}?{query}", {})
-        token_payload = json.loads(body)
-        if not isinstance(token_payload, dict):
-            raise ValueError("distribution registry token response must be an object")
-        token = token_payload.get("token") or token_payload.get("access_token")
-        if not isinstance(token, str) or not token:
-            raise ValueError(
-                "distribution registry did not provide an anonymous pull token"
-            )
+        token = _anonymous_token(body)
+        budget.tokens.append(token.encode())
         headers["Authorization"] = "Bearer " + token
+    _verify_manifest_identity(mapping, budget, host, repository, headers)
+
+
+def _verify_manifest_identity(
+    mapping: dict[str, Any], budget: _AcquisitionBudget,
+    host: str, repository: str, headers: dict[str, str],
+) -> None:
 
     def manifest(digest: str) -> dict[str, Any]:
         raw, response_headers = budget.request(
@@ -594,6 +672,10 @@ def main(argv: list[str] | None = None) -> int:
         help="Verify live manifest availability and bytes without pulling layers.",
     )
     parser.add_argument(
+        "--allow-original-source-fallback", action="store_true",
+        help="Opt into policy-admitted exact-source recovery after distribution HTTP availability failure.",
+    )
+    parser.add_argument(
         "--github-output",
         type=Path,
         help="Append image output only after successful live verification.",
@@ -612,6 +694,7 @@ def main(argv: list[str] | None = None) -> int:
             args.verify_distribution,
             args.github_output is not None,
             args.acquisition_evidence is not None,
+            args.allow_original_source_fallback,
         )
     )
     if acquisition and (
@@ -623,6 +706,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.github_output and not args.verify_distribution:
         parser.error("GitHub image output requires live distribution verification")
+    if args.allow_original_source_fallback and not args.verify_distribution:
+        parser.error("Original-source fallback requires live verification")
     if args.acquisition_evidence and not args.verify_distribution:
         parser.error("Acquisition evidence requires live distribution verification")
 
@@ -653,13 +738,15 @@ def main(argv: list[str] | None = None) -> int:
                 args.platform,
             )
             if args.verify_distribution:
+                options = {}
                 if args.acquisition_evidence:
-                    verify_distribution(mapping, evidence_dir=args.acquisition_evidence)
-                else:
-                    verify_distribution(mapping)
+                    options["evidence_dir"] = args.acquisition_evidence
+                if args.allow_original_source_fallback:
+                    options["allow_original_source"] = True
+                verified_image = verify_distribution(mapping, **options)
             if args.github_output:
                 with args.github_output.open("a", encoding="utf-8") as output:
-                    output.write(f"image={args.distribution_image}\n")
+                    output.write(f"image={verified_image}\n")
         except (OSError, ValueError, KeyError, TypeError) as exc:
             # Never print HTTP headers, anonymous tokens, or potentially sensitive response bodies.
             print(
