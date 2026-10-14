@@ -670,7 +670,7 @@ def _fallback_fixture(monkeypatch, validator):
         image_digest="sha256:" + hashlib.sha256(child).hexdigest(),
         platform_manifest_digest="sha256:" + hashlib.sha256(child).hexdigest(),
         platform_config_digest="sha256:" + "1" * 64,
-        original_source_fallback_approval="https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398",
+        original_source_fallback_approval="https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836",
     )
     # Synthetic bytes exercise identity checks; real policy identity is tested separately.
     monkeypatch.setattr(validator, "ORIGINAL_SOURCE_FALLBACK_IDENTITY", tuple(
@@ -814,7 +814,7 @@ def test_fallback_requires_live_verification_and_explicit_policy_admission(tmp_p
     assert error.value.code == 2
     policy = _policy()
     mapping = policy["container_image_evidence_policy"]["approved_distribution_mappings"][0]
-    mapping["original_source_fallback_approval"] = "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398"
+    mapping["original_source_fallback_approval"] = "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836"
     assert any("exact admitted identity" in error for error in validator.validate_policy(policy))
 
 

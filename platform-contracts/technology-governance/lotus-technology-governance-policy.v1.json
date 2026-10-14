@@ -126,7 +126,7 @@
         "original_repository": "docker.io/library/python",
         "distribution_repository": "public.ecr.aws/docker/library/python",
         "image_digest": "sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e",
-        "original_source_fallback_approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398",
+        "original_source_fallback_approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836",
         "manifest_kind": "manifest",
         "platform": "linux/amd64",
         "platform_manifest_digest": "sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e",

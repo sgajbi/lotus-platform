@@ -143,7 +143,7 @@ the mapping does not claim unlimited capacity.
 
 ## Exact original-source recovery
 
-The [bounded #945 decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398)
+The [bounded #945 decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836)
 admits optional recovery only for the existing Python `e529028...` Linux/amd64 single manifest
 and immutable config descriptor `541096...`. ECR remains preferred. From the Platform checkout,
 append `--allow-original-source-fallback` to the complete live command above; this same command
