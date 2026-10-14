@@ -17,6 +17,7 @@ environment, or bank operation.
 | Validate BFF principal-session contract posture | `validate_bff_principal_session_contracts.py` and the BFF principal-session runbook |
 | Inspect mesh posture | `mesh_certification_gate.py` and the operating report |
 | Inspect CI or background work | `Platform-Pulse.ps1`, heartbeat evidence, and GitHub truth |
+| Diagnose required CI image quota failure | [technology-governance acquisition contract](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/technology-governance/README.md#exact-original-source-recovery): preserve failed responses; ECR remains preferred. Explicit recovery admits only Python e529's exact official original source within the same finite budget. Fresh manifest/config-descriptor proof precedes output; trust/content failures refuse. Central qualification and separate adopter bindings are required before use |
 | Change documentation | Lotus documentation layering and repo-local authored source |
 
 ## Core operational surfaces

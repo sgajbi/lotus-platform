@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 428978
+    "total_source_lines": 429313
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -187,11 +187,11 @@
       },
       {
         "complexity": 22,
-        "end_line": 350,
-        "line": 245,
-        "lines": 106,
-        "name": "resolve_principal",
-        "path": "automation/verify_principal_credential.py"
+        "end_line": 761,
+        "line": 632,
+        "lines": 130,
+        "name": "main",
+        "path": "automation/validate_technology_governance_policy.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4386
+    "python_function_count": 4404
   },
-  "generated_at_utc": "2026-10-13T05:19:54Z",
+  "generated_at_utc": "2026-10-14T03:24:02Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5609,
+    "collected_tests": 5633,
     "command": [
-      "C:\\Users\\Sandeep\\Documents\\Codex\\2026-10-11\\lotus-platform-950-nested-fence\\work\\principal-runtime-775-candidate-20261012\\python312\\Scripts\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-image-acquisition-945\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5609 tests collected"
+    "summary": "5633 tests collected"
   }
 }

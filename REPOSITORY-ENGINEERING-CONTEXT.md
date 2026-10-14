@@ -79,6 +79,12 @@ distribution admission does not promote the broader report-only technology rollo
 The same publisher admission supports direct anonymous manifest reads only for the
 exact admitted Prometheus Quay pair; it does not discover arbitrary registry hosts
 or repositories. ECR/GHCR token requests and acquisition budgets remain unchanged.
+An explicit `--allow-original-source-fallback` live-check option additionally admits only
+Python e529's original Docker Official Images source after bounded ECR HTTP availability/quota
+failure. Both paths share the existing acquisition budget, fixed authentication endpoints and
+fresh manifest/config-descriptor verification. Trust or identity failures never trigger recovery.
+See the technology-governance README for the exact tuple, refusal conditions and separate adopter
+binding/qualification boundary; this supplies no cache, credential provisioning or archive.
 
 1. Define platform-wide policy once in Platform and link to it from applications.
 2. Keep repository purpose, architecture, ownership, commands, and constraints in that
