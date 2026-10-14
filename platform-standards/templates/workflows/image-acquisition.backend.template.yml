@@ -65,3 +65,24 @@ jobs:
 # For base/audit images, use separate instances of this prerequisite for each
 # admitted tuple; bind the successful image output to the actual Dockerfile/build
 # argument and audit command. Never gate one tuple and acquire a different image.
+# Only for the separately policy-admitted exact PG16 index/child/config tuple:
+# append --acquisition-source original to the live prerequisite command above.
+# This explicit selection precedes ECR requests; do not combine with Python fallback.
+# Retain declarative service startup. On that SAME consuming Linux runner, after
+# checkout of the same qualified policy and setup-python, place this step before tests:
+# - name: Verify already running workflow service content
+#   env:
+#     SERVICE_ID: ${{ job.services.postgres.id }}
+#     SELECTED_IMAGE: ${{ needs.image-acquisition.outputs.image }}
+#     POLICY_COMMIT: ${{ vars.LOTUS_PLATFORM_GOVERNANCE_SHA }}
+#   run: >-
+#     python .lotus-platform/automation/verify_acquired_service_image.py
+#     --container-id "$SERVICE_ID" --expected-image "$SELECTED_IMAGE"
+#     --expected-policy-commit "$POLICY_COMMIT"
+#     --output "$RUNNER_TEMP/existing-postgres-content.json"
+# Do not use continue-on-error/always for the consumer. Upload the JSON only after
+# successful proof; keep actual startup pull logs, readiness and non-skipped tests.
+# The helper inspects/saves only the bound existing immutable image. It never pulls,
+# starts, copies/publishes, deletes or supplies credentials/cache. Temporary raw
+# bytes are cleaned; output is checked-helper-produced config/RootFS hashes, not
+# compressed-transfer, cold-cache or executed-runtime proof. See the policy README.

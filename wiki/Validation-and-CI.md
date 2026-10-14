@@ -26,6 +26,20 @@ there is no tag fallback. Manifest identity/availability does not replace hosted
 scan, SBOM, signature, support, provenance or smoke evidence, and does not promote the
 broader report-only technology-policy rollout.
 
+PG16's separately approved explicit original selection uses only the exact `ca0bd484...`
+root index, Linux/amd64 child `75adc2a6...` and config `275447c9...`. It selects original
+Docker Official Images before service startup; it is not a generic pull-error fallback.
+The existing exclusive Python recovery behavior is unchanged. Use the qualified central
+policy and the [operator commands and limits](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/technology-governance/README.md#explicit-original-postgresql-16-selection-and-local-content-proof).
+Actual Docker startup occurs on the consuming runner and can fail after another runner's
+manifest check succeeds. The local-only `automation/verify_acquired_service_image.py`
+checks that running workflow-bound service's immutable image, actual config bytes and
+ordered RootFS hashes before consumer execution; no pull, cache, image publication or
+runtime start is provided. The helper deletes raw export/inspect bytes after verification; the retained
+JSON is checked-helper-produced provenance and hashes. Cold acquisition, compressed
+transfer and financial/runtime correctness remain unclaimed. Exact hosted pull, existing
+readiness, full behavior and protected/main evidence remain separate requirements.
+
 The current finite policy also includes the separately reviewed Gateway Trivy 0.72.0
 and Syft v1.42.3 audit tuples. Gateway Python uses the existing admitted single-platform
 manifest. Bind a qualified Platform revision containing these mappings; owning-repository
