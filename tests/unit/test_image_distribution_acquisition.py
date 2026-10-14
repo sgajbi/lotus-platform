@@ -818,6 +818,81 @@ def test_fallback_requires_live_verification_and_explicit_policy_admission(tmp_p
     assert any("exact admitted identity" in error for error in validator.validate_policy(policy))
 
 
+UNREVIEWED_FALLBACK_APPROVALS = [
+    "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-1",
+    "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6159989398",
+    "https://github.com/sgajbi/lotus-platform/issues/946#issuecomment-6160682836",
+    "https://example.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836",
+    None,
+    "",
+    7,
+    False,
+]
+APPROVAL_CASE_IDS = [
+    "fabricated", "candidate-only", "wrong-issue", "wrong-host",
+    "null", "empty", "number", "boolean",
+]
+
+
+def _policy_with_fallback_approval(approval):
+    policy = _policy()
+    mapping = next(
+        item
+        for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
+        if "original_source_fallback_approval" in item
+    )
+    mapping["original_source_fallback_approval"] = approval
+    return policy, mapping
+
+
+def _refuse_unexpected_registry_request(*args, **kwargs):
+    pytest.fail("Approval drift must be refused before any registry request")
+
+
+def test_fallback_approval_accepts_the_actual_reviewed_policy():
+    validator = _validator()
+    policy = _policy()
+    assert validator.validate_policy(policy, exception_register_paths=[]) == []
+
+
+@pytest.mark.parametrize("approval", UNREVIEWED_FALLBACK_APPROVALS, ids=APPROVAL_CASE_IDS)
+def test_fallback_approval_refuses_policy_and_schema_drift(approval):
+    validator = _validator()
+    policy, _ = _policy_with_fallback_approval(approval)
+    semantic_errors = []
+    validator._validate_distribution_mappings(policy, semantic_errors)
+    assert any("reviewed approval" in error for error in semantic_errors)
+    assert any(
+        "original_source_fallback_approval" in error
+        for error in validator.validate_policy(policy, exception_register_paths=[])
+    )
+
+
+@pytest.mark.parametrize("approval", UNREVIEWED_FALLBACK_APPROVALS, ids=APPROVAL_CASE_IDS)
+def test_fallback_approval_refuses_direct_admission_before_requests(monkeypatch, approval):
+    validator = _validator()
+    _, mapping = _policy_with_fallback_approval(approval)
+    monkeypatch.setattr(validator, "_registry_json", _refuse_unexpected_registry_request)
+    with pytest.raises(ValueError, match="not admitted"):
+        validator.verify_distribution(mapping, allow_original_source=True)
+
+
+@pytest.mark.parametrize("approval", UNREVIEWED_FALLBACK_APPROVALS, ids=APPROVAL_CASE_IDS)
+def test_fallback_approval_refuses_cli_supplied_policy_before_output(monkeypatch, tmp_path, approval):
+    validator = _validator()
+    policy, mapping = _policy_with_fallback_approval(approval)
+    policy_path = tmp_path / "supplied-policy.json"
+    policy_path.write_text(json.dumps(policy), encoding="utf-8")
+    output = tmp_path / "image-output"
+    evidence = tmp_path / "acquisition-evidence"
+    monkeypatch.setattr(validator, "_registry_json", _refuse_unexpected_registry_request)
+    assert validator.main(_arguments(mapping) + [
+        "--policy", str(policy_path), "--verify-distribution", "--allow-original-source-fallback",
+        "--github-output", str(output), "--acquisition-evidence", str(evidence),
+    ]) == 1
+    assert not output.exists() and not evidence.exists()
+
+
 @pytest.mark.parametrize("fault", [None, "source-body", "source-quota", "scope"])
 def test_cli_exports_only_verified_original_source_or_no_image(monkeypatch, tmp_path, fault):
     validator = _validator()

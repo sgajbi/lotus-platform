@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 429431
+    "total_source_lines": 429518
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -187,8 +187,8 @@
       },
       {
         "complexity": 22,
-        "end_line": 761,
-        "line": 632,
+        "end_line": 773,
+        "line": 644,
         "lines": 130,
         "name": "main",
         "path": "automation/validate_technology_governance_policy.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4412
+    "python_function_count": 4418
   },
-  "generated_at_utc": "2026-10-14T05:07:03Z",
+  "generated_at_utc": "2026-10-14T05:55:25Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5653,
+    "collected_tests": 5678,
     "command": [
       "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-image-acquisition-945\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5653 tests collected"
+    "summary": "5678 tests collected"
   }
 }

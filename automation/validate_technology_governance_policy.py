@@ -92,6 +92,9 @@ ORIGINAL_SOURCE_FALLBACK_IDENTITY = (
     "linux/amd64",
     "sha256:541096ae9b05d3b850341b78790e2ed31e94d5aa0ea086933c6ff0c09ffa2e63",
 )
+ORIGINAL_SOURCE_FALLBACK_APPROVAL = (
+    "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836"
+)
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",
     "lens/environment-supply-chain-provenance",
@@ -348,10 +351,16 @@ def _validate_distribution_mappings(policy: dict[str, Any], errors: list[str]) -
                 "distribution mappings must have unique source digest/platform identities"
             )
         seen.add(key)
-        if "original_source_fallback_approval" in mapping and (
-            *key, mapping.get("platform_config_digest")
-        ) != ORIGINAL_SOURCE_FALLBACK_IDENTITY:
-            errors.append("original-source fallback requires its exact admitted identity")
+        if "original_source_fallback_approval" in mapping:
+            if (
+                mapping["original_source_fallback_approval"]
+                != ORIGINAL_SOURCE_FALLBACK_APPROVAL
+            ):
+                errors.append("original-source fallback requires its exact reviewed approval")
+            if (
+                *key, mapping.get("platform_config_digest")
+            ) != ORIGINAL_SOURCE_FALLBACK_IDENTITY:
+                errors.append("original-source fallback requires its exact admitted identity")
         if mapping["distribution_repository"] != PUBLISHER_DISTRIBUTIONS.get(
             mapping["original_repository"]
         ):
@@ -496,8 +505,11 @@ def verify_distribution(
         identity = tuple(mapping.get(key) for key in (
             "original_repository", "image_digest", "platform", "platform_config_digest"
         ))
-        if (identity != ORIGINAL_SOURCE_FALLBACK_IDENTITY
-                or not mapping.get("original_source_fallback_approval")):
+        if (
+            identity != ORIGINAL_SOURCE_FALLBACK_IDENTITY
+            or mapping.get("original_source_fallback_approval")
+            != ORIGINAL_SOURCE_FALLBACK_APPROVAL
+        ):
             raise ValueError("original-source fallback is not admitted for this tuple")
     try:
         _verify_publisher_distribution(mapping, budget)
