@@ -95,6 +95,18 @@ ORIGINAL_SOURCE_FALLBACK_IDENTITY = (
 ORIGINAL_SOURCE_FALLBACK_APPROVAL = (
     "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836"
 )
+ORIGINAL_SELECTION_IDENTITY = (
+    "docker.io/library/postgres",
+    "public.ecr.aws/docker/library/postgres",
+    "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d",
+    "index",
+    "linux/amd64",
+    "sha256:75adc2a65806c96bc0e59030230bfe3f1c1b0d6d8f8181a8913e2b8b53bdc166",
+    "sha256:275447c94b11b151decd1f29877965301d5a77032037c46de93d990f739f00a9",
+)
+ORIGINAL_SELECTION_APPROVAL = (
+    "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701"
+)
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",
     "lens/environment-supply-chain-provenance",
@@ -351,6 +363,11 @@ def _validate_distribution_mappings(policy: dict[str, Any], errors: list[str]) -
                 "distribution mappings must have unique source digest/platform identities"
             )
         seen.add(key)
+        if "original_source_selection_approval" in mapping:
+            try:
+                require_original_selection(mapping)
+            except ValueError as exc:
+                errors.append(str(exc))
         if "original_source_fallback_approval" in mapping:
             if (
                 mapping["original_source_fallback_approval"]
@@ -492,14 +509,37 @@ class _AcquisitionBudget:
         raise ValueError("image acquisition retry budget exhausted")
 
 
+def require_original_selection(mapping: dict[str, Any]) -> None:
+    """One explicitly reviewed PG16 identity; no authority from equivalence alone."""
+    identity = tuple(mapping.get(key) for key in (
+        "original_repository", "distribution_repository", "image_digest",
+        "manifest_kind", "platform", "platform_manifest_digest", "platform_config_digest",
+    ))
+    if (
+        identity != ORIGINAL_SELECTION_IDENTITY
+        or mapping.get("original_source_selection_approval") != ORIGINAL_SELECTION_APPROVAL
+    ):
+        raise ValueError("original-source selection requires its exact admitted identity and reviewed approval")
+
+
 def verify_distribution(
     mapping: dict[str, Any], *, evidence_dir: Path | None = None,
     allow_original_source: bool = False,
+    acquisition_source: str = "distribution",
 ) -> str:
     """Return only the freshly verified image; both paths share one finite budget."""
     distribution = mapping["distribution_repository"]
     if distribution != PUBLISHER_DISTRIBUTIONS.get(mapping["original_repository"]):
         raise ValueError("distribution publisher repository is not admitted")
+    if acquisition_source not in ("distribution", "original"):
+        raise ValueError("acquisition source is not admitted")
+    if acquisition_source == "original":
+        if allow_original_source:
+            raise ValueError("explicit selection and conditional fallback cannot be combined")
+        require_original_selection(mapping)
+        budget = _AcquisitionBudget(evidence_dir)
+        _verify_official_original(mapping, budget, "library/postgres")
+        return mapping["original_repository"] + "@" + mapping["image_digest"]
     budget = _AcquisitionBudget(evidence_dir)
     if allow_original_source:
         identity = tuple(mapping.get(key) for key in (
@@ -535,7 +575,15 @@ def _manifest_headers() -> dict[str, str]:
 
 def _verify_original_source(mapping: dict[str, Any], budget: _AcquisitionBudget) -> None:
     """One fixed public Docker Official Images challenge, no arbitrary auth discovery."""
-    host, repository = "registry-1.docker.io", "library/python"
+    _verify_official_original(mapping, budget, "library/python")
+
+
+def _verify_official_original(
+    mapping: dict[str, Any], budget: _AcquisitionBudget, repository: str,
+) -> None:
+    if repository not in ("library/python", "library/postgres"):
+        raise ValueError("original publisher challenge is not admitted")
+    host = "registry-1.docker.io"
     headers = _manifest_headers()
     url = f"https://{host}/v2/{repository}/manifests/{mapping['image_digest']}"
     try:
@@ -544,14 +592,14 @@ def _verify_original_source(mapping: dict[str, Any], budget: _AcquisitionBudget)
         challenge = error.headers.get("WWW-Authenticate", "")
         expected = (
             r'Bearer realm="https://auth\.docker\.io/token",\s*'
-            r'service="registry\.docker\.io",\s*scope="repository:library/python:pull"'
+            r'service="registry\.docker\.io",\s*scope="repository:' + re.escape(repository) + r':pull"'
         )
         if error.code != 401 or re.fullmatch(expected, challenge) is None:
             raise ValueError("original-source authentication challenge is not admitted") from error
     else:
         raise ValueError("original-source authentication challenge was absent")
     query = urllib.parse.urlencode({
-        "service": "registry.docker.io", "scope": "repository:library/python:pull"
+        "service": "registry.docker.io", "scope": f"repository:{repository}:pull"
     })
     body, _ = budget.request(f"https://auth.docker.io/token?{query}", {})
     token = _anonymous_token(body)
@@ -641,6 +689,24 @@ def _parse_as_of_date(value: str) -> date:
         raise argparse.ArgumentTypeError("must be YYYY-MM-DD") from exc
 
 
+def _validate_acquisition_arguments(parser, args) -> bool:
+    acquisition = any((
+        args.source_image is not None, args.distribution_image is not None,
+        args.platform is not None, args.verify_distribution,
+        args.github_output is not None, args.acquisition_evidence is not None,
+        args.allow_original_source_fallback, args.acquisition_source == "original",
+    ))
+    if acquisition and (args.report_only or not all((args.source_image, args.distribution_image, args.platform))):
+        parser.error("acquisition requires source image, distribution image and platform; report-only is forbidden")
+    requires_live = any((args.github_output, args.acquisition_evidence,
+                         args.allow_original_source_fallback, args.acquisition_source == "original"))
+    if requires_live and not args.verify_distribution:
+        parser.error("Image output, evidence, original selection and fallback require live verification")
+    if args.acquisition_source == "original" and args.allow_original_source_fallback:
+        parser.error("Explicit original selection cannot be combined with conditional fallback")
+    return acquisition
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate Lotus technology maturity and vulnerability posture policy."
@@ -684,6 +750,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Verify live manifest availability and bytes without pulling layers.",
     )
     parser.add_argument(
+        "--acquisition-source", choices=("distribution", "original"),
+        default="distribution",
+        help="Explicit policy-admitted PG16 original selection before service startup; no pull fallback.",
+    )
+    parser.add_argument(
         "--allow-original-source-fallback", action="store_true",
         help="Opt into policy-admitted exact-source recovery after distribution HTTP availability failure.",
     )
@@ -698,30 +769,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Optional temporary directory for failed public manifest response bytes and safe HTTP metadata; tokens omitted.",
     )
     args = parser.parse_args(argv)
-    acquisition = any(
-        (
-            args.source_image is not None,
-            args.distribution_image is not None,
-            args.platform is not None,
-            args.verify_distribution,
-            args.github_output is not None,
-            args.acquisition_evidence is not None,
-            args.allow_original_source_fallback,
-        )
-    )
-    if acquisition and (
-        args.report_only
-        or not all((args.source_image, args.distribution_image, args.platform))
-    ):
-        parser.error(
-            "acquisition requires source image, distribution image and platform; report-only is forbidden"
-        )
-    if args.github_output and not args.verify_distribution:
-        parser.error("GitHub image output requires live distribution verification")
-    if args.allow_original_source_fallback and not args.verify_distribution:
-        parser.error("Original-source fallback requires live verification")
-    if args.acquisition_evidence and not args.verify_distribution:
-        parser.error("Acquisition evidence requires live distribution verification")
+    acquisition = _validate_acquisition_arguments(parser, args)
 
     errors = validate_policy_path(
         args.policy,
@@ -755,6 +803,8 @@ def main(argv: list[str] | None = None) -> int:
                     options["evidence_dir"] = args.acquisition_evidence
                 if args.allow_original_source_fallback:
                     options["allow_original_source"] = True
+                if args.acquisition_source == "original":
+                    options["acquisition_source"] = "original"
                 verified_image = verify_distribution(mapping, **options)
             if args.github_output:
                 with args.github_output.open("a", encoding="utf-8") as output:

@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 427,
     "powershell_file_count": 70,
-    "python_file_count": 283,
-    "source_file_count": 1014,
+    "python_file_count": 285,
+    "source_file_count": 1016,
     "suffix_counts": {
       ".json": 181,
       ".md": 427,
       ".ps1": 70,
-      ".py": 283,
+      ".py": 285,
       ".txt": 10,
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 429518
+    "total_source_lines": 430570
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -187,11 +187,11 @@
       },
       {
         "complexity": 22,
-        "end_line": 773,
-        "line": 644,
-        "lines": 130,
-        "name": "main",
-        "path": "automation/validate_technology_governance_policy.py"
+        "end_line": 350,
+        "line": 245,
+        "lines": 106,
+        "name": "resolve_principal",
+        "path": "automation/verify_principal_credential.py"
       }
     ],
     "largest_functions": [
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4418
+    "python_function_count": 4492
   },
-  "generated_at_utc": "2026-10-14T05:55:25Z",
+  "generated_at_utc": "2026-10-14T14:04:23Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5678,
+    "collected_tests": 5768,
     "command": [
       "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-image-acquisition-945\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5678 tests collected"
+    "summary": "5768 tests collected"
   }
 }

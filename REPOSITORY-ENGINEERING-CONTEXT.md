@@ -79,6 +79,15 @@ distribution admission does not promote the broader report-only technology rollo
 The same publisher admission supports direct anonymous manifest reads only for the
 exact admitted Prometheus Quay pair; it does not discover arbitrary registry hosts
 or repositories. ECR/GHCR token requests and acquisition budgets remain unchanged.
+
+The separately approved exact PG16 index/child/config tuple supports explicit original
+selection before service initialization; it does not extend the Python conditional fallback.
+The local-only `automation/verify_acquired_service_image.py` binds an existing workflow
+service container to its original immutable image and verifies exported config/RootFS on
+that consuming Linux runner, with finite time/capture/archive/decompression limits and
+owned temporary cleanup. It performs no image acquisition or runtime start. Consult the
+technology-governance README for runnable commands and evidence limits; manifest selection,
+actual service pull, local content proof, readiness and application behavior are separate.
 An explicit `--allow-original-source-fallback` live-check option additionally admits only
 Python e529's original Docker Official Images source after bounded ECR HTTP availability/quota
 failure. Both paths share the existing acquisition budget, fixed authentication endpoints and

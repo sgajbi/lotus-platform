@@ -23,6 +23,143 @@ def _mapping():
     )
 
 
+def _pg16():
+    return next(item for item in _policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
+                if item.get("original_source_selection_approval"))
+
+
+def _pg16_responder(monkeypatch, validator, *, fault=None):
+    mapping, index, child = _manifest_fixture()
+    mapping.update(original_repository="docker.io/library/postgres",
+                   distribution_repository="public.ecr.aws/docker/library/postgres",
+                   platform_config_digest="sha256:" + "1" * 64,
+                   original_source_selection_approval=validator.ORIGINAL_SELECTION_APPROVAL)
+    monkeypatch.setattr(validator, "ORIGINAL_SELECTION_IDENTITY", tuple(mapping[key] for key in (
+        "original_repository", "distribution_repository", "image_digest", "manifest_kind",
+        "platform", "platform_manifest_digest", "platform_config_digest",
+    )))
+    calls = []
+    challenge = ('Bearer realm="https://auth.docker.io/token",'
+                 'service="registry.docker.io",scope="repository:library/postgres:pull"')
+
+    def request(url, headers, *, timeout):
+        calls.append(url)
+        assert timeout <= 20 and "public.ecr.aws" not in url
+        if url.startswith("https://auth.docker.io/token?"):
+            query = validator.urllib.parse.parse_qs(validator.urllib.parse.urlsplit(url).query)
+            assert query == {"service": ["registry.docker.io"], "scope": ["repository:library/postgres:pull"]}
+            return b'{"token":"pg-secret"}', {}
+        assert url.startswith("https://registry-1.docker.io/v2/library/postgres/manifests/")
+        if "Authorization" not in headers:
+            if fault == "absent-challenge":
+                return index, {}
+            if fault == "redirect":
+                raise ValueError("distribution registry redirects are not admitted")
+            if fault == "tls":
+                raise validator.urllib.error.URLError("TLS failed")
+            value = challenge
+            if fault in ("realm", "scope", "service"):
+                value = value.replace({"realm": "auth.docker.io", "scope": "library/postgres",
+                                       "service": "registry.docker.io"}[fault], "attacker.example")
+            code = 403 if fault == "forbidden" else 401
+            raise HTTPError(url, code, "challenge", {"WWW-Authenticate": value}, io.BytesIO(b"public"))
+        assert headers["Authorization"] == "Bearer pg-secret"
+        if fault in ("unauthorized", "rate", "unavailable"):
+            code = {"unauthorized": 401, "rate": 429, "unavailable": 503}[fault]
+            raise HTTPError(url, code, "refused", {}, io.BytesIO(b"reflected pg-secret"))
+        raw = index if url.endswith(mapping["image_digest"]) else child
+        if fault == "index-bytes" and raw == index or fault == "child-bytes" and raw == child:
+            raw += b" "
+        response = {"Docker-Content-Digest": "sha256:" + "0" * 64} if fault == "header" else {}
+        return raw, response
+
+    monkeypatch.setattr(validator, "_registry_json", request)
+    return mapping, calls
+
+
+def test_explicit_original_pg16_selects_before_any_distribution_request(monkeypatch):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, calls = _pg16_responder(monkeypatch, validator)
+    assert validator.verify_distribution(mapping, acquisition_source="original") == (
+        mapping["original_repository"] + "@" + mapping["image_digest"]
+    )
+    assert len(calls) == 4
+    assert not any("ecr" in url for url in calls)
+
+
+@pytest.mark.parametrize("fault", ["absent-challenge", "redirect", "tls", "realm", "scope", "service",
+                                   "forbidden", "unauthorized", "rate", "unavailable", "index-bytes",
+                                   "child-bytes", "header"])
+def test_explicit_pg16_fails_closed_without_alternate_source(monkeypatch, tmp_path, fault):
+    validator = _validator()
+    _mock_budget_clock(monkeypatch, validator)
+    mapping, calls = _pg16_responder(monkeypatch, validator, fault=fault)
+    with pytest.raises((OSError, ValueError)):
+        validator.verify_distribution(mapping, acquisition_source="original", evidence_dir=tmp_path)
+    assert len(calls) <= 9
+    assert all("ecr" not in url and "attacker" not in url for url in calls)
+    assert all(b"pg-secret" not in path.read_bytes() for path in tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("key", ["original_repository", "distribution_repository", "image_digest", "manifest_kind",
+                                 "platform", "platform_manifest_digest", "platform_config_digest",
+                                 "original_source_selection_approval"])
+def test_explicit_pg16_authority_binds_every_identity_before_network(monkeypatch, key):
+    validator = _validator()
+    mapping = _pg16()
+    mapping[key] = "wrong"
+    calls = []
+    monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: calls.append(args))
+    with pytest.raises(ValueError):
+        validator.verify_distribution(mapping, acquisition_source="original")
+    assert calls == []
+
+
+@pytest.mark.parametrize("index", range(11))
+def test_pg16_original_selection_refuses_all_other_mappings(monkeypatch, index):
+    validator = _validator()
+    mapping = _policy()["container_image_evidence_policy"]["approved_distribution_mappings"][index]
+    if mapping.get("original_source_selection_approval"):
+        mapping.pop("original_source_selection_approval")
+    monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: pytest.fail("network before admission"))
+    with pytest.raises(ValueError):
+        validator.verify_distribution(mapping, acquisition_source="original")
+
+
+@pytest.mark.parametrize("options", [[], ["--verify-distribution", "--allow-original-source-fallback"],
+                                     ["--report-only", "--verify-distribution"]])
+def test_explicit_selection_requires_live_nonconflicting_cli(monkeypatch, tmp_path, options):
+    validator = _validator()
+    monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: pytest.fail("unexpected network"))
+    with pytest.raises(SystemExit) as exc:
+        validator.main(_arguments(_pg16()) + ["--acquisition-source", "original"] + options)
+    assert exc.value.code == 2
+
+
+def test_explicit_selection_cli_emits_only_verified_original(monkeypatch, tmp_path):
+    validator = _validator()
+    mapping = _pg16()
+    calls = []
+    monkeypatch.setattr(validator, "_verify_official_original", lambda actual, budget, repository: calls.append((actual, repository)))
+    output = tmp_path / "github-output"
+    assert validator.main(_arguments(mapping) + ["--acquisition-source", "original", "--verify-distribution",
+                                                "--github-output", str(output)]) == 0
+    assert output.read_text() == "image=" + mapping["original_repository"] + "@" + mapping["image_digest"] + "\n"
+    assert calls == [(mapping, "library/postgres")]
+
+
+def test_explicit_selection_cli_no_output_after_verification_failure(monkeypatch, tmp_path):
+    validator = _validator()
+    def unavailable(*args):
+        raise ValueError("unavailable")
+    monkeypatch.setattr(validator, "_verify_official_original", unavailable)
+    output = tmp_path / "github-output"
+    assert validator.main(_arguments(_pg16()) + ["--acquisition-source", "original", "--verify-distribution",
+                                              "--github-output", str(output)]) == 1
+    assert not output.exists()
+
+
 def _arguments(mapping):
     return [
         "--source-image",

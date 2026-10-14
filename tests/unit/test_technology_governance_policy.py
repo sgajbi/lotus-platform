@@ -37,6 +37,22 @@ def _policy() -> dict:
     return json.loads(POLICY_PATH.read_text(encoding="utf-8"))
 
 
+def test_pg16_selection_approval_accepts_exact_tuple_and_refuses_reuse():
+    validator = _validator()
+    policy = _policy()
+    mapping = next(item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
+                   if item.get("original_source_selection_approval"))
+    validator.require_original_selection(mapping)
+    for key in ("original_repository", "distribution_repository", "image_digest", "manifest_kind",
+                "platform", "platform_manifest_digest", "platform_config_digest", "original_source_selection_approval"):
+        original = mapping[key]
+        mapping[key] = "wrong"
+        errors = validator.validate_policy(policy, exception_register_paths=[])
+        assert any("original-source selection" in error for error in errors)
+        mapping[key] = original
+    assert validator.validate_policy(policy, exception_register_paths=[]) == []
+
+
 def _exception_register() -> dict:
     return json.loads(VULNERABILITY_EXCEPTION_EXAMPLE_PATH.read_text(encoding="utf-8"))
 

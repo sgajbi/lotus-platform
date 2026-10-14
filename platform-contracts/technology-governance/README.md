@@ -47,7 +47,7 @@ repositories, Trivy's official `ghcr.io/aquasecurity/trivy`, Syft's official `gh
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
 registries are not admitted by those mappings. The explicit exact-source recovery below is a
 separate policy admission. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.3` retains the eleven `1.1.2` mappings and adds an optional exact-source recovery admission; consumers must bind the matching
+Policy version `1.1.4` retains the eleven mappings and the Python recovery admission, and adds explicit original PG16 selection; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -174,3 +174,71 @@ verification alone does not qualify its original-source recovery. Do not change 
 workflows, bindings, variables, digest, runtime version, security or coverage implicitly. Public
 source capacity can also fail. This is independent of the held #945 image custody/archive proposal,
 which supplies no implemented cache or service-initialization recovery.
+
+### Explicit original PostgreSQL 16 selection and local content proof
+
+[Separate PG16 authority](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701)
+admits explicit `--acquisition-source original` only for original
+`docker.io/library/postgres`, root index `ca0bd484...`, Linux/amd64 child
+`75adc2a6...` and config `275447c9...` (full digests are in the policy). It retains
+the existing distribution mapping and observation. This is distinct from the Python
+conditional fallback and cannot be combined with it. Live verification is required;
+the explicit original choice precedes any ECR request. The fixed Docker Official Images
+auth realm/service and `repository:library/postgres:pull` scope, exact tuple/approval
+and existing aggregate request/time/wait budgets remain mandatory. Unavailable,
+unauthorized, mismatched or unsafe input emits no image output. No automatic switch
+after a Docker pull error is implemented. PG17, PG16-alpine and other tuples are excluded.
+
+From the **qualified Platform checkout root**, this command is identical in PowerShell
+and Bash. It performs a live manifest check; it does not pull the image:
+
+```text
+python automation/validate_technology_governance_policy.py --source-image docker.io/library/postgres@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d --distribution-image public.ecr.aws/docker/library/postgres@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d --platform linux/amd64 --verify-distribution --acquisition-source original
+```
+
+For workflow use, append `--github-output` with the existing GitHub output path and bind
+that original immutable output to the actual declarative service before initialization.
+A successful preflight on one hosted runner does not make another runner's Docker pull
+succeed. The observed ECR data-plane refusal after manifest success is why a conditional
+manifest fallback alone is insufficient. Authenticated ECR or an image cache requires
+separate configured owner authority; this change provisions neither. Original Docker Hub
+availability is unproven until actual hosted acquisition passes. Earlier failed runs stay failed.
+
+`automation/verify_acquired_service_image.py` checks only the already running service on
+the **same consuming Linux runner**, after initialization and before the consumer command.
+Provide the workflow's full service container ID, exact original image, qualified Platform
+commit and an unused output file outside the policy checkout. It requires a clean exact
+policy checkout including untracked files and the local default Unix Docker daemon.
+It inspects that container, saves its immutable image ID to an owned temporary archive,
+hashes actual config bytes and ordered uncompressed RootFS layers, compares inspect,
+then re-inspects the original container to reject replacement/stopping. It never pulls,
+starts, loads, copies to another registry, publishes or deletes images/containers.
+
+The local proof binds the admitted index/child/config tuple and actual original repository
+digest. The child/config linkage is central policy authority; no fresh manifest bytes are
+retained by the local helper. Image `Id` is not assumed to equal config digest: containerd
+may expose index identity. Archive/config/inspect bytes are temporary and removed on
+success/failure; the JSON is checked-helper-produced hashes and provenance, not retained
+raw evidence. It claims no compressed transfer, cold cache, executed language or benchmark
+correctness. Existing PostgreSQL health/readiness and full non-skipped tests remain required.
+
+Finite bounds: a 240-second work deadline (plus at most five seconds for child termination),
+120 seconds per child, 4 MiB capture per stream,
+4 GiB archive/member aggregate, 2 MiB per metadata member, 4096 members, 128 layers and
+8 GiB aggregate expanded bytes. Child capture/export growth is checked every 20 ms and
+on completion, then killed on excess; this is monitored growth, not an OS disk quota.
+All archive headers are scanned before tar parsing; extension records, duplicate names,
+links, traversal, special files and malformed/truncated archives are rejected without
+extraction. Decompressed layers stream through bounded chunks. Owned temporary files
+are removed on error. No policy exception or security/release threshold changes.
+
+From the **Platform checkout root**, offline controls run identically in PowerShell/Bash:
+
+```text
+python -m pytest tests/unit/test_image_distribution_acquisition.py tests/unit/test_technology_governance_policy.py tests/unit/test_acquired_service_image.py -q
+```
+
+Hosted adopter acceptance is separate: actual original service-start pull, same-runner
+content proof, existing readiness, full non-skipped behavior and protected/main gates at
+the exact adopter and qualified central revisions. Neither this authority nor offline
+controls close #945 or promote its broader report-only policy.
