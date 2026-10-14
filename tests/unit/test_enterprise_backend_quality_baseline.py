@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
+import runpy
+import shutil
 import subprocess
+import sys
 from pathlib import Path
+from xml.etree import ElementTree
 
 import pytest
 
@@ -18,6 +23,134 @@ from automation.generate_enterprise_backend_quality_baseline import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _optional_contract_probe(tmp_path, module_name, *, render_present=False, shells=()):
+    """Collect the real test module in an isolated dependency topology."""
+    checkout = tmp_path / "lotus-platform"
+    suite = checkout / "tests" / "unit"
+    suite.mkdir(parents=True)
+    module = suite / module_name
+    shutil.copyfile(ROOT / "tests" / "unit" / module_name, module)
+    (suite / "conftest.py").write_text(
+        "import shutil\n"
+        "def pytest_configure(config):\n"
+        "    original = shutil.which\n"
+        f"    available = {tuple(shells)!r}\n"
+        "    def which(name, *args, **kwargs):\n"
+        "        if name in ('pwsh', 'powershell'):\n"
+        "            return '/probe/installed-' + name + '.EXE' if name in available else None\n"
+        "        return original(name, *args, **kwargs)\n"
+        "    shutil.which = which\n",
+        encoding="utf-8",
+    )
+    if render_present:
+        metrics = tmp_path / "lotus-render" / "src" / "app" / "observability" / "render_metrics.py"
+        metrics.parent.mkdir(parents=True)
+        metrics.write_text("# Optional source is present for collection.\n", encoding="utf-8")
+    return checkout, module
+
+
+def _run_contract_probe(checkout, *arguments):
+    return subprocess.run(
+        [sys.executable, "-B", "-m", "pytest", "-p", "no:cacheprovider", "-q", *arguments],
+        cwd=checkout,
+        env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=30,
+        check=False,
+    )
+
+
+@pytest.mark.parametrize("render_present", [False, True], ids=["missing", "present"])
+def test_reporting_contract_keeps_all_nodes_without_optional_sibling(tmp_path, render_present):
+    checkout, module = _optional_contract_probe(
+        tmp_path, "test_reporting_observability_contract.py", render_present=render_present
+    )
+    result = _run_contract_probe(checkout, "--collect-only", str(module))
+    assert result.returncode == 0, result.stdout + result.stderr
+    nodes = {line.split("::")[-1] for line in result.stdout.splitlines() if "::test_" in line}
+    assert nodes == {
+        "test_reporting_observability_contract_artifacts_are_present_and_governed",
+        "test_reporting_observability_contract_references_only_implemented_metrics",
+        "test_reporting_observability_metric_sources_reject_sensitive_labels",
+        "test_reporting_observability_contract_labels_match_service_metric_contracts",
+        "test_reporting_observability_alerts_have_owner_severity_and_runbook_links",
+        "test_reporting_observability_sla_objectives_have_explicit_owners_and_metrics",
+        "test_reporting_observability_contract_records_slice8_deferred_families_truthfully",
+        "test_reporting_observability_dashboard_references_only_contract_metrics",
+    }
+
+
+@pytest.mark.parametrize(
+    "shells",
+    [(), ("pwsh",), ("powershell",), ("pwsh", "powershell")],
+    ids=["none", "pwsh-only", "powershell-only", "both"],
+)
+def test_issue_audit_keeps_canonical_nodes_for_every_shell_topology(tmp_path, shells):
+    checkout, module = _optional_contract_probe(tmp_path, "test_gh_issue_fix_qa_loop.py", shells=shells)
+    result = _run_contract_probe(
+        checkout, "--collect-only", str(module) + "::test_audit_accepts_clean_closed_and_open_issue_states"
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    nodes = {line.split("::")[-1] for line in result.stdout.splitlines() if "::test_" in line}
+    assert nodes == {
+        "test_audit_accepts_clean_closed_and_open_issue_states[pwsh]",
+        "test_audit_accepts_clean_closed_and_open_issue_states[powershell]",
+    }
+
+
+@pytest.mark.parametrize("mode", ["missing", "valid", "invalid"])
+def test_optional_reporting_prerequisite_skips_or_executes_real_assertions(tmp_path, mode):
+    checkout, module = _optional_contract_probe(
+        tmp_path, "test_reporting_observability_contract.py", render_present=mode != "missing"
+    )
+    contracts = checkout / "context" / "contracts"
+    contracts.mkdir(parents=True)
+    for name in (
+        "README.md",
+        "reporting-observability-contract.schema.json",
+        "reporting-observability-contract.json",
+    ):
+        shutil.copyfile(ROOT / "context" / "contracts" / name, contracts / name)
+    if mode == "invalid":
+        path = contracts / "reporting-observability-contract.json"
+        contract = json.loads(path.read_text(encoding="utf-8"))
+        contract["contract_version"] = "invalid"
+        path.write_text(json.dumps(contract), encoding="utf-8")
+    report = checkout / "result.xml"
+    result = _run_contract_probe(
+        checkout, str(module) + "::test_reporting_observability_contract_artifacts_are_present_and_governed",
+        "--junitxml", str(report),
+    )
+    assert result.returncode == (1 if mode == "invalid" else 0), result.stdout + result.stderr
+    cases = ElementTree.parse(report).findall(".//testcase")
+    assert len(cases) == 1
+    assert (cases[0].find("skipped") is not None) == (mode == "missing")
+    assert (cases[0].find("failure") is not None) == (mode == "invalid")
+
+
+@pytest.mark.parametrize("shell", ["pwsh", "powershell"])
+def test_issue_audit_shell_prerequisite_skips_or_runs_native_script(tmp_path, shell):
+    module = runpy.run_path(str(ROOT / "tests" / "unit" / "test_gh_issue_fix_qa_loop.py"))
+    script = tmp_path / "probe.ps1"
+    script.write_text("Write-Output 'collection-contract-executed'\n", encoding="utf-8")
+    result = module["_run_script"](script, [], dict(os.environ), powershell=shutil.which(shell))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == "collection-contract-executed"
+
+
+def test_issue_audit_missing_shell_skips_before_launch(monkeypatch):
+    module = runpy.run_path(str(ROOT / "tests" / "unit" / "test_gh_issue_fix_qa_loop.py"))
+
+    def unexpected_launch(*args, **kwargs):
+        pytest.fail("Unavailable shell must skip before launching a process")
+
+    monkeypatch.setattr(subprocess, "run", unexpected_launch)
+    with pytest.raises(pytest.skip.Exception, match="PowerShell is required"):
+        module["_run_script"](Path("unused.ps1"), [], {}, powershell=None)
 
 
 def test_quality_baseline_collects_required_enterprise_signals() -> None:
