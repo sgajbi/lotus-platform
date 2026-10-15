@@ -237,7 +237,7 @@
       "properties": {
         "original_repository": {"enum": ["docker.io/library/python", "docker.io/library/postgres", "docker.io/aquasec/trivy", "docker.io/anchore/syft", "docker.io/prom/prometheus"]},
         "original_source_fallback_approval": {"type": "string", "const": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836"},
-        "original_source_selection_approval": {"type": "string", "enum": ["https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701", "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6181948743"]},
+        "original_source_selection_approval": {"type": "string", "enum": ["https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701", "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6181948743", "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6182750862"]},
         "distribution_repository": {"enum": ["public.ecr.aws/docker/library/python", "public.ecr.aws/docker/library/postgres", "ghcr.io/aquasecurity/trivy", "ghcr.io/anchore/syft", "quay.io/prometheus/prometheus"]},
         "image_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
         "manifest_kind": {"enum": ["index", "manifest"]},

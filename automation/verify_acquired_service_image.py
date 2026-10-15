@@ -110,10 +110,12 @@ def _one_object(raw: bytes) -> dict:
 
 
 def admitted_mapping(expected_image: str) -> dict:
+    repository, _, digest = expected_image.partition("@")
+    if repository != "docker.io/library/postgres":
+        raise ValueError("local service content proof supports only original PostgreSQL")
     errors = policy.validate_policy_path(exception_register_paths=[])
     if errors:
         raise ValueError("central policy did not validate")
-    repository, _, digest = expected_image.partition("@")
     distribution = policy.PUBLISHER_DISTRIBUTIONS.get(repository, "")
     mapping = policy.resolve_distribution(
         policy.load_policy(), expected_image, distribution + "@" + digest, "linux/amd64",

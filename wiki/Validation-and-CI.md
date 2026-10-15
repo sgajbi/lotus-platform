@@ -32,7 +32,7 @@ The separate [PG17 decision](https://github.com/sgajbi/lotus-platform/issues/945
 binds root index `2d2b8998...`, child `3cec7eb0...` and config `327daa8f...` on the same platform.
 Each approval applies only to its own complete tuple. Explicit selection chooses original
 Docker Official Images before service startup; it is not a generic pull-error fallback.
-The existing exclusive Python recovery behavior is unchanged. Use the qualified central
+The existing conditional Python recovery behavior is unchanged. Use the qualified central
 policy and the [operator commands and limits](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/technology-governance/README.md#explicit-original-postgresql-16-and-17-selection-and-local-content-proof).
 Actual Docker startup occurs on the consuming runner and can fail after another runner's
 manifest check succeeds. The local-only `automation/verify_acquired_service_image.py`
@@ -46,6 +46,17 @@ PG17 adoption must propagate the admitted output into the actual service acquisi
 recovery Compose/Make/filtered-environment boundaries. This central contract does not update
 Performance recovery or its separate Python content-policy pin. Default distribution behavior
 is unchanged; original-source availability, capacity entitlement and #945 completion are unproved.
+
+The separate [Python e529 selection decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6182750862)
+admits its existing single-platform manifest/root/child `e5290282...` and config `541096ae...`
+on Linux/amd64 before any ECR request. The complete tuple and exact authority must match
+before dispatch to the fixed Python Official Images challenge/scope; see the
+[operator command and boundaries](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/technology-governance/README.md#explicit-original-python-e529-selection).
+Default distribution, conditional fallback and shared finite budgets remain unchanged.
+The local service verifier remains PostgreSQL-only and refuses Python. Performance adoption
+must separately propagate the selected image through build/Compose/filtered-environment and
+content-evidence boundaries at a qualified central revision. Manifest success does not prove
+later content acquisition, source capacity, live recovery or #945 completion.
 
 The current finite policy also includes the separately reviewed Gateway Trivy 0.72.0
 and Syft v1.42.3 audit tuples. Gateway Python uses the existing admitted single-platform
