@@ -44,6 +44,32 @@ Domain-product declarations must include it when a route or payload selects an e
 It does not prove booking or projection state; the producer's lifecycle fields own that truth. It
 complements `portfolio_id`; neither identifier alone implies tenant ownership.
 
+## Source Record Identity
+
+The [domain-data-product semantics registry](./domain-data-product-semantics.v1.json)
+governs source-owned record identity. Each owning product declares the scope of its source
+identifiers:
+
+1. `source_system` is a string identifying the source origin system.
+2. `source_record_id` is a stable string identifying an original supplier record within the
+   owning product's declared source scope.
+3. `flow_source_record_revision` is a positive contiguous integer selecting an immutable
+   revision of a financial flow source record. Other products retain their own revision semantics.
+
+For `PortfolioFinancialFlowObservations`, exact revision selection must pin `tenant_id`,
+`portfolio_id`, `source_system`, `source_record_id`, and `flow_source_record_revision` together.
+The record is scoped by tenant, portfolio, and source system; revisions are contiguous within that
+record. Producer declarations must list the identifiers selected by their governed routes and
+payloads. A revision number alone identifies neither the source record nor its producer.
+
+Trust telemetry's `source_event_id` retains its evidence-event meaning. The consumer dead-letter
+audit identifier `event_id` and source contract or product version `source_version` also retain
+their existing meanings. Financial flow declarations must not substitute `event_id`,
+`source_version`, `source_event_id`, or `source_event_version` for the governed record family;
+these unreleased mistaken flow references have no compatibility aliases. Source identifiers do
+not prove tenant ownership, consumer authority, downstream compatibility, institutional
+certification, or financial readiness.
+
 ## Advisory Proposal Identity
 
 The domain-data-product semantics registry includes `proposal_id`, `proposal_version_id`,

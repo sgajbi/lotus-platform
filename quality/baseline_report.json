@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 430903
+    "total_source_lines": 431134
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -269,8 +269,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2421,
-        "line": 2152,
+        "end_line": 2605,
+        "line": 2336,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4504
+    "python_function_count": 4506
   },
-  "generated_at_utc": "2026-10-15T07:33:10Z",
+  "generated_at_utc": "2026-10-15T16:28:10Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -413,7 +413,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2525,
+      "lines": 2709,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5969,
+    "collected_tests": 5979,
     "command": [
       "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5969 tests collected"
+    "summary": "5979 tests collected"
   }
 }
