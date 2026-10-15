@@ -83,10 +83,16 @@ or repositories. ECR/GHCR token requests and acquisition budgets remain unchange
 The separately approved exact PG16 and PG17 index/child/config tuples support explicit original
 selection before service initialization. Each binds its own decision; neither extends the Python
 conditional fallback or admits PG16-alpine. Default distribution behavior is unchanged.
+Python e529 also has separate explicit original-selection authority for its exact manifest/config
+tuple. Full tuple and matching approval precede fixed Python/PostgreSQL verifier dispatch;
+the default distribution, conditional Python fallback and shared finite budgets are unchanged.
+Performance adoption must separately propagate the selected output through build, Compose,
+filtered environment and content evidence at a qualified central revision.
 The local-only `automation/verify_acquired_service_image.py` binds an existing workflow
-service container to its original immutable image and verifies exported config/RootFS on
+PostgreSQL service container to its original immutable image and verifies exported config/RootFS on
 that consuming Linux runner, with finite time/capture/archive/decompression limits and
-owned temporary cleanup. It performs no image acquisition or runtime start. Consult the
+owned temporary cleanup. It rejects Python, including the approved selection tuple, and
+performs no image acquisition or runtime start. Consult the
 technology-governance README for runnable commands and evidence limits; manifest selection,
 actual service pull, local content proof, readiness and application behavior are separate.
 PG17 adoption must separately carry the selected image through the owning acquisition path,

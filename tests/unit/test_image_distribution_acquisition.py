@@ -23,38 +23,43 @@ def _mapping():
     )
 
 
-@pytest.fixture(params=["16", "17"])
-def postgres_version(request):
+@pytest.fixture(params=["16", "17", "python"])
+def original_variant(request):
     return request.param
 
 
-def _postgres(version):
-    digest = {"16": "ca0bd484", "17": "2d2b8998"}[version]
+def _selected(variant):
+    digest = {"16": "ca0bd484", "17": "2d2b8998", "python": "e5290282"}[variant]
     return next(item for item in _policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
                 if item["image_digest"].startswith("sha256:" + digest))
 
 
-def _postgres_responder(monkeypatch, validator, version, *, fault=None):
+def _original_responder(monkeypatch, validator, variant, *, fault=None):
     mapping, index, child = _manifest_fixture()
-    mapping.update(original_repository="docker.io/library/postgres",
-                   distribution_repository="public.ecr.aws/docker/library/postgres",
-                   platform_config_digest="sha256:" + "1" * 64,
-                   original_source_selection_approval=_postgres(version)["original_source_selection_approval"])
+    repository = "library/python" if variant == "python" else "library/postgres"
+    if variant == "python":
+        mapping.update(manifest_kind="manifest", image_digest=mapping["platform_manifest_digest"])
+    mapping.update(original_repository="docker.io/" + repository,
+                   distribution_repository="public.ecr.aws/docker/" + repository,
+                   platform_config_digest="sha256:" + ("2" if fault == "config-descriptor" else "1") * 64,
+                   original_source_selection_approval=_selected(variant)["original_source_selection_approval"])
     identity = tuple(mapping[key] for key in validator.ORIGINAL_SELECTION_FIELDS)
     monkeypatch.setattr(validator, "ORIGINAL_SELECTION_APPROVALS",
                         {identity: mapping["original_source_selection_approval"]})
     calls = []
     challenge = ('Bearer realm="https://auth.docker.io/token",'
-                 'service="registry.docker.io",scope="repository:library/postgres:pull"')
+                 f'service="registry.docker.io",scope="repository:{repository}:pull"')
 
     def request(url, headers, *, timeout):
         calls.append(url)
         assert timeout <= 20 and "public.ecr.aws" not in url
         if url.startswith("https://auth.docker.io/token?"):
             query = validator.urllib.parse.parse_qs(validator.urllib.parse.urlsplit(url).query)
-            assert query == {"service": ["registry.docker.io"], "scope": ["repository:library/postgres:pull"]}
+            assert query == {"service": ["registry.docker.io"], "scope": [f"repository:{repository}:pull"]}
+            if fault == "token":
+                return b'{}', {}
             return b'{"token":"pg-secret"}', {}
-        assert url.startswith("https://registry-1.docker.io/v2/library/postgres/manifests/")
+        assert url.startswith(f"https://registry-1.docker.io/v2/{repository}/manifests/")
         if "Authorization" not in headers:
             if fault == "absent-challenge":
                 return index, {}
@@ -64,7 +69,7 @@ def _postgres_responder(monkeypatch, validator, version, *, fault=None):
                 raise validator.urllib.error.URLError("TLS failed")
             value = challenge
             if fault in ("realm", "scope", "service"):
-                value = value.replace({"realm": "auth.docker.io", "scope": "library/postgres",
+                value = value.replace({"realm": "auth.docker.io", "scope": repository,
                                        "service": "registry.docker.io"}[fault], "attacker.example")
             code = 403 if fault == "forbidden" else 401
             raise HTTPError(url, code, "challenge", {"WWW-Authenticate": value}, io.BytesIO(b"public"))
@@ -72,8 +77,8 @@ def _postgres_responder(monkeypatch, validator, version, *, fault=None):
         if fault in ("unauthorized", "rate", "unavailable"):
             code = {"unauthorized": 401, "rate": 429, "unavailable": 503}[fault]
             raise HTTPError(url, code, "refused", {}, io.BytesIO(b"reflected pg-secret"))
-        raw = index if url.endswith(mapping["image_digest"]) else child
-        if fault == "index-bytes" and raw == index or fault == "child-bytes" and raw == child:
+        raw = index if mapping["manifest_kind"] == "index" and url.endswith(mapping["image_digest"]) else child
+        if fault == "root-bytes" and url.endswith(mapping["image_digest"]) or fault == "child-bytes" and raw == child:
             raw += b" "
         response = {"Docker-Content-Digest": "sha256:" + "0" * 64} if fault == "header" else {}
         return raw, response
@@ -82,24 +87,34 @@ def _postgres_responder(monkeypatch, validator, version, *, fault=None):
     return mapping, calls
 
 
-def test_explicit_original_postgres_selects_before_any_distribution_request(monkeypatch, postgres_version):
+def test_explicit_original_selects_before_any_distribution_request(monkeypatch, original_variant):
     validator = _validator()
     _mock_budget_clock(monkeypatch, validator)
-    mapping, calls = _postgres_responder(monkeypatch, validator, postgres_version)
+    mapping, calls = _original_responder(monkeypatch, validator, original_variant)
     assert validator.verify_distribution(mapping, acquisition_source="original") == (
         mapping["original_repository"] + "@" + mapping["image_digest"]
     )
-    assert len(calls) == 4
+    assert len(calls) == (3 if original_variant == "python" else 4)
     assert not any("ecr" in url for url in calls)
 
 
+def test_original_selection_authority_preserves_default_distribution(monkeypatch, original_variant):
+    validator = _validator()
+    mapping = _selected(original_variant)
+    calls = []
+    monkeypatch.setattr(validator, "_verify_publisher_distribution", lambda actual, budget: calls.append(actual))
+    monkeypatch.setattr(validator, "_verify_official_original", lambda *args: pytest.fail("unexpected original request"))
+    assert validator.verify_distribution(mapping) == mapping["distribution_repository"] + "@" + mapping["image_digest"]
+    assert calls == [mapping]
+
+
 @pytest.mark.parametrize("fault", ["absent-challenge", "redirect", "tls", "realm", "scope", "service",
-                                   "forbidden", "unauthorized", "rate", "unavailable", "index-bytes",
-                                   "child-bytes", "header"])
-def test_explicit_postgres_fails_closed_without_alternate_source(monkeypatch, tmp_path, postgres_version, fault):
+                                   "forbidden", "unauthorized", "rate", "unavailable", "root-bytes",
+                                   "child-bytes", "header", "config-descriptor", "token"])
+def test_explicit_original_fails_closed_without_alternate_source(monkeypatch, tmp_path, original_variant, fault):
     validator = _validator()
     _mock_budget_clock(monkeypatch, validator)
-    mapping, calls = _postgres_responder(monkeypatch, validator, postgres_version, fault=fault)
+    mapping, calls = _original_responder(monkeypatch, validator, original_variant, fault=fault)
     with pytest.raises((OSError, ValueError)):
         validator.verify_distribution(mapping, acquisition_source="original", evidence_dir=tmp_path)
     assert len(calls) <= 9
@@ -110,9 +125,9 @@ def test_explicit_postgres_fails_closed_without_alternate_source(monkeypatch, tm
 @pytest.mark.parametrize("key", ["original_repository", "distribution_repository", "image_digest", "manifest_kind",
                                  "platform", "platform_manifest_digest", "platform_config_digest",
                                  "original_source_selection_approval"])
-def test_explicit_postgres_authority_binds_every_identity_before_network(monkeypatch, postgres_version, key):
+def test_explicit_original_authority_binds_every_identity_before_network(monkeypatch, original_variant, key):
     validator = _validator()
-    mapping = _postgres(postgres_version)
+    mapping = _selected(original_variant)
     mapping[key] = "wrong"
     calls = []
     monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: calls.append(args))
@@ -134,50 +149,52 @@ def test_original_selection_refuses_unapproved_mappings(monkeypatch, index):
 
 @pytest.mark.parametrize("options", [[], ["--verify-distribution", "--allow-original-source-fallback"],
                                      ["--report-only", "--verify-distribution"]])
-def test_explicit_selection_requires_live_nonconflicting_cli(monkeypatch, tmp_path, postgres_version, options):
+def test_explicit_selection_requires_live_nonconflicting_cli(monkeypatch, tmp_path, original_variant, options):
     validator = _validator()
     monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: pytest.fail("unexpected network"))
     with pytest.raises(SystemExit) as exc:
-        validator.main(_arguments(_postgres(postgres_version)) + ["--acquisition-source", "original"] + options)
+        validator.main(_arguments(_selected(original_variant)) + ["--acquisition-source", "original"] + options)
     assert exc.value.code == 2
 
 
-def test_explicit_selection_cli_emits_only_verified_original(monkeypatch, tmp_path, postgres_version):
+def test_explicit_selection_cli_emits_only_verified_original(monkeypatch, tmp_path, original_variant):
     validator = _validator()
-    mapping = _postgres(postgres_version)
+    mapping = _selected(original_variant)
     calls = []
     monkeypatch.setattr(validator, "_verify_official_original", lambda actual, budget, repository: calls.append((actual, repository)))
     output = tmp_path / "github-output"
     assert validator.main(_arguments(mapping) + ["--acquisition-source", "original", "--verify-distribution",
                                                 "--github-output", str(output)]) == 0
     assert output.read_text() == "image=" + mapping["original_repository"] + "@" + mapping["image_digest"] + "\n"
-    assert calls == [(mapping, "library/postgres")]
+    assert calls == [(mapping, "library/python" if original_variant == "python" else "library/postgres")]
 
 
-def test_explicit_selection_cli_no_output_after_verification_failure(monkeypatch, tmp_path, postgres_version):
+def test_explicit_selection_cli_no_output_after_verification_failure(monkeypatch, tmp_path, original_variant):
     validator = _validator()
     def unavailable(*args):
         raise ValueError("unavailable")
     monkeypatch.setattr(validator, "_verify_official_original", unavailable)
     output = tmp_path / "github-output"
-    assert validator.main(_arguments(_postgres(postgres_version)) + ["--acquisition-source", "original", "--verify-distribution",
+    assert validator.main(_arguments(_selected(original_variant)) + ["--acquisition-source", "original", "--verify-distribution",
                                               "--github-output", str(output)]) == 1
     assert not output.exists()
 
 
-@pytest.mark.parametrize("approval", [None, "other-tuple"])
-def test_explicit_postgres_missing_or_transplanted_approval_refuses_before_output(
-    monkeypatch, tmp_path, postgres_version, approval
+@pytest.mark.parametrize("approval", [None, "16", "17", "python"])
+def test_explicit_original_missing_or_transplanted_approval_refuses_before_output(
+    monkeypatch, tmp_path, original_variant, approval
 ):
     validator = _validator()
     policy = _policy()
     mapping = next(item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
-                   if item["image_digest"] == _postgres(postgres_version)["image_digest"])
+                   if item["image_digest"] == _selected(original_variant)["image_digest"])
     if approval is None:
         mapping.pop("original_source_selection_approval")
     else:
-        other = "17" if postgres_version == "16" else "16"
-        mapping["original_source_selection_approval"] = _postgres(other)["original_source_selection_approval"]
+        mapping["original_source_selection_approval"] = _selected(approval)["original_source_selection_approval"]
+        if approval == original_variant:
+            # Same authority on a different tuple also refuses before network.
+            mapping["platform_config_digest"] = "sha256:" + "0" * 64
     policy_path = tmp_path / "policy.json"
     policy_path.write_text(json.dumps(policy))
     monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: pytest.fail("network before approval"))
@@ -188,10 +205,10 @@ def test_explicit_postgres_missing_or_transplanted_approval_refuses_before_outpu
 
 
 @pytest.mark.parametrize("exhaustion", ["requests", "deadline", "wait"])
-def test_explicit_postgres_keeps_one_acquisition_budget(monkeypatch, postgres_version, exhaustion):
+def test_explicit_original_keeps_one_acquisition_budget(monkeypatch, original_variant, exhaustion):
     validator = _validator()
     _mock_budget_clock(monkeypatch, validator)
-    mapping, calls = _postgres_responder(monkeypatch, validator, postgres_version, fault="rate")
+    mapping, calls = _original_responder(monkeypatch, validator, original_variant, fault="rate")
     original = validator._AcquisitionBudget
 
     class ExhaustedBudget(original):
@@ -207,7 +224,7 @@ def test_explicit_postgres_keeps_one_acquisition_budget(monkeypatch, postgres_ve
     assert len(calls) == (3 if exhaustion == "wait" else 0)
 
 
-def test_operator_original_selection_commands_bind_both_exact_approved_tuples():
+def test_operator_original_selection_commands_bind_all_exact_approved_tuples():
     import shlex
 
     root = Path(__file__).resolve().parents[2]
@@ -215,7 +232,7 @@ def test_operator_original_selection_commands_bind_both_exact_approved_tuples():
                 (root / "platform-contracts/technology-governance/README.md").read_text().splitlines()
                 if line.startswith("python automation/validate_technology_governance_policy.py ")
                 and "--acquisition-source original" in line]
-    assert len(commands) == 2
+    assert len(commands) == 3
     validator = _validator()
     admitted = []
     for command in commands:
@@ -227,7 +244,7 @@ def test_operator_original_selection_commands_bind_both_exact_approved_tuples():
         )
         validator.require_original_selection(mapping)
         admitted.append(mapping["image_digest"])
-    assert set(admitted) == {_postgres(version)["image_digest"] for version in ("16", "17")}
+    assert set(admitted) == {_selected(variant)["image_digest"] for variant in ("16", "17", "python")}
 
 
 def _arguments(mapping):

@@ -47,7 +47,8 @@ repositories, Trivy's official `ghcr.io/aquasecurity/trivy`, Syft's official `gh
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
 registries are not admitted by those mappings. The explicit exact-source recovery below is a
 separate policy admission. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.5` retains the eleven mappings and the Python recovery admission, and supports separately approved explicit original PG16 and PG17 selection; consumers must bind the matching
+Policy version `1.1.6` retains the eleven mappings and the conditional Python recovery admission,
+and supports separately approved explicit original Python e529, PG16 and PG17 selection; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -175,11 +176,41 @@ workflows, bindings, variables, digest, runtime version, security or coverage im
 source capacity can also fail. This is independent of the held #945 image custody/archive proposal,
 which supplies no implemented cache or service-initialization recovery.
 
+### Explicit original Python e529 selection
+
+The [Python selection decision](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6182750862)
+admits explicit `--acquisition-source original` only for `docker.io/library/python`,
+distribution `public.ecr.aws/docker/library/python`, single-platform manifest/root/child
+`e5290282...`, Linux/amd64 and config `541096ae...`. The existing equivalence approval
+and observation remain unchanged. The full tuple and its own approval are checked before
+dispatch to the fixed `library/python` verifier, auth realm/service and
+`repository:library/python:pull` scope. PG16/PG17 keep their independent authorities.
+
+From the **qualified Platform checkout root**, this command is identical in PowerShell
+and Bash. It verifies the manifest and config descriptor without pulling image content:
+
+```text
+python automation/validate_technology_governance_policy.py --source-image docker.io/library/python@sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e --distribution-image public.ecr.aws/docker/library/python@sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e --platform linux/amd64 --verify-distribution --acquisition-source original
+```
+
+Explicit selection precedes any ECR request and requires live verification. It cannot be
+combined with conditional fallback. Default distribution and the existing conditional
+Python fallback retain their behavior and aggregate request/wait/time budgets. Malformed,
+unapproved, unavailable, unsafe or mismatched input emits no selected output. Admission
+on one runner does not establish later source capacity or successful content acquisition.
+
+Performance adoption is a separate change at a qualified central revision: carry the selected
+immutable output through build, Compose, filtered environment and content-evidence boundaries.
+There is no silent downstream source switch or extra retry budget. The local
+`verify_acquired_service_image.py` helper remains PostgreSQL-only and rejects Python even
+when its original-source selection is approved. This central selection change supplies no
+live acquisition, capacity entitlement, readiness or full #945 completion claim.
+
 ### Explicit original PostgreSQL 16 and 17 selection and local content proof
 
 [PG16 authority](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701)
 and the separate [PG17 authority](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6181948743)
-admit explicit `--acquisition-source original` only for these two original
+admit explicit `--acquisition-source original` for these two original
 `docker.io/library/postgres` tuples (full digests are in the policy):
 
 | Selection | Root index | Linux/amd64 child | Config |
@@ -222,7 +253,7 @@ does not change Performance's recovery Compose/Make/environment bindings or Pyth
 separate qualified content-policy requirement. Neither source selection decision establishes
 quota entitlement, reliable capacity or completion of #945.
 
-`automation/verify_acquired_service_image.py` checks only the already running service on
+`automation/verify_acquired_service_image.py` checks only the already running PostgreSQL service on
 the **same consuming Linux runner**, after initialization and before the consumer command.
 Provide the workflow's full service container ID, exact original image, qualified Platform
 commit and an unused output file outside the policy checkout. It requires a clean exact

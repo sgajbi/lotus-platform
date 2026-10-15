@@ -39,8 +39,8 @@ def _policy() -> dict:
     return json.loads(POLICY_PATH.read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998"])
-def test_postgres_selection_approval_accepts_exact_tuple_and_refuses_reuse(digest):
+@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998", "e5290282"])
+def test_original_selection_approval_accepts_exact_tuple_and_refuses_reuse(digest):
     validator = _validator()
     policy = _policy()
     mapping = next(item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
@@ -56,25 +56,26 @@ def test_postgres_selection_approval_accepts_exact_tuple_and_refuses_reuse(diges
     assert validator.validate_policy(policy, exception_register_paths=[]) == []
 
 
-def test_postgres_selection_approvals_cannot_be_transplanted_between_admitted_tuples():
+@pytest.mark.parametrize("target,authority", [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)])
+def test_original_selection_approvals_cannot_be_transplanted_between_admitted_tuples(target, authority):
     validator = _validator()
     policy = _policy()
     mappings = [item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
                 if item.get("original_source_selection_approval")]
-    assert len(mappings) == 2
-    approvals = [item["original_source_selection_approval"] for item in mappings]
-    mappings[0]["original_source_selection_approval"], mappings[1]["original_source_selection_approval"] = reversed(approvals)
+    assert len(mappings) == 3
+    mappings[target]["original_source_selection_approval"] = mappings[authority]["original_source_selection_approval"]
     errors = validator.validate_policy(policy, exception_register_paths=[])
-    assert len([error for error in errors if "original-source selection" in error]) == 2
+    assert len([error for error in errors if "original-source selection" in error]) == 1
 
 
 @pytest.mark.parametrize("approval", ["https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-1",
                                       "https://example.com/issues/945#issuecomment-6181948743", None, "", 7, False])
-def test_unreviewed_postgres_selection_approval_refuses_schema_and_semantics(approval):
+@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998", "e5290282"])
+def test_unreviewed_original_selection_approval_refuses_schema_and_semantics(approval, digest):
     validator = _validator()
     policy = _policy()
     mapping = next(item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
-                   if item["image_digest"].startswith("sha256:2d2b8998"))
+                   if item["image_digest"].startswith("sha256:" + digest))
     mapping["original_source_selection_approval"] = approval
     errors = validator.validate_policy(policy, exception_register_paths=[])
     assert any("original_source_selection_approval" in error for error in errors)

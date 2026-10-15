@@ -101,6 +101,15 @@ ORIGINAL_SELECTION_FIELDS = (
 )
 ORIGINAL_SELECTION_APPROVALS = {
     (
+        "docker.io/library/python",
+        "public.ecr.aws/docker/library/python",
+        "sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e",
+        "manifest",
+        "linux/amd64",
+        "sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e",
+        "sha256:541096ae9b05d3b850341b78790e2ed31e94d5aa0ea086933c6ff0c09ffa2e63",
+    ): "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6182750862",
+    (
         "docker.io/library/postgres",
         "public.ecr.aws/docker/library/postgres",
         "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d",
@@ -522,7 +531,7 @@ class _AcquisitionBudget:
 
 
 def require_original_selection(mapping: dict[str, Any]) -> None:
-    """Bind each reviewed Postgres identity to its own selection authority."""
+    """Bind each reviewed Official Images identity to its own selection authority."""
     identity = tuple(mapping.get(key) for key in ORIGINAL_SELECTION_FIELDS)
     approval = ORIGINAL_SELECTION_APPROVALS.get(identity)
     if (
@@ -548,7 +557,11 @@ def verify_distribution(
             raise ValueError("explicit selection and conditional fallback cannot be combined")
         require_original_selection(mapping)
         budget = _AcquisitionBudget(evidence_dir)
-        _verify_official_original(mapping, budget, "library/postgres")
+        repository = {
+            "docker.io/library/python": "library/python",
+            "docker.io/library/postgres": "library/postgres",
+        }[mapping["original_repository"]]
+        _verify_official_original(mapping, budget, repository)
         return mapping["original_repository"] + "@" + mapping["image_digest"]
     budget = _AcquisitionBudget(evidence_dir)
     if allow_original_source:
@@ -762,7 +775,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--acquisition-source", choices=("distribution", "original"),
         default="distribution",
-        help="Explicit policy-admitted PostgreSQL original selection before service startup; no pull fallback.",
+        help="Explicit policy-admitted Official Images original selection before acquisition; no pull fallback.",
     )
     parser.add_argument(
         "--allow-original-source-fallback", action="store_true",

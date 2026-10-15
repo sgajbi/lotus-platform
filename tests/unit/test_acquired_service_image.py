@@ -17,7 +17,7 @@ proof = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(proof)
 CONTAINER_ID = "a" * 64
 SELECTED_MAPPINGS = [item for item in proof.policy.load_policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
-                     if item.get("original_source_selection_approval")]
+                     if item.get("original_source_selection_approval") and item["original_repository"] == "docker.io/library/postgres"]
 SELECTED_IMAGES = [item["original_repository"] + "@" + item["image_digest"] for item in SELECTED_MAPPINGS]
 EXPECTED = SELECTED_IMAGES[0]
 
@@ -337,6 +337,19 @@ def test_local_mapping_rechecks_tuple_approval_before_docker(monkeypatch, expect
 def test_actual_policy_refuses_other_service_references(expected):
     with pytest.raises(ValueError):
         proof.admitted_mapping(expected)
+
+
+def test_python_selection_approval_does_not_expand_local_postgres_service_proof(monkeypatch, tmp_path):
+    mapping = next(item for item in proof.policy.load_policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
+                   if item["image_digest"] == proof.policy.ORIGINAL_SOURCE_FALLBACK_IDENTITY[1])
+    proof.policy.require_original_selection(mapping)
+    expected = mapping["original_repository"] + "@" + mapping["image_digest"]
+    monkeypatch.setattr(proof, "policy_identity", lambda *args: {"commit": "b" * 40})
+    monkeypatch.setattr(proof, "command", lambda *args, **kwargs: pytest.fail("Docker before PostgreSQL admission"))
+    output = tmp_path / "proof.json"
+    with pytest.raises(ValueError, match="only original PostgreSQL"):
+        proof.verify(CONTAINER_ID, expected, "b" * 40, output)
+    assert not output.exists()
 
 
 @pytest.mark.parametrize("expected", SELECTED_IMAGES)
