@@ -1,4 +1,4 @@
-"""Verify one existing workflow-bound PG16 service locally; never acquire an image.
+"""Verify one existing workflow-bound admitted PostgreSQL service; never acquire an image.
 
 Config/RootFS hashing is extracted from Performance's reviewed acquisition helper.
 Child/config linkage comes from the central admitted tuple; no fresh registry bytes
@@ -113,10 +113,10 @@ def admitted_mapping(expected_image: str) -> dict:
     errors = policy.validate_policy_path(exception_register_paths=[])
     if errors:
         raise ValueError("central policy did not validate")
+    repository, _, digest = expected_image.partition("@")
+    distribution = policy.PUBLISHER_DISTRIBUTIONS.get(repository, "")
     mapping = policy.resolve_distribution(
-        policy.load_policy(), expected_image,
-        policy.ORIGINAL_SELECTION_IDENTITY[1] + "@" + policy.ORIGINAL_SELECTION_IDENTITY[2],
-        "linux/amd64",
+        policy.load_policy(), expected_image, distribution + "@" + digest, "linux/amd64",
     )
     policy.require_original_selection(mapping)
     return mapping

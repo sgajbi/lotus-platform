@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 430570
+    "total_source_lines": 430743
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4492
+    "python_function_count": 4501
   },
-  "generated_at_utc": "2026-10-14T14:04:23Z",
+  "generated_at_utc": "2026-10-15T01:13:56Z",
   "largest_files": [
     {
       "lines": 79939,
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5768,
+    "collected_tests": 5831,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\worktrees\\lotus-platform-image-acquisition-945\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5768 tests collected"
+    "summary": "5831 tests collected"
   }
 }

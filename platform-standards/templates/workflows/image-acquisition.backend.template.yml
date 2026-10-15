@@ -65,8 +65,9 @@ jobs:
 # For base/audit images, use separate instances of this prerequisite for each
 # admitted tuple; bind the successful image output to the actual Dockerfile/build
 # argument and audit command. Never gate one tuple and acquire a different image.
-# Only for the separately policy-admitted exact PG16 index/child/config tuple:
+# Only for the separately policy-admitted exact PG16 or PG17 index/child/config tuple:
 # append --acquisition-source original to the live prerequisite command above.
+# Each complete tuple requires its own exact selection approval; do not reuse PG16 authority.
 # This explicit selection precedes ECR requests; do not combine with Python fallback.
 # Retain declarative service startup. On that SAME consuming Linux runner, after
 # checkout of the same qualified policy and setup-python, place this step before tests:
@@ -86,3 +87,7 @@ jobs:
 # starts, copies/publishes, deletes or supplies credentials/cache. Temporary raw
 # bytes are cleaned; output is checked-helper-produced config/RootFS hashes, not
 # compressed-transfer, cold-cache or executed-runtime proof. See the policy README.
+# For a Compose-owned recovery service, propagate the selected output through its
+# actual Compose/Make/filtered-environment boundary before startup and pass that
+# same runner's owned service container ID to the helper before consumer execution.
+# Preserve any separate Python content-policy pin; central admission is not adoption.

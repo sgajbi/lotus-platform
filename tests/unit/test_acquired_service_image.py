@@ -16,10 +16,13 @@ spec = importlib.util.spec_from_file_location("service_proof", PATH)
 proof = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(proof)
 CONTAINER_ID = "a" * 64
-EXPECTED = proof.policy.ORIGINAL_SELECTION_IDENTITY[0] + "@" + proof.policy.ORIGINAL_SELECTION_IDENTITY[2]
+SELECTED_MAPPINGS = [item for item in proof.policy.load_policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
+                     if item.get("original_source_selection_approval")]
+SELECTED_IMAGES = [item["original_repository"] + "@" + item["image_digest"] for item in SELECTED_MAPPINGS]
+EXPECTED = SELECTED_IMAGES[0]
 
 
-def make_export(path, *, engine="classic", fault=None):
+def make_export(path, *, engine="classic", fault=None, expected=EXPECTED):
     layers = [b"first layer tar bytes", b"second layer tar bytes"]
     config = {"os": "linux", "architecture": "arm64" if fault == "platform" else "amd64",
               "rootfs": {"type": "layers", "diff_ids": [proof.sha256(layer) for layer in layers]},
@@ -44,19 +47,20 @@ def make_export(path, *, engine="classic", fault=None):
             info = tarfile.TarInfo(name)
             info.size = len(content)
             archive.addfile(info, io.BytesIO(content))
-    image = {"Id": config_digest if engine == "classic" else proof.policy.ORIGINAL_SELECTION_IDENTITY[2],
-             "Os": "linux", "Architecture": "amd64", "RepoDigests": [EXPECTED],
+    image = {"Id": config_digest if engine == "classic" else expected.split("@")[1],
+             "Os": "linux", "Architecture": "amd64", "RepoDigests": [expected],
              "RootFS": {"Layers": config["rootfs"]["diff_ids"]}}
-    container = {"Id": CONTAINER_ID, "Config": {"Image": EXPECTED}, "Image": image["Id"],
+    container = {"Id": CONTAINER_ID, "Config": {"Image": expected}, "Image": image["Id"],
                  "State": {"Running": True}}
     return config_digest, image, container
 
 
 @pytest.mark.parametrize("engine", ["classic", "containerd"])
-def test_valid_real_export_shapes_hash_config_and_ordered_layers(tmp_path, engine):
+@pytest.mark.parametrize("expected", SELECTED_IMAGES)
+def test_valid_real_export_shapes_hash_config_and_ordered_layers(tmp_path, engine, expected):
     archive = tmp_path / "image.tar"
-    config, image, container = make_export(archive, engine=engine)
-    proof.verify_service(container, image, CONTAINER_ID, EXPECTED)
+    config, image, container = make_export(archive, engine=engine, expected=expected)
+    proof.verify_service(container, image, CONTAINER_ID, expected)
     result = proof.verify_export(archive, config, image, proof.Budget())
     assert result == {"config_digest": config, "rootfs_diff_ids": image["RootFS"]["Layers"], "platform": "linux/amd64"}
     assert "secret" not in json.dumps(result)
@@ -143,12 +147,12 @@ def test_actual_gzip_bomb_is_stopped_during_layer_read(tmp_path, monkeypatch):
             exported.layer_digest("compressed-layer")
 
 
-@pytest.fixture
-def local_service(tmp_path, monkeypatch):
+@pytest.fixture(params=SELECTED_IMAGES)
+def local_service(tmp_path, monkeypatch, request):
+    expected = request.param
     archive = tmp_path / "fixture.tar"
-    config, image, container = make_export(archive, engine="containerd")
-    mapping = {"image_digest": proof.policy.ORIGINAL_SELECTION_IDENTITY[2],
-               "platform_manifest_digest": proof.policy.ORIGINAL_SELECTION_IDENTITY[5], "platform_config_digest": config}
+    config, image, container = make_export(archive, engine="containerd", expected=expected)
+    mapping = dict(proof.admitted_mapping(expected), platform_config_digest=config)
     monkeypatch.setattr(proof, "admitted_mapping", lambda expected: mapping)
     monkeypatch.setattr(proof, "policy_identity", lambda expected, budget: {"commit": expected})
     calls, exports = [], []
@@ -163,12 +167,13 @@ def local_service(tmp_path, monkeypatch):
             return b""
         return json.dumps([container if "container" in argv else image]).encode()
     monkeypatch.setattr(proof, "command", command)
-    return tmp_path, image, container, calls, exports
+    return tmp_path, image, container, calls, exports, expected
 
 
 def test_same_runner_proof_never_pulls_or_substitutes_and_cleans_export(local_service):
-    tmp_path, image, _, calls, exports = local_service
-    result = proof.verify(CONTAINER_ID, EXPECTED, "b" * 40, tmp_path / "proof.json")
+    tmp_path, image, _, calls, exports, expected = local_service
+    result = proof.verify(CONTAINER_ID, expected, "b" * 40, tmp_path / "proof.json")
+    assert result["admitted_index_digest"] == expected.split("@")[1]
     assert len(calls) == 5
     assert calls[2][-1] == image["Id"] and calls[3][-1] == image["Id"]
     assert all(not set(argv).intersection({"pull", "run", "start", "load", "push", "rm", "prune"}) for argv in calls)
@@ -179,12 +184,12 @@ def test_same_runner_proof_never_pulls_or_substitutes_and_cleans_export(local_se
 
 
 def test_failed_content_proof_cleans_export_and_blocks_consumer(local_service, monkeypatch):
-    tmp_path, _, _, _, exports = local_service
+    tmp_path, _, _, _, exports, expected = local_service
     def refuse(*args):
         raise ValueError("bad content")
     monkeypatch.setattr(proof, "verify_export", refuse)
     output = tmp_path / "proof.json"
-    result = proof.main(["--container-id", CONTAINER_ID, "--expected-image", EXPECTED,
+    result = proof.main(["--container-id", CONTAINER_ID, "--expected-image", expected,
                          "--expected-policy-commit", "b" * 40, "--output", str(output)])
     benchmark = []
     if result == 0: benchmark.append("ran")
@@ -193,7 +198,7 @@ def test_failed_content_proof_cleans_export_and_blocks_consumer(local_service, m
 
 
 def test_replaced_service_after_export_refused(local_service, monkeypatch):
-    tmp_path, _, container, calls, _ = local_service
+    tmp_path, _, container, calls, _, expected = local_service
     original = proof.command
     def replace(argv, *args, **kwargs):
         if len(calls) == 4:
@@ -201,7 +206,7 @@ def test_replaced_service_after_export_refused(local_service, monkeypatch):
         return original(argv, *args, **kwargs)
     monkeypatch.setattr(proof, "command", replace)
     with pytest.raises(ValueError, match="binding"):
-        proof.verify(CONTAINER_ID, EXPECTED, "b" * 40, tmp_path / "proof.json")
+        proof.verify(CONTAINER_ID, expected, "b" * 40, tmp_path / "proof.json")
 
 
 @pytest.mark.parametrize("fault", ["nonzero", "capture", "timeout", "export"])
@@ -302,14 +307,41 @@ def test_policy_authority_requires_clean_exact_source(monkeypatch):
         proof.policy_identity("b" * 40, proof.Budget())
 
 
-def test_actual_policy_does_not_admit_python_or_wrong_pg_tuple():
-    assert proof.admitted_mapping(EXPECTED)["platform_manifest_digest"] == proof.policy.ORIGINAL_SELECTION_IDENTITY[5]
+@pytest.mark.parametrize("mapping", SELECTED_MAPPINGS)
+def test_actual_policy_resolves_each_original_postgres_tuple(mapping):
+    assert proof.admitted_mapping(mapping["original_repository"] + "@" + mapping["image_digest"]) == mapping
+
+
+@pytest.mark.parametrize("expected", SELECTED_IMAGES)
+@pytest.mark.parametrize("fault", ["approval", "config"])
+def test_local_mapping_rechecks_tuple_approval_before_docker(monkeypatch, expected, fault):
+    payload = proof.policy.load_policy()
+    mappings = payload["container_image_evidence_policy"]["approved_distribution_mappings"]
+    selected = next(item for item in mappings if expected == item["original_repository"] + "@" + item["image_digest"])
+    other = next(item for item in mappings if item.get("original_source_selection_approval") and item is not selected)
+    key = "original_source_selection_approval" if fault == "approval" else "platform_config_digest"
+    selected[key] = other[key]
+    monkeypatch.setattr(proof.policy, "validate_policy_path", lambda **kwargs: [])
+    monkeypatch.setattr(proof.policy, "load_policy", lambda: payload)
+    monkeypatch.setattr(proof, "command", lambda *args, **kwargs: pytest.fail("Docker before tuple approval"))
+    with pytest.raises(ValueError, match="original-source selection"):
+        proof.admitted_mapping(expected)
+
+
+@pytest.mark.parametrize("expected", [
+    "docker.io/library/python@" + proof.policy.ORIGINAL_SOURCE_FALLBACK_IDENTITY[1],
+    "docker.io/library/postgres@sha256:" + "0" * 64,
+    EXPECTED.replace("docker.io/library", "public.ecr.aws/docker/library"),
+    "postgres:17", EXPECTED + "\n",
+])
+def test_actual_policy_refuses_other_service_references(expected):
     with pytest.raises(ValueError):
-        proof.admitted_mapping("docker.io/library/python@" + proof.policy.ORIGINAL_SOURCE_FALLBACK_IDENTITY[1])
+        proof.admitted_mapping(expected)
 
 
-def test_default_pg16_still_uses_distribution_without_original_request(monkeypatch):
-    mapping = proof.admitted_mapping(EXPECTED)
+@pytest.mark.parametrize("expected", SELECTED_IMAGES)
+def test_default_postgres_still_uses_distribution_without_original_request(monkeypatch, expected):
+    mapping = proof.admitted_mapping(expected)
     calls = []
     monkeypatch.setattr(proof.policy, "_verify_publisher_distribution", lambda actual, budget: calls.append(actual))
     monkeypatch.setattr(proof.policy, "_verify_official_original", lambda *args: pytest.fail("unexpected original request"))
@@ -343,7 +375,7 @@ def test_compressed_input_deadline_checked_before_each_read():
 
 
 def test_partial_owned_output_is_removed_and_existing_output_preserved(local_service, monkeypatch):
-    tmp_path, _, _, _, _ = local_service
+    tmp_path, _, _, _, _, expected = local_service
     output = tmp_path / "proof.json"
     original = Path.open
     class BrokenWrite:
@@ -358,10 +390,10 @@ def test_partial_owned_output_is_removed_and_existing_output_preserved(local_ser
         return BrokenWrite(stream) if path == output else stream
     monkeypatch.setattr(Path, "open", opened)
     with pytest.raises(OSError):
-        proof.verify(CONTAINER_ID, EXPECTED, "b" * 40, output)
+        proof.verify(CONTAINER_ID, expected, "b" * 40, output)
     assert not output.exists()
     monkeypatch.setattr(Path, "open", original)
     output.write_text("prior evidence")
     with pytest.raises(ValueError, match="unused"):
-        proof.verify(CONTAINER_ID, EXPECTED, "b" * 40, output)
+        proof.verify(CONTAINER_ID, expected, "b" * 40, output)
     assert output.read_text() == "prior evidence"
