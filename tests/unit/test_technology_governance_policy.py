@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR_PATH = ROOT / "automation" / "validate_technology_governance_policy.py"
@@ -37,11 +39,12 @@ def _policy() -> dict:
     return json.loads(POLICY_PATH.read_text(encoding="utf-8"))
 
 
-def test_pg16_selection_approval_accepts_exact_tuple_and_refuses_reuse():
+@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998"])
+def test_postgres_selection_approval_accepts_exact_tuple_and_refuses_reuse(digest):
     validator = _validator()
     policy = _policy()
     mapping = next(item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
-                   if item.get("original_source_selection_approval"))
+                   if item["image_digest"].startswith("sha256:" + digest))
     validator.require_original_selection(mapping)
     for key in ("original_repository", "distribution_repository", "image_digest", "manifest_kind",
                 "platform", "platform_manifest_digest", "platform_config_digest", "original_source_selection_approval"):
@@ -51,6 +54,33 @@ def test_pg16_selection_approval_accepts_exact_tuple_and_refuses_reuse():
         assert any("original-source selection" in error for error in errors)
         mapping[key] = original
     assert validator.validate_policy(policy, exception_register_paths=[]) == []
+
+
+def test_postgres_selection_approvals_cannot_be_transplanted_between_admitted_tuples():
+    validator = _validator()
+    policy = _policy()
+    mappings = [item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
+                if item.get("original_source_selection_approval")]
+    assert len(mappings) == 2
+    approvals = [item["original_source_selection_approval"] for item in mappings]
+    mappings[0]["original_source_selection_approval"], mappings[1]["original_source_selection_approval"] = reversed(approvals)
+    errors = validator.validate_policy(policy, exception_register_paths=[])
+    assert len([error for error in errors if "original-source selection" in error]) == 2
+
+
+@pytest.mark.parametrize("approval", ["https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-1",
+                                      "https://example.com/issues/945#issuecomment-6181948743", None, "", 7, False])
+def test_unreviewed_postgres_selection_approval_refuses_schema_and_semantics(approval):
+    validator = _validator()
+    policy = _policy()
+    mapping = next(item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
+                   if item["image_digest"].startswith("sha256:2d2b8998"))
+    mapping["original_source_selection_approval"] = approval
+    errors = validator.validate_policy(policy, exception_register_paths=[])
+    assert any("original_source_selection_approval" in error for error in errors)
+    semantic_errors = []
+    validator._validate_distribution_mappings(policy, semantic_errors)
+    assert any("original-source selection" in error for error in semantic_errors)
 
 
 def _exception_register() -> dict:

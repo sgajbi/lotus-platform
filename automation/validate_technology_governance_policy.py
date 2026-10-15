@@ -95,18 +95,30 @@ ORIGINAL_SOURCE_FALLBACK_IDENTITY = (
 ORIGINAL_SOURCE_FALLBACK_APPROVAL = (
     "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6160682836"
 )
-ORIGINAL_SELECTION_IDENTITY = (
-    "docker.io/library/postgres",
-    "public.ecr.aws/docker/library/postgres",
-    "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d",
-    "index",
-    "linux/amd64",
-    "sha256:75adc2a65806c96bc0e59030230bfe3f1c1b0d6d8f8181a8913e2b8b53bdc166",
-    "sha256:275447c94b11b151decd1f29877965301d5a77032037c46de93d990f739f00a9",
+ORIGINAL_SELECTION_FIELDS = (
+    "original_repository", "distribution_repository", "image_digest", "manifest_kind",
+    "platform", "platform_manifest_digest", "platform_config_digest",
 )
-ORIGINAL_SELECTION_APPROVAL = (
-    "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701"
-)
+ORIGINAL_SELECTION_APPROVALS = {
+    (
+        "docker.io/library/postgres",
+        "public.ecr.aws/docker/library/postgres",
+        "sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d",
+        "index",
+        "linux/amd64",
+        "sha256:75adc2a65806c96bc0e59030230bfe3f1c1b0d6d8f8181a8913e2b8b53bdc166",
+        "sha256:275447c94b11b151decd1f29877965301d5a77032037c46de93d990f739f00a9",
+    ): "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701",
+    (
+        "docker.io/library/postgres",
+        "public.ecr.aws/docker/library/postgres",
+        "sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3",
+        "index",
+        "linux/amd64",
+        "sha256:3cec7eb015ba8adb28139fa5c83b8489cdf0e666e53dfdf20f598ae0cc8739e3",
+        "sha256:327daa8fae7178d61f93142f146b098467b345e10997b9eb79f63bd58e5c8f3c",
+    ): "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6181948743",
+}
 REQUIRED_LENSES = {
     "lens/dependency-hygiene",
     "lens/environment-supply-chain-provenance",
@@ -510,14 +522,12 @@ class _AcquisitionBudget:
 
 
 def require_original_selection(mapping: dict[str, Any]) -> None:
-    """One explicitly reviewed PG16 identity; no authority from equivalence alone."""
-    identity = tuple(mapping.get(key) for key in (
-        "original_repository", "distribution_repository", "image_digest",
-        "manifest_kind", "platform", "platform_manifest_digest", "platform_config_digest",
-    ))
+    """Bind each reviewed Postgres identity to its own selection authority."""
+    identity = tuple(mapping.get(key) for key in ORIGINAL_SELECTION_FIELDS)
+    approval = ORIGINAL_SELECTION_APPROVALS.get(identity)
     if (
-        identity != ORIGINAL_SELECTION_IDENTITY
-        or mapping.get("original_source_selection_approval") != ORIGINAL_SELECTION_APPROVAL
+        approval is None
+        or mapping.get("original_source_selection_approval") != approval
     ):
         raise ValueError("original-source selection requires its exact admitted identity and reviewed approval")
 
@@ -752,7 +762,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--acquisition-source", choices=("distribution", "original"),
         default="distribution",
-        help="Explicit policy-admitted PG16 original selection before service startup; no pull fallback.",
+        help="Explicit policy-admitted PostgreSQL original selection before service startup; no pull fallback.",
     )
     parser.add_argument(
         "--allow-original-source-fallback", action="store_true",

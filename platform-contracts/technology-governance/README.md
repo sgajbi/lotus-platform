@@ -47,7 +47,7 @@ repositories, Trivy's official `ghcr.io/aquasecurity/trivy`, Syft's official `gh
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
 registries are not admitted by those mappings. The explicit exact-source recovery below is a
 separate policy admission. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.4` retains the eleven mappings and the Python recovery admission, and adds explicit original PG16 selection; consumers must bind the matching
+Policy version `1.1.5` retains the eleven mappings and the Python recovery admission, and supports separately approved explicit original PG16 and PG17 selection; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -175,25 +175,38 @@ workflows, bindings, variables, digest, runtime version, security or coverage im
 source capacity can also fail. This is independent of the held #945 image custody/archive proposal,
 which supplies no implemented cache or service-initialization recovery.
 
-### Explicit original PostgreSQL 16 selection and local content proof
+### Explicit original PostgreSQL 16 and 17 selection and local content proof
 
-[Separate PG16 authority](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701)
-admits explicit `--acquisition-source original` only for original
-`docker.io/library/postgres`, root index `ca0bd484...`, Linux/amd64 child
-`75adc2a6...` and config `275447c9...` (full digests are in the policy). It retains
-the existing distribution mapping and observation. This is distinct from the Python
+[PG16 authority](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6169318701)
+and the separate [PG17 authority](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6181948743)
+admit explicit `--acquisition-source original` only for these two original
+`docker.io/library/postgres` tuples (full digests are in the policy):
+
+| Selection | Root index | Linux/amd64 child | Config |
+| --- | --- | --- | --- |
+| PG16 | `ca0bd484...` | `75adc2a6...` | `275447c9...` |
+| PG17 | `2d2b8998...` | `3cec7eb0...` | `327daa8f...` |
+
+Each decision binds its own complete tuple; the approvals cannot be transplanted.
+The existing distribution mappings, equivalence approvals and observations are retained.
+This is distinct from the Python
 conditional fallback and cannot be combined with it. Live verification is required;
 the explicit original choice precedes any ECR request. The fixed Docker Official Images
 auth realm/service and `repository:library/postgres:pull` scope, exact tuple/approval
 and existing aggregate request/time/wait budgets remain mandatory. Unavailable,
 unauthorized, mismatched or unsafe input emits no image output. No automatic switch
-after a Docker pull error is implemented. PG17, PG16-alpine and other tuples are excluded.
+after a Docker pull error is implemented. PG16-alpine and other tuples are excluded.
 
-From the **qualified Platform checkout root**, this command is identical in PowerShell
-and Bash. It performs a live manifest check; it does not pull the image:
+From the **qualified Platform checkout root**, these commands are identical in PowerShell
+and Bash. Choose only the required approved tuple; each performs a live manifest check
+and does not pull the image:
 
 ```text
 python automation/validate_technology_governance_policy.py --source-image docker.io/library/postgres@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d --distribution-image public.ecr.aws/docker/library/postgres@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d --platform linux/amd64 --verify-distribution --acquisition-source original
+```
+
+```text
+python automation/validate_technology_governance_policy.py --source-image docker.io/library/postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3 --distribution-image public.ecr.aws/docker/library/postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3 --platform linux/amd64 --verify-distribution --acquisition-source original
 ```
 
 For workflow use, append `--github-output` with the existing GitHub output path and bind
@@ -203,6 +216,11 @@ succeed. The observed ECR data-plane refusal after manifest success is why a con
 manifest fallback alone is insufficient. Authenticated ECR or an image cache requires
 separate configured owner authority; this change provisions neither. Original Docker Hub
 availability is unproven until actual hosted acquisition passes. Earlier failed runs stay failed.
+PG17 consumers require separate adoption of the qualified central revision and propagation
+of its selected output through their actual acquisition boundary. This central authority
+does not change Performance's recovery Compose/Make/environment bindings or Python's
+separate qualified content-policy requirement. Neither source selection decision establishes
+quota entitlement, reliable capacity or completion of #945.
 
 `automation/verify_acquired_service_image.py` checks only the already running service on
 the **same consuming Linux runner**, after initialization and before the consumer command.
