@@ -86,6 +86,11 @@ conditional fallback or admits PG16-alpine. Default distribution behavior is unc
 Python e529 also has separate explicit original-selection authority for its exact manifest/config
 tuple. Full tuple and matching approval precede fixed Python/PostgreSQL verifier dispatch;
 the default distribution, conditional Python fallback and shared finite budgets are unchanged.
+The separately approved Python 3.12 a6e34 index/child/config selection preserves the observed
+3.12.15 slim-trixie base for Manage's reproducible pin. Existing R2 equivalence remains separate
+from this exact source-selection authority. Its cached raw config/RootFS receipt proves local
+content only; Manage adoption and hosted/main acquisition/readiness remain separate requirements.
+It adds no conditional fallback or redirect exception and does not admit Python service proof.
 Performance adoption must separately propagate the selected output through build, Compose,
 filtered environment and content evidence at a qualified central revision.
 The local-only `automation/verify_acquired_service_image.py` binds an existing workflow

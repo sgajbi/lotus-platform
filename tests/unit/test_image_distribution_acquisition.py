@@ -23,26 +23,27 @@ def _mapping():
     )
 
 
-@pytest.fixture(params=["16", "17", "python"])
+@pytest.fixture(params=["16", "17", "python", "python312"])
 def original_variant(request):
     return request.param
 
 
 def _selected(variant):
-    digest = {"16": "ca0bd484", "17": "2d2b8998", "python": "e5290282"}[variant]
+    digest = {"16": "ca0bd484", "17": "2d2b8998", "python": "e5290282", "python312": "a6e34c59"}[variant]
     return next(item for item in _policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
                 if item["image_digest"].startswith("sha256:" + digest))
 
 
 def _original_responder(monkeypatch, validator, variant, *, fault=None):
     mapping, index, child = _manifest_fixture()
-    repository = "library/python" if variant == "python" else "library/postgres"
-    if variant == "python":
+    authority = _selected(variant)
+    repository = authority["original_repository"].removeprefix("docker.io/")
+    if authority["manifest_kind"] == "manifest":
         mapping.update(manifest_kind="manifest", image_digest=mapping["platform_manifest_digest"])
     mapping.update(original_repository="docker.io/" + repository,
                    distribution_repository="public.ecr.aws/docker/" + repository,
                    platform_config_digest="sha256:" + ("2" if fault == "config-descriptor" else "1") * 64,
-                   original_source_selection_approval=_selected(variant)["original_source_selection_approval"])
+                   original_source_selection_approval=authority["original_source_selection_approval"])
     identity = tuple(mapping[key] for key in validator.ORIGINAL_SELECTION_FIELDS)
     monkeypatch.setattr(validator, "ORIGINAL_SELECTION_APPROVALS",
                         {identity: mapping["original_source_selection_approval"]})
@@ -94,7 +95,7 @@ def test_explicit_original_selects_before_any_distribution_request(monkeypatch, 
     assert validator.verify_distribution(mapping, acquisition_source="original") == (
         mapping["original_repository"] + "@" + mapping["image_digest"]
     )
-    assert len(calls) == (3 if original_variant == "python" else 4)
+    assert len(calls) == (3 if mapping["manifest_kind"] == "manifest" else 4)
     assert not any("ecr" in url for url in calls)
 
 
@@ -166,7 +167,7 @@ def test_explicit_selection_cli_emits_only_verified_original(monkeypatch, tmp_pa
     assert validator.main(_arguments(mapping) + ["--acquisition-source", "original", "--verify-distribution",
                                                 "--github-output", str(output)]) == 0
     assert output.read_text() == "image=" + mapping["original_repository"] + "@" + mapping["image_digest"] + "\n"
-    assert calls == [(mapping, "library/python" if original_variant == "python" else "library/postgres")]
+    assert calls == [(mapping, mapping["original_repository"].removeprefix("docker.io/"))]
 
 
 def test_explicit_selection_cli_no_output_after_verification_failure(monkeypatch, tmp_path, original_variant):
@@ -180,7 +181,7 @@ def test_explicit_selection_cli_no_output_after_verification_failure(monkeypatch
     assert not output.exists()
 
 
-@pytest.mark.parametrize("approval", [None, "16", "17", "python"])
+@pytest.mark.parametrize("approval", [None, "", 7, False, "unreviewed", "16", "17", "python", "python312"])
 def test_explicit_original_missing_or_transplanted_approval_refuses_before_output(
     monkeypatch, tmp_path, original_variant, approval
 ):
@@ -190,11 +191,13 @@ def test_explicit_original_missing_or_transplanted_approval_refuses_before_outpu
                    if item["image_digest"] == _selected(original_variant)["image_digest"])
     if approval is None:
         mapping.pop("original_source_selection_approval")
-    else:
+    elif approval in ("16", "17", "python", "python312"):
         mapping["original_source_selection_approval"] = _selected(approval)["original_source_selection_approval"]
         if approval == original_variant:
             # Same authority on a different tuple also refuses before network.
             mapping["platform_config_digest"] = "sha256:" + "0" * 64
+    else:
+        mapping["original_source_selection_approval"] = approval
     policy_path = tmp_path / "policy.json"
     policy_path.write_text(json.dumps(policy))
     monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: pytest.fail("network before approval"))
@@ -232,7 +235,7 @@ def test_operator_original_selection_commands_bind_all_exact_approved_tuples():
                 (root / "platform-contracts/technology-governance/README.md").read_text().splitlines()
                 if line.startswith("python automation/validate_technology_governance_policy.py ")
                 and "--acquisition-source original" in line]
-    assert len(commands) == 3
+    assert len(commands) == 4
     validator = _validator()
     admitted = []
     for command in commands:
@@ -244,7 +247,20 @@ def test_operator_original_selection_commands_bind_all_exact_approved_tuples():
         )
         validator.require_original_selection(mapping)
         admitted.append(mapping["image_digest"])
-    assert set(admitted) == {_selected(variant)["image_digest"] for variant in ("16", "17", "python")}
+    assert set(admitted) == {_selected(variant)["image_digest"] for variant in ("16", "17", "python", "python312")}
+
+
+def test_python312_selection_does_not_admit_conditional_fallback(monkeypatch, tmp_path):
+    validator = _validator()
+    mapping = _selected("python312")
+    validator.require_original_selection(mapping)
+    monkeypatch.setattr(validator, "_registry_json", lambda *args, **kwargs: pytest.fail("network before fallback admission"))
+    with pytest.raises(ValueError, match="fallback is not admitted"):
+        validator.verify_distribution(mapping, allow_original_source=True)
+    output = tmp_path / "github-output"
+    assert validator.main(_arguments(mapping) + ["--verify-distribution", "--allow-original-source-fallback",
+                                               "--github-output", str(output)]) == 1
+    assert not output.exists()
 
 
 def _arguments(mapping):
@@ -412,8 +428,10 @@ def _manifest_fixture():
         }
     ).encode()
     mapping = _mapping()
+    mapping.pop("original_source_selection_approval", None)
     mapping["image_digest"] = "sha256:" + hashlib.sha256(index).hexdigest()
     mapping["platform_manifest_digest"] = child_digest
+    mapping["platform_config_digest"] = "sha256:" + "1" * 64
     return mapping, index, child
 
 
