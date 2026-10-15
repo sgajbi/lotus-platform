@@ -20,6 +20,27 @@
       "description": "Canonical source-owned transaction identifier used for exact ledger-record selection and transaction lineage."
     },
     {
+      "key": "source_system",
+      "semantic_id": "lotus.source_system",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "String identifying the source origin system in the owning product's declared scope; financial flow observations scope it by tenant and portfolio. Does not grant tenant ownership, consumer authority, downstream compatibility, or institutional certification."
+    },
+    {
+      "key": "source_record_id",
+      "semantic_id": "lotus.source_record_id",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Stable string identifying an original supplier record in the owning product's declared source scope; financial flow observations scope it by tenant, portfolio, and source system. Does not grant tenant ownership, consumer authority, downstream compatibility, or institutional certification."
+    },
+    {
+      "key": "flow_source_record_revision",
+      "semantic_id": "lotus.flow_source_record_revision",
+      "stability": "stable",
+      "lifecycle": "active",
+      "description": "Positive contiguous integer selecting an immutable financial flow source-record revision within tenant, portfolio, source-system, and source-record scope. Does not grant tenant ownership, consumer authority, downstream compatibility, or institutional certification."
+    },
+    {
       "key": "proposal_id",
       "semantic_id": "lotus.proposal_id",
       "stability": "stable",

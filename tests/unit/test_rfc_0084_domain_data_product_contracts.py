@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 
 import pytest
@@ -2147,6 +2148,189 @@ def test_rfc_0084_identifier_and_trust_semantics_registry_aligns_to_current_decl
                     product["lineage_policy"]["lineage_bundle_class_ref"]
                     in lineage_bundle_class_keys
                 )
+
+
+@pytest.mark.parametrize(
+    ("key", "description"),
+    [
+        (
+            "source_system",
+            "String identifying the source origin system in the owning product's declared "
+            "scope; financial flow observations scope it by tenant and portfolio. Does not "
+            "grant tenant ownership, consumer authority, downstream compatibility, or "
+            "institutional certification.",
+        ),
+        (
+            "source_record_id",
+            "Stable string identifying an original supplier record in the owning product's "
+            "declared source scope; financial flow observations scope it by tenant, "
+            "portfolio, and source system. Does not grant tenant ownership, consumer "
+            "authority, downstream compatibility, or institutional certification.",
+        ),
+        (
+            "flow_source_record_revision",
+            "Positive contiguous integer selecting an immutable financial flow source-record "
+            "revision within tenant, portfolio, source-system, and source-record scope. "
+            "Does not grant tenant ownership, consumer authority, downstream compatibility, "
+            "or institutional certification.",
+        ),
+    ],
+)
+def test_rfc_0084_source_record_identifiers_preserve_source_owned_scope(
+    key: str, description: str
+) -> None:
+    registry = _load_json(SEMANTICS_REGISTRY_PATH)
+    identifiers = {entry["key"]: entry for entry in registry["identifiers"]}
+
+    assert identifiers[key] == {
+        "key": key,
+        "semantic_id": f"lotus.{key}",
+        "stability": "stable",
+        "lifecycle": "active",
+        "description": description,
+    }
+
+
+@pytest.mark.parametrize(
+    "refused_identifiers",
+    [
+        [],
+        ["event_id"],
+        ["source_version"],
+        ["source_event_id"],
+        ["source_event_version"],
+        ["event_id", "source_version", "source_event_id", "source_event_version"],
+        ["unregistered_flow_authority_id"],
+    ],
+)
+def test_rfc_0084_validator_governs_actual_core_flow_record_identifiers(
+    tmp_path: Path,
+    refused_identifiers: list[str],
+) -> None:
+    validator = _load_validator_module()
+    # Actual product and metadata from Core's provisional unsigned declaration.
+    # Raw SHA256: ffb7374ceb223cd67ecb3a1bee5414b4df58744969b2c75d18c97d8816fc8fd2.
+    # Filtered blob: 6d28abb498ca46615d78fea3251a6ea81b9d0e0c; not an accepted main pin.
+    declaration = {
+        "contract_id": "domain-data-products",
+        "contract_version": "1.0.0",
+        "governed_by_rfc": "RFC-0084",
+        "producer_repository": "lotus-core",
+        "authoritative_domain": "portfolio_state",
+        "products": [
+            {
+                "product_name": "PortfolioFinancialFlowObservations",
+                "product_version": "v1",
+                "owner_repository": "lotus-core",
+                "product_family": "analytics_input",
+                "authoritative_domain": "portfolio_state",
+                "lifecycle_status": "active",
+                "request_scope": {
+                    "scope_level": "portfolio",
+                    "supports_bulk": False,
+                },
+                "temporal_scope": {
+                    "primary_time_field": "as_of_date",
+                    "freshness_basis": "source_cut",
+                    "supports_restatement": True,
+                },
+                "required_trust_metadata": [
+                    "product_name",
+                    "product_version",
+                    "tenant_id",
+                    "generated_at",
+                    "as_of_date",
+                    "restatement_version",
+                    "reconciliation_status",
+                    "data_quality_status",
+                    "latest_evidence_timestamp",
+                    "source_batch_fingerprint",
+                    "snapshot_id",
+                    "content_hash",
+                    "policy_version",
+                    "correlation_id",
+                ],
+                "serving_plane": "query_control_plane_service",
+                "current_routes": [
+                    "/integration/portfolios/{portfolio_id}/"
+                    "financial-source-observations/flow-events/query",
+                    "/integration/portfolios/{portfolio_id}/"
+                    "financial-source-observations/flow-events/{source_system}/"
+                    "{source_record_id}/versions/{flow_source_record_revision}",
+                ],
+                "freshness_policy": {
+                    "freshness_class": "daily",
+                    "max_allowed_age_description": (
+                        "Pinned immutable flow cut and reversal dependencies; "
+                        "producer assertions remain unqualified and downstream "
+                        "compatibility unavailable."
+                    ),
+                },
+                "completeness_policy": {
+                    "default_status": "partial",
+                    "partial_allowed": True,
+                },
+                "lineage_policy": {
+                    "lineage_required": True,
+                    "evidence_bundle_required": False,
+                    "evidence_access_class_ref": "operator_only",
+                },
+                "security_profile_ref": (
+                    "system_access:client_sensitive:retain_for_client_record:"
+                    "audit_system_access"
+                ),
+                "approved_consumers": ["lotus-manage"],
+                "deprecation_policy": {
+                    "state": "not_deprecated",
+                    "successor_product": None,
+                },
+                "identifier_refs": [
+                    "portfolio_id",
+                    "snapshot_id",
+                    "tenant_id",
+                    "source_system",
+                    "source_record_id",
+                    "flow_source_record_revision",
+                ],
+                "temporal_semantics_ref": "as_of_date",
+            }
+        ],
+    }
+    product = declaration["products"][0]
+    exact_route = product["current_routes"][1]
+    route_identifiers = re.findall(r"\{([^{}]+)\}", exact_route)
+    assert route_identifiers == [
+        "portfolio_id",
+        "source_system",
+        "source_record_id",
+        "flow_source_record_revision",
+    ]
+    assert set(route_identifiers) <= set(product["identifier_refs"])
+    product["identifier_refs"].extend(refused_identifiers)
+    declaration_directory = tmp_path / "domain-data-products"
+    declaration_directory.mkdir()
+    vocabulary_directory = tmp_path / "domain-vocabulary"
+    vocabulary_directory.mkdir()
+    declaration_path = declaration_directory / "lotus-core-products.v1.json"
+    _write_json(declaration_path, declaration)
+    _write_json(
+        vocabulary_directory / SEMANTICS_REGISTRY_PATH.name,
+        _load_json(SEMANTICS_REGISTRY_PATH),
+    )
+    _write_json(
+        vocabulary_directory / TRUST_METADATA_REGISTRY_PATH.name,
+        _load_json(TRUST_METADATA_REGISTRY_PATH),
+    )
+
+    expected_issues = (
+        [
+            f"{declaration_path}: products[0].identifier_refs contains unknown identifiers: "
+            + ", ".join(refused_identifiers)
+        ]
+        if refused_identifiers
+        else []
+    )
+    assert validator.validate_contract_directory(declaration_directory) == expected_issues
 
 
 def test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth() -> None:
