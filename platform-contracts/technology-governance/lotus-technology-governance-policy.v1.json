@@ -1,7 +1,7 @@
 {
   "schema_version": "lotus-platform.technology-governance-policy.v1",
   "contract_id": "lotus-platform-technology-governance-policy",
-  "contract_version": "1.1.6",
+  "contract_version": "1.1.7",
   "lifecycle_status": "report_only",
   "governed_by_issue": "https://github.com/sgajbi/lotus-platform/issues/595",
   "effective_date": "2026-10-10",
@@ -142,6 +142,8 @@
         "manifest_kind": "index",
         "platform": "linux/amd64",
         "platform_manifest_digest": "sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe",
+        "platform_config_digest": "sha256:df18428df8a0f9189c84e7424d214b4c50092af1f9dca5842a00c41c39bda316",
+        "original_source_selection_approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6186826582",
         "approval": "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6089421841",
         "manifest_observation_sha256": "49a6ec2252c2283133c510f66864c47b4942bcbef94e44a399d9de4488e606a5"
       },

@@ -58,6 +58,16 @@ must separately propagate the selected image through build/Compose/filtered-envi
 content-evidence boundaries at a qualified central revision. Manifest success does not prove
 later content acquisition, source capacity, live recovery or #945 completion.
 
+The [separate Python 3.12 same-base approval](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6186826582)
+binds original index `a6e34c59...`, Linux/amd64 child `2b4f19da...` and config `df18428d...`.
+Publisher metadata and reviewed raw cached config/ordered RootFS evidence identify the same
+Python 3.12.15 slim-trixie base. See the [exact operator command and limits](https://github.com/sgajbi/lotus-platform/blob/main/platform-contracts/technology-governance/README.md#explicit-original-python-312-same-base-selection).
+Existing equivalence, the three earlier approvals, default distribution and finite budgets stay
+unchanged. Conditional fallback remains e529-only; NoRedirect and PostgreSQL-only service proof
+remain enforced. Manage must separately adopt the qualified central revision and protect its
+digest-pinned build inputs/evidence. Cached content does not prove cold transfer, future registry
+capacity, hosted/main image controls or runtime readiness; #806/#945 remain separate.
+
 The current finite policy also includes the separately reviewed Gateway Trivy 0.72.0
 and Syft v1.42.3 audit tuples. Gateway Python uses the existing admitted single-platform
 manifest. Bind a qualified Platform revision containing these mappings; owning-repository

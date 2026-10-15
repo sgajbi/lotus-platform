@@ -103,6 +103,15 @@ ORIGINAL_SELECTION_APPROVALS = {
     (
         "docker.io/library/python",
         "public.ecr.aws/docker/library/python",
+        "sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1",
+        "index",
+        "linux/amd64",
+        "sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe",
+        "sha256:df18428df8a0f9189c84e7424d214b4c50092af1f9dca5842a00c41c39bda316",
+    ): "https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6186826582",
+    (
+        "docker.io/library/python",
+        "public.ecr.aws/docker/library/python",
         "sha256:e529028263dbe6910a2d96f7d2b8f5266385e917fd45d286ef166977c094a51e",
         "manifest",
         "linux/amd64",

@@ -39,7 +39,7 @@ def _policy() -> dict:
     return json.loads(POLICY_PATH.read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998", "e5290282"])
+@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998", "e5290282", "a6e34c59"])
 def test_original_selection_approval_accepts_exact_tuple_and_refuses_reuse(digest):
     validator = _validator()
     policy = _policy()
@@ -56,13 +56,13 @@ def test_original_selection_approval_accepts_exact_tuple_and_refuses_reuse(diges
     assert validator.validate_policy(policy, exception_register_paths=[]) == []
 
 
-@pytest.mark.parametrize("target,authority", [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)])
+@pytest.mark.parametrize("target,authority", [(target, authority) for target in range(4) for authority in range(4) if target != authority])
 def test_original_selection_approvals_cannot_be_transplanted_between_admitted_tuples(target, authority):
     validator = _validator()
     policy = _policy()
     mappings = [item for item in policy["container_image_evidence_policy"]["approved_distribution_mappings"]
                 if item.get("original_source_selection_approval")]
-    assert len(mappings) == 3
+    assert len(mappings) == 4
     mappings[target]["original_source_selection_approval"] = mappings[authority]["original_source_selection_approval"]
     errors = validator.validate_policy(policy, exception_register_paths=[])
     assert len([error for error in errors if "original-source selection" in error]) == 1
@@ -70,7 +70,7 @@ def test_original_selection_approvals_cannot_be_transplanted_between_admitted_tu
 
 @pytest.mark.parametrize("approval", ["https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-1",
                                       "https://example.com/issues/945#issuecomment-6181948743", None, "", 7, False])
-@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998", "e5290282"])
+@pytest.mark.parametrize("digest", ["ca0bd484", "2d2b8998", "e5290282", "a6e34c59"])
 def test_unreviewed_original_selection_approval_refuses_schema_and_semantics(approval, digest):
     validator = _validator()
     policy = _policy()

@@ -47,8 +47,8 @@ repositories, Trivy's official `ghcr.io/aquasecurity/trivy`, Syft's official `gh
 of all images in either registry. Mutable tags, replacement digests, other platforms and fallback
 registries are not admitted by those mappings. The explicit exact-source recovery below is a
 separate policy admission. New tuples require reviewed policy and observation evidence.
-Policy version `1.1.6` retains the eleven mappings and the conditional Python recovery admission,
-and supports separately approved explicit original Python e529, PG16 and PG17 selection; consumers must bind the matching
+Policy version `1.1.7` retains the eleven mappings and the conditional Python recovery admission,
+and supports separately approved explicit original Python e529, Python 3.12 a6e34, PG16 and PG17 selection; consumers must bind the matching
 qualified schema and validator rather than mix it with an earlier policy checkout.
 
 The Performance `e529...` digest is an existing single-platform manifest, so its platform
@@ -205,6 +205,37 @@ There is no silent downstream source switch or extra retry budget. The local
 `verify_acquired_service_image.py` helper remains PostgreSQL-only and rejects Python even
 when its original-source selection is approved. This central selection change supplies no
 live acquisition, capacity entitlement, readiness or full #945 completion claim.
+
+### Explicit original Python 3.12 same-base selection
+
+The [separate same-base selection approval](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6186826582)
+binds only original `docker.io/library/python`, distribution `public.ecr.aws/docker/library/python`,
+index `a6e34c59...`, Linux/amd64 child `2b4f19da...` and config `df18428d...`.
+The existing R2 equivalence approval and observation remain unchanged. Publisher index/child
+bytes and annotations identify Python 3.12.15 slim-trixie / Debian trixie-slim. The separately
+reviewed [cached-content receipt](https://github.com/sgajbi/lotus-platform/issues/945#issuecomment-6186799014)
+hashes actual config bytes and four ordered uncompressed DiffIDs matching that cache.
+Containerd's index-shaped image Id is not assumed to equal config identity.
+
+From the **qualified Platform checkout root**, this command is identical in PowerShell
+and Bash; it performs live original manifest/config-descriptor verification without pulling layers:
+
+```text
+python automation/validate_technology_governance_policy.py --source-image docker.io/library/python@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 --distribution-image public.ecr.aws/docker/library/python@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 --platform linux/amd64 --verify-distribution --acquisition-source original
+```
+
+Full tuple and its exact approval precede the existing fixed `library/python` verifier.
+The fixed auth realm/service/scope, NoRedirect rule and shared 9-request/90-second/20-second-wait
+budgets are unchanged. This tuple has no conditional fallback; that remains exclusive to e529.
+Default distribution behavior and all three earlier selection authorities remain unchanged.
+The local service verifier remains PostgreSQL-only and refuses both approved Python tuples.
+
+Manage adoption is a separate owner-reviewed digest pin and supported build-input/evidence change
+at qualified central main. Preserve this same interpreter/OS content; the bookworm template is
+not a substitute for this authority. Local cached-content proof does not establish cold acquisition,
+compressed registry transfer, future source capacity, hosted build/readiness or runtime execution.
+Existing hosted/main image and financial controls remain required; this approval closes neither
+Manage #806 nor Platform #945 and supplies no institutional or runtime activation authority.
 
 ### Explicit original PostgreSQL 16 and 17 selection and local content proof
 

@@ -339,9 +339,10 @@ def test_actual_policy_refuses_other_service_references(expected):
         proof.admitted_mapping(expected)
 
 
-def test_python_selection_approval_does_not_expand_local_postgres_service_proof(monkeypatch, tmp_path):
+@pytest.mark.parametrize("digest", ["e5290282", "a6e34c59"])
+def test_python_selection_approval_does_not_expand_local_postgres_service_proof(monkeypatch, tmp_path, digest):
     mapping = next(item for item in proof.policy.load_policy()["container_image_evidence_policy"]["approved_distribution_mappings"]
-                   if item["image_digest"] == proof.policy.ORIGINAL_SOURCE_FALLBACK_IDENTITY[1])
+                   if item["image_digest"].startswith("sha256:" + digest))
     proof.policy.require_original_selection(mapping)
     expected = mapping["original_repository"] + "@" + mapping["image_digest"]
     monkeypatch.setattr(proof, "policy_identity", lambda *args: {"commit": "b" * 40})
