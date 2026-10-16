@@ -151,6 +151,10 @@ The adapter holds the existing exclusive operation fence across admission, selec
 Core `migration-runner` is explicitly declared `completionPolicy: exited-zero` in `automation/service-map.json`; other services default to daemon readiness. A declared one-shot requires this reserved path. The adapter builds and prepares every selected image before any replacement, then force-recreates only the selected one-shot with `up -d --no-deps --no-build --pull never --force-recreate`. It observes completed containers with `compose ps --all` and inspects the exact container ID, Compose project/service, immutable prepared image and repository/checkout/source labels. Created or running is pending within `HealthTimeoutSeconds`; only inspected exited/0 with no OOM, restart or execution error completes the job. Missing, duplicate, malformed or drifting evidence refuses. Only after completion does it replace the selected applications with the pinned images. A migration failure replaces no selected applications and retains pending failure authority; it does not roll back DDL or authorize a blind retry. Demo loaders, topic creators and infrastructure outside the reviewed allowlist are not started. Long-running daemons still require running plus their existing health/port posture, even when an exited container reports exit 0.
 
 Daemon state queries retain Compose's running-only default. Only declared jobs query `ps --all`.
+Both query paths require `--no-trunc`: Compose JSON otherwise reports shortened container IDs.
+The adapter still requires the full 64-character ID and exact inspected identity; a shortened ID
+refuses rather than granting name or prefix resolution. This observation option does not authorize
+replaying a migration or restarting a pending refresh; use the explicit reviewed recovery below.
 Because that includes historical `compose run` containers, inspect every candidate's full container
 ID and Compose project/service plus exact string `com.docker.compose.oneoff` metadata (`True` or
 `False`). Select exactly one inspected `False` service container; `True` run containers cannot

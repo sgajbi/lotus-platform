@@ -121,7 +121,7 @@ def test_service_refresh_fails_when_compose_ps_fails(tmp_path: Path) -> None:
         tmp_path,
         "\n".join(
             [
-                "if ($line -eq 'compose ps --format json lotus-gateway') {",
+                "if ($line -eq 'compose ps --no-trunc --format json lotus-gateway') {",
                 "  [Console]::Error.WriteLine('compose ps unavailable')",
                 "  exit 23",
                 "}",
@@ -137,7 +137,7 @@ def test_service_refresh_fails_when_compose_ps_fails(tmp_path: Path) -> None:
     assert "compose ps unavailable" in result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
-        "compose ps --format json lotus-gateway",
+        "compose ps --no-trunc --format json lotus-gateway",
     ]
 
 
@@ -148,7 +148,7 @@ def test_service_refresh_preserves_successful_explicit_service_refresh(
         tmp_path,
         "\n".join(
             [
-                "if ($line -eq 'compose ps --format json lotus-gateway') {",
+                "if ($line -eq 'compose ps --no-trunc --format json lotus-gateway') {",
                 '  Write-Output \'{"Service":"lotus-gateway","State":"running","Health":"healthy","Publishers":[]}\'',
                 "}",
                 "exit 0",
@@ -161,7 +161,7 @@ def test_service_refresh_preserves_successful_explicit_service_refresh(
     assert result.returncode == 0, result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
-        "compose ps --format json lotus-gateway",
+        "compose ps --no-trunc --format json lotus-gateway",
     ]
 
 
@@ -170,7 +170,7 @@ def test_service_refresh_keeps_compose_stderr_out_of_json_state(tmp_path: Path) 
         tmp_path,
         "\n".join(
             [
-                "if ($line -eq 'compose ps --format json lotus-gateway') {",
+                "if ($line -eq 'compose ps --no-trunc --format json lotus-gateway') {",
                 "  [Console]::Error.WriteLine('compose warning: obsolete attribute')",
                 '  Write-Output \'{"Service":"lotus-gateway","State":"running","Health":"healthy","Publishers":[]}\'',
                 "}",
@@ -186,7 +186,7 @@ def test_service_refresh_keeps_compose_stderr_out_of_json_state(tmp_path: Path) 
     assert "invalid JSON service state" not in result.stderr
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-gateway",
-        "compose ps --format json lotus-gateway",
+        "compose ps --no-trunc --format json lotus-gateway",
     ]
 
 
@@ -200,7 +200,7 @@ def test_service_refresh_applies_manage_canonical_environment_and_verifies_port(
                 "if ($line -like 'compose up*') {",
                 '  Add-Content -Path $commandLog -Value "env:$env:LOTUS_MANAGE_HOST_PORT|$env:DPM_CORE_BASE_URL|$env:DPM_CORE_QUERY_BASE_URL|$env:DPM_WORKFLOW_ENABLED"',
                 "}",
-                "if ($line -eq 'compose ps --format json lotus-manage') {",
+                "if ($line -eq 'compose ps --no-trunc --format json lotus-manage') {",
                 '  Write-Output \'{"Service":"lotus-manage","State":"running","Health":"healthy","Publishers":[{"TargetPort":8000,"PublishedPort":8001}]}\'',
                 "}",
                 "exit 0",
@@ -220,7 +220,7 @@ def test_service_refresh_applies_manage_canonical_environment_and_verifies_port(
     assert _command_log(tmp_path) == [
         "compose up -d --build lotus-manage",
         "env:8001|http://host.docker.internal:8202|http://host.docker.internal:8201|true",
-        "compose ps --format json lotus-manage",
+        "compose ps --no-trunc --format json lotus-manage",
     ]
 
 
@@ -298,7 +298,7 @@ def test_service_refresh_rejects_manage_port_mismatch(tmp_path: Path) -> None:
         tmp_path,
         "\n".join(
             [
-                "if ($line -eq 'compose ps --format json lotus-manage') {",
+                "if ($line -eq 'compose ps --no-trunc --format json lotus-manage') {",
                 '  Write-Output \'{"Service":"lotus-manage","State":"running","Health":"healthy","Publishers":[{"TargetPort":8000,"PublishedPort":8000}]}\'',
                 "}",
                 "exit 0",
@@ -383,7 +383,7 @@ $config='{{"serviceVerification":{{"job":{{"completionPolicy":"exited-zero"}}}}}
 $expected=@{{service='job';project='core';imageId='sha256:{'c' * 64}';sourceRevision='{'a' * 40}';repository='lotus-core';checkout='reviewed'}}
 function ControlledInspect {{ $global:LASTEXITCODE=0; return ConvertTo-Json -InputObject @($global:container) -Depth 12 -Compress }}
 $cases=@('valid','running','created','nonzero','oom','restart','missing-exit','string-exit','missing-oom','missing-running','string-restart','unknown',
-         'project','service','container','image','source','repository','checkout','container-drift','ps-identity','error')
+         'project','service','container','image','source','repository','checkout','container-drift','ps-identity','ps-short-identity','ps-missing-identity','error')
 foreach ($case in $cases) {{
   $global:container=@{{Id='{'b' * 64}';Image=$expected.imageId;RestartCount=0;Config=@{{Labels=@{{
     'com.docker.compose.project'='core';'com.docker.compose.service'='job';'com.docker.compose.oneoff'='False';'org.opencontainers.image.revision'=$expected.sourceRevision;
@@ -412,6 +412,8 @@ foreach ($case in $cases) {{
     'checkout' {{ $container.Config.Labels.'com.lotus.repository.checkout'='foreign' }}
     'container-drift' {{ $observed='{'d' * 64}' }}
     'ps-identity' {{ $state.ID='malformed' }}
+    'ps-short-identity' {{ $state.ID=$state.ID.Substring(0,12) }}
+    'ps-missing-identity' {{ $state.Remove('ID') }}
     'error' {{ $container.State.Error='execution failed' }}
   }}
   $failure=$null; $complete=$null
@@ -434,7 +436,7 @@ if ((Get-ServiceCompletionPolicy -RepositoryConfig $config -Service daemon) -ne 
 """
     result = subprocess.run([shell, "-NoProfile", "-Command", command], text=True, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert result.stdout.count("CONTROL_PASS:") == 22
+    assert result.stdout.count("CONTROL_PASS:") == 24
 
 
 def test_declared_one_shot_requires_prepared_reserved_path(tmp_path: Path) -> None:
@@ -457,4 +459,4 @@ def test_daemon_refresh_does_not_query_stopped_compose_run_containers(tmp_path: 
     ]))
     result = _run_service_refresh(tmp_path, fake_docker, "lotus-gateway")
     assert result.returncode == 0, result.stderr
-    assert _command_log(tmp_path) == ["compose up -d --build lotus-gateway", "compose ps --format json lotus-gateway"]
+    assert _command_log(tmp_path) == ["compose up -d --build lotus-gateway", "compose ps --no-trunc --format json lotus-gateway"]
