@@ -45,6 +45,25 @@ entries and unresolved environment/build arguments refuse; do not bypass these c
 Use the adapter's source-only transition for host-tool changes; retain actual runtime image
 revisions rather than claiming the older images were rebuilt.
 
+Core `migration-runner` declares `completionPolicy: exited-zero` in the service map. Refreshing
+a declared one-shot requires the reviewed reserved path. Prepare all selected immutable images
+first; force-recreate only the migration with dependency expansion, build and pull disabled, and
+await inspected exit 0 before replacing the selected applications. `compose ps --all` includes
+completed jobs; daemon queries retain the running-only default. Inspect every job candidate's
+exact project/service/container identity and `com.docker.compose.oneoff` metadata before selecting
+exactly one non-one-off service container. A validated historical `compose run` container cannot
+satisfy completion; missing/malformed metadata or multiple real service containers refuse. This
+observation filter never removes acquired reservation bindings or changes finish/cardinality rules.
+Before build/up, require exactly one acquired resource for each declared job and inspect that
+original full ID as the exact project/service with strict `oneoff=False`. Acquired historical runs,
+missing/duplicate resources and malformed/foreign identity refuse before mutation. Preserve all
+acquired resources and pending authority; readiness-only non-acquired run observations are not
+end-to-end finish proof. Reconcile unsupported acquired topology through accountable review.
+Created/running jobs are pending within the finite readiness timeout; missing,
+duplicate, malformed, nonzero, OOM, restarted or drifting container/project/image/source evidence
+refuses. Daemons retain the default running/health/port checks; exited-zero daemons still refuse.
+Migration failure replaces no selected applications and leaves the original refresh pending.
+
 An interrupted or failed reserved refresh stays pending under the original reservation.
 Ordinary finish/proof/recovery cannot clear it. Use an explicit reviewed refresh recovery
 receipt to complete the exact prepared transition or abort after exact original restoration.
@@ -52,7 +71,7 @@ Do not blindly rerun, regrant, or claim live acceptance from hermetic tests. The
 owner must capture bounded live refresh, strict proof and teardown evidence.
 
 `Service-Refresh.ps1` fails closed when Docker rejects `compose up` or when `docker compose ps`
-cannot prove the selected services are running with their governed health and published-port
+cannot prove daemon readiness or declared one-shot completion with the governed published-port
 posture. Treat any non-zero exit as failed runtime evidence: inspect the Docker error, correct the
 service name, Compose environment, port, or health state, and rerun the refresh before validating
 the application. Do not record a targeted refresh as successful from partial console output.

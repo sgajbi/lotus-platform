@@ -168,10 +168,13 @@ function Get-ComposeServiceStates {
   param(
     [Parameter(Mandatory = $true)][string]$Command,
     [Parameter(Mandatory = $true)][string[]]$ServiceNames,
-    [string[]]$ComposePrefix = @('compose')
+    [string[]]$ComposePrefix = @('compose'),
+    [switch]$IncludeCompleted
   )
 
-  $arguments = $ComposePrefix + @('ps', '--format', 'json') + $ServiceNames
+  $arguments = $ComposePrefix + @('ps')
+  if ($IncludeCompleted) { $arguments += '--all' }
+  $arguments += @('--format', 'json') + $ServiceNames
   $stdoutPath = [IO.Path]::GetTempFileName()
   $stderrPath = [IO.Path]::GetTempFileName()
   try {
@@ -213,6 +216,91 @@ function Get-ComposeServiceStates {
   return @($states)
 }
 
+function Get-ServiceCompletionPolicy {
+  param([object]$RepositoryConfig, [string]$Service)
+  $verification = Get-ServiceVerification -RepositoryConfig $RepositoryConfig -Service $Service
+  if (-not $verification -or -not $verification.PSObject.Properties['completionPolicy']) { return 'running' }
+  if ($verification.completionPolicy -isnot [string] -or $verification.completionPolicy -ne 'exited-zero') {
+    throw "Unknown or malformed completion policy for $Service."
+  }
+  if ($verification.requireHealthy -or $verification.publishedPorts) {
+    throw "One-shot completion policy cannot require daemon health or published ports: $Service."
+  }
+  return 'exited-zero'
+}
+
+function Get-InspectedComposeServiceContainer {
+  param([string]$Command, [string]$ContainerId, [string]$Project, [string]$Service)
+  if ($ContainerId -notmatch '^[0-9a-f]{64}$') { throw "Missing or malformed one-shot container identity: $Service." }
+  $diagnostics = [IO.Path]::GetTempFileName()
+  try {
+    $raw = & $Command inspect --type container $ContainerId 2> $diagnostics
+    if ($LASTEXITCODE -ne 0) { throw "One-shot container inspection failed: $Service." }
+    $containers = @(($raw -join "`n") | ConvertFrom-Json)
+  } finally { Remove-Item -LiteralPath $diagnostics -Force -ErrorAction SilentlyContinue }
+  if ($containers.Count -ne 1) { throw "Ambiguous one-shot container inspection: $Service." }
+  $container = $containers[0]
+  $labels = $container.Config.Labels
+  if ($container.Id -ne $ContainerId -or $labels.'com.docker.compose.service' -ne $Service -or
+      $labels.'com.docker.compose.project' -ne $Project) {
+    throw "One-shot project/service/container identity mismatch: $Service."
+  }
+  $oneOff = $labels.'com.docker.compose.oneoff'
+  if ($oneOff -isnot [string] -or $oneOff -cnotin @('True', 'False')) {
+    throw "Missing or malformed Compose one-off metadata: $Service."
+  }
+  return $container
+}
+
+function Assert-OriginalOneShotTopology {
+  param([string]$Command, $Operation, [object[]]$PlannedServices, [object]$RepositoryConfig)
+  foreach ($planned in $PlannedServices) {
+    if ((Get-ServiceCompletionPolicy -RepositoryConfig $RepositoryConfig -Service $planned.service) -ne 'exited-zero') { continue }
+    $original = @($Operation.OriginalResources | Where-Object { $_.project -eq $planned.project -and $_.service -eq $planned.service })
+    if ($original.Count -ne 1) { throw "Declared one-shot requires exactly one acquired service container before build: $($planned.service)." }
+    $container = Get-InspectedComposeServiceContainer -Command $Command -ContainerId $original[0].id -Project $planned.project -Service $planned.service
+    if ($container.Config.Labels.'com.docker.compose.oneoff' -cne 'False') {
+      throw "Declared one-shot acquired container must be the actual Compose service before build: $($planned.service)."
+    }
+  }
+}
+
+function Test-OneShotCompletion {
+  param([string]$Command, [object[]]$State, [object]$ExpectedImage, [string]$Service, [string]$ObservedContainer, [ref]$SelectedContainer)
+  $serviceContainers = @()
+  foreach ($row in $State) {
+    if ($row.Service -ne $Service) { throw "Missing or malformed one-shot container identity: $Service." }
+    $container = Get-InspectedComposeServiceContainer -Command $Command -ContainerId $row.ID -Project $ExpectedImage.project -Service $Service
+    # Only Compose's inspected identity metadata distinguishes run containers from service containers.
+    if ($container.Config.Labels.'com.docker.compose.oneoff' -ceq 'False') { $serviceContainers += @{ State = $row; Container = $container } }
+  }
+  if ($serviceContainers.Count -ne 1) { throw "Missing or ambiguous one-shot service state: $Service." }
+  $selectedState = $serviceContainers[0].State
+  $container = $serviceContainers[0].Container
+  $labels = $container.Config.Labels
+  if ($ObservedContainer -and $ObservedContainer -ne $selectedState.ID) { throw "One-shot container identity drift: $Service." }
+  if ($SelectedContainer) { $SelectedContainer.Value = $selectedState.ID }
+  if ($ExpectedImage -and ($labels.'com.docker.compose.project' -ne $ExpectedImage.project -or
+      $container.Image -ne $ExpectedImage.imageId -or
+      $labels.'org.opencontainers.image.revision' -ne $ExpectedImage.sourceRevision -or
+      $labels.'org.opencontainers.image.source' -ne $ExpectedImage.repository -or
+      $labels.'com.lotus.repository.checkout' -ne $ExpectedImage.checkout)) {
+    throw "One-shot prepared image/source/project identity drift: $Service."
+  }
+  $status = $container.State
+  if ($selectedState.State -notin @('created', 'running', 'exited') -or $status.OOMKilled -isnot [bool] -or $status.OOMKilled -or
+      ($container.RestartCount -isnot [long] -and $container.RestartCount -isnot [int]) -or
+      $container.RestartCount -ne 0 -or ($status.ExitCode -isnot [long] -and $status.ExitCode -isnot [int]) -or
+      $status.Running -isnot [bool] -or $status.Running -ne ($status.Status -eq 'running') -or
+      $status.Error -isnot [string] -or -not [string]::IsNullOrEmpty($status.Error)) {
+    throw "Malformed, OOM or restarted one-shot state: $Service."
+  }
+  if ($status.ExitCode -ne 0) { throw "One-shot did not exit successfully: $Service." }
+  if ($status.Status -in @('running', 'created')) { return $false }
+  if ($status.Status -ne 'exited' -or $status.ExitCode -ne 0) { throw "One-shot did not exit successfully: $Service." }
+  return $true
+}
+
 function Get-ServiceReadinessFailures {
   param(
     [object[]]$States,
@@ -222,7 +310,9 @@ function Get-ServiceReadinessFailures {
 
   $failures = New-Object System.Collections.Generic.List[string]
   foreach ($service in $ServiceNames) {
-    $state = $States | Where-Object { $_.Service -eq $service } | Select-Object -First 1
+    $matches = @($States | Where-Object { $_.Service -eq $service })
+    if ($matches.Count -gt 1) { throw "Ambiguous selected service state: $service." }
+    $state = $matches | Select-Object -First 1
     if (-not $state) {
       $failures.Add("$service is absent from docker compose ps")
       continue
@@ -264,13 +354,31 @@ function Wait-ComposeServiceReadiness {
     [Parameter(Mandatory = $true)][object]$RepositoryConfig,
     [int]$TimeoutSeconds,
     [int]$PollIntervalSeconds,
-    [string[]]$ComposePrefix = @('compose')
+    [string[]]$ComposePrefix = @('compose'),
+    [object[]]$PreparedImages = @()
   )
 
   $deadline = [DateTimeOffset]::UtcNow.AddSeconds($TimeoutSeconds)
+  $observedContainers = @{}
+  $daemonServices = @($ServiceNames | Where-Object { (Get-ServiceCompletionPolicy -RepositoryConfig $RepositoryConfig -Service $_) -eq 'running' })
+  $jobServices = @($ServiceNames | Where-Object { $_ -notin $daemonServices })
   do {
-    $states = Get-ComposeServiceStates -Command $Command -ServiceNames $ServiceNames -ComposePrefix $ComposePrefix
-    $failures = @(Get-ServiceReadinessFailures -States $states -ServiceNames $ServiceNames -RepositoryConfig $RepositoryConfig)
+    $states = @()
+    if ($daemonServices.Count -gt 0) {
+      $states = @(Get-ComposeServiceStates -Command $Command -ServiceNames $daemonServices -ComposePrefix $ComposePrefix)
+    }
+    $failures = @()
+    foreach ($service in $jobServices) {
+      $jobStates = @(Get-ComposeServiceStates -Command $Command -ServiceNames @($service) -ComposePrefix $ComposePrefix -IncludeCompleted)
+      $expected = @($PreparedImages | Where-Object { $_.service -eq $service })
+      if ($expected.Count -ne 1) { throw "Missing or ambiguous prepared one-shot image: $service." }
+      $selectedContainerId = $null
+      $complete = Test-OneShotCompletion -Command $Command -State $jobStates -ExpectedImage $expected[0] `
+        -Service $service -ObservedContainer $observedContainers[$service] -SelectedContainer ([ref]$selectedContainerId)
+      $observedContainers[$service] = $selectedContainerId
+      if (-not $complete) { $failures += "$service completion is pending" }
+    }
+    $failures += @(Get-ServiceReadinessFailures -States $states -ServiceNames $daemonServices -RepositoryConfig $RepositoryConfig)
     if ($failures.Count -eq 0) {
       Write-Host "Verified service readiness: $($ServiceNames -join ', ')"
       return
@@ -317,7 +425,7 @@ function Assert-ReviewedRepositoryPath {
 }
 
 function Assert-ReservedComposeInputs {
-  param([string]$Command, [string[]]$Prefix, $Operation, [object[]]$PlannedServices, [string]$RepoPath)
+  param([string]$Command, [string[]]$Prefix, $Operation, [object[]]$PlannedServices, [string]$RepoPath, [object]$RepositoryConfig)
   # Evaluated Compose may include secrets; inspect in memory and suppress its error payload.
   $diagnostics = [IO.Path]::GetTempFileName()
   try {
@@ -330,6 +438,10 @@ function Assert-ReservedComposeInputs {
     $service = $config.services.($planned.service)
     if (-not $service -or -not $service.build -or $service.build.additional_contexts -or $service.build.dockerfile_inline) {
       throw 'Reserved build requires a local owned context and Dockerfile without additional contexts.'
+    }
+    if ($RepositoryConfig -and (Get-ServiceCompletionPolicy -RepositoryConfig $RepositoryConfig -Service $planned.service) -eq 'exited-zero' -and
+        $service.restart -and $service.restart -ne 'no') {
+      throw 'Declared one-shot service must not automatically restart.'
     }
     $context = [IO.Path]::GetFullPath([string]$service.build.context)
     $dockerfile = if ($service.build.dockerfile) { [string]$service.build.dockerfile } else { 'Dockerfile' }
@@ -396,10 +508,18 @@ if ($Services -and $Services.Count -gt 0) {
 }
 
 $resolvedServices = $resolvedServices | Sort-Object -Unique
+foreach ($service in $resolvedServices) { Get-ServiceCompletionPolicy -RepositoryConfig $repositoryConfig -Service $service | Out-Null }
 $ProjectPath = (Resolve-Path -LiteralPath $ProjectPath).Path
 if (-not $ProjectsRoot) { $ProjectsRoot = Split-Path -Parent $ProjectPath }
 $bookPath = Join-Path $ProjectsRoot 'lotus-platform/output/canonical-runtime/reservations.v1.json'
 $reservedRefresh = (Test-Path -LiteralPath $bookPath) -or $RefreshPlan -or $RuntimeHolder -or $RefreshPlanDigest
+$oneShotServices = @($resolvedServices | Where-Object {
+  (Get-ServiceCompletionPolicy -RepositoryConfig $repositoryConfig -Service $_) -eq 'exited-zero'
+})
+$applicationServices = @($resolvedServices | Where-Object { $_ -notin $oneShotServices })
+if (-not $reservedRefresh -and $oneShotServices.Count -gt 0) {
+  throw 'One-shot service refresh requires a reviewed reserved plan and prepared immutable images.'
+}
 if ($reservedRefresh) {
   if (-not $RuntimeHolder -or -not $RefreshPlan -or -not $RefreshPlanDigest) {
     throw 'Canonical reservation requires RuntimeHolder, RefreshPlan and reviewed RefreshPlanDigest before service mutation.'
@@ -495,7 +615,8 @@ try {
     }
     foreach ($file in $ComposeFiles) { $composePrefix += @('-f', (Resolve-ReviewedComposeFile -File $file -RepoPath $ProjectPath)) }
     if (-not $DryRun) { Assert-CanonicalRuntimeRefresh -Operation $operation | Out-Null }
-    $configText = Assert-ReservedComposeInputs -Command $DockerCommand -Prefix $composePrefix -Operation $operation -PlannedServices $plannedServices -RepoPath $ProjectPath
+    Assert-OriginalOneShotTopology -Command $DockerCommand -Operation $operation -PlannedServices $plannedServices -RepositoryConfig $repositoryConfig
+    $configText = Assert-ReservedComposeInputs -Command $DockerCommand -Prefix $composePrefix -Operation $operation -PlannedServices $plannedServices -RepoPath $ProjectPath -RepositoryConfig $repositoryConfig
     $snapshotRoot = Join-Path ([IO.Path]::GetTempPath()) ('lotus-refresh-' + [guid]::NewGuid().ToString('N'))
     [void][IO.Directory]::CreateDirectory($snapshotRoot)
     $configPath = Join-Path $snapshotRoot 'evaluated.json'
@@ -530,30 +651,52 @@ try {
       Write-Host "Dry run validated reviewed plan $RefreshPlanDigest; reservation unchanged."
       Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') build $($resolvedServices -join ' ')"
       Write-Host 'After build: verify source labels and pin each selected image to its observed immutable ID.'
-      Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') up -d --no-deps --no-build --pull never $($resolvedServices -join ' ')"
+      foreach ($service in $oneShotServices) {
+        Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') up -d --no-deps --no-build --pull never --force-recreate $service"
+        Write-Host "Await inspected exited-zero completion: $service; failure prevents application replacement."
+      }
+      if ($applicationServices.Count -gt 0) {
+        Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') up -d --no-deps --no-build --pull never $($applicationServices -join ' ')"
+      }
       return
     }
     Invoke-CheckedNativeCommand -Command $DockerCommand -Arguments ($composePrefix + @('build') + $resolvedServices) `
       -FailureMessage 'Reserved build failed before service replacement'
     $prepared = Assert-CanonicalRuntimeRefresh -Operation $operation -PreparedImages $referencesPath
+    foreach ($service in $oneShotServices) {
+      if (@($prepared.operation.refresh.preparedImages | Where-Object { $_.service -eq $service }).Count -ne 1) {
+        throw "Missing or ambiguous prepared one-shot image: $service."
+      }
+    }
     foreach ($image in $prepared.operation.refresh.preparedImages) {
       $overrideServices[$image.service].image = $image.imageId
     }
     [IO.File]::WriteAllText($overridePath, (@{ services = $overrideServices } | ConvertTo-Json -Depth 12))
     Assert-CanonicalRuntimeRefresh -Operation $operation | Out-Null
-    $composeArgs = $composePrefix + @('up', '-d', '--no-deps', '--no-build', '--pull', 'never') + $resolvedServices
+    # Dependency expansion is disabled; complete declared jobs before replacing any daemon.
+    foreach ($service in $oneShotServices) {
+      Invoke-CheckedNativeCommand -Command $DockerCommand `
+        -Arguments ($composePrefix + @('up', '-d', '--no-deps', '--no-build', '--pull', 'never', '--force-recreate', $service)) `
+        -FailureMessage 'One-shot replacement failed before application replacement'
+      Wait-ComposeServiceReadiness -Command $DockerCommand -ServiceNames @($service) -RepositoryConfig $repositoryConfig `
+        -TimeoutSeconds $HealthTimeoutSeconds -PollIntervalSeconds $HealthPollIntervalSeconds -ComposePrefix $composePrefix `
+        -PreparedImages @($prepared.operation.refresh.preparedImages)
+    }
+    $composeArgs = $composePrefix + @('up', '-d', '--no-deps', '--no-build', '--pull', 'never') + $applicationServices
   }
-  Invoke-CheckedNativeCommand `
-    -Command $DockerCommand `
-    -Arguments $composeArgs `
-    -FailureMessage "docker compose up failed; service refresh did not complete"
-  Wait-ComposeServiceReadiness `
-    -Command $DockerCommand `
-    -ServiceNames $resolvedServices `
-    -RepositoryConfig $repositoryConfig `
-    -TimeoutSeconds $HealthTimeoutSeconds `
-    -PollIntervalSeconds $HealthPollIntervalSeconds `
-    -ComposePrefix $composePrefix
+  if ($applicationServices.Count -gt 0) {
+    Invoke-CheckedNativeCommand `
+      -Command $DockerCommand `
+      -Arguments $composeArgs `
+      -FailureMessage "docker compose up failed; service refresh did not complete"
+    Wait-ComposeServiceReadiness `
+      -Command $DockerCommand `
+      -ServiceNames $applicationServices `
+      -RepositoryConfig $repositoryConfig `
+      -TimeoutSeconds $HealthTimeoutSeconds `
+      -PollIntervalSeconds $HealthPollIntervalSeconds `
+      -ComposePrefix $composePrefix
+  }
   $refreshOutcome = 'success'
 } finally {
   try {

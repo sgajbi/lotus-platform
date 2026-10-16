@@ -91,7 +91,18 @@ python automation\validate_analytics_ui_entitlement_certification.py
 9. use `Service-Refresh.ps1 -DryRun` before refreshing a service in a shared stack. Reserved preview validates admission, exact ProjectPath-to-admitted-checkout identity, committed Compose files and the plan's full evaluated `composeConfigDigest` under the operation fence. Execution freezes that model and builds from exact committed Git blobs, excluding ignored/untracked working files; secret-bearing model contents stay operator-local. Preview changes neither the reservation nor running services. The governed
    service map must preserve non-secret coexistence environment and published ports; Manage must
    retain host port 8001 and its canonical Core source/workflow settings while Advise remains on
-   host port 8000. A refresh is incomplete until running, health, and port verification passes.
+   host port 8000. Daemon refresh is incomplete until running, health, and port verification passes.
+   Core's declared migration one-shot requires the reviewed reserved path: prepare every selected
+   image, run only the migration, inspect successful exit 0, then replace selected applications.
+   Created/running remains pending within the finite timeout; failed or drifting evidence replaces
+   no applications and leaves the original refresh pending for reviewed recovery. See the linked
+   incremental refresh runbook for exact identity checks and failure boundaries.
+   Daemon queries remain running-only; completed-job queries distinguish the inspected service
+   container from historical `compose run` containers through strict one-off metadata. Missing
+   metadata or multiple real service containers refuse; acquired binding/finish rules stay exact.
+   Before any build/up, a declared job must have exactly one acquired container, inspected by
+   its original full ID as the non-one-off project/service. Acquired historical runs or missing,
+   duplicate, malformed and foreign topology refuse before mutation; preserve pending authority.
 10. a named runtime holder does not acquire foreign containers. Record holder, UTC window, exact
     projects/ports, acquisition/preflight, and release/teardown receipts before changing a shared
     canonical resource; a failed preflight is a refusal, not partial runtime acceptance.

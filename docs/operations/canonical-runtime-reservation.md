@@ -148,6 +148,27 @@ Forward the acquired Workbench path/runtime mode if overridden. After replacemen
 
 The adapter holds the existing exclusive operation fence across admission, selective build, image verification, replacement, health/port verification and finish. Original scope/bindings remain authoritative while pending. A unique operation image tag prevents a selected build from moving an untouched service's shared tag. Build labels bind repository, checkout and target source SHA. `prepare-refresh` resolves immutable image IDs and verifies those labels before any replacement. Replacement pins those IDs and uses `up -d --no-deps --no-build --pull never`. Finish requires the prepared IDs/source labels, unchanged service cardinality and binding shapes, and exact untouched container/host identities and image evidence. A successful finish atomically advances sources/bindings while retaining the original reservation and expiry. It is supplier transition evidence; application validation and live acceptance remain separate.
 
+Core `migration-runner` is explicitly declared `completionPolicy: exited-zero` in `automation/service-map.json`; other services default to daemon readiness. A declared one-shot requires this reserved path. The adapter builds and prepares every selected image before any replacement, then force-recreates only the selected one-shot with `up -d --no-deps --no-build --pull never --force-recreate`. It observes completed containers with `compose ps --all` and inspects the exact container ID, Compose project/service, immutable prepared image and repository/checkout/source labels. Created or running is pending within `HealthTimeoutSeconds`; only inspected exited/0 with no OOM, restart or execution error completes the job. Missing, duplicate, malformed or drifting evidence refuses. Only after completion does it replace the selected applications with the pinned images. A migration failure replaces no selected applications and retains pending failure authority; it does not roll back DDL or authorize a blind retry. Demo loaders, topic creators and infrastructure outside the reviewed allowlist are not started. Long-running daemons still require running plus their existing health/port posture, even when an exited container reports exit 0.
+
+Daemon state queries retain Compose's running-only default. Only declared jobs query `ps --all`.
+Because that includes historical `compose run` containers, inspect every candidate's full container
+ID and Compose project/service plus exact string `com.docker.compose.oneoff` metadata (`True` or
+`False`). Select exactly one inspected `False` service container; `True` run containers cannot
+satisfy migration completion. Missing/malformed identity or metadata, only run containers, and
+multiple real service containers refuse. Container names and row order grant no identity. This
+readiness observation filter never filters acquired resources, changes binding cardinality or
+weakens finish: a stale run container that is part of the original inventory remains governed by
+the existing exact untouched/replacement rules.
+
+Before any build or replacement, a declared job must have exactly one acquired project/service
+resource. Inspect that original full container ID and require the exact Compose project/service
+and strict `oneoff=False` metadata. Missing, duplicate, foreign, malformed or run-only acquired
+topology refuses before build/up; a historical run acquired under the same service is unsupported
+for this bounded refresh. Preserve the complete original inventory and pending authority for
+reviewed reconciliation. Readiness-only observations of non-acquired run containers do not prove
+successful canonical finish. Production finish still accounts for every acquired binding and
+refuses retained old selected images; the adapter never filters or reclassifies those bindings.
+
 For a host-tool-only change, review a source-only plan with an empty service list. From the canonical Platform checkout, use the same explicit environment values:
 
 ```powershell

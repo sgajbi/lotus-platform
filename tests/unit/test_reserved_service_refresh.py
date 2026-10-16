@@ -15,6 +15,219 @@ from automation.canonical_runtime_lease import digest
 ROOT = Path(__file__).resolve().parents[2]
 
 
+@pytest.mark.parametrize('case', ['success', 'running-success', 'created-success', 'timeout', 'nonzero', 'oom', 'restart',
+                                'missing', 'duplicate', 'malformed', 'project-drift', 'image-drift', 'source-drift',
+                                'container-drift', 'inspect-failure', 'inspect-duplicate', 'inspect-malformed',
+                                'restart-policy', 'prepare-missing', 'prepare-duplicate',
+                                'readiness-only-oneoff-before', 'readiness-only-oneoff-after', 'only-oneoff', 'duplicate-real',
+                                'missing-oneoff', 'malformed-oneoff', 'boolean-oneoff', 'case-oneoff',
+                                'stale-missing-oneoff', 'stale-identity-drift',
+                                'acquired-two', 'acquired-none', 'acquired-only-run', 'acquired-malformed-id',
+                                'acquired-missing-oneoff', 'acquired-malformed-oneoff', 'acquired-foreign-project',
+                                'acquired-foreign-service', 'acquired-wrong-id', 'acquired-inspect-failure',
+                                'acquired-inspect-duplicate', 'acquired-inspect-malformed'])
+def test_core_migration_completes_before_ten_application_replacements(tmp_path, case):
+    # Native call-boundary proof only. Non-acquired readiness observations are not real finish proof;
+    # production begin/prepare/finish accounting is exercised in test_canonical_runtime_refresh.py.
+    project = tmp_path / 'lotus-core'
+    project.mkdir()
+    (project / 'compose.yaml').write_text('services: {}', encoding='utf-8')
+    (project / 'Dockerfile').write_text('FROM scratch', encoding='utf-8')
+    for args in (['init'], ['add', '.'], ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test',
+                                       '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture']):
+        subprocess.run(['git', '-C', str(project), *args], check=True, capture_output=True)
+    revision = subprocess.check_output(['git', '-C', str(project), 'rev-parse', 'HEAD'], text=True).strip()
+    core = next(repo for repo in json.loads((ROOT / 'automation/service-map.json').read_text())['repos'] if repo['name'] == 'lotus-core')
+    services = next(rule['services'] for rule in core['rules'] if 'alembic/' in rule['pathPrefixes'])
+    apps = sorted(set(services) - {'migration-runner'})
+    assert len(apps) == 10
+    checkout = str(project).replace('\\', '/').lower()
+    plan = {'services': [{'repository': 'lotus-core', 'project': 'core', 'service': service} for service in services],
+            'targetScope': {'projects': {'core': checkout}, 'sources': {'lotus-core': revision}}}
+    evaluated = {'name': 'core', 'services': {service: {'build': {'context': str(project), 'dockerfile': 'Dockerfile'}} for service in services}}
+    if case == 'restart-policy':
+        evaluated['services']['migration-runner']['restart'] = 'always'
+    plan['composeConfigDigest'] = digest(evaluated)
+    plan_path = tmp_path / 'plan.json'
+    plan_path.write_text(json.dumps(plan), encoding='utf-8')
+    model_path = tmp_path / 'model.json'
+    model_path.write_text(json.dumps(evaluated), encoding='utf-8')
+    book = tmp_path / 'lotus-platform/output/canonical-runtime/reservations.v1.json'
+    book.parent.mkdir(parents=True)
+    book.write_text('{}', encoding='utf-8')
+    lock = book.parent / 'operation.lock'
+    log = tmp_path / 'calls.txt'
+    command = f"""
+$ErrorActionPreference='Stop'
+$global:poll=0
+function global:Assert-Fenced {{
+  $contended=$false
+  try {{ $probe=[IO.File]::Open('{lock}','OpenOrCreate','ReadWrite','None'); $probe.Dispose() }} catch [IO.IOException] {{ $contended=$true }}
+  if (-not $contended) {{ throw 'IO_OUTSIDE_OPERATION_FENCE' }}
+}}
+function global:python {{
+  if ($args[0] -like '*canonical_refresh_inputs.py') {{ & '{sys.executable}' @args; return }}
+  Assert-Fenced
+  $action=$args[1]; Add-Content -LiteralPath '{log}' -Value "lease:$action"
+  $global:LASTEXITCODE=0
+  $plan=Get-Content -LiteralPath '{plan_path}' -Raw | ConvertFrom-Json
+  if ($action -eq 'begin-refresh') {{
+    $resources=@($plan.services | ForEach-Object {{ @{{id=if ($_.service -eq 'migration-runner') {{ '{'a' * 64}' }} else {{ $_.service }};project='core';service=$_.service}} }})
+    if ('{case}' -eq 'acquired-two') {{ $resources+=@{{id='{'e' * 64}';project='core';service='migration-runner'}} }}
+    if ('{case}' -eq 'acquired-none') {{ $resources=@($resources | Where-Object {{ $_.service -ne 'migration-runner' }}) }}
+    if ('{case}' -eq 'acquired-malformed-id') {{ ($resources | Where-Object {{ $_.service -eq 'migration-runner' }}).id='short-id' }}
+    $bindings=@($resources | ForEach-Object {{ @{{id=$_.id;ports=@()}} }})
+    return (@{{operation=@{{token='reviewed-token';refresh=@{{plan=$plan;originalResources=$resources}}}};bindings=$bindings;scope=@{{}}}} | ConvertTo-Json -Depth 12 -Compress)
+  }}
+  if ($action -eq 'prepare-refresh') {{
+    $refsPath=$args[[Array]::IndexOf($args,'--prepared-images')+1]
+    $refs=@(Get-Content -LiteralPath $refsPath -Raw | ConvertFrom-Json)
+    if ($refs.Count -ne 11) {{ throw 'INCOMPLETE_PREPARE' }}
+    foreach ($ref in $refs) {{ if ($ref.reference -ne "lotus-reserved-refresh:reviewed-token-$($ref.service)") {{ throw 'UNBOUNDED_PREPARE' }} }}
+    $images=@($plan.services | ForEach-Object {{ @{{service=$_.service;project='core';repository='lotus-core';checkout='{checkout}';sourceRevision='{revision}';imageId='sha256:{'c' * 64}'}} }})
+    if ('{case}' -eq 'prepare-missing') {{ $images=@($images | Where-Object {{ $_.service -ne 'migration-runner' }}) }}
+    if ('{case}' -eq 'prepare-duplicate') {{ $images+=@($images | Where-Object {{ $_.service -eq 'migration-runner' }}) }}
+    return (@{{operation=@{{refresh=@{{preparedImages=$images}}}}}} | ConvertTo-Json -Depth 12 -Compress)
+  }}
+  if ($action -eq 'finish-refresh') {{ Add-Content -LiteralPath '{log}' -Value ('outcome:'+$args[[Array]::IndexOf($args,'--outcome')+1]) }}
+  return '{{}}'
+}}
+function global:MigrationFakeDocker {{
+  Assert-Fenced
+  $global:LASTEXITCODE=0
+  Add-Content -LiteralPath '{log}' -Value ('docker:'+($args -join ' '))
+  if ($args -contains 'config') {{ return Get-Content -LiteralPath '{model_path}' -Raw }}
+  if ($args -contains 'build' -or $args -contains 'up') {{ return }}
+  if ($args -contains 'ps') {{
+    if ($args[-1] -eq 'migration-runner') {{
+      if ($args -notcontains '--all') {{ throw 'COMPLETED_CONTAINERS_OMITTED' }}
+      $global:poll++
+      if ('{case}' -eq 'missing') {{ return '[]' }}
+      if ('{case}' -eq 'malformed') {{ return 'not-json' }}
+      $state=if ('{case}' -eq 'timeout' -or ('{case}' -in @('running-success','container-drift') -and $global:poll -eq 1)) {{ 'running' }} elseif ('{case}' -eq 'created-success' -and $global:poll -eq 1) {{ 'created' }} else {{ 'exited' }}
+      $global:currentState=$state
+      $id=if ('{case}' -eq 'container-drift' -and $global:poll -gt 1) {{ '{'d' * 64}' }} else {{ '{'b' * 64}' }}
+      $row=@{{Service='migration-runner';State=$state;ID=$id;Name='core-migration-runner-run-realservice'}}
+      $stale=@{{Service='migration-runner';State='exited';ID='{'e' * 64}';Name='core-migration-runner-1'}}
+      if ('{case}' -in @('readiness-only-oneoff-before','stale-missing-oneoff','stale-identity-drift')) {{ return ConvertTo-Json -InputObject @($stale,$row) -Compress }}
+      if ('{case}' -eq 'readiness-only-oneoff-after') {{ return ConvertTo-Json -InputObject @($row,$stale) -Compress }}
+      if ('{case}' -eq 'only-oneoff') {{ return ConvertTo-Json -InputObject @($stale) -Compress }}
+      if ('{case}' -eq 'duplicate-real') {{ return ConvertTo-Json -InputObject @($row,@{{Service='migration-runner';State=$state;ID='{'f' * 64}'}}) -Compress }}
+      if ('{case}' -eq 'duplicate') {{ return ConvertTo-Json -InputObject @($row,$row) -Compress }}
+      return $row | ConvertTo-Json -Compress
+    }}
+    if ($args -contains '--all') {{ throw 'DAEMON_QUERY_INCLUDES_STOPPED_ONEOFF' }}
+    return ConvertTo-Json -InputObject @({','.join("@{Service='" + app + "';State='running';Health='healthy'}" for app in apps)}) -Compress
+  }}
+  if ($args[0] -eq 'inspect') {{
+    if ($args[-1] -eq '{'a' * 64}') {{
+      $original=@{{Id=$args[-1];Config=@{{Labels=@{{'com.docker.compose.project'='core';'com.docker.compose.service'='migration-runner';'com.docker.compose.oneoff'='False'}}}}}}
+      switch ('{case}') {{
+        'acquired-only-run' {{ $original.Config.Labels.'com.docker.compose.oneoff'='True' }}
+        'acquired-missing-oneoff' {{ $original.Config.Labels.Remove('com.docker.compose.oneoff') }}
+        'acquired-malformed-oneoff' {{ $original.Config.Labels.'com.docker.compose.oneoff'='unknown' }}
+        'acquired-foreign-project' {{ $original.Config.Labels.'com.docker.compose.project'='foreign' }}
+        'acquired-foreign-service' {{ $original.Config.Labels.'com.docker.compose.service'='foreign' }}
+        'acquired-wrong-id' {{ $original.Id='{'d' * 64}' }}
+        'acquired-inspect-failure' {{ $global:LASTEXITCODE=23; return }}
+        'acquired-inspect-duplicate' {{ return ConvertTo-Json -InputObject @($original,$original) -Depth 12 -Compress }}
+        'acquired-inspect-malformed' {{ return 'not-json' }}
+      }}
+      return ConvertTo-Json -InputObject @($original) -Depth 12 -Compress
+    }}
+    if ('{case}' -eq 'inspect-failure') {{ $global:LASTEXITCODE=23; return }}
+    if ('{case}' -eq 'inspect-malformed') {{ return 'not-json' }}
+    $container=@{{Id=$args[-1];Image='sha256:{'c' * 64}';RestartCount=0;Config=@{{Labels=@{{
+      'com.docker.compose.project'='core';'com.docker.compose.service'='migration-runner';'com.docker.compose.oneoff'='False';
+      'org.opencontainers.image.revision'='{revision}';'org.opencontainers.image.source'='lotus-core';'com.lotus.repository.checkout'='{checkout}'
+    }}}};State=@{{Status=$global:currentState;ExitCode=0;OOMKilled=$false;Running=($global:currentState -eq 'running');Error=''}}}}
+    if ($args[-1] -eq '{'e' * 64}') {{
+      $container.Config.Labels.'com.docker.compose.oneoff'='True'
+      $container.Image='sha256:{'d' * 64}'
+      $container.Config.Labels.'org.opencontainers.image.revision'='{'d' * 40}'
+      $container.State.ExitCode=17; $container.State.OOMKilled=$true; $container.RestartCount=2
+      if ('{case}' -eq 'stale-missing-oneoff') {{ $container.Config.Labels.Remove('com.docker.compose.oneoff') }}
+      if ('{case}' -eq 'stale-identity-drift') {{ $container.Config.Labels.'com.docker.compose.project'='foreign' }}
+    }}
+    switch ('{case}') {{
+      'nonzero' {{ $container.State.ExitCode=17 }}
+      'oom' {{ $container.State.OOMKilled=$true }}
+      'restart' {{ $container.RestartCount=1 }}
+      'project-drift' {{ $container.Config.Labels.'com.docker.compose.project'='foreign' }}
+      'image-drift' {{ $container.Image='sha256:{'d' * 64}' }}
+      'source-drift' {{ $container.Config.Labels.'org.opencontainers.image.revision'='{'d' * 40}' }}
+      'missing-oneoff' {{ $container.Config.Labels.Remove('com.docker.compose.oneoff') }}
+      'malformed-oneoff' {{ $container.Config.Labels.'com.docker.compose.oneoff'='unknown' }}
+      'boolean-oneoff' {{ $container.Config.Labels.'com.docker.compose.oneoff'=$false }}
+      'case-oneoff' {{ $container.Config.Labels.'com.docker.compose.oneoff'='false' }}
+    }}
+    if ('{case}' -eq 'inspect-duplicate') {{ return ConvertTo-Json -InputObject @($container,$container) -Depth 12 -Compress }}
+    return ConvertTo-Json -InputObject @($container) -Depth 12 -Compress
+  }}
+  throw 'UNEXPECTED_DOCKER_COMMAND'
+}}
+& '{ROOT / 'automation/Service-Refresh.ps1'}' -ProjectPath '{project}' -ProjectsRoot '{tmp_path}' `
+  -Services @({','.join(repr(service) for service in services)}) -DockerCommand MigrationFakeDocker `
+  -HealthTimeoutSeconds {3 if case in {'running-success', 'created-success', 'container-drift'} else 0} -HealthPollIntervalSeconds 1 `
+  -RuntimeHolder owner -RefreshPlan '{plan_path}' -RefreshPlanDigest sha256:reviewed
+"""
+    shell = shutil.which('pwsh') or shutil.which('powershell')
+    assert shell
+    result = subprocess.run([shell, '-NoProfile', '-Command', command], text=True, capture_output=True, timeout=30)
+    calls = log.read_text(encoding='utf-8-sig').splitlines()
+    assert 'IO_OUTSIDE_OPERATION_FENCE' not in result.stderr
+    up = [call for call in calls if ' up ' in call]
+    build = [call for call in calls if ' build ' in call]
+    if case.startswith('acquired-'):
+        assert result.returncode == 1, result.stdout + result.stderr
+        expected = {
+            'acquired-two': 'exactly one acquired service container before build',
+            'acquired-none': 'exactly one acquired service container before build',
+            'acquired-only-run': 'must be the actual Compose service before build',
+            'acquired-malformed-id': 'Missing or malformed one-shot container identity',
+            'acquired-missing-oneoff': 'Missing or malformed Compose one-off metadata',
+            'acquired-malformed-oneoff': 'Missing or malformed Compose one-off metadata',
+            'acquired-foreign-project': 'project/service/container identity mismatch',
+            'acquired-foreign-service': 'project/service/container identity mismatch',
+            'acquired-wrong-id': 'project/service/container identity mismatch',
+            'acquired-inspect-failure': 'container inspection failed',
+            'acquired-inspect-duplicate': 'Ambiguous one-shot container inspection',
+            'acquired-inspect-malformed': 'json',
+        }[case]
+        assert expected.lower() in result.stderr.lower(), result.stderr
+        assert not build and not up, calls
+        assert calls[-1] == 'outcome:failure'
+        assert 'lease:prepare-refresh' not in calls
+        return
+    if case == 'restart-policy':
+        assert result.returncode == 1, result.stdout + result.stderr
+        assert 'must not automatically restart' in result.stderr
+        assert not up and not build
+        assert calls[-1] == 'outcome:failure'
+        return
+    assert len(build) == 1 and set(build[0].split(' build ')[1].split()) == set(services)
+    if case in {'prepare-missing', 'prepare-duplicate'}:
+        assert result.returncode == 1, result.stdout + result.stderr
+        assert 'Missing or ambiguous prepared one-shot image' in result.stderr
+        assert not up
+        assert calls[-1] == 'outcome:failure'
+        return
+    assert calls.index(build[0]) < calls.index('lease:prepare-refresh') < calls.index(up[0])
+    assert up[0].endswith('up -d --no-deps --no-build --pull never --force-recreate migration-runner')
+    success = case in {'success', 'running-success', 'created-success', 'readiness-only-oneoff-before', 'readiness-only-oneoff-after'}
+    assert result.returncode == (0 if success else 1), result.stdout + result.stderr
+    assert calls[-1] == ('outcome:success' if success else 'outcome:failure')
+    assert len(up) == (2 if success else 1), calls
+    if success:
+        assert up[1].endswith('up -d --no-deps --no-build --pull never ' + ' '.join(apps))
+        inspections = [call for call in calls if call.startswith('docker:inspect ')]
+        assert inspections and calls.index(inspections[-1]) < calls.index(up[1])
+        assert len(inspections) == (2 if case == 'success' else 3)
+        assert calls.index(inspections[0]) < calls.index(build[0])
+    assert not any(name in ' '.join(up) for name in ('demo_data_loader', 'kafka-topic-creator', 'postgres', 'zookeeper'))
+    assert book.read_text(encoding='utf-8') == '{}'
+
+
 @pytest.mark.parametrize('case', ['missing', 'foreign', 'digest', 'foreign-context', 'port-drift', 'build-failure', 'image-source', 'up-failure', 'readiness', 'success',
                                 'external-compose', 'untracked-compose', 'dirty-compose', 'env-compose', 'preview', 'preview-digest', 'preview-context',
                                 'tracked-compose', 'ignored-compose', 'reparse-compose', 'mismatched-project', 'preview-mismatched-project',

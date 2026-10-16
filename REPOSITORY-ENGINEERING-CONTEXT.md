@@ -325,6 +325,16 @@ Use the RFC index for deeper or historical decisions.
   Incremental source/image transitions use a digest-reviewed refresh plan under that same
   exclusive operation fence. Service-Refresh builds only selected services, verifies immutable
   image/source metadata before replacement, and preserves untouched bindings and original expiry.
+  Declared `exited-zero` one-shots require the reserved path: prepare all selected images, run
+  and inspect the job to successful completion within the finite timeout, then replace daemons.
+  Core migration failure replaces no selected applications and leaves the refresh pending;
+  daemon running/health/port checks and explicit recovery authority remain unchanged.
+  Only jobs include completed containers in state queries, selecting the inspected non-one-off
+  Compose service identity; historical run containers never satisfy completion. Daemon queries
+  remain running-only. Readiness filtering never removes acquired bindings or weakens finish.
+  Declared jobs require exactly one acquired service container, inspected by original full ID,
+  project/service and strict non-one-off metadata before any build/up. Acquired stale-run,
+  missing/duplicate or malformed topology refuses before mutation and remains pending.
   Source-only transitions keep actual runtime image revisions distinct from host-tool HEADs. Reserved dry-run validates admission and committed repository-owned Compose inputs under the fence without changing the book; execution re-admits independently. ProjectPath must equal the admitted project's checkout before Compose I/O, even with an independent ProjectsRoot.
   Service plans additionally bind the full evaluated Compose model with `composeConfigDigest`; execution freezes it, retains original project-directory provenance and builds only from exact committed Git-blob snapshots. Ignored/untracked working files are excluded; symlink/submodule entries and unresolved environment/build arguments refuse. Review actual build metadata and interpolated values before digesting the plan; do not publish secret-bearing configuration.
   Failed refreshes remain pending; ordinary finish/recovery cannot clear them. Use the runbook's

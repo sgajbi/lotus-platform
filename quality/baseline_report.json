@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 431134
+    "total_source_lines": 650487
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 41,
-        "end_line": 228,
-        "line": 23,
+        "end_line": 441,
+        "line": 236,
         "lines": 206,
         "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
         "path": "tests/unit/test_reserved_service_refresh.py"
@@ -309,10 +309,18 @@
       },
       {
         "complexity": 41,
-        "end_line": 228,
-        "line": 23,
+        "end_line": 441,
+        "line": 236,
         "lines": 206,
         "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
+        "path": "tests/unit/test_reserved_service_refresh.py"
+      },
+      {
+        "complexity": 17,
+        "end_line": 228,
+        "line": 29,
+        "lines": 200,
+        "name": "test_core_migration_completes_before_ten_application_replacements",
         "path": "tests/unit/test_reserved_service_refresh.py"
       },
       {
@@ -346,24 +354,16 @@
         "lines": 173,
         "name": "test_domain_product_onboarding_scaffold_writes_complete_bundle",
         "path": "tests/unit/test_domain_product_onboarding_generator.py"
-      },
-      {
-        "complexity": 1,
-        "end_line": 466,
-        "line": 300,
-        "lines": 167,
-        "name": "test_platform_standards_and_runbook_point_to_rfc_0072_sources",
-        "path": "tests/unit/test_ci_governance_documentation_contract.py"
       }
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4506
+    "python_function_count": 4512
   },
-  "generated_at_utc": "2026-10-15T16:28:10Z",
+  "generated_at_utc": "2026-10-16T07:10:39Z",
   "largest_files": [
     {
-      "lines": 79939,
+      "lines": 298645,
       "path": "platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json",
       "suffix": ".json"
     },
@@ -790,9 +790,9 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 5979,
+    "collected_tests": 6035,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "5979 tests collected"
+    "summary": "6035 tests collected"
   }
 }

@@ -117,6 +117,9 @@
                   {
                       "name":  "lotus-core",
                       "pathHint":  "lotus-core",
+                      "serviceVerification": {
+                          "migration-runner": { "completionPolicy": "exited-zero" }
+                      },
                       "defaultServices":  [
                                               "query_service",
                                               "ingestion_service"
