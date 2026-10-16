@@ -174,7 +174,7 @@ function Get-ComposeServiceStates {
 
   $arguments = $ComposePrefix + @('ps')
   if ($IncludeCompleted) { $arguments += '--all' }
-  $arguments += @('--format', 'json') + $ServiceNames
+  $arguments += @('--no-trunc', '--format', 'json') + $ServiceNames
   $stdoutPath = [IO.Path]::GetTempFileName()
   $stderrPath = [IO.Path]::GetTempFileName()
   try {

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 @pytest.mark.parametrize('case', ['success', 'running-success', 'created-success', 'timeout', 'nonzero', 'oom', 'restart',
-                                'missing', 'duplicate', 'malformed', 'project-drift', 'image-drift', 'source-drift',
+                                'missing', 'duplicate', 'malformed', 'truncated-id', 'project-drift', 'image-drift', 'source-drift',
                                 'container-drift', 'inspect-failure', 'inspect-duplicate', 'inspect-malformed',
                                 'restart-policy', 'prepare-missing', 'prepare-duplicate',
                                 'readiness-only-oneoff-before', 'readiness-only-oneoff-after', 'only-oneoff', 'duplicate-real',
@@ -107,12 +107,17 @@ function global:MigrationFakeDocker {{
       $state=if ('{case}' -eq 'timeout' -or ('{case}' -in @('running-success','container-drift') -and $global:poll -eq 1)) {{ 'running' }} elseif ('{case}' -eq 'created-success' -and $global:poll -eq 1) {{ 'created' }} else {{ 'exited' }}
       $global:currentState=$state
       $id=if ('{case}' -eq 'container-drift' -and $global:poll -gt 1) {{ '{'d' * 64}' }} else {{ '{'b' * 64}' }}
+      $staleId='{'e' * 64}'; $duplicateId='{'f' * 64}'
+      # Compose truncates JSON IDs to 12 characters unless explicitly asked for full IDs.
+      if ($args -notcontains '--no-trunc' -or '{case}' -eq 'truncated-id') {{
+        $id=$id.Substring(0,12); $staleId=$staleId.Substring(0,12); $duplicateId=$duplicateId.Substring(0,12)
+      }}
       $row=@{{Service='migration-runner';State=$state;ID=$id;Name='core-migration-runner-run-realservice'}}
-      $stale=@{{Service='migration-runner';State='exited';ID='{'e' * 64}';Name='core-migration-runner-1'}}
+      $stale=@{{Service='migration-runner';State='exited';ID=$staleId;Name='core-migration-runner-1'}}
       if ('{case}' -in @('readiness-only-oneoff-before','stale-missing-oneoff','stale-identity-drift')) {{ return ConvertTo-Json -InputObject @($stale,$row) -Compress }}
       if ('{case}' -eq 'readiness-only-oneoff-after') {{ return ConvertTo-Json -InputObject @($row,$stale) -Compress }}
       if ('{case}' -eq 'only-oneoff') {{ return ConvertTo-Json -InputObject @($stale) -Compress }}
-      if ('{case}' -eq 'duplicate-real') {{ return ConvertTo-Json -InputObject @($row,@{{Service='migration-runner';State=$state;ID='{'f' * 64}'}}) -Compress }}
+      if ('{case}' -eq 'duplicate-real') {{ return ConvertTo-Json -InputObject @($row,@{{Service='migration-runner';State=$state;ID=$duplicateId}}) -Compress }}
       if ('{case}' -eq 'duplicate') {{ return ConvertTo-Json -InputObject @($row,$row) -Compress }}
       return $row | ConvertTo-Json -Compress
     }}
@@ -215,6 +220,12 @@ function global:MigrationFakeDocker {{
     assert calls.index(build[0]) < calls.index('lease:prepare-refresh') < calls.index(up[0])
     assert up[0].endswith('up -d --no-deps --no-build --pull never --force-recreate migration-runner')
     success = case in {'success', 'running-success', 'created-success', 'readiness-only-oneoff-before', 'readiness-only-oneoff-after'}
+    observations = [call for call in calls if ' ps ' in call]
+    assert observations and all(' --no-trunc --format json ' in call for call in observations), calls
+    assert all(' ps --all ' in call for call in observations if call.endswith('migration-runner')), calls
+    if case == 'truncated-id':
+        assert 'Missing or malformed one-shot container identity' in result.stderr
+        assert not any(call.startswith('docker:inspect --type container ' + 'b' * 12) for call in calls)
     assert result.returncode == (0 if success else 1), result.stdout + result.stderr
     assert calls[-1] == ('outcome:success' if success else 'outcome:failure')
     assert len(up) == (2 if success else 1), calls

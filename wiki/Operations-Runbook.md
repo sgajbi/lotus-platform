@@ -100,6 +100,8 @@ python automation\validate_analytics_ui_entitlement_certification.py
    Daemon queries remain running-only; completed-job queries distinguish the inspected service
    container from historical `compose run` containers through strict one-off metadata. Missing
    metadata or multiple real service containers refuse; acquired binding/finish rules stay exact.
+   Both state queries require `--no-trunc` for full JSON container IDs; shortened IDs still refuse.
+   This observation flag does not authorize a pending-refresh rerun or migration replay.
    Before any build/up, a declared job must have exactly one acquired container, inspected by
    its original full ID as the non-one-off project/service. Acquired historical runs or missing,
    duplicate, malformed and foreign topology refuse before mutation; preserve pending authority.

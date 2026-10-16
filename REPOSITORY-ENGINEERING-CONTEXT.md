@@ -332,6 +332,8 @@ Use the RFC index for deeper or historical decisions.
   Only jobs include completed containers in state queries, selecting the inspected non-one-off
   Compose service identity; historical run containers never satisfy completion. Daemon queries
   remain running-only. Readiness filtering never removes acquired bindings or weakens finish.
+  All Compose state queries use `--no-trunc` so JSON includes full container IDs. Shortened IDs
+  still refuse; no name/prefix resolution or pending migration replay is authorized by this flag.
   Declared jobs require exactly one acquired service container, inspected by original full ID,
   project/service and strict non-one-off metadata before any build/up. Acquired stale-run,
   missing/duplicate or malformed topology refuses before mutation and remains pending.
