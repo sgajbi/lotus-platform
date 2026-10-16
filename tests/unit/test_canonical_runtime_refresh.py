@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import copy
 import json
+import shutil
+import subprocess
 from argparse import Namespace
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -78,6 +81,145 @@ def test_bounded_build_refresh_preserves_reservation_expiry_and_untouched_then_s
     lease.begin(book, **proof, action='teardown', token='teardown')
     lease.finish(book, **{**proof, 'bindings': []}, token='teardown', outcome='success')
     assert lease.current(book) is None
+
+
+def canonical_migration_fixture(case):
+    """Real policy inventory: eleven Core bindings plus thirty-six untouched, thirteen sources."""
+    root = Path(__file__).resolve().parents[2]
+    core = next(repo for repo in json.loads((root / 'automation/service-map.json').read_text())['repos'] if repo['name'] == 'lotus-core')
+    services = next(rule['services'] for rule in core['rules'] if 'alembic/' in rule['pathPrefixes'])
+    scope = {'projects': {'core': 'c:/projects/lotus-core'}, 'ports': [8111, 8202], 'sources': {'lotus-core': 'a' * 40}}
+    bindings, resources = [], []
+    identities = [('core', 'lotus-core', service) for service in services]
+    for number in range(12):
+        project, repository = f'aux-{number}', f'lotus-aux-{number}'
+        scope['projects'][project] = f'c:/projects/{repository}'
+        scope['sources'][repository] = f'{number + 1:040x}'
+        identities.extend((project, repository, f'worker-{worker}') for worker in range(3))
+    for number, (project, repository, service) in enumerate(identities, 1):
+        identity = f'{number:064x}'
+        ports = [8202] if service == 'query_service' else [8111] if number == 12 else []
+        bindings.append({'kind': 'container', 'id': identity, 'project': project, 'checkout': scope['projects'][project], 'ports': ports})
+        resources.append({'id': identity, 'project': project, 'service': service, 'checkout': scope['projects'][project],
+                          'repository': repository, 'imageId': 'sha256:' + 'a' * 64, 'sourceRevision': scope['sources'][repository]})
+    job = next(item for item in resources if item['service'] == 'migration-runner')
+    if case == 'acquired-stale':
+        resources.append({**job, 'id': 'e' * 64})
+        bindings.append({**next(item for item in bindings if item['id'] == job['id']), 'id': 'e' * 64})
+    if case == 'missing':
+        bindings = [item for item in bindings if item['id'] != job['id']]
+        resources = [item for item in resources if item['id'] != job['id']]
+    if case == 'malformed-id':
+        next(item for item in bindings if item['id'] == job['id'])['id'] = 'short-id'
+        job['id'] = 'short-id'
+    bindings.sort(key=lambda item: (item['kind'], item['id']))
+    resources.sort(key=lambda item: item['id'])
+    book = lease.empty_book()
+    receipt = {'holder': HOLDER, 'operator': 'operator', 'sourceReceipt': 'original-47',
+               'scopeDigest': lease.digest(scope), 'bindingsDigest': lease.digest(bindings)}
+    lease.acquire(book, holder=HOLDER, purpose='canonical migration topology', expires=(NOW + timedelta(hours=2)).isoformat(),
+                  scope=scope, bindings=bindings, now=NOW, reservation_id='original', receipt=receipt)
+    target = copy.deepcopy(scope)
+    target['sources']['lotus-core'] = 'c' * 40
+    plan = {'schemaVersion': 'lotus.canonical-runtime.refresh.v1', 'reservationId': 'original', 'holder': HOLDER,
+            'operator': 'operator', 'sourceReceipt': 'reviewed-core', 'originalScopeDigest': lease.digest(scope),
+            'originalBindingsDigest': lease.digest(bindings), 'targetScope': target, 'composeConfigDigest': 'sha256:' + 'd' * 64,
+            'repositoryChanges': {'lotus-core': {'from': 'a' * 40, 'to': 'c' * 40, 'disposition': 'service-refresh'}},
+            'services': [{'repository': 'lotus-core', 'project': 'core', 'service': service} for service in services]}
+    common = {'holder': HOLDER, 'scope': target, 'bindings': bindings, 'resources': resources, 'now': NOW}
+    return root, book, plan, common, job
+
+
+@pytest.mark.parametrize('case', ['valid', 'acquired-stale', 'only-run', 'missing', 'malformed-id',
+                                'missing-oneoff', 'malformed-oneoff', 'foreign-project', 'foreign-service', 'wrong-id'])
+def test_original_job_native_admission_preserves_real_47_binding_finish_policy(tmp_path, case):
+    root, book, plan, common, job = canonical_migration_fixture(case)
+    original = copy.deepcopy(book['reservations'][0])
+    if case == 'missing':
+        before = copy.deepcopy(book)
+        with pytest.raises(lease.ReservationRefusal, match='no acquired container'):
+            begin(book, plan, common)
+        assert book == before
+        return
+    record = begin(book, plan, common)  # Actual production begin; no finish mock.
+    operation = {'OriginalResources': record['operation']['refresh']['originalResources']}
+    inspect = {'Id': job['id'], 'Config': {'Labels': {'com.docker.compose.project': 'core',
+               'com.docker.compose.service': 'migration-runner', 'com.docker.compose.oneoff': 'False'}}}
+    labels = inspect['Config']['Labels']
+    if case == 'only-run': labels['com.docker.compose.oneoff'] = 'True'
+    elif case == 'missing-oneoff': labels.pop('com.docker.compose.oneoff')
+    elif case == 'malformed-oneoff': labels['com.docker.compose.oneoff'] = False
+    elif case == 'foreign-project': labels['com.docker.compose.project'] = 'foreign'
+    elif case == 'foreign-service': labels['com.docker.compose.service'] = 'foreign'
+    elif case == 'wrong-id': inspect['Id'] = 'f' * 64
+    payload = tmp_path / 'original.json'
+    payload.write_text(json.dumps({'operation': operation, 'planned': plan['services'], 'inspect': inspect}), encoding='utf-8')
+    calls = tmp_path / 'calls.txt'
+    command = f"""
+$ErrorActionPreference='Stop'
+$tokens=$null;$errors=$null
+$ast=[Management.Automation.Language.Parser]::ParseFile('{root / 'automation/Service-Refresh.ps1'}',[ref]$tokens,[ref]$errors)
+if ($errors.Count) {{ throw 'Adapter parse failure' }}
+foreach ($name in @('Get-ServiceVerification','Get-ServiceCompletionPolicy','Get-InspectedComposeServiceContainer','Assert-OriginalOneShotTopology')) {{
+  $node=$ast.Find({{param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name}},$true)
+  Invoke-Expression $node.Extent.Text
+}}
+$inputData=Get-Content -LiteralPath '{payload}' -Raw | ConvertFrom-Json
+$config='{{"serviceVerification":{{"migration-runner":{{"completionPolicy":"exited-zero"}}}}}}' | ConvertFrom-Json
+function ControlledInspect {{
+  Add-Content -LiteralPath '{calls}' -Value ($args -join ' ')
+  if ($args[0] -ne 'inspect' -or $args[-1] -ne '{job['id']}') {{ throw 'Original exact ID not inspected' }}
+  $global:LASTEXITCODE=0
+  return ConvertTo-Json -InputObject @($inputData.inspect) -Depth 12 -Compress
+}}
+Assert-OriginalOneShotTopology -Command ControlledInspect -Operation $inputData.operation -PlannedServices $inputData.planned -RepositoryConfig $config
+"""
+    shell = shutil.which('pwsh') or shutil.which('powershell')
+    assert shell
+    result = subprocess.run([shell, '-NoProfile', '-Command', command], capture_output=True, text=True, timeout=30)
+    assert result.returncode == (0 if case == 'valid' else 1), result.stdout + result.stderr
+    native_calls = calls.read_text(encoding='utf-8-sig').splitlines() if calls.exists() else []
+    assert all(call == f"inspect --type container {job['id']}" for call in native_calls)
+    images = [{key: resource[key] for key in ('project', 'service', 'repository', 'checkout')}
+              | {'sourceRevision': 'c' * 40, 'imageId': 'sha256:' + 'c' * 64}
+              for resource in common['resources'] if resource['project'] == 'core' and resource['id'] != 'e' * 64]
+    after_bindings, after_resources = copy.deepcopy(common['bindings']), copy.deepcopy(common['resources'])
+    for number, resource in enumerate(after_resources, 1000):
+        if resource['project'] != 'core' or resource['id'] == 'e' * 64: continue
+        new_id = f'{number:064x}'
+        next(item for item in after_bindings if item['id'] == resource['id'])['id'] = new_id
+        resource.update({'id': new_id, 'sourceRevision': 'c' * 40, 'imageId': 'sha256:' + 'c' * 64})
+    after_bindings.sort(key=lambda item: (item['kind'], item['id']))
+    after_resources.sort(key=lambda item: item['id'])
+    if case != 'valid':
+        if case == 'acquired-stale':
+            # A bypass really would fail production finish on the retained stale image; never filter it.
+            bypass = copy.deepcopy(book)
+            refresh.prepare(bypass, **common, token='refresh-token', images=images)
+            pending = copy.deepcopy(bypass)
+            with pytest.raises(lease.ReservationRefusal, match='image/source differs'):
+                refresh.finish(bypass, **{**common, 'bindings': after_bindings, 'resources': after_resources},
+                               token='refresh-token', outcome='success')
+            assert bypass == pending
+        refresh.finish(book, **common, token='refresh-token', outcome='failure')
+        record = lease.current(book)
+        assert record['bindings'] == original['bindings'] and record['scope'] == original['scope']
+        assert record['operation']['refresh']['originalResources'] == common['resources']
+        assert record['operation']['refresh']['preparedImages'] is None
+        assert record['expiryUtc'] == original['expiryUtc']
+        return
+    refresh.prepare(book, **common, token='refresh-token', images=images)
+    record = refresh.finish(book, **{**common, 'bindings': after_bindings, 'resources': after_resources},
+                            token='refresh-token', outcome='success')
+    assert len(record['bindings']) == 47 and len(record['scope']['sources']) == 13
+    for field in ('id', 'holder', 'purpose', 'startUtc', 'expiryUtc', 'teardownOwner'):
+        assert record[field] == original[field]
+    untouched = [item for item in common['resources'] if item['project'] != 'core']
+    assert len(untouched) == 36
+    assert [item for item in record['events'][-1]['runtimeImages'] if item['project'] != 'core'] == untouched
+    assert [item for item in record['bindings'] if item['project'] != 'core'] == [item for item in original['bindings'] if item['project'] != 'core']
+    assert record['operation'] is None
+    lease.preflight(book, **{key: value for key, value in {**common, 'bindings': after_bindings}.items() if key != 'resources'})
 
 
 def test_source_only_keeps_images_honestly_distinct_from_new_host_sources():

@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-15T16:28:10Z`
+Generated: `2026-10-16T07:10:39Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `1016`
-- Total source lines: `431134`
+- Total source lines: `650487`
 - Python files: `285`
 - PowerShell files: `70`
 - Markdown files: `427`
@@ -26,7 +26,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 | Path | Lines | Type |
 | --- | --- | --- |
-| platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 79939 | .json |
+| platform-contracts/api-vocabulary/lotus-manage-api-vocabulary.v1.json | 298645 | .json |
 | platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json | 36232 | .json |
 | platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json | 23952 | .json |
 | docs/composite-performance/implementation-ledger.v1.json | 18825 | .json |
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4506`
+- Python functions: `4512`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -51,7 +51,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _prose_without_fenced_code | 1015 | 51 | 140 |
 | codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _decision_link_target_end | 1351 | 48 | 80 |
-| tests/unit/test_reserved_service_refresh.py | test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation | 23 | 41 | 206 |
+| tests/unit/test_reserved_service_refresh.py | test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation | 236 | 41 | 206 |
 | automation/resource_recovery/policy.py | validate_discovery | 499 | 38 | 154 |
 | automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
 | automation/canonical_runtime_reservation.py | execute | 86 | 35 | 82 |
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `5979`
+- Unit tests collected: `6035`
 - Collection command return code: `0`
-- Collection summary: `5979 tests collected`
+- Collection summary: `6035 tests collected`
 
 ## Security Baseline
 

@@ -363,3 +363,98 @@ def test_core_query_control_plane_source_refreshes_its_runtime() -> None:
     )
 
     assert qcp_rule["services"] == ["query_control_plane_service"]
+
+
+@pytest.mark.parametrize("shell_name", ["powershell", "pwsh"])
+def test_one_shot_completion_policy_and_state_controls(tmp_path: Path, shell_name: str) -> None:
+    shell = shutil.which(shell_name)
+    if shell is None:
+        pytest.skip(f"{shell_name} unavailable")
+    command = f"""
+$ErrorActionPreference='Stop'
+$tokens=$null; $errors=$null
+$ast=[Management.Automation.Language.Parser]::ParseFile('{SERVICE_REFRESH}',[ref]$tokens,[ref]$errors)
+if ($errors.Count) {{ throw 'Adapter parse failure' }}
+foreach ($name in @('Get-ServiceVerification','Get-ServiceCompletionPolicy','Get-InspectedComposeServiceContainer','Test-OneShotCompletion','Get-ServiceReadinessFailures')) {{
+  $node=$ast.Find({{param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name}},$true)
+  Invoke-Expression $node.Extent.Text
+}}
+$config='{{"serviceVerification":{{"job":{{"completionPolicy":"exited-zero"}}}}}}' | ConvertFrom-Json
+$expected=@{{service='job';project='core';imageId='sha256:{'c' * 64}';sourceRevision='{'a' * 40}';repository='lotus-core';checkout='reviewed'}}
+function ControlledInspect {{ $global:LASTEXITCODE=0; return ConvertTo-Json -InputObject @($global:container) -Depth 12 -Compress }}
+$cases=@('valid','running','created','nonzero','oom','restart','missing-exit','string-exit','missing-oom','missing-running','string-restart','unknown',
+         'project','service','container','image','source','repository','checkout','container-drift','ps-identity','error')
+foreach ($case in $cases) {{
+  $global:container=@{{Id='{'b' * 64}';Image=$expected.imageId;RestartCount=0;Config=@{{Labels=@{{
+    'com.docker.compose.project'='core';'com.docker.compose.service'='job';'com.docker.compose.oneoff'='False';'org.opencontainers.image.revision'=$expected.sourceRevision;
+    'org.opencontainers.image.source'='lotus-core';'com.lotus.repository.checkout'='reviewed'
+  }}}};State=@{{Status='exited';ExitCode=0;OOMKilled=$false;Running=$false;Error=''}}}}
+  $state=@{{Service='job';State='exited';ID='{'b' * 64}'}}
+  $observed=''
+  switch ($case) {{
+    'running' {{ $container.State.Status='running';$container.State.Running=$true;$state.State='running' }}
+    'created' {{ $container.State.Status='created';$state.State='created' }}
+    'nonzero' {{ $container.State.ExitCode=1 }}
+    'oom' {{ $container.State.OOMKilled=$true }}
+    'restart' {{ $container.RestartCount=1 }}
+    'missing-exit' {{ $container.State.Remove('ExitCode') }}
+    'string-exit' {{ $container.State.ExitCode='0' }}
+    'missing-oom' {{ $container.State.Remove('OOMKilled') }}
+    'missing-running' {{ $container.State.Remove('Running') }}
+    'string-restart' {{ $container.RestartCount='0' }}
+    'unknown' {{ $container.State.Status='dead' }}
+    'project' {{ $container.Config.Labels.'com.docker.compose.project'='foreign' }}
+    'service' {{ $container.Config.Labels.'com.docker.compose.service'='foreign' }}
+    'container' {{ $container.Id='{'d' * 64}' }}
+    'image' {{ $container.Image='sha256:{'d' * 64}' }}
+    'source' {{ $container.Config.Labels.'org.opencontainers.image.revision'='{'d' * 40}' }}
+    'repository' {{ $container.Config.Labels.'org.opencontainers.image.source'='foreign' }}
+    'checkout' {{ $container.Config.Labels.'com.lotus.repository.checkout'='foreign' }}
+    'container-drift' {{ $observed='{'d' * 64}' }}
+    'ps-identity' {{ $state.ID='malformed' }}
+    'error' {{ $container.State.Error='execution failed' }}
+  }}
+  $failure=$null; $complete=$null
+  try {{ $complete=Test-OneShotCompletion -Command ControlledInspect -State $state -ExpectedImage $expected -Service job -ObservedContainer $observed }}
+  catch {{ $failure=$_.Exception.Message }}
+  if ($case -eq 'valid') {{ if ($failure -or -not $complete) {{ throw "Valid completion refused: $failure" }} }}
+  elseif ($case -in @('running','created')) {{ if ($failure -or $complete) {{ throw "Pending completion mishandled: $case $failure" }} }}
+  elseif (-not $failure) {{ throw "Bad completion accepted: $case" }}
+  Write-Output "CONTROL_PASS:$case"
+}}
+foreach ($policy in @('unknown',0,$null,@{{}})) {{
+  $config.serviceVerification.job.completionPolicy=$policy
+  $refused=$false
+  try {{ Get-ServiceCompletionPolicy -RepositoryConfig $config -Service job | Out-Null }} catch {{ $refused=$true }}
+  if (-not $refused) {{ throw 'Malformed policy accepted' }}
+}}
+$daemon=@{{Service='daemon';State='exited';Health='healthy';ExitCode=0}}
+if (@(Get-ServiceReadinessFailures -States @($daemon) -ServiceNames @('daemon') -RepositoryConfig $config).Count -ne 1) {{ throw 'Exited daemon accepted' }}
+if ((Get-ServiceCompletionPolicy -RepositoryConfig $config -Service daemon) -ne 'running') {{ throw 'Daemon default weakened' }}
+"""
+    result = subprocess.run([shell, "-NoProfile", "-Command", command], text=True, capture_output=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.count("CONTROL_PASS:") == 22
+
+
+def test_declared_one_shot_requires_prepared_reserved_path(tmp_path: Path) -> None:
+    fake_docker = _fake_docker(tmp_path, "exit 0")
+    result = _run_service_refresh(tmp_path, fake_docker, "migration-runner", project_name="lotus-core")
+    assert result.returncode == 1
+    assert "requires a reviewed reserved plan and prepared immutable images" in result.stderr
+    assert _command_log(tmp_path) == []
+
+
+def test_daemon_refresh_does_not_query_stopped_compose_run_containers(tmp_path: Path) -> None:
+    running = {"Service": "lotus-gateway", "State": "running", "Health": "healthy", "Publishers": []}
+    stale_run = {"Service": "lotus-gateway", "State": "exited", "ExitCode": 0, "Name": "historical-run"}
+    fake_docker = _fake_docker(tmp_path, "\n".join([
+        "if ($line -like 'compose ps*') {",
+        f"  if ($Args -contains '--all') {{ Write-Output '{json.dumps([stale_run, running])}' }}",
+        f"  else {{ Write-Output '{json.dumps(running)}' }}",
+        "}",
+        "exit 0",
+    ]))
+    result = _run_service_refresh(tmp_path, fake_docker, "lotus-gateway")
+    assert result.returncode == 0, result.stderr
+    assert _command_log(tmp_path) == ["compose up -d --build lotus-gateway", "compose ps --format json lotus-gateway"]
