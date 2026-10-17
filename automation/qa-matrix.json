@@ -318,8 +318,9 @@
                                             "custom_checks":  [
                                                                   {
                                                                       "id":  "canonical-front-office-analytics-maturity",
-                                                                      "type":  "command",
-                                                                      "command":  "python ..\\lotus-core\\tools\\front_office_portfolio_seed.py --verify-only --portfolio-id PB_SG_GLOBAL_BAL_001 --start-date 2025-03-31 --end-date 2026-04-10 --benchmark-start-date 2025-01-06 --ingestion-base-url http://core-ingestion.dev.lotus --query-base-url http://core-query.dev.lotus --query-control-plane-base-url http://core-control.dev.lotus --gateway-base-url http://gateway.dev.lotus --wait-seconds 300 --poll-interval-seconds 3",
+                                                                      "type":  "core-repository-python",
+                                                                      "python_version": "3.11",
+                                                                      "arguments": ["tools/front_office_portfolio_seed.py", "--verify-only", "--portfolio-id", "PB_SG_GLOBAL_BAL_001", "--start-date", "2025-03-31", "--end-date", "2026-04-10", "--benchmark-start-date", "2025-01-06", "--ingestion-base-url", "http://core-ingestion.dev.lotus", "--query-base-url", "http://core-query.dev.lotus", "--query-control-plane-base-url", "http://core-control.dev.lotus", "--gateway-base-url", "http://gateway.dev.lotus", "--wait-seconds", "300", "--poll-interval-seconds", "3"],
                                                                       "expected_exit_code":  0
                                                                   }
                                                               ]

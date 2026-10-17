@@ -379,6 +379,30 @@ Use the RFC index for deeper or historical decisions.
   Classic config-ID checks remain intact. Unsupported image graphs/encodings and decompression
   budget overflow refuse; precise bounded refusal codes are retained without raw native output.
 
+## Core analytics QA execution practice
+
+The Core maturity entry in `automation/qa-matrix.json` uses `core-repository-python`.
+`automation/Invoke-Platform-QA.ps1` resolves Core through the supplied repository registration,
+selects that checkout's `.venv/Scripts/python.exe` on Windows or `.venv/bin/python` on Unix,
+and requires both its `.python-version` declaration and interpreter to match Python 3.11.
+Prepare Core's declared environment with its repository-native `make install` before QA;
+the QA runner never installs packages or falls back to ambient Python. Core's existing
+`scripts/development/repository_python.py` owns first-party import provenance and child cwd.
+The runner binds `LOTUS_PLATFORM_REPO` to its own checkout for Core's canonical contract reads.
+The verifier retains `--verify-only`; no seed or Compose lifecycle action is added.
+
+`qa-summary.json` includes `custom_check_results` with command, cwd, native exit, output and
+status. Missing/wrong tooling or failed import preflight reports `harness_failure` with no
+verifier exit; a launched verifier's nonzero exit reports `verifier_failure`.
+Harness failures remain typed `harness` findings and retain the failed QA verdict/native exit 2,
+but `-CreateIssues` excludes them from application issue lookup, creation and reopening.
+Actual verifier and command failures remain eligible for defect filing.
+Import or help success does not certify live readiness. Existing `command` custom checks keep their Platform
+working directory and shell behavior. The overall runner's shell-backed commands still require
+Windows; the Python process helper alone does not establish Unix runner support.
+
+The public QA command is unchanged. No wiki change is needed for this internal execution repair.
+
 ## Context Maintenance Rule
 
 Update this file only when Platform's current ownership, architecture, boundaries, task routes,

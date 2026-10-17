@@ -51,6 +51,69 @@ function Invoke-CommandCapture {
   }
 }
 
+function Invoke-RepositoryPythonProcess {
+  param([string]$Python, [string]$RepoPath, [string]$PlatformPath, [string[]]$Arguments)
+
+  $info = New-Object System.Diagnostics.ProcessStartInfo
+  $info.FileName = $Python
+  $info.WorkingDirectory = $RepoPath
+  $info.UseShellExecute = $false
+  $info.CreateNoWindow = $true
+  $info.RedirectStandardOutput = $true
+  $info.RedirectStandardError = $true
+  $info.EnvironmentVariables["LOTUS_PLATFORM_REPO"] = $PlatformPath
+  $info.EnvironmentVariables["PYTHONDONTWRITEBYTECODE"] = "1"
+  # ProcessStartInfo.ArgumentList is unavailable in Windows PowerShell 5.1.
+  # Quote argv using the Windows native convention, without a command shell.
+  $quoted = foreach ($argument in $Arguments) {
+    '"' + (($argument -replace '(\\*)"', '$1$1\"') -replace '(\\+)$', '$1$1') + '"'
+  }
+  $info.Arguments = $quoted -join ' '
+  $process = New-Object System.Diagnostics.Process
+  $process.StartInfo = $info
+  try {
+    $null = $process.Start()
+    $stdout = $process.StandardOutput.ReadToEndAsync()
+    $stderr = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit()
+    return [pscustomobject]@{
+      exitCode = $process.ExitCode
+      output = (($stdout.GetAwaiter().GetResult() + "`n" + $stderr.GetAwaiter().GetResult()).Trim())
+    }
+  } finally {
+    $process.Dispose()
+  }
+}
+
+function Invoke-RepositoryPythonCheck {
+  param([string]$RepoPath, [string]$PlatformPath, [object]$Check)
+
+  $pythonRelativePath = if ($env:OS -eq "Windows_NT") { ".venv/Scripts/python.exe" } else { ".venv/bin/python" }
+  $python = Join-Path $RepoPath $pythonRelativePath
+  $launcher = Join-Path $RepoPath "scripts/development/repository_python.py"
+  $arguments = @("-B", $launcher) + @($Check.arguments)
+  $command = @($python) + $arguments | ConvertTo-Json -Compress
+  if ($DryRun) {
+    return [pscustomobject]@{ exitCode = 0; output = "[dry-run] $command"; failureKind = "dry_run"; command = $command; python = $python }
+  }
+  try {
+    if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw "Missing repository interpreter: $python. Prepare the declared Core environment; no ambient fallback is used." }
+    if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) { throw "Missing repository Python launcher: $launcher" }
+    $versionFile = Join-Path $RepoPath ".python-version"
+    $declaredVersion = (Get-Content -LiteralPath $versionFile -Raw).Trim()
+    if ($declaredVersion -ne [string]$Check.python_version) { throw "Repository Python declaration '$declaredVersion' does not match required '$($Check.python_version)'" }
+    $version = Invoke-RepositoryPythonProcess -Python $python -RepoPath $RepoPath -PlatformPath $PlatformPath -Arguments @("-I", "-B", "-c", "import sys; print(str(sys.version_info.major) + '.' + str(sys.version_info.minor))")
+    if ($version.exitCode -ne 0 -or $version.output -ne $declaredVersion) { throw "Repository interpreter must be Python $declaredVersion; native exit $($version.exitCode), reported '$($version.output)'" }
+    # Import only: classify missing packages/contracts before any live evaluation.
+    $imports = Invoke-RepositoryPythonProcess -Python $python -RepoPath $RepoPath -PlatformPath $PlatformPath -Arguments @("-B", $launcher, "-c", "import tools.front_office_portfolio_seed")
+    if ($imports.exitCode -ne 0) { throw "Verifier import preflight failed (native exit $($imports.exitCode)): $($imports.output)" }
+    $result = Invoke-RepositoryPythonProcess -Python $python -RepoPath $RepoPath -PlatformPath $PlatformPath -Arguments $arguments
+    return [pscustomobject]@{ exitCode = $result.exitCode; output = $result.output; failureKind = "verifier"; command = $command; python = $python }
+  } catch {
+    return [pscustomobject]@{ exitCode = $null; output = $_.Exception.Message; failureKind = "harness"; command = $command; python = $python }
+  }
+}
+
 function Invoke-HttpCheck {
   param(
     [string]$Method,
@@ -126,6 +189,7 @@ function New-Recommendation {
     "lineage" { return "Add integration tests and documentation checks for lineage/traceability endpoints and metadata." }
     "error" { return "Add tests asserting problem-details and structured error payloads for invalid requests and exceptions." }
     "custom" { return "Promote this custom validation into a stable QA gate and keep its evidence payload versioned." }
+    "harness" { return "Prepare the registered repository's declared environment, then rerun QA before evaluating application readiness." }
     default { return "Add automated regression coverage for this check in unit/integration CI gates." }
   }
 }
@@ -143,6 +207,7 @@ function New-TestGap {
     "lineage" { return "Lineage/traceability checks are not currently exercised in automated regression tests." }
     "error" { return "Error-handling behavior is not fully validated against platform problem-details conventions." }
     "custom" { return "This scenario is not yet enforced by the default platform QA matrix or CI quality gates." }
+    "harness" { return "The verifier did not run; this is an execution-environment failure, not evidence of an application defect." }
     default { return "Coverage for this behavior is missing in current automated tests." }
   }
 }
@@ -450,11 +515,12 @@ $runDir = Join-Path $OutputDir $runId
 $evidenceDir = Join-Path $runDir "evidence"
 New-Item -ItemType Directory -Path $evidenceDir -Force | Out-Null
 
-$platformRepoPath = "C:/Users/Sandeep/projects/lotus-platform"
+$platformRepoPath = Split-Path -Parent $PSScriptRoot
 $standards = Get-StandardsSnapshot -PlatformRepoPath $platformRepoPath
 $findings = New-Object 'System.Collections.Generic.List[object]'
 $issueRecords = New-Object 'System.Collections.Generic.List[object]'
 $repoResults = New-Object 'System.Collections.Generic.List[object]'
+$customCheckResults = New-Object 'System.Collections.Generic.List[object]'
 
 foreach ($entry in $selected) {
   $repoName = [string]$entry.repo
@@ -543,20 +609,34 @@ foreach ($entry in $selected) {
 
   if ($entry.checks.custom_checks) {
     foreach ($customCheck in $entry.checks.custom_checks) {
-      if ([string]$customCheck.type -ne "command") {
+      if ([string]$customCheck.type -notin @("command", "core-repository-python")) {
         Add-Finding -Findings $findings -Repo $repoName -CheckId ([string]$customCheck.id) -Type "custom" -Expected "Supported custom check type" -Actual "Unsupported type '$([string]$customCheck.type)'" -Evidence ($customCheck | ConvertTo-Json -Depth 5) -Steps @("Review automation/qa-matrix.json for the custom check definition.")
         continue
       }
 
-      $customResult = Invoke-CommandCapture -RepoPath $platformRepoPath -Command ([string]$customCheck.command)
+      $customWorkingDirectory = $platformRepoPath
+      $customCommand = [string]$customCheck.command
+      if ([string]$customCheck.type -eq "core-repository-python") {
+        $customWorkingDirectory = $repoPath
+        $customResult = Invoke-RepositoryPythonCheck -RepoPath $repoPath -PlatformPath $platformRepoPath -Check $customCheck
+        $customCommand = $customResult.command
+      } else {
+        $customResult = Invoke-CommandCapture -RepoPath $platformRepoPath -Command $customCommand
+      }
       $expectedExitCode = if ($null -ne $customCheck.expected_exit_code) {
         [int]$customCheck.expected_exit_code
       } else {
         0
       }
 
-      if ([int]$customResult.exitCode -ne $expectedExitCode) {
-        Add-Finding -Findings $findings -Repo $repoName -CheckId ([string]$customCheck.id) -Type "custom" -Expected "Exit code $expectedExitCode from custom check" -Actual "Exit code $($customResult.exitCode)" -Evidence $customResult.output -Steps @("cd $platformRepoPath", ([string]$customCheck.command))
+      $harnessFailure = $customResult.failureKind -eq "harness"
+      $failed = $harnessFailure -or [int]$customResult.exitCode -ne $expectedExitCode
+      $status = if ($harnessFailure) { "harness_failure" } elseif ($failed -and [string]$customCheck.type -eq "core-repository-python") { "verifier_failure" } elseif ($failed) { "command_failure" } elseif ($DryRun) { "dry_run" } else { "passed" }
+      $customCheckResults.Add([pscustomobject]@{ repo = $repoName; check_id = [string]$customCheck.id; status = $status; native_exit_code = $customResult.exitCode; working_directory = $customWorkingDirectory; command = $customCommand; output = $customResult.output })
+      if ($failed) {
+        $actual = if ($harnessFailure) { "Harness failure before live verifier evaluation" } elseif ([string]$customCheck.type -eq "core-repository-python") { "Verifier exit code $($customResult.exitCode)" } else { "Exit code $($customResult.exitCode)" }
+        $findingType = if ($harnessFailure) { "harness" } else { "custom" }
+        Add-Finding -Findings $findings -Repo $repoName -CheckId ([string]$customCheck.id) -Type $findingType -Expected "Exit code $expectedExitCode from custom check" -Actual $actual -Evidence $customResult.output -Steps @("cd $customWorkingDirectory", $customCommand)
       }
     }
   }
@@ -706,12 +786,14 @@ foreach ($entry in $selected) {
     startup_attempted = [bool]$BringUp
   })
 
-  if ($CreateIssues -and -not $DryRun -and $repoFindings.Count -gt 0) {
+  # Harness diagnostics still fail QA, but cannot establish an application defect.
+  $issueFindings = @($repoFindings | Where-Object { $_.type -ne "harness" })
+  if ($CreateIssues -and -not $DryRun -and $issueFindings.Count -gt 0) {
     $repoEvidenceDir = Join-Path $evidenceDir $repoName
     New-Item -ItemType Directory -Path $repoEvidenceDir -Force | Out-Null
 
     $index = 0
-    foreach ($finding in $repoFindings) {
+    foreach ($finding in $issueFindings) {
       $index += 1
       $evidencePath = Join-Path $repoEvidenceDir ("finding-{0:000}-{1}.md" -f $index, $finding.check_id.Replace("/","-").Replace(" ","-"))
       $body = @()
@@ -806,6 +888,7 @@ $summaryMap["create_issues"] = [bool]$CreateIssues
 $summaryMap["dry_run"] = [bool]$DryRun
 $summaryMap["targets"] = $targetRepos
 $summaryMap["repo_results"] = $repoResults.ToArray()
+$summaryMap["custom_check_results"] = $customCheckResults.ToArray()
 $summaryMap["finding_count"] = [int]$findings.Count
 $summaryMap["findings"] = $findings.ToArray()
 $summaryMap["issues"] = $issueRecords.ToArray()

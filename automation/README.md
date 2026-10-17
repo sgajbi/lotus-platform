@@ -1066,10 +1066,35 @@ powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -Brin
 ```
 
 The `lotus-core` custom platform QA gate uses the governed canonical front-office verifier for
-`PB_SG_GLOBAL_BAL_001`. Run it directly when troubleshooting the demo-readiness lane:
+`PB_SG_GLOBAL_BAL_001`. To troubleshoot it directly, first prepare Core's declared Python 3.11
+environment with its repository-native `make install`. Set `LOTUS_CORE_REPO` to the absolute
+Core checkout path registered for `lotus-core` in the QA runner's `-ReposPath` file (default:
+`automation/repos.json`). Start in the absolute `lotus-platform` checkout used by that runner.
+These commands bind the same Platform contracts and use Core's own `.venv` and repository
+launcher; they do not install packages, seed data, or start Compose.
+
+PowerShell (from `lotus-platform`):
 
 ```powershell
-python ..\lotus-core\tools\front_office_portfolio_seed.py --verify-only --portfolio-id PB_SG_GLOBAL_BAL_001 --start-date 2025-03-31 --end-date 2026-04-10 --benchmark-start-date 2025-01-06 --ingestion-base-url http://core-ingestion.dev.lotus --query-base-url http://core-query.dev.lotus --query-control-plane-base-url http://core-control.dev.lotus --gateway-base-url http://gateway.dev.lotus --wait-seconds 300 --poll-interval-seconds 3
+$ErrorActionPreference = "Stop"
+$env:LOTUS_PLATFORM_REPO = (Get-Location).Path
+if ($env:LOTUS_CORE_REPO -notmatch '^(?:[A-Za-z]:[\\/]|\\\\[^\\/]+\\[^\\/]+(?:\\|$))') { throw "Set LOTUS_CORE_REPO to the registered absolute Core checkout" }
+Push-Location -LiteralPath $env:LOTUS_CORE_REPO
+try {
+  & ./.venv/Scripts/python.exe -B scripts/development/repository_python.py tools/front_office_portfolio_seed.py --verify-only --portfolio-id PB_SG_GLOBAL_BAL_001 --start-date 2025-03-31 --end-date 2026-04-10 --benchmark-start-date 2025-01-06 --ingestion-base-url http://core-ingestion.dev.lotus --query-base-url http://core-query.dev.lotus --query-control-plane-base-url http://core-control.dev.lotus --gateway-base-url http://gateway.dev.lotus --wait-seconds 300 --poll-interval-seconds 3
+} finally { Pop-Location }
+exit $LASTEXITCODE
+```
+
+POSIX shell (from `lotus-platform`; this direct verifier command does not imply Unix support
+for the full shell-backed Platform QA runner):
+
+```bash
+export LOTUS_PLATFORM_REPO="$PWD"
+case "${LOTUS_CORE_REPO:-}" in /*) ;; *) printf '%s\n' 'Set LOTUS_CORE_REPO to the registered absolute Core checkout' >&2; exit 1 ;; esac
+(cd -- "$LOTUS_CORE_REPO" &&
+  ./.venv/bin/python -B scripts/development/repository_python.py tools/front_office_portfolio_seed.py --verify-only --portfolio-id PB_SG_GLOBAL_BAL_001 --start-date 2025-03-31 --end-date 2026-04-10 --benchmark-start-date 2025-01-06 --ingestion-base-url http://core-ingestion.dev.lotus --query-base-url http://core-query.dev.lotus --query-control-plane-base-url http://core-control.dev.lotus --gateway-base-url http://gateway.dev.lotus --wait-seconds 300 --poll-interval-seconds 3
+)
 ```
 
 Run the generated seeded analytics maturity invariant against `lotus-core` as a clean-state
@@ -1110,6 +1135,11 @@ Run backend/runtime QA and auto-create GitHub issues for each detected defect:
 ```powershell
 powershell -ExecutionPolicy Bypass -File automation/Invoke-Platform-QA.ps1 -BringUp -CreateIssues
 ```
+
+Core execution-environment failures remain typed `harness` findings with diagnostics and a
+failed QA verdict (native exit 2). `-CreateIssues` excludes them from application issue lookup,
+creation and reopening because the verifier did not run. Actual verifier and command failures
+remain eligible for defect filing.
 
 Validate RFC-0068 shared infrastructure ownership boundaries:
 

@@ -453,12 +453,63 @@ def test_platform_qa_core_gate_uses_canonical_front_office_verifier() -> None:
         item for item in custom_checks if item["id"] == "canonical-front-office-analytics-maturity"
     )
 
-    command = canonical_check["command"]
+    assert canonical_check["type"] == "core-repository-python"
+    assert canonical_check["python_version"] == "3.11"
+    arguments = canonical_check["arguments"]
+    assert arguments[:2] == ["tools/front_office_portfolio_seed.py", "--verify-only"]
+    options = dict(zip(arguments[2::2], arguments[3::2], strict=True))
+    assert len(arguments) == 2 + 2 * len(options)
+    assert options == {
+        "--portfolio-id": "PB_SG_GLOBAL_BAL_001",
+        "--start-date": "2025-03-31",
+        "--end-date": "2026-04-10",
+        "--benchmark-start-date": "2025-01-06",
+        "--ingestion-base-url": "http://core-ingestion.dev.lotus",
+        "--query-base-url": "http://core-query.dev.lotus",
+        "--query-control-plane-base-url": "http://core-control.dev.lotus",
+        "--gateway-base-url": "http://gateway.dev.lotus",
+        "--wait-seconds": "300",
+        "--poll-interval-seconds": "3",
+    }
+    command = " ".join(arguments)
     assert "front_office_portfolio_seed.py" in command
     assert "--verify-only" in command
     assert "PB_SG_GLOBAL_BAL_001" in command
     assert "BMK_PB_GLOBAL_BALANCED_60_40" not in command
     assert "core_seeded_analytics_maturity_validation.py" not in command
+
+
+def test_core_qa_troubleshooting_commands_use_registered_repository_environment() -> None:
+    readme = (ROOT / "automation" / "README.md").read_text(encoding="utf-8")
+    section = readme.split("The `lotus-core` custom platform QA gate", 1)[1].split(
+        "Run the generated seeded analytics maturity invariant", 1
+    )[0]
+    matrix = json.loads((ROOT / "automation" / "qa-matrix.json").read_text(encoding="utf-8"))
+    core = next(item for item in matrix["repositories"] if item["repo"] == "lotus-core")
+    check = next(
+        item for item in core["checks"]["custom_checks"]
+        if item["id"] == "canonical-front-office-analytics-maturity"
+    )
+    assert "Python 3.11" in section
+    assert "`-ReposPath`" in section
+    assert "Start in the absolute `lotus-platform` checkout" in section
+    assert '$ErrorActionPreference = "Stop"' in section
+    assert '$env:LOTUS_PLATFORM_REPO = (Get-Location).Path' in section
+    assert r"$env:LOTUS_CORE_REPO -notmatch '^(?:[A-Za-z]:[\\/]|\\\\[^\\/]+\\[^\\/]+(?:\\|$))'" in section
+    assert 'Push-Location -LiteralPath $env:LOTUS_CORE_REPO' in section
+    assert '} finally { Pop-Location }' in section
+    assert 'exit $LASTEXITCODE' in section
+    assert 'export LOTUS_PLATFORM_REPO="$PWD"' in section
+    assert 'case "${LOTUS_CORE_REPO:-}" in /*)' in section
+    assert '(cd -- "$LOTUS_CORE_REPO" &&' in section
+    commands = [line.strip() for line in section.splitlines() if "--verify-only" in line]
+    assert len(commands) == 2
+    for command, interpreter in zip(
+        commands, ("& ./.venv/Scripts/python.exe", "./.venv/bin/python"), strict=True
+    ):
+        prefix = f"{interpreter} -B scripts/development/repository_python.py "
+        assert command.startswith(prefix)
+        assert command.removeprefix(prefix).split() == check["arguments"]
 
 
 def test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs() -> None:
