@@ -6,18 +6,18 @@
   "code_size": {
     "markdown_file_count": 427,
     "powershell_file_count": 70,
-    "python_file_count": 285,
-    "source_file_count": 1016,
+    "python_file_count": 286,
+    "source_file_count": 1017,
     "suffix_counts": {
       ".json": 181,
       ".md": 427,
       ".ps1": 70,
-      ".py": 285,
+      ".py": 286,
       ".txt": 10,
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 650487
+    "total_source_lines": 651056
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,8 +83,8 @@
       },
       {
         "complexity": 41,
-        "end_line": 441,
-        "line": 236,
+        "end_line": 452,
+        "line": 247,
         "lines": 206,
         "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
         "path": "tests/unit/test_reserved_service_refresh.py"
@@ -229,8 +229,8 @@
       },
       {
         "complexity": 2,
-        "end_line": 806,
-        "line": 464,
+        "end_line": 857,
+        "line": 515,
         "lines": 343,
         "name": "test_front_office_qa_wrapper_is_wired_into_platform_profile_and_docs",
         "path": "tests/unit/test_front_office_runtime_automation_contract.py"
@@ -300,6 +300,14 @@
         "path": "automation/validate_workflow_pipeline_exit_codes.py"
       },
       {
+        "complexity": 19,
+        "end_line": 239,
+        "line": 29,
+        "lines": 211,
+        "name": "test_core_migration_completes_before_ten_application_replacements",
+        "path": "tests/unit/test_reserved_service_refresh.py"
+      },
+      {
         "complexity": 5,
         "end_line": 389,
         "line": 180,
@@ -309,18 +317,10 @@
       },
       {
         "complexity": 41,
-        "end_line": 441,
-        "line": 236,
+        "end_line": 452,
+        "line": 247,
         "lines": 206,
         "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
-        "path": "tests/unit/test_reserved_service_refresh.py"
-      },
-      {
-        "complexity": 17,
-        "end_line": 228,
-        "line": 29,
-        "lines": 200,
-        "name": "test_core_migration_completes_before_ten_application_replacements",
         "path": "tests/unit/test_reserved_service_refresh.py"
       },
       {
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4512
+    "python_function_count": 4527
   },
-  "generated_at_utc": "2026-10-16T07:10:39Z",
+  "generated_at_utc": "2026-10-17T09:40:38Z",
   "largest_files": [
     {
       "lines": 298645,
@@ -428,14 +428,14 @@
       "suffix": ".py"
     },
     {
+      "lines": 1878,
+      "path": "automation/README.md",
+      "suffix": ".md"
+    },
+    {
       "lines": 1853,
       "path": "codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 1848,
-      "path": "automation/README.md",
-      "suffix": ".md"
     },
     {
       "lines": 1818,
@@ -790,7 +790,7 @@
   },
   "tests": {
     "available": true,
-    "collected_tests": 6035,
+    "collected_tests": 6055,
     "command": [
       "C:\\Python313\\python.exe",
       "-m",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "6035 tests collected"
+    "summary": "6055 tests collected"
   }
 }
