@@ -4,7 +4,7 @@ This file is generated from governed domain-data-product declarations.
 
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Source declaration directory: `federated:domain-product-source-manifest`
-- Product count: `85`
+- Product count: `89`
 - Dependency count: `71`
 
 ## Products
@@ -53,6 +53,10 @@ This file is generated from governed domain-data-product declarations.
 | `PortfolioAnalyticsReference` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-performance, lotus-risk, lotus-gateway | /integration/portfolios/{portfolio_id}/analytics/reference |
 | `PortfolioCashMovementSummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-idea | /portfolios/{portfolio_id}/cash-movement-summary |
 | `PortfolioCashflowProjection` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-idea | /portfolios/{portfolio_id}/cashflow-projection |
+| `PortfolioFinancialFlowObservations` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-manage | /integration/financial-source-observations/flow-events/query, /integration/financial-source-observations/flow-events/versions/{flow_source_record_revision} |
+| `PortfolioFinancialSourceCut` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-manage | /integration/financial-source-cuts/query |
+| `PortfolioFinancialSourceObservations` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-manage | /integration/portfolios/{portfolio_id}/financial-source-observations/query |
+| `PortfolioHistoricalRegistry` | `lotus-core` | `v1` | `analytics_input` | `active` | lotus-manage | /integration/portfolio-historical-registries/query |
 | `PortfolioLiquidityLadder` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise | /portfolios/{portfolio_id}/liquidity-ladder |
 | `PortfolioManagerBookMembership` | `lotus-core` | `v1` | `dpm_source_data` | `active` | lotus-manage, lotus-gateway | /integration/portfolio-manager-books/{portfolio_manager_id}/memberships |
 | `PortfolioMaturitySummary` | `lotus-core` | `v1` | `operational_source_data` | `active` | lotus-gateway, lotus-report, lotus-manage, lotus-advise, lotus-idea | /portfolios/{portfolio_id}/maturity-summary |

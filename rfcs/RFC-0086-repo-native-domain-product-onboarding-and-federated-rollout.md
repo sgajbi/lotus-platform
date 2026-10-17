@@ -354,8 +354,8 @@ Current generated proof:
 
 1. 8 included repositories: `lotus-core`, `lotus-performance`, `lotus-risk`, `lotus-advise`,
    `lotus-report`, `lotus-manage`, `lotus-gateway`, and `lotus-idea`,
-2. 85 governed products,
-3. 67 consumer dependency edges,
+2. 89 governed products,
+3. 71 consumer dependency edges,
 4. 0 pending repositories,
 5. certified catalog posture,
 6. no active product or consumer source path points at

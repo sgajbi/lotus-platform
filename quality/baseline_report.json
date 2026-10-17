@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 651056
+    "total_source_lines": 750560
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -269,8 +269,8 @@
       },
       {
         "complexity": 3,
-        "end_line": 2605,
-        "line": 2336,
+        "end_line": 2606,
+        "line": 2337,
         "lines": 270,
         "name": "test_rfc_0084_first_analytics_wave_declarations_align_to_live_repo_truth",
         "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py"
@@ -368,13 +368,13 @@
       "suffix": ".json"
     },
     {
-      "lines": 36232,
-      "path": "platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json",
+      "lines": 123325,
+      "path": "platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json",
       "suffix": ".json"
     },
     {
-      "lines": 23952,
-      "path": "platform-contracts/api-vocabulary/lotus-core-api-vocabulary.v1.json",
+      "lines": 36232,
+      "path": "platform-contracts/api-vocabulary/lotus-advise-api-vocabulary.v1.json",
       "suffix": ".json"
     },
     {
@@ -398,14 +398,14 @@
       "suffix": ".json"
     },
     {
+      "lines": 3268,
+      "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
+      "suffix": ".json"
+    },
+    {
       "lines": 3208,
       "path": "tests/unit/test_wiki_quality_audit.py",
       "suffix": ".py"
-    },
-    {
-      "lines": 3138,
-      "path": "platform-contracts/domain-data-products/lotus-core-products.v1.json",
-      "suffix": ".json"
     },
     {
       "lines": 2823,
@@ -413,7 +413,7 @@
       "suffix": ".py"
     },
     {
-      "lines": 2709,
+      "lines": 2710,
       "path": "tests/unit/test_rfc_0084_domain_data_product_contracts.py",
       "suffix": ".py"
     },
@@ -792,7 +792,7 @@
     "available": true,
     "collected_tests": 6055,
     "command": [
-      "C:\\Python313\\python.exe",
+      "C:\\Users\\Sandeep\\projects\\review\\p967-20261017\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
