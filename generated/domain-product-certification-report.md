@@ -4,7 +4,7 @@ This file is generated from the governed domain-product catalog and dependency g
 
 - Generated at UTC: `2026-06-24T00:00:00Z`
 - Certification state: `certified`
-- Product count: `85`
+- Product count: `89`
 - Dependency count: `71`
 - Included repositories: `8`
 - Pending repositories: `0`
@@ -56,6 +56,10 @@ This file is generated from the governed domain-product catalog and dependency g
 | `PortfolioAnalyticsReference` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioCashMovementSummary` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioCashflowProjection` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioFinancialFlowObservations` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioFinancialSourceCut` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioFinancialSourceObservations` | `lotus-core` | `certified` | `0` | `True` | `True` |
+| `PortfolioHistoricalRegistry` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioLiquidityLadder` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioManagerBookMembership` | `lotus-core` | `certified` | `0` | `True` | `True` |
 | `PortfolioMaturitySummary` | `lotus-core` | `certified` | `0` | `True` | `True` |

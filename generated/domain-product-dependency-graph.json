@@ -7,8 +7,8 @@
   ],
   "generated_at_utc": "2026-06-24T00:00:00Z",
   "source_catalog": "domain-product-catalog.json",
-  "node_count": 97,
-  "edge_count": 340,
+  "node_count": 101,
+  "edge_count": 348,
   "nodes": [
     {
       "node_id": "product:lotus-advise:AdvisorCockpitOperatingSnapshot:v1",
@@ -428,6 +428,46 @@
       "product_version": "v1",
       "producer_repository": "lotus-core",
       "product_family": "operational_source_data",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioFinancialFlowObservations:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioFinancialFlowObservations:v1",
+      "product_name": "PortfolioFinancialFlowObservations",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioFinancialSourceCut:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioFinancialSourceCut:v1",
+      "product_name": "PortfolioFinancialSourceCut",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioFinancialSourceObservations:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioFinancialSourceObservations:v1",
+      "product_name": "PortfolioFinancialSourceObservations",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
+      "lifecycle_status": "active"
+    },
+    {
+      "node_id": "product:lotus-core:PortfolioHistoricalRegistry:v1",
+      "node_type": "domain_product",
+      "product_id": "lotus-core:PortfolioHistoricalRegistry:v1",
+      "product_name": "PortfolioHistoricalRegistry",
+      "product_version": "v1",
+      "producer_repository": "lotus-core",
+      "product_family": "analytics_input",
       "lifecycle_status": "active"
     },
     {
@@ -1396,6 +1436,26 @@
       "edge_type": "approves_consumer",
       "from": "product:lotus-core:PortfolioCashflowProjection:v1",
       "to": "repo:lotus-report"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioFinancialFlowObservations:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioFinancialSourceCut:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioFinancialSourceObservations:v1",
+      "to": "repo:lotus-manage"
+    },
+    {
+      "edge_type": "approves_consumer",
+      "from": "product:lotus-core:PortfolioHistoricalRegistry:v1",
+      "to": "repo:lotus-manage"
     },
     {
       "edge_type": "approves_consumer",
@@ -2892,6 +2952,26 @@
       "edge_type": "produces",
       "from": "repo:lotus-core",
       "to": "product:lotus-core:PortfolioCashflowProjection:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioFinancialFlowObservations:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioFinancialSourceCut:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioFinancialSourceObservations:v1"
+    },
+    {
+      "edge_type": "produces",
+      "from": "repo:lotus-core",
+      "to": "product:lotus-core:PortfolioHistoricalRegistry:v1"
     },
     {
       "edge_type": "produces",

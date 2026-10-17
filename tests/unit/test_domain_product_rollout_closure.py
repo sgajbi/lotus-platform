@@ -123,7 +123,7 @@ def test_rfc_0086_catalog_and_certification_use_repo_native_sources() -> None:
     assert catalog["source_declaration_directory"] == (
         "federated:domain-product-source-manifest"
     )
-    assert catalog["product_count"] == 85
+    assert catalog["product_count"] == 89
     assert catalog["dependency_count"] == 71
     _assert_product_present(
         catalog,
@@ -167,8 +167,8 @@ def test_rfc_0086_documents_lotus_ai_and_platform_mirror_closure_posture() -> No
         "participant"
     ) in rfc
     assert "8 included repositories" in rfc
-    assert "85 governed products" in rfc
-    assert "67 consumer dependency edges" in rfc
+    assert "89 governed products" in rfc
+    assert "71 consumer dependency edges" in rfc
     assert "`lotus-gateway` API consumer" in rfc
     assert (
         "transitional platform mirror declarations are retained as compatibility "

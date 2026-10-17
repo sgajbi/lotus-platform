@@ -405,6 +405,7 @@ def _assert_lotus_core_declaration_matches_source_catalog(
                 "MarketDataCoverageWindow",
                 "DpmSourceReadiness",
                 "PortfolioManagerBookMembership",
+                "PortfolioPartyRoleAssignment",
                 "CioModelChangeAffectedCohort",
                 "DpmPortfolioUniverseCandidate",
                 "ClientRestrictionProfile",

@@ -11,7 +11,7 @@
   "source_graph": "domain-product-dependency-graph.json",
   "summary": {
     "certification_state": "certified",
-    "product_count": 85,
+    "product_count": 89,
     "dependency_count": 71,
     "producer_repository_count": 7,
     "included_repository_count": 8,
@@ -733,6 +733,74 @@
       "product_id": "lotus-core:PortfolioCashflowProjection:v1",
       "producer_repository": "lotus-core",
       "product_name": "PortfolioCashflowProjection",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-core:PortfolioFinancialFlowObservations:v1",
+      "producer_repository": "lotus-core",
+      "product_name": "PortfolioFinancialFlowObservations",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-core:PortfolioFinancialSourceCut:v1",
+      "producer_repository": "lotus-core",
+      "product_name": "PortfolioFinancialSourceCut",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-core:PortfolioFinancialSourceObservations:v1",
+      "producer_repository": "lotus-core",
+      "product_name": "PortfolioFinancialSourceObservations",
+      "product_version": "v1",
+      "lifecycle_status": "active",
+      "certification_state": "certified",
+      "checks": {
+        "trust_metadata_declared": true,
+        "approved_consumers_declared": true,
+        "route_references_declared": true,
+        "lineage_required": true,
+        "graph_node_present": true,
+        "deprecation_state": "not_deprecated"
+      },
+      "issue_count": 0
+    },
+    {
+      "product_id": "lotus-core:PortfolioHistoricalRegistry:v1",
+      "producer_repository": "lotus-core",
+      "product_name": "PortfolioHistoricalRegistry",
       "product_version": "v1",
       "lifecycle_status": "active",
       "certification_state": "certified",
