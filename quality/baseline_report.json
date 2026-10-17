@@ -17,7 +17,7 @@
       ".yaml": 28,
       ".yml": 15
     },
-    "total_source_lines": 750560
+    "total_source_lines": 750970
   },
   "documentation": {
     "baseline_report": "quality/baseline_report.md",
@@ -83,10 +83,18 @@
       },
       {
         "complexity": 41,
-        "end_line": 452,
-        "line": 247,
+        "end_line": 640,
+        "line": 435,
         "lines": 206,
         "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
+        "path": "tests/unit/test_reserved_service_refresh.py"
+      },
+      {
+        "complexity": 38,
+        "end_line": 203,
+        "line": 37,
+        "lines": 167,
+        "name": "test_shared_builder_does_not_expand_replacement_or_execute_dependencies",
         "path": "tests/unit/test_reserved_service_refresh.py"
       },
       {
@@ -184,14 +192,6 @@
         "lines": 72,
         "name": "_validate_controls",
         "path": "automation/validate_bank_readiness_control_catalog.py"
-      },
-      {
-        "complexity": 22,
-        "end_line": 350,
-        "line": 245,
-        "lines": 106,
-        "name": "resolve_principal",
-        "path": "automation/verify_principal_credential.py"
       }
     ],
     "largest_functions": [
@@ -301,8 +301,8 @@
       },
       {
         "complexity": 19,
-        "end_line": 239,
-        "line": 29,
+        "end_line": 427,
+        "line": 217,
         "lines": 211,
         "name": "test_core_migration_completes_before_ten_application_replacements",
         "path": "tests/unit/test_reserved_service_refresh.py"
@@ -317,8 +317,8 @@
       },
       {
         "complexity": 41,
-        "end_line": 452,
-        "line": 247,
+        "end_line": 640,
+        "line": 435,
         "lines": 206,
         "name": "test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation",
         "path": "tests/unit/test_reserved_service_refresh.py"
@@ -358,9 +358,9 @@
     ],
     "max_complexity": 82,
     "max_function_lines": 903,
-    "python_function_count": 4527
+    "python_function_count": 4534
   },
-  "generated_at_utc": "2026-10-17T09:40:38Z",
+  "generated_at_utc": "2026-10-17T17:08:00Z",
   "largest_files": [
     {
       "lines": 298645,
@@ -549,6 +549,16 @@
       {
         "line": 27,
         "path": "automation/audit_main_gate_coverage.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 83,
+        "path": "automation/canonical_refresh_inputs.py",
+        "signal": "sensitive-keyword-review"
+      },
+      {
+        "line": 84,
+        "path": "automation/canonical_refresh_inputs.py",
         "signal": "sensitive-keyword-review"
       },
       {
@@ -775,24 +785,14 @@
         "line": 276,
         "path": "automation/gate_liveness_audit.py",
         "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 288,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
-      },
-      {
-        "line": 289,
-        "path": "automation/gate_liveness_audit.py",
-        "signal": "sensitive-keyword-review"
       }
     ]
   },
   "tests": {
     "available": true,
-    "collected_tests": 6055,
+    "collected_tests": 6110,
     "command": [
-      "C:\\Users\\Sandeep\\projects\\review\\p967-20261017\\lotus-platform\\.venv-platform-automation\\Scripts\\python.exe",
+      "C:\\Python313\\python.exe",
       "-m",
       "pytest",
       "--collect-only",
@@ -800,6 +800,6 @@
       "tests/unit"
     ],
     "returncode": 0,
-    "summary": "6055 tests collected"
+    "summary": "6110 tests collected"
   }
 }

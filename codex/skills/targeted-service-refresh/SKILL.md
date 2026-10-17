@@ -86,6 +86,8 @@ publication `8001:8000`; do not recreate Manage from an ad hoc shell that omits 
 - Reserved `-DryRun` validates the reviewed plan and Compose inputs under the operation fence without changing the book. Require ProjectPath to equal the admitted project checkout, and all explicit, environment-selected and default Compose files to be committed inputs there; another same-named checkout, external or mutable overrides refuse. Compose/build context/Dockerfile paths reject reparse points on every ancestor within the checkout. Preview grants no durable admission.
 
 - Prefer `-ChangedOnly` first.
+- Nonempty resolved-owner `build.secrets` and `build.ssh` refuse before source export/build for direct and shared builders: auxiliary host inputs are not frozen. Do not bypass this with an overlay or disclose auxiliary values. Absent/empty fields remain supported.
+- Before advancing a canonical checkout, inspect its committed Compose/build-owner declarations for native support. Reservation status reports acquired scope, not current checkout equality; never reacquire or add an external overlay to hide drift. Image-only consumers require exactly one exact same-image build owner in the digest-reviewed model. Preview lists build owners separately from replacement services. The owner builds once under a unique tag; only selected consumers are prepared and replaced by immutable IDs. Building a migration-owned image executes no migration or dependencies and does not authorize adding the owner to the replacement plan.
 - Do not restart full stack unless explicitly requested.
 - Use the governed map; never pass credentials, tokens, or process-critical variables through it.
 - Check container logs first when service startup fails.

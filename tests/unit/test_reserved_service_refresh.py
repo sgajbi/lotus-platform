@@ -15,6 +15,194 @@ from automation.canonical_runtime_lease import digest
 ROOT = Path(__file__).resolve().parents[2]
 
 
+@pytest.mark.parametrize('case,refusal', [
+    ('success', None), ('multiple', None), ('preview', None), ('windows-preview', None),
+    ('preview-ambiguous', 'exactly one build owner'),
+    ('zero', 'exactly one build owner'), ('ambiguous', 'exactly one build owner'),
+    ('mismatch', 'exactly one build owner'), ('missing-image', 'explicit shared image'),
+    ('inline', 'local owned context'), ('additional', 'local owned context'),
+    ('tags', 'additional image tags'),
+    ('auxiliary-secrets', 'Reserved build cannot use auxiliary secrets or SSH inputs'),
+    ('auxiliary-ssh', 'Reserved build cannot use auxiliary secrets or SSH inputs'),
+    ('direct-secrets', 'Reserved build cannot use auxiliary secrets or SSH inputs'),
+    ('direct-ssh', 'Reserved build cannot use auxiliary secrets or SSH inputs'),
+    ('foreign-context', 'outside its reviewed repository'),
+    ('foreign-dockerfile', 'outside its reviewed repository'),
+    ('ancestor-context', 'reparse point or ancestor'),
+    ('missing-dockerfile', 'Build context and Dockerfile must exist'),
+    ('unresolved-arg', 'Evaluated Compose must resolve'), ('unresolved-env', 'Evaluated Compose must resolve'),
+    ('digest-owner', 'differs from reviewed digest'),
+    ('build-failure', 'Reserved build failed'), ('image-source', 'CONTROLLED_IMAGE_SOURCE_REFUSAL'),
+])
+def test_shared_builder_does_not_expand_replacement_or_execute_dependencies(tmp_path, case, refusal):
+    preview = case in {'preview', 'windows-preview', 'preview-ambiguous'}
+    project = tmp_path / 'lotus-idea'
+    project.mkdir()
+    for name, content in {'compose.yaml': 'services: {}', 'Dockerfile': 'FROM scratch',
+                          '.gitignore': 'secret.bin\nredirect/\n'}.items():
+        (project / name).write_text(content, encoding='utf-8')
+    for args in (['init'], ['add', '.'], ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test',
+                                       '-c', 'commit.gpgsign=false', 'commit', '-m', 'fixture']):
+        subprocess.run(['git', '-C', str(project), *args], check=True, capture_output=True)
+    revision = subprocess.check_output(['git', '-C', str(project), 'rev-parse', 'HEAD'], text=True).strip()
+    (project / 'secret.bin').write_text('ignored input must not be built', encoding='utf-8')
+    (project / 'untracked').write_text('untracked input must not be built', encoding='utf-8')
+    # The snapshot must use committed bytes, even if working bytes are different.
+    (project / 'Dockerfile').write_text('unreviewed bytes', encoding='utf-8')
+    selected = ['lotus-idea', 'worker'] if case == 'multiple' else ['lotus-idea']
+    owner = 'lotus-idea-migrations'
+    model = {'name': 'idea', 'services': {
+        'lotus-idea': {'image': 'lotus-idea:local', 'ports': [{'published': 8330}],
+                       'depends_on': {owner: {'condition': 'service_completed_successfully'}},
+                       'environment': {'TOKEN': '$$literal'}},
+        'worker': {'image': 'lotus-idea:local', 'depends_on': {owner: {'condition': 'service_completed_successfully'}}},
+        owner: {'image': 'lotus-idea:local', 'build': {'context': str(project), 'dockerfile': 'Dockerfile',
+                'args': {'GIT_COMMIT_SHA': revision}}, 'command': ['python', 'run_migrations.py'],
+                'depends_on': {'postgres': {'condition': 'service_healthy'}}},
+        'postgres': {'image': 'postgres:18-alpine'}}}
+    if case == 'zero': del model['services'][owner]['build']
+    if case in {'ambiguous', 'preview-ambiguous'}: model['services']['duplicate'] = dict(model['services'][owner])
+    if case == 'mismatch': model['services'][owner]['image'] = 'lotus-idea:other'
+    if case == 'missing-image': del model['services']['lotus-idea']['image']
+    if case == 'inline': model['services'][owner]['build']['dockerfile_inline'] = 'FROM scratch'
+    if case == 'additional': model['services'][owner]['build']['additional_contexts'] = {'foreign': str(tmp_path)}
+    if case == 'tags': model['services'][owner]['build']['tags'] = ['lotus-idea:local']
+    if case.startswith(('auxiliary-', 'direct-')):
+        builder = owner
+        if case.startswith('direct-'):
+            builder = 'lotus-idea'
+            model['services'][builder]['build'] = model['services'][owner].pop('build')
+        field = 'secrets' if case.endswith('secrets') else 'ssh'
+        model['services'][builder]['build'][field] = ['SYNTHETIC_AUXILIARY_AUTHORITY']
+        model['secrets'] = {'SYNTHETIC_AUXILIARY_AUTHORITY': {'file': 'SYNTHETIC_HOST_PATH'}}
+    if case == 'foreign-context': model['services'][owner]['build']['context'] = str(tmp_path)
+    if case == 'foreign-dockerfile': model['services'][owner]['build']['dockerfile'] = str(tmp_path / 'foreign')
+    if case == 'missing-dockerfile': model['services'][owner]['build']['dockerfile'] = 'untracked'
+    if case == 'unresolved-arg': model['services'][owner]['build']['args']['GIT_COMMIT_SHA'] = None
+    if case == 'unresolved-env': model['services']['lotus-idea']['environment']['TOKEN'] = None
+    if case == 'ancestor-context':
+        foreign = tmp_path / 'foreign'
+        foreign.mkdir()
+        (foreign / 'Dockerfile').write_text('FROM scratch', encoding='utf-8')
+        link = project / 'redirect'
+        if os.name == 'nt':
+            subprocess.run([shutil.which('pwsh'), '-NoProfile', '-Command',
+                            f"New-Item -ItemType Junction -Path '{link}' -Target '{foreign}' | Out-Null"],
+                           check=True, capture_output=True)
+        else:
+            link.symlink_to(foreign, target_is_directory=True)
+        model['services'][owner]['build']['context'] = str(link)
+    plan = {'services': [{'repository': 'lotus-idea', 'project': 'idea', 'service': name} for name in selected],
+            'targetScope': {'projects': {'idea': str(project).replace('\\', '/').lower()},
+                            'sources': {'lotus-idea': revision}}, 'composeConfigDigest': digest(model)}
+    if case == 'digest-owner': model['services'][owner]['build']['args']['GIT_COMMIT_SHA'] = 'unreviewed'
+    model_path = tmp_path / 'model.json'
+    model_path.write_text(json.dumps(model), encoding='utf-8')
+    plan_path = tmp_path / 'plan.json'
+    plan_path.write_text(json.dumps(plan), encoding='utf-8')
+    book = tmp_path / 'lotus-platform/output/canonical-runtime/reservations.v1.json'
+    book.parent.mkdir(parents=True)
+    book.write_text('{}', encoding='utf-8')
+    lock = book.parent / 'operation.lock'
+    log = tmp_path / 'calls.txt'
+    command = f"""
+$ErrorActionPreference='Stop'
+function global:Assert-Fenced {{
+  $contended=$false
+  try {{ $probe=[IO.File]::Open('{lock}','OpenOrCreate','ReadWrite','None'); $probe.Dispose() }} catch [IO.IOException] {{ $contended=$true }}
+  if (-not $contended) {{ throw 'IO_OUTSIDE_OPERATION_FENCE' }}
+}}
+function global:python {{
+  Assert-Fenced
+  if ($args[0] -like '*canonical_refresh_inputs.py') {{ & '{sys.executable}' @args; return }}
+  $global:LASTEXITCODE=0
+  $action=$args[1]; Add-Content -LiteralPath '{log}' -Value "lease:$action"
+  $plan=Get-Content -LiteralPath '{plan_path}' -Raw | ConvertFrom-Json
+  if ($action -in @('begin-refresh','preview-refresh')) {{
+    $resources=@($plan.services | ForEach-Object {{ @{{id=$_.service;project='idea';service=$_.service}} }})
+    $bindings=@($plan.services | ForEach-Object {{ @{{id=$_.service;ports=if ($_.service -eq 'lotus-idea') {{ @(8330) }} else {{ @() }} }} }})
+    return (@{{operation=@{{token='reviewed-token';refresh=@{{plan=$plan;originalResources=$resources}}}};bindings=$bindings;scope=@{{}}}} | ConvertTo-Json -Depth 12 -Compress)
+  }}
+  if ($action -eq 'prepare-refresh') {{
+    if ('{case}' -eq 'image-source') {{ $global:LASTEXITCODE=1; return 'CONTROLLED_IMAGE_SOURCE_REFUSAL' }}
+    $refs=@(Get-Content -LiteralPath $args[[Array]::IndexOf($args,'--prepared-images')+1] -Raw | ConvertFrom-Json)
+    if ($refs.Count -ne $plan.services.Count) {{ throw 'PREPARED_OWNER_EXPANDED_SCOPE' }}
+    foreach ($ref in $refs) {{
+      if ($ref.service -notin $plan.services.service -or $ref.reference -ne 'lotus-reserved-refresh:reviewed-token-{owner}') {{ throw 'WRONG_PREPARED_CONSUMER_OR_IMAGE' }}
+    }}
+    $images=@($plan.services | ForEach-Object {{ @{{service=$_.service;imageId='sha256:{'c' * 64}'}} }})
+    return (@{{operation=@{{refresh=@{{preparedImages=$images}}}}}} | ConvertTo-Json -Depth 12 -Compress)
+  }}
+  if ($action -eq 'finish-refresh') {{ Add-Content -LiteralPath '{log}' -Value ('outcome:'+$args[[Array]::IndexOf($args,'--outcome')+1]) }}
+  return '{{}}'
+}}
+function global:SharedFakeDocker {{
+  Assert-Fenced; $global:LASTEXITCODE=0
+  Add-Content -LiteralPath '{log}' -Value ('docker:'+($args -join ' '))
+  if ($args -contains 'config') {{ return Get-Content -LiteralPath '{model_path}' -Raw }}
+  if ($args -contains 'build') {{
+    if ($args[-1] -ne '{owner}' -or $args[-2] -ne 'build' -or $args -contains '--with-dependencies') {{ throw 'BUILD_OWNER_NOT_DEDUPLICATED' }}
+    $override=Get-Content -LiteralPath $args[[Array]::LastIndexOf($args,'-f')+1] -Raw | ConvertFrom-Json
+    if ($override.services.'{owner}'.image -ne 'lotus-reserved-refresh:reviewed-token-{owner}') {{ throw 'ORIGINAL_SHARED_TAG_MOVED' }}
+    if ($override.services.'{owner}'.build.labels.'org.opencontainers.image.revision' -ne '{revision}') {{ throw 'BUILD_SOURCE_MISSING' }}
+    foreach ($consumer in @({','.join(repr(s) for s in selected)})) {{
+      if ($override.services.($consumer).build) {{ throw 'DUPLICATE_SHARED_IMAGE_WRITER' }}
+    }}
+    $frozen=Get-Content -LiteralPath $args[[Array]::IndexOf($args,'-f')+1] -Raw | ConvertFrom-Json
+    $build=$frozen.services.'{owner}'.build
+    if ($build.context -eq '{project}' -or (Test-Path (Join-Path $build.context 'secret.bin')) -or (Test-Path (Join-Path $build.context 'untracked'))) {{ throw 'UNREVIEWED_BUILD_BYTES' }}
+    if ((Get-Content -LiteralPath $build.dockerfile -Raw) -ne 'FROM scratch' -or $build.args.GIT_COMMIT_SHA -ne '{revision}') {{ throw 'COMMITTED_BUILD_INPUT_MISSING' }}
+    if ('{case}' -eq 'build-failure') {{ $global:LASTEXITCODE=23 }}
+    return
+  }}
+  if ($args -contains 'up') {{
+    if (($args -join ' ') -notlike '*up -d --no-deps --no-build --pull never {' '.join(selected)}') {{ throw 'DEPENDENCY_OR_OWNER_EXECUTION' }}
+    $override=Get-Content -LiteralPath $args[[Array]::LastIndexOf($args,'-f')+1] -Raw | ConvertFrom-Json
+    foreach ($consumer in @({','.join(repr(s) for s in selected)})) {{
+      if ($override.services.($consumer).image -ne 'sha256:{'c' * 64}') {{ throw 'UNPINNED_CONSUMER' }}
+    }}
+    return
+  }}
+  if ($args -contains 'ps') {{ return ConvertTo-Json -InputObject @({','.join("@{Service='" + s + "';State='running';Health='healthy';Publishers=" + ("@(@{PublishedPort=8330})" if s == 'lotus-idea' else '@()') + "}" for s in selected)}) -Depth 8 -Compress }}
+  throw 'UNEXPECTED_DOCKER_COMMAND'
+}}
+& '{ROOT / 'automation/Service-Refresh.ps1'}' -ProjectPath '{project}' -ProjectsRoot '{tmp_path}' `
+  -Services @({','.join(repr(s) for s in selected)}) -DockerCommand SharedFakeDocker -HealthTimeoutSeconds 0 `
+  -RuntimeHolder owner -RefreshPlan '{plan_path}' -RefreshPlanDigest sha256:reviewed {'-DryRun' if preview else ''}
+"""
+    shell = shutil.which('powershell') if case == 'windows-preview' else shutil.which('pwsh') or shutil.which('powershell')
+    if case == 'windows-preview' and shell is None:
+        pytest.skip('Windows PowerShell is unavailable')
+    assert shell
+    result = subprocess.run([shell, '-NoProfile', '-Command', command], capture_output=True, text=True, timeout=30)
+    calls = log.read_text(encoding='utf-8-sig').splitlines()
+    builds = [line for line in calls if ' build ' in line]
+    ups = [line for line in calls if ' up ' in line]
+    if case.startswith(('auxiliary-', 'direct-')):
+        assert builds == ups == [], calls
+    assert 'IO_OUTSIDE_OPERATION_FENCE' not in result.stderr
+    assert 'SYNTHETIC_AUXILIARY_AUTHORITY' not in result.stdout + result.stderr
+    assert 'SYNTHETIC_HOST_PATH' not in result.stdout + result.stderr
+    assert result.returncode == (1 if refusal else 0), result.stdout + result.stderr
+    if refusal:
+        assert refusal in result.stderr, result.stdout + result.stderr
+        assert not ups
+        if preview:
+            assert 'lease:finish-refresh' not in calls and 'lease:begin-refresh' not in calls
+        else:
+            assert 'lease:finish-refresh' in calls and calls[-1] == 'outcome:failure'
+        assert len(builds) == (1 if case in {'build-failure', 'image-source'} else 0)
+    elif preview:
+        assert not builds and not ups
+        assert 'Build owners: lotus-idea-migrations; replacement services: lotus-idea' in result.stdout
+        assert 'lease:begin-refresh' not in calls and 'lease:finish-refresh' not in calls
+    else:
+        assert len(builds) == len(ups) == 1
+        assert calls.index(builds[0]) < calls.index('lease:prepare-refresh') < calls.index(ups[0])
+        assert calls[-1] == 'outcome:success'
+    assert book.read_text(encoding='utf-8') == '{}'
+
+
 @pytest.mark.parametrize('case', ['success', 'running-success', 'created-success', 'timeout', 'nonzero', 'oom', 'restart',
                                 'missing', 'duplicate', 'malformed', 'truncated-id', 'project-drift', 'image-drift', 'source-drift',
                                 'container-drift', 'inspect-failure', 'inspect-duplicate', 'inspect-malformed',

@@ -339,6 +339,15 @@ Use the RFC index for deeper or historical decisions.
   missing/duplicate or malformed topology refuses before mutation and remains pending.
   Source-only transitions keep actual runtime image revisions distinct from host-tool HEADs. Reserved dry-run validates admission and committed repository-owned Compose inputs under the fence without changing the book; execution re-admits independently. ProjectPath must equal the admitted project's checkout before Compose I/O, even with an independent ProjectsRoot.
   Service plans additionally bind the full evaluated Compose model with `composeConfigDigest`; execution freezes it, retains original project-directory provenance and builds only from exact committed Git-blob snapshots. Ignored/untracked working files are excluded; symlink/submodule entries and unresolved environment/build arguments refuse. Review actual build metadata and interpolated values before digesting the plan; do not publish secret-bearing configuration.
+  Image-only consumers resolve one exact same-image build owner from the reviewed Compose model;
+  build owners and replacement allowlists remain distinct. Owners build once under unique tags,
+  while only selected consumers are prepared and replaced by immutable IDs. Building an unselected
+  migration owner's image executes no migration or dependencies. Inspect committed builder support
+  before advancing canonical checkouts; acquired reservation status does not prove current source
+  equality. See the incremental refresh runbook for refusal and custody rules.
+  Resolved direct/shared owners with nonempty build secrets or SSH inputs refuse before export/build;
+  those auxiliary host inputs are outside the committed snapshot. Empty/absent fields remain valid,
+  and refusals disclose no auxiliary values.
   Failed refreshes remain pending; ordinary finish/recovery cannot clear them. Use the runbook's
   explicit complete/abort refresh recovery, then strict proof and teardown evidence.
   Provider-owned DPM seed execution likewise admits an operation across pre-reads and persistent

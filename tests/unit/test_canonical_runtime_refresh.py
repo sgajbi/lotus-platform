@@ -130,6 +130,48 @@ def canonical_migration_fixture(case):
     return root, book, plan, common, job
 
 
+@pytest.mark.parametrize('case', ['single', 'multiple', 'owner-image-drift', 'owner-replaced'])
+def test_shared_prepared_image_preserves_unselected_owner_and_all_47_bindings(case):
+    _, book, plan, common, owner = canonical_migration_fixture('valid')
+    selected = {'query_service', 'query_control_plane_service'} if case == 'multiple' else {'query_service'}
+    plan['services'] = [item for item in plan['services'] if item['service'] in selected]
+    original = copy.deepcopy(lease.current(book))
+    begin(book, plan, common)
+    images = [{key: item[key] for key in ('project', 'service', 'repository', 'checkout')}
+              | {'sourceRevision': 'c' * 40, 'imageId': 'sha256:' + 'c' * 64}
+              for item in common['resources'] if item['service'] in selected]
+    assert len(images) == len(selected)
+    refresh.prepare(book, **common, token='refresh-token', images=images)
+    after_bindings, after_resources = copy.deepcopy(common['bindings']), copy.deepcopy(common['resources'])
+    for number, resource in enumerate(after_resources, 1000):
+        if resource['service'] not in selected:
+            continue
+        new_id = f'{number:064x}'
+        next(item for item in after_bindings if item['id'] == resource['id'])['id'] = new_id
+        resource.update(id=new_id, sourceRevision='c' * 40, imageId='sha256:' + 'c' * 64)
+    if case == 'owner-image-drift':
+        next(item for item in after_resources if item['id'] == owner['id'])['imageId'] = 'sha256:' + 'd' * 64
+    if case == 'owner-replaced':
+        next(item for item in after_bindings if item['id'] == owner['id'])['id'] = 'e' * 64
+        next(item for item in after_resources if item['id'] == owner['id'])['id'] = 'e' * 64
+    after_bindings.sort(key=lambda item: (item['kind'], item['id']))
+    after_resources.sort(key=lambda item: item['id'])
+    completion = {**common, 'bindings': after_bindings, 'resources': after_resources}
+    if case.startswith('owner-'):
+        pending = copy.deepcopy(book)
+        with pytest.raises(lease.ReservationRefusal, match='Untouched resource binding/image changed'):
+            refresh.finish(book, **completion, token='refresh-token', outcome='success')
+        assert book == pending
+    else:
+        record = refresh.finish(book, **completion, token='refresh-token', outcome='success')
+        assert len(record['bindings']) == len(original['bindings']) == 47
+        assert record['id'] == original['id'] and record['expiryUtc'] == original['expiryUtc']
+        assert record['operation'] is None
+        assert next(item for item in after_resources if item['id'] == owner['id']) == owner
+        assert [item for item in after_resources if item['service'] not in selected] == [
+            item for item in common['resources'] if item['service'] not in selected]
+
+
 @pytest.mark.parametrize('case', ['valid', 'acquired-stale', 'only-run', 'missing', 'malformed-id',
                                 'missing-oneoff', 'malformed-oneoff', 'foreign-project', 'foreign-service', 'wrong-id'])
 def test_original_job_native_admission_preserves_real_47_binding_finish_policy(tmp_path, case):
