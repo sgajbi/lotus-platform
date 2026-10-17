@@ -92,6 +92,16 @@ python automation\validate_analytics_ui_entitlement_certification.py
    service map must preserve non-secret coexistence environment and published ports; Manage must
    retain host port 8001 and its canonical Core source/workflow settings while Advise remains on
    host port 8000. Daemon refresh is incomplete until running, health, and port verification passes.
+   Before advancing canonical checkouts, inspect committed Compose/build-owner support; reservation
+   status records acquired scope rather than proving current checkout equality. Never reacquire or
+   add an external overlay to hide drift. Preview separates build owners from replacement services:
+   an image-only consumer requires one exact same-image builder in the reviewed model. Each owner
+   builds once under a unique tag; only selected consumers receive prepared immutable images and
+   selective replacement. Building Idea's migration-owned image executes no migration or dependency
+   and leaves unselected owner containers untouched.
+   Direct and shared owners with nonempty `build.secrets` or `build.ssh` refuse before source
+   export/build because auxiliary host inputs are not frozen. Absent/empty fields remain supported;
+   refusal output does not disclose auxiliary values.
    Core's declared migration one-shot requires the reviewed reserved path: prepare every selected
    image, run only the migration, inspect successful exit 0, then replace selected applications.
    Created/running remains pending within the finite timeout; failed or drifting evidence replaces

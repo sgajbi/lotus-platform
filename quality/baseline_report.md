@@ -1,6 +1,6 @@
 # Enterprise Backend Quality Baseline
 
-Generated: `2026-10-17T09:40:38Z`
+Generated: `2026-10-17T17:08:00Z`
 
 Repository: `lotus-platform`
 
@@ -17,7 +17,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 ## Code Size
 
 - Source files: `1017`
-- Total source lines: `750560`
+- Total source lines: `750970`
 - Python files: `286`
 - PowerShell files: `70`
 - Markdown files: `427`
@@ -39,7 +39,7 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Function And Complexity Hotspots
 
-- Python functions: `4527`
+- Python functions: `4534`
 - Highest measured cyclomatic complexity: `82`
 - Largest Python function length: `903`
 
@@ -51,10 +51,10 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 | automation/validate_workflow_pipeline_exit_codes.py | _scan_shell | 440 | 53 | 215 |
 | codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _prose_without_fenced_code | 1015 | 51 | 140 |
 | codex/skills/lotus-readme-wiki-governance/scripts/audit_wiki_quality.py | _decision_link_target_end | 1351 | 48 | 80 |
-| tests/unit/test_reserved_service_refresh.py | test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation | 247 | 41 | 206 |
+| tests/unit/test_reserved_service_refresh.py | test_shipped_reserved_refresh_keeps_fence_and_bounds_mutation | 435 | 41 | 206 |
+| tests/unit/test_reserved_service_refresh.py | test_shared_builder_does_not_expand_replacement_or_execute_dependencies | 37 | 38 | 167 |
 | automation/resource_recovery/policy.py | validate_discovery | 499 | 38 | 154 |
 | automation/validate_composite_documentation_foundation.py | validate_ledger | 256 | 38 | 87 |
-| automation/canonical_runtime_reservation.py | execute | 86 | 35 | 82 |
 
 ## Tooling Baseline
 
@@ -67,9 +67,9 @@ Excluded parts: `.git, .mypy_cache, .pytest_cache, .ruff_cache, .venv, .venv-pla
 
 ## Test Baseline
 
-- Unit tests collected: `6055`
+- Unit tests collected: `6110`
 - Collection command return code: `0`
-- Collection summary: `6055 tests collected`
+- Collection summary: `6110 tests collected`
 
 ## Security Baseline
 

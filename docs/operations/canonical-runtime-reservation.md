@@ -89,6 +89,28 @@ Selected build contexts and Dockerfiles are remapped into an isolated snapshot e
 
 Execution order is explicit: review the original reservation and target plan first, advance only the reviewed host checkouts to those exact target commits, then call `begin-refresh` through the adapter. Host checkout advancement does not change containers or rewrite the reservation. During this interval the original grant remains unchanged and ordinary current-source proof refuses; no refresh operation exists until begin admits it. Begin requires the observed source vector already equal `targetScope`, then records the pending operation under the original grant. It does not advance Git on the operator's behalf. Keep plan/receipt files outside changed repositories so they do not dirty the reviewed inputs.
 
+Before advancing a canonical checkout, inspect the target commit's tracked Compose declarations
+and confirm that the native refresh supports its selected services and build owners. Reservation
+`status` reports acquired scope; it does not establish that current host checkouts still match it.
+Do not reacquire a reservation or add an external overlay to hide source drift or missing support.
+
+Build owners and replacement services are distinct. A selected service with its own `build`
+retains that builder. An image-only consumer requires exactly one build owner with the identical,
+nonblank `image` in the full digest-reviewed evaluated Compose model; absent or ambiguous owners
+refuse before build. The owner uses the same committed-context, Dockerfile, resolved-argument and
+path guards as a directly built service. Each unique owner builds once under an operation-specific
+tag, preserving the original shared tag; additional `build.tags` refuse because they could export
+another mutable tag. Nonempty owner `build.secrets` and `build.ssh` refuse before committed
+source export or build because their auxiliary host inputs are outside the snapshot. This applies
+to direct and shared builders, even when the auxiliary paths are inside the checkout. Absent or
+empty fields remain supported; refusal messages do not disclose their values. Prepared references
+remain keyed only to selected replacement services, which are pinned to verified immutable IDs.
+Preview lists both sets.
+For Idea, selecting only `lotus-idea` builds the image through `lotus-idea-migrations` but never
+executes its migration command or starts PostgreSQL or workers. Only selected services reach
+`up --no-deps --no-build --pull never`; unselected owner containers and images remain acquired
+untouched resources. Building a migration-owned image is not evidence of migration execution.
+
 For an approved mainline fast-forward, run this host-only preparation from the canonical `lotus-platform` checkout before either refresh example below. The reviewed target commits must already be present locally. This example refuses a dirty checkout, another branch, a changed original HEAD or a non-fast-forward target; resolve those with the repository owner rather than resetting someone else's checkout. Set `LOTUS_WORKBENCH_REPO_PATH` only when that exact overridden Workbench checkout was acquired.
 
 ```powershell

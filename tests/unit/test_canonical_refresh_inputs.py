@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from automation.canonical_refresh_inputs import freeze
+from automation.canonical_refresh_inputs import freeze, resolve_build_owners
 from automation.canonical_runtime_lease import ReservationRefusal, digest
 
 
@@ -75,3 +75,71 @@ def test_frozen_model_uses_reviewed_configuration_and_committed_blobs(tmp_path: 
         assert built['build']['args'] == service['build']['args']
         for field in ('command', 'environment', 'volumes', 'labels'):
             assert built[field] == service[field]
+
+
+@pytest.mark.parametrize('case,expected', [
+    ('valid', None), ('direct', None), ('zero', 'exactly one build owner'),
+    ('ambiguous', 'exactly one build owner'), ('mismatch', 'exactly one build owner'),
+    ('missing-image', 'explicit shared image'), ('inline', 'local owned context'),
+    ('additional', 'local owned context'), ('missing-context', 'local owned context'),
+    ('tags', 'additional image tags'),
+])
+def test_shared_image_owner_resolution_is_exact_and_preserves_single_writer(case, expected):
+    model = {'services': {'api': {'image': 'app:local'}, 'worker': {'image': 'app:local'},
+                          'migration': {'image': 'app:local', 'build': {'context': '/owned'}}}}
+    if case == 'zero': del model['services']['migration']['build']
+    if case == 'ambiguous': model['services']['other'] = copy.deepcopy(model['services']['migration'])
+    if case == 'mismatch': model['services']['migration']['image'] = 'app:other'
+    if case == 'missing-image': del model['services']['api']['image']
+    if case == 'inline': model['services']['migration']['build']['dockerfile_inline'] = 'FROM scratch'
+    if case == 'additional': model['services']['migration']['build']['additional_contexts'] = {'foreign': '/foreign'}
+    if case == 'missing-context': del model['services']['migration']['build']['context']
+    if case == 'tags': model['services']['migration']['build']['tags'] = ['app:local']
+    if case == 'direct':
+        model['services']['api']['build'] = {'context': '/owned'}
+        model['services']['api']['image'] = 'api:own'
+    original = copy.deepcopy(model)
+    if expected:
+        with pytest.raises(ReservationRefusal, match=expected):
+            resolve_build_owners(model, ['api', 'worker'])
+    else:
+        assert resolve_build_owners(model, ['api', 'worker']) == {
+            'api': 'api' if case == 'direct' else 'migration', 'worker': 'migration'}
+    assert model == original
+
+
+@pytest.mark.parametrize('shared', [False, True], ids=['direct', 'shared'])
+@pytest.mark.parametrize('field,value', [
+    ('secrets', ['SYNTHETIC_SECRET_REFERENCE']),
+    ('secrets', [{'source': 'SYNTHETIC_SECRET_REFERENCE', 'target': 'build-only'}]),
+    ('ssh', ['default=SYNTHETIC_SSH_SOCKET']),
+])
+def test_auxiliary_build_authority_refuses_before_export(tmp_path, monkeypatch, shared, field, value):
+    owner = 'migration' if shared else 'api'
+    model = {'services': {'api': {'image': 'app:local'}}}
+    model['services'].setdefault(owner, {'image': 'app:local'})['build'] = {
+        'context': str(tmp_path), field: value}
+    model['secrets'] = {'SYNTHETIC_SECRET_REFERENCE': {'file': 'SYNTHETIC_HOST_PATH'}}
+    original = copy.deepcopy(model)
+    def forbidden_export(*_):
+        pytest.fail('UNFROZEN_AUXILIARY_EXPORT_REACHED')
+    monkeypatch.setattr('automation.canonical_refresh_inputs.export_commit', forbidden_export)
+    with pytest.raises(ReservationRefusal, match='Reserved build cannot use auxiliary secrets or SSH inputs') as error:
+        freeze(tmp_path, 'a' * 40, model, digest(model), tmp_path, ['api'])
+    assert str(error.value) == 'Reserved build cannot use auxiliary secrets or SSH inputs.'
+    assert not (tmp_path / 'source').exists() and not (tmp_path / 'compose.json').exists()
+    assert model == original
+
+
+@pytest.mark.parametrize('shared', [False, True], ids=['direct', 'shared'])
+@pytest.mark.parametrize('auxiliary', [{}, {'secrets': []}, {'ssh': []},
+                                    {'secrets': None, 'ssh': None}, {'secrets': {}, 'ssh': {}}])
+def test_build_owners_accept_absent_or_empty_auxiliary_inputs(shared, auxiliary):
+    owner = 'migration' if shared else 'api'
+    model = {'services': {'api': {'image': 'app:local'}}}
+    model['services'].setdefault(owner, {'image': 'app:local'})['build'] = {
+        'context': '/owned', **auxiliary}
+    model['secrets'] = {'runtime-only': {'external': True}}
+    original = copy.deepcopy(model)
+    assert resolve_build_owners(model, ['api']) == {'api': owner}
+    assert model == original

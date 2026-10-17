@@ -9,9 +9,9 @@ import subprocess
 from pathlib import Path
 
 try:
-    from automation.canonical_runtime_lease import digest, require
+    from automation.canonical_runtime_lease import ReservationRefusal, digest, require
 except ModuleNotFoundError:
-    from canonical_runtime_lease import digest, require
+    from canonical_runtime_lease import ReservationRefusal, digest, require
 
 
 def git(repo: Path, *arguments: str, data: bytes | None = None) -> bytes:
@@ -55,18 +55,52 @@ def export_commit(repo: Path, revision: str, destination: Path) -> None:
     require(offset == len(blobs), 'Unexpected committed build blob output.')
 
 
+def resolve_build_owners(config: dict, services: list[str]) -> dict[str, str]:
+    """Resolve construction separately from the reviewed replacement allowlist."""
+    model = config.get('services')
+    require(isinstance(model, dict) and bool(services), 'Explicit Compose services required.')
+    owners = {}
+    for name in services:
+        service = model.get(name)
+        require(isinstance(service, dict), 'Selected Compose service is missing.')
+        if 'build' in service:
+            owner = name
+        else:
+            image = service.get('image')
+            require(isinstance(image, str) and bool(image.strip()),
+                    'Image-only service requires an explicit shared image.')
+            candidates = [key for key, value in model.items() if isinstance(value, dict)
+                          and value.get('image') == image and 'build' in value]
+            require(len(candidates) == 1, 'Shared image requires exactly one build owner.')
+            owner = candidates[0]
+        require(isinstance(owner, str) and bool(owner.strip()), 'Invalid Compose build owner.')
+        build = model[owner].get('build')
+        require(isinstance(build, dict) and isinstance(build.get('context'), str)
+                and bool(build['context'].strip()) and not build.get('additional_contexts')
+                and not build.get('dockerfile_inline'),
+                'Reserved build requires a local owned context and Dockerfile without additional contexts.')
+        require(not build.get('tags'), 'Reserved build cannot export additional image tags.')
+        require(not build.get('secrets') and not build.get('ssh'),
+                'Reserved build cannot use auxiliary secrets or SSH inputs.')
+        owners[name] = owner
+    return owners
+
+
 def freeze(repo: Path, revision: str, config: dict, expected_digest: str,
            output: Path, services: list[str]) -> Path:
     require(digest(config) == expected_digest, 'Evaluated Compose configuration differs from reviewed digest.')
+    owners = resolve_build_owners(config, services)
     model = copy.deepcopy(config)
     snapshot = output / 'source'
     export_commit(repo, revision, snapshot)
     for name in services:
         service = model['services'][name]
         require(not service.get('env_file'), 'Evaluated Compose must resolve service env files.')
-        build = service['build']
-        require(all(value is not None for value in (service.get('environment') or {}).values()) and
-                all(value is not None for value in (build.get('args') or {}).values()),
+        require(all(value is not None for value in (service.get('environment') or {}).values()),
+                'Evaluated Compose must resolve environment and build argument values.')
+    for owner in sorted(set(owners.values())):
+        build = model['services'][owner]['build']
+        require(all(value is not None for value in (build.get('args') or {}).values()),
                 'Evaluated Compose must resolve environment and build argument values.')
         context = Path(build['context']).resolve()
         dockerfile = Path(build.get('dockerfile', 'Dockerfile'))
@@ -92,7 +126,7 @@ def freeze(repo: Path, revision: str, config: dict, expected_digest: str,
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['digest', 'freeze'])
+    parser.add_argument('action', choices=['digest', 'resolve', 'freeze'])
     parser.add_argument('--config', required=True)
     parser.add_argument('--repo')
     parser.add_argument('--revision')
@@ -103,10 +137,23 @@ def main() -> None:
     config = json.loads(Path(args.config).read_text(encoding='utf-8-sig'))
     if args.action == 'digest':
         print(digest(config))
+    elif args.action == 'resolve':
+        try:
+            require(args.digest and digest(config) == args.digest,
+                    'Evaluated Compose configuration differs from reviewed digest.')
+            print(json.dumps(resolve_build_owners(config, args.services)))
+        except ReservationRefusal as exc:
+            # Only bounded guard text crosses the adapter; no evaluated values.
+            print(json.dumps({'refusal': str(exc)}))
+            raise SystemExit(1) from None
     else:
         require(all((args.repo, args.revision, args.digest, args.output, args.services)),
                 'Exact reviewed configuration/source and output required.')
-        freeze(Path(args.repo), args.revision, config, args.digest, Path(args.output), args.services)
+        try:
+            freeze(Path(args.repo), args.revision, config, args.digest, Path(args.output), args.services)
+        except ReservationRefusal as exc:
+            print(json.dumps({'refusal': str(exc)}))
+            raise SystemExit(1) from None
 
 
 if __name__ == '__main__':

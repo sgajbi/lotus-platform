@@ -436,18 +436,20 @@ function Assert-ReservedComposeInputs {
   if ($config.name -ne $PlannedServices[0].project) { throw 'Compose project differs from reviewed project.' }
   foreach ($planned in $PlannedServices) {
     $service = $config.services.($planned.service)
-    if (-not $service -or -not $service.build -or $service.build.additional_contexts -or $service.build.dockerfile_inline) {
+    if (-not $service -or $service.build.additional_contexts -or $service.build.dockerfile_inline) {
       throw 'Reserved build requires a local owned context and Dockerfile without additional contexts.'
     }
     if ($RepositoryConfig -and (Get-ServiceCompletionPolicy -RepositoryConfig $RepositoryConfig -Service $planned.service) -eq 'exited-zero' -and
         $service.restart -and $service.restart -ne 'no') {
       throw 'Declared one-shot service must not automatically restart.'
     }
-    $context = [IO.Path]::GetFullPath([string]$service.build.context)
-    $dockerfile = if ($service.build.dockerfile) { [string]$service.build.dockerfile } else { 'Dockerfile' }
-    if (-not [IO.Path]::IsPathRooted($dockerfile)) { $dockerfile = Join-Path $context $dockerfile }
-    foreach ($path in @($context, [IO.Path]::GetFullPath($dockerfile))) {
-      Assert-ReviewedRepositoryPath -Path $path -RepoPath $RepoPath -AllowRoot
+    if ($service.build) {
+      $context = [IO.Path]::GetFullPath([string]$service.build.context)
+      $dockerfile = if ($service.build.dockerfile) { [string]$service.build.dockerfile } else { 'Dockerfile' }
+      if (-not [IO.Path]::IsPathRooted($dockerfile)) { $dockerfile = Join-Path $context $dockerfile }
+      foreach ($path in @($context, [IO.Path]::GetFullPath($dockerfile))) {
+        Assert-ReviewedRepositoryPath -Path $path -RepoPath $RepoPath -AllowRoot
+      }
     }
     # foreach skips an absent collection but still validates every supplied entry, including null.
     $actualPorts = @(foreach ($port in $service.ports) {
@@ -623,25 +625,53 @@ try {
     $emptyEnvironment = Join-Path $snapshotRoot 'empty.env'
     [IO.File]::WriteAllText($configPath, $configText)
     [IO.File]::WriteAllText($emptyEnvironment, '')
-    & python (Join-Path $PSScriptRoot 'canonical_refresh_inputs.py') freeze --config $configPath --repo $ProjectPath `
+    $ownerErrors = Join-Path $snapshotRoot 'owner-errors.txt'
+    $ownerJson = & python (Join-Path $PSScriptRoot 'canonical_refresh_inputs.py') resolve --config $configPath `
+      --digest $reviewedPlan.composeConfigDigest --services $resolvedServices 2> $ownerErrors
+    if ($LASTEXITCODE -ne 0) {
+      $refusal = ($ownerJson -join "`n") | ConvertFrom-Json
+      throw "Reviewed Compose digest or committed build snapshot validation failed: $($refusal.refusal)"
+    }
+    $buildOwners = ($ownerJson -join "`n") | ConvertFrom-Json
+    $buildServices = @($buildOwners.PSObject.Properties.Value | Sort-Object -Unique)
+    $evaluated = $configText | ConvertFrom-Json
+    foreach ($owner in $buildServices) {
+      if ($owner -notmatch '^[a-zA-Z0-9][a-zA-Z0-9_.-]*$') { throw 'Invalid reviewed Compose build owner name.' }
+      $ownerBuild = $evaluated.services.($owner).build
+      $context = [IO.Path]::GetFullPath([string]$ownerBuild.context)
+      $dockerfile = if ($ownerBuild.dockerfile) { [string]$ownerBuild.dockerfile } else { 'Dockerfile' }
+      if (-not [IO.Path]::IsPathRooted($dockerfile)) { $dockerfile = Join-Path $context $dockerfile }
+      foreach ($path in @($context, [IO.Path]::GetFullPath($dockerfile))) {
+        Assert-ReviewedRepositoryPath -Path $path -RepoPath $ProjectPath -AllowRoot
+      }
+    }
+    $freezeResult = & python (Join-Path $PSScriptRoot 'canonical_refresh_inputs.py') freeze --config $configPath --repo $ProjectPath `
       --revision $reviewedPlan.targetScope.sources.($repoName) --digest $reviewedPlan.composeConfigDigest `
       --output $snapshotRoot --services $resolvedServices 2> $null
-    if ($LASTEXITCODE -ne 0) { throw 'Reviewed Compose digest or committed build snapshot validation failed.' }
+    if ($LASTEXITCODE -ne 0) {
+      $refusal = ($freezeResult -join "`n") | ConvertFrom-Json
+      throw "Reviewed Compose digest or committed build snapshot validation failed: $($refusal.refusal)"
+    }
     $composePrefix = @('compose', '--project-directory', $ProjectPath, '--env-file', $emptyEnvironment, '-p', $project, '-f', (Join-Path $snapshotRoot 'compose.json'))
     $overridePath = [IO.Path]::GetTempFileName()
     $referencesPath = [IO.Path]::GetTempFileName()
     $temporaryFiles += @($overridePath, $referencesPath)
     $overrideServices = [ordered]@{}
     $references = @()
+    foreach ($owner in $buildServices) {
+      $tag = "lotus-reserved-refresh:$($operation.Token)-$owner".ToLowerInvariant()
+      $labels = [ordered]@{
+        'org.opencontainers.image.revision' = $reviewedPlan.targetScope.sources.($repoName)
+        'org.opencontainers.image.source' = $repoName
+        'com.lotus.repository.checkout' = $admittedCheckout
+      }
+      $overrideServices[$owner] = @{ image = $tag; build = @{ labels = $labels } }
+    }
     foreach ($service in $plannedServices) {
       if ($service.service -notmatch '^[a-zA-Z0-9][a-zA-Z0-9_.-]*$') { throw 'Invalid reviewed Compose service name.' }
-      $tag = "lotus-reserved-refresh:$($operation.Token)-$($service.service)".ToLowerInvariant()
-      $labels = [ordered]@{
-        'org.opencontainers.image.revision' = $reviewedPlan.targetScope.sources.($service.repository)
-        'org.opencontainers.image.source' = $service.repository
-        'com.lotus.repository.checkout' = $reviewedPlan.targetScope.projects.($service.project)
-      }
-      $overrideServices[$service.service] = @{ image = $tag; build = @{ labels = $labels } }
+      $owner = [string]$buildOwners.($service.service)
+      $tag = [string]$overrideServices[$owner].image
+      if (-not $overrideServices.Contains($service.service)) { $overrideServices[$service.service] = @{ image = $tag } }
       $references += @{ project = $project; service = $service.service; reference = $tag }
     }
     [IO.File]::WriteAllText($overridePath, (@{ services = $overrideServices } | ConvertTo-Json -Depth 12))
@@ -649,7 +679,8 @@ try {
     $composePrefix += @('-f', $overridePath)
     if ($DryRun) {
       Write-Host "Dry run validated reviewed plan $RefreshPlanDigest; reservation unchanged."
-      Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') build $($resolvedServices -join ' ')"
+      Write-Host "Build owners: $($buildServices -join ', '); replacement services: $($resolvedServices -join ', ')"
+      Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') build $($buildServices -join ' ')"
       Write-Host 'After build: verify source labels and pin each selected image to its observed immutable ID.'
       foreach ($service in $oneShotServices) {
         Write-Host "Dry run: $DockerCommand $($composePrefix -join ' ') up -d --no-deps --no-build --pull never --force-recreate $service"
@@ -660,7 +691,7 @@ try {
       }
       return
     }
-    Invoke-CheckedNativeCommand -Command $DockerCommand -Arguments ($composePrefix + @('build') + $resolvedServices) `
+    Invoke-CheckedNativeCommand -Command $DockerCommand -Arguments ($composePrefix + @('build') + $buildServices) `
       -FailureMessage 'Reserved build failed before service replacement'
     $prepared = Assert-CanonicalRuntimeRefresh -Operation $operation -PreparedImages $referencesPath
     foreach ($service in $oneShotServices) {
